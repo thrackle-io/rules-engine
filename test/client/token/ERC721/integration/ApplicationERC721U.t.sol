@@ -632,7 +632,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
 
         // apply the rule to the ApplicationERC721Handler
         switchToRuleAdmin();
-        applicationHandler.activateAccountDenyForNoAccessLevelRule(true);
+        applicationHandler.activateAccountDenyForNoAccessLevelRule(createActionTypeArrayAll(), true);
     }
 
     function _accountMinMaxTokenBalanceSetup() public endWithStopPrank {

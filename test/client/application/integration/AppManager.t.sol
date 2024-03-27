@@ -5,7 +5,7 @@ import "test/util/TestCommonFoundry.sol";
 import "test/client/application/ApplicationCommonTests.t.sol";
 
 // contract AppManagerBaseTest is TestCommonFoundry {
-    contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommonTests {
+    contract AppManagerTest is Test, TestCommonFoundry, ApplicationCommonTests {
     
     function setUp() public {
         setUpProcotolAndCreateERC20AndDiamondHandler();

@@ -7,15 +7,14 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
-import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/AppManager.sol";
 import "src/common/IProtocolERC721Pricing.sol";
 import "src/common/IProtocolERC20Pricing.sol";
-import "src/client/token/HandlerTypeEnum.sol";
 import "src/client/token/ITokenInterface.sol";
 import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
-import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
+import {IZeroAddressError, IAppHandlerErrors} from "src/common/IErrors.sol";
+import "src/client/application/ProtocolApplicationHandlerCommon.sol";
 
 /**
  * @title Protocol Application Handler Contract
@@ -23,25 +22,19 @@ import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IEr
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IInputErrors, IZeroAddressError, IAppHandlerErrors {
+contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IZeroAddressError, IAppHandlerErrors {
     string private constant VERSION="1.1.0";
     AppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
 
-    /// Risk Rule Ids
-    uint32 private accountMaxValueByRiskScoreId;
-    uint32 private accountMaxTransactionValueByRiskScoreId;
-    /// Risk Rule on-off switches
-    bool private accountMaxValueByRiskScoreActive;
-    bool private accountMaxTransactionValueByRiskScoreActive;
-    /// AccessLevel Rule Ids
-    uint32 private accountMaxValueByAccessLevelId;
-    uint32 private accountMaxValueOutByAccessLevelId;
-    /// AccessLevel Rule on-off switches
-    bool private accountMaxValueByAccessLevelActive;
-    bool private accountDenyForNoAccessLevelRuleActive;
-    bool private accountMaxValueOutByAccessLevelActive;
+    /// Rule mappings
+    mapping(ActionTypes => Rule) accountMaxValueByAccessLevel;
+    mapping(ActionTypes => Rule) accountMaxValueByRiskScore;
+    mapping(ActionTypes => Rule) accountMaxTxValueByRiskScore;
+    mapping(ActionTypes => Rule) accountMaxValueOutByAccessLevel;
+    mapping(ActionTypes => Rule) accountDenyForNoAccessLevel;
+
     /// Pause Rule on-off switch
     bool private pauseRuleActive; 
 
@@ -56,6 +49,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     mapping(address => uint64) lastTxDateRiskRule;
     /// AdminMinTokenBalanceRule data
     mapping(address => uint128) usdValueTotalWithrawals;
+   
 
     /**
      * @dev Initializes the contract setting the AppManager address as the one provided and setting the ruleProcessor for protocol access
@@ -73,12 +67,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev checks if any of the Application level rules are active
+     * @param _action the current action type
      * @return true if one or more rules are active  
      */
-    function requireApplicationRulesChecked() public view returns (bool) {
+    function requireApplicationRulesChecked(ActionTypes _action) public view returns (bool) {
         return pauseRuleActive ||
-               accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive || 
-               accountMaxValueByAccessLevelActive || accountMaxValueOutByAccessLevelActive || accountDenyForNoAccessLevelRuleActive;
+               accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active || 
+               accountMaxValueByAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active;
     }
 
     /**
@@ -107,11 +102,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
-        if (accountMaxValueByAccessLevelActive || accountDenyForNoAccessLevelRuleActive || accountMaxValueOutByAccessLevelActive) {
-            _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
+        if (accountMaxValueByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active) {
+            _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation, _action);
         }
-        if (accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive) {
-            _checkRiskRules(_from, _to, balanceValuation, transferValuation);
+        if (accountMaxValueByRiskScore[_action].active|| accountMaxTxValueByRiskScore[_action].active) {
+            _checkRiskRules(_from, _to, balanceValuation, transferValuation, _action);
         }
     }
 
@@ -121,16 +116,17 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _to address of the to account
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _action the current user action
      */
-    function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
+    function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        if (accountMaxValueByRiskScoreActive) {
-            ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScoreId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+        if (accountMaxValueByRiskScore[_action].active) {
+            ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
-        if (accountMaxTransactionValueByRiskScoreActive) {
+        if (accountMaxTxValueByRiskScore[_action].active) {
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-                accountMaxTransactionValueByRiskScoreId,
+                accountMaxTxValueByRiskScore[_action].ruleId,
                 usdValueTransactedInRiskPeriod[_from],
                 _transferValuation,
                 lastTxDateRiskRule[_from],
@@ -139,7 +135,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             if (_to != address(0)) {
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
                 usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-                    accountMaxTransactionValueByRiskScoreId,
+                    accountMaxTxValueByRiskScore[_action].ruleId,
                     usdValueTransactedInRiskPeriod[_to],
                     _transferValuation,
                     lastTxDateRiskRule[_to],
@@ -155,17 +151,18 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _to address of the to account
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _action the current user action
      */
-    function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
+    function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (accountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         /// Exempting address(0) allows for burning.
-        if (accountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-        if (accountMaxValueByAccessLevelActive && _to != address(0))
-            ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevelId, score, _balanceValuation, _transferValuation);
-        if (accountMaxValueOutByAccessLevelActive) {
-            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(accountMaxValueOutByAccessLevelId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
+        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+        if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
+            ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
+        if (accountMaxValueOutByAccessLevel[_action].active) {
+            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(accountMaxValueOutByAccessLevel[_action].ruleId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
         }
     }
 
@@ -292,187 +289,470 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     /**
      * @dev Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions action types in which to apply the rules
      * @param _ruleId Rule Id to set
      */
-    function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueByRiskScore(_ruleId);
-        accountMaxValueByRiskScoreId = _ruleId;
-        accountMaxValueByRiskScoreActive = true;
-        emit AD1467_ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
+    function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);  
+            emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+             }
+        }      
+    }
+
+    /**
+     * @dev Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
+     */
+    function setAccountMaxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
+        clearAccountMaxValueByRiskScore(); 
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
+    }
+
+     /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxValueByRiskScore() internal {
+        for (uint i; i <= lastPossibleAction; ) {
+            delete accountMaxValueByRiskScore[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Set the AccountMaxValuebyAccessLevelRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    // slither-disable-next-line calls-loop
+    function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(_ruleId);
+        accountMaxValueByRiskScore[_action].ruleId = _ruleId;
+        accountMaxValueByRiskScore[_action].active = true;            
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions action types
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountMaxValueByRiskScoreActive = _on;
+    function activateAccountMaxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            accountMaxValueByRiskScore[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
-            emit AD1467_ApplicationHandlerActivated(BALANCE_BY_RISK);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         } else {
-            emit AD1467_ApplicationHandlerDeactivated(BALANCE_BY_RISK);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         }
     }
 
     /**
      * @dev Tells you if the accountMaxValueByRiskScore Rule is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isAccountMaxValueByRiskScoreActive() external view returns (bool) {
-        return accountMaxValueByRiskScoreActive;
+    function isAccountMaxValueByRiskScoreActive(ActionTypes _action) external view returns (bool) {
+        return accountMaxValueByRiskScore[_action].active;
     }
 
     /**
-     * @dev Retrieve the accountMaxValueByRiskScore Rule id
+     * @dev Retrieve the accountMaxValueByRiskScore rule id
+     * @param _action action type
      * @return accountMaxValueByRiskScoreId rule id
      */
-    function getAccountMaxValueByRiskScoreId() external view returns (uint32) {
-        return accountMaxValueByRiskScoreId;
+    function getAccountMaxValueByRiskScoreId(ActionTypes _action) external view returns (uint32) {
+        return accountMaxValueByRiskScore[_action].ruleId;
     }
 
-    /**
-     * @dev Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.
+  /**
+     * @dev Set the activateAccountDenyForNoAccessLevel. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
+     * @param _actions action types in which to apply the rules
      */
-    function setAccountMaxValueByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueByAccessLevel(_ruleId);
-        accountMaxValueByAccessLevelId = _ruleId;
-        accountMaxValueByAccessLevelActive = true;
-        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _ruleId);
+    function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            setAccountDenyForNoAccessLevelIdUpdate(_actions[i], 0);  
+            emit AD1467_ApplicationRuleApplied(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions[i], 0);
+            unchecked {
+                ++i;
+             }
+        }      
     }
 
     /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
+     * @dev Set the activateAccountDenyForNoAccessLevel. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
      */
-    function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountMaxValueByAccessLevelActive = _on;
-        if (_on) {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
-        } else {
-            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
+    function setAccountDenyForNoAccessLevelIdFull(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
+        clearAccountDenyForNoAccessLevel(); 
+        for (uint i; i < _actions.length; ) {
+            setAccountDenyForNoAccessLevelIdUpdate(_actions[i], 0);
+            unchecked {
+                ++i;
+            }
+        } 
+        emit AD1467_ApplicationRuleAppliedFull(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions, new uint32[](_actions.length));
+    }
+
+     /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountDenyForNoAccessLevel() internal {
+        for (uint i; i <= lastPossibleAction; ) {
+            delete accountDenyForNoAccessLevel[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
-     * @dev Tells you if the accountMaxValueByAccessLevel Rule is active or not.
-     * @return boolean representing if the rule is active
+     * @dev Set the ActivateAccountDenyForNoAccessLevelRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
      */
-    function isAccountMaxValueByAccessLevelActive() external view returns (bool) {
-        return accountMaxValueByAccessLevelActive;
-    }
-
-    /**
-     * @dev Retrieve the accountMaxValueByAccessLevel rule id
-     * @return accountMaxValueByAccessLevelId rule id
-     */
-    function getAccountMaxValueByAccessLevelId() external view returns (uint32) {
-        return accountMaxValueByAccessLevelId;
+    // slither-disable-next-line calls-loop
+    function setAccountDenyForNoAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        accountDenyForNoAccessLevel[_action].ruleId = _ruleId;
+        accountDenyForNoAccessLevel[_action].active = true;            
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions action types
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountDenyForNoAccessLevelRuleActive = _on;
+    function activateAccountDenyForNoAccessLevelRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            accountDenyForNoAccessLevel[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
-            emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
         } else {
-            emit AD1467_ApplicationHandlerDeactivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
         }
     }
 
     /**
      * @dev Tells you if the AccountDenyForNoAccessLevel Rule is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isAccountDenyForNoAccessLevelActive() external view returns (bool) {
-        return accountDenyForNoAccessLevelRuleActive;
+    function isAccountDenyForNoAccessLevelActive(ActionTypes _action) external view returns (bool) {
+        return accountDenyForNoAccessLevel[_action].active;
     }
 
     /**
-     * @dev Set the accountMaxValueOutByAccessLevel Rule. Restricted to app administrators only.
+     * @dev Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions action types in which to apply the rules
      * @param _ruleId Rule Id to set
      */
-    function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_ruleId);
-        accountMaxValueOutByAccessLevelId = _ruleId;
-        accountMaxValueOutByAccessLevelActive = true;
-        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _ruleId);
+    function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);  
+            emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+             }
+        }      
     }
 
     /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
+     * @dev Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
      */
-    function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountMaxValueOutByAccessLevelActive = _on;
-        if (_on) {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
-        } else {
-            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
+    function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
+        clearAccountMaxValueByAccessLevel(); 
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
+    }
+
+     /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxValueByAccessLevel() internal {
+        for (uint i; i <= lastPossibleAction; ) {
+            delete accountMaxValueByAccessLevel[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
-     * @dev Tells you if the accountMaxValueOutByAccessLevel Rule is active or not.
-     * @return boolean representing if the rule is active
+     * @dev Set the AccountMaxValuebyAccessLevelRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
      */
-    function isAccountMaxValueOutByAccessLevelActive() external view returns (bool) {
-        return accountMaxValueOutByAccessLevelActive;
+    // slither-disable-next-line calls-loop
+    function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(ruleProcessor).validateAccountMaxValueByAccessLevel(_ruleId);
+        accountMaxValueByAccessLevel[_action].ruleId = _ruleId;
+        accountMaxValueByAccessLevel[_action].active = true;            
     }
 
     /**
-     * @dev Retrieve the accountMaxValueOutByAccessLevel Rule rule id
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions action types
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateAccountMaxValueByAccessLevel(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            accountMaxValueByAccessLevel[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
+        }
+    }
+
+    /**
+     * @dev Tells you if the accountMaxValueByAccessLevel Rule is active or not.
+     * @param _action the action type
+     * @return boolean representing if the rule is active
+     */
+    function isAccountMaxValueByAccessLevelActive(ActionTypes _action) external view returns (bool) {
+        return accountMaxValueByAccessLevel[_action].active;
+    }
+
+    /**
+     * @dev Retrieve the accountMaxValueByAccessLevel rule id
+     * @param _action action type
+     * @return accountMaxValueByAccessLevelId rule id
+     */
+    function getAccountMaxValueByAccessLevelId(ActionTypes _action) external view returns (uint32) {
+        return accountMaxValueByAccessLevel[_action].ruleId;
+    }
+
+    
+
+    /**
+     * @dev Set the AccountMaxValueOutByAccessLevel. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions action types in which to apply the rules
+     * @param _ruleId Rule Id to set
+     */
+    function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);  
+            emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+             }
+        }      
+    }
+
+    /**
+     * @dev Set the AccountMaxValueOutByAccessLevel. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
+     */
+    function setAccountMaxValueOutByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
+        clearAccountMaxValueOutByAccessLevel(); 
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions, _ruleIds);
+    }
+
+     /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxValueOutByAccessLevel() internal {
+        for (uint i; i <= lastPossibleAction; ) {
+            delete accountMaxValueOutByAccessLevel[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Set the AccountMaxValueOutByAccessLevelRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    // slither-disable-next-line calls-loop
+    function setAccountMaxValueOutByAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(ruleProcessor).validateAccountMaxValueOutByAccessLevel(_ruleId);
+        accountMaxValueOutByAccessLevel[_action].ruleId = _ruleId;
+        accountMaxValueOutByAccessLevel[_action].active = true;            
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions action types
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateAccountMaxValueOutByAccessLevel(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            accountMaxValueOutByAccessLevel[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
+        }
+    }
+
+    /**
+     * @dev Tells you if the AccountMaxValueOutByAccessLevel Rule is active or not.
+     * @param _action the action type
+     * @return boolean representing if the rule is active
+     */
+    function isAccountMaxValueOutByAccessLevelActive(ActionTypes _action) external view returns (bool) {
+        return accountMaxValueOutByAccessLevel[_action].active;
+    }
+
+    /**
+     * @dev Retrieve the accountMaxValueOutByAccessLevel rule id
+     * @param _action action type
      * @return accountMaxValueOutByAccessLevelId rule id
      */
-    function getAccountMaxValueOutByAccessLevelId() external view returns (uint32) {
-        return accountMaxValueOutByAccessLevelId;
+    function getAccountMaxValueOutByAccessLevelId(ActionTypes _action) external view returns (uint32) {
+        return accountMaxValueOutByAccessLevel[_action].ruleId;
     }
 
     /**
-     * @dev Retrieve the AccountMaxTransactionValueByRiskScore rule id
-     * @return accountMaxTransactionValueByRiskScoreId rule id for specified token
-     */
-    function getAccountMaxTxValueByRiskScoreId() external view returns (uint32) {
-        return accountMaxTransactionValueByRiskScoreId;
-    }
-
-    /**
-     * @dev Set the AccountMaxTransactionValueByRiskScore Rule. Restricted to app administrators only.
+     * @dev Set the accountMaxTxValueByRiskScore. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions action types in which to apply the rules
      * @param _ruleId Rule Id to set
      */
-    function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxTxValueByRiskScore(_ruleId);
-        accountMaxTransactionValueByRiskScoreId = _ruleId;
-        accountMaxTransactionValueByRiskScoreActive = true;
-        emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _ruleId);
+    function setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleId);  
+            emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+             }
+        }      
     }
 
     /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
+     * @dev Set the accountMaxTxValueByRiskScore. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
      */
+    function setAccountMaxTxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
+        clearAccountMaxTxValueByRiskScore(); 
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
+    }
 
-    function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountMaxTransactionValueByRiskScoreActive = _on;
-        if (_on) {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
-        } else {
-            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
+     /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxTxValueByRiskScore() internal {
+        for (uint i; i <= lastPossibleAction; ) {
+            delete accountMaxTxValueByRiskScore[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
-     * @dev Tells you if the accountMaxTransactionValueByRiskScore Rule is active or not.
-     * @return boolean representing if the rule is active for specified token
+     * @dev Set the AccountMaxTxValueByRiskScoreRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
      */
-    function isAccountMaxTxValueByRiskScoreActive() external view returns (bool) {
-        return accountMaxTransactionValueByRiskScoreActive;
+    // slither-disable-next-line calls-loop
+    function setAccountMaxTxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(ruleProcessor).validateAccountMaxTxValueByRiskScore(_ruleId);
+        accountMaxTxValueByRiskScore[_action].ruleId = _ruleId;
+        accountMaxTxValueByRiskScore[_action].active = true;            
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions action types
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateAccountMaxTxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            accountMaxTxValueByRiskScore[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+        }
+    }
+
+    /**
+     * @dev Tells you if the accountMaxTxValueByRiskScore Rule is active or not.
+     * @param _action the action type
+     * @return boolean representing if the rule is active
+     */
+    function isAccountMaxTxValueByRiskScoreActive(ActionTypes _action) external view returns (bool) {
+        return accountMaxTxValueByRiskScore[_action].active;
+    }
+
+    /**
+     * @dev Retrieve the AccountMaxTxValueByRiskScore rule id
+     * @param _action action type
+     * @return accountMaxTxValueByRiskScoreId rule id
+     */
+    function getAccountMaxTxValueByRiskScoreId(ActionTypes _action) external view returns (uint32) {
+        return accountMaxTxValueByRiskScore[_action].ruleId;
     }
 
     /**

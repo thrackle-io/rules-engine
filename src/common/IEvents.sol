@@ -83,6 +83,8 @@ interface IApplicationHandlerEvents {
     event AD1467_ApplicationHandlerDeployed(address indexed appManager);
     // Rule applied
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
+    event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] indexed action, uint32[] indexed ruleId);
     /// Pricing
     event AD1467_ERC721PricingAddressSet(address indexed _address);
     event AD1467_ERC20PricingAddressSet(address indexed _address);
@@ -94,9 +96,11 @@ interface IApplicationHandlerEvents {
  */
 interface ICommonApplicationHandlerEvents {
     /// Rule deactivated
+    event AD1467_ApplicationHandlerDeactivated(bytes32 indexed ruleType, ActionTypes[] actions);
     event AD1467_ApplicationHandlerDeactivated(bytes32 indexed ruleType);
     /// Rule activated
     event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
+    event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes[] actions);
     //// Rule Bypassed Via Rule Bypass Account 
     event AD1467_RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 }

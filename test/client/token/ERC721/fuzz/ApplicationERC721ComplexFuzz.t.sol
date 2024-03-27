@@ -711,7 +711,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         /// we give some trillions to _user1 to spend
         switchToRuleAdmin();
         /// let's deactivate the rule before minting to avoid triggering the rule
-        applicationHandler.activateAccountMaxTxValueByRiskScore(false);
+        applicationHandler.activateAccountMaxTxValueByRiskScore(createActionTypeArrayAll(), false);
 
         ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(1, 40, 90), createUint48Array(900_000_000, 90_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);

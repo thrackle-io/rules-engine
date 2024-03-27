@@ -21,26 +21,6 @@ abstract contract TokenUtils is RuleCreation {
         TradingRuleFacet(address(assetHandler)).setAccountMaxSellSizeId(ruleId);
     }
 
-    function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
-    }
-
-    function setAccountMaxValueByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByAccessLevelId(ruleId);
-    }
-
-    function setAccountMaxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByRiskScoreId(ruleId);
-    }
-
-    function setAccountMaxValueOutByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueOutByAccessLevelId(ruleId);
-    }
-
     function setTokenMaxBuyVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setTokenMaxBuyVolumeId(ruleId);
@@ -49,5 +29,51 @@ abstract contract TokenUtils is RuleCreation {
     function setTokenMaxSellVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setTokenMaxSellVolumeId(ruleId);
+    }
+
+/** APPLICATION LEVEL RULES */
+    function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(createActionTypeArrayAll(), ruleId);
+    }
+
+    function setAccountMaxTxValueByRiskRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxTxValueByRiskScoreIdFull(actions, ruleIds);
+    }
+
+    function setAccountMaxValueByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByAccessLevelId(createActionTypeArrayAll(), ruleId);
+    }
+
+    function setAccountMaxValueByAccessLevelRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByAccessLevelIdFull(actions, ruleIds);
+    }
+
+    function setAccountMaxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByRiskScoreId(createActionTypeArrayAll(), ruleId);
+    }
+
+    function setAccountMaxValueByRiskRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByRiskScoreIdFull(actions, ruleIds);
+    }
+
+    function setAccountMaxValueOutByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArrayAll(), ruleId);
+    }
+
+    function setAccountMaxValueOutByAccessLevelRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueOutByAccessLevelIdFull(actions, ruleIds);
+    }
+
+    function setAccountDenyForNoAccessLevelRuleFull(ActionTypes[] memory actions) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountDenyForNoAccessLevelIdFull(actions);
     }
 }

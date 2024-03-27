@@ -7,7 +7,6 @@ import "test/client/application/ApplicationCommonTests.t.sol";
 /**
  * @dev This test suite is for testing the deployed application.
  */
-
 contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommonTests {
     address appManagerAddress;
     bool forkTest;
@@ -18,6 +17,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
             // Verify App Manager has been deployed
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("APP_ADMIN_01");
+            ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
             feeTreasury = vm.envAddress("FEE_TREASURY");
             applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));

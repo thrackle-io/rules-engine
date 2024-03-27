@@ -660,6 +660,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
+        assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.P2P_TRANSFER));
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -687,7 +688,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
 
-        /// Add access level to _user3
+        // Add access level to _user3
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user3, 4);
 
