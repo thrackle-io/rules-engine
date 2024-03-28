@@ -33,7 +33,8 @@ contract ProtocolApplicationHandler is
     ICommonApplicationHandlerEvents,
     IInputErrors,
     IZeroAddressError,
-    IAppHandlerErrors
+    IAppHandlerErrors,
+    ProtocolApplicationHandlerCommon
 {
     string private constant VERSION = "1.1.0";
     AppManager immutable appManager;
@@ -560,7 +561,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions[i], _ruleId);
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions[i], _ruleId);
@@ -600,7 +601,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValueOutByAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueOutByAccessLevel(_ruleId);
         accountMaxValueOutByAccessLevel[_action].ruleId = _ruleId;
         accountMaxValueOutByAccessLevel[_action].active = true;
     }
@@ -686,7 +686,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxTxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxTxValueByRiskScore(_ruleId);
         accountMaxTxValueByRiskScore[_action].ruleId = _ruleId;
         accountMaxTxValueByRiskScore[_action].active = true;
     }

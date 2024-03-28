@@ -24,7 +24,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
-        areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+        require(areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -33,7 +33,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
-        areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+        require(areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -51,7 +51,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxDailyTradesRules());
-        areActionsEnabledInRule(TOKEN_MAX_DAILY_TRADES, _actions);
+        require(areActionsEnabledInRule(TOKEN_MAX_DAILY_TRADES, _actions), "Action Validation Failed");
     }
 
     /**
@@ -69,7 +69,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxTradeSize());
-        areActionsEnabledInRule(ACCOUNT_MAX_TRADE_SIZE, _actions);
+        require(areActionsEnabledInRule(ACCOUNT_MAX_TRADE_SIZE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -87,7 +87,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAdminMinTokenBalance());
-        areActionsEnabledInRule(ADMIN_MIN_TOKEN_BALANCE, _actions);
+        require(areActionsEnabledInRule(ADMIN_MIN_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -105,7 +105,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMinTxSize());
-        areActionsEnabledInRule(TOKEN_MIN_TX_SIZE, _actions);
+        require(areActionsEnabledInRule(TOKEN_MIN_TX_SIZE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -123,7 +123,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountApproveDenyOracle());
-        areActionsEnabledInRule(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
+        require(areActionsEnabledInRule(ACCOUNT_APPROVE_DENY_ORACLE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -141,7 +141,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateTokenMaxBuySellVolume(uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxBuySellVolume());
-        areActionsEnabledInRule(TOKEN_MAX_BUY_SELL_VOLUME, _actions);
+        require(areActionsEnabledInRule(TOKEN_MAX_BUY_SELL_VOLUME, _actions), "Action Validation Failed");
     }
 
     /**
@@ -159,7 +159,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxTradingVolume());
-        areActionsEnabledInRule(TOKEN_MAX_TRADING_VOLUME, _actions);
+        require(areActionsEnabledInRule(TOKEN_MAX_TRADING_VOLUME, _actions), "Action Validation Failed");
     }
 
     /**
@@ -177,7 +177,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxSupplyVolatility());
-        areActionsEnabledInRule(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
+        require(areActionsEnabledInRule(TOKEN_MAX_SUPPLY_VOLATILITY, _actions), "Action Validation Failed");
     }
 
     /**
@@ -195,7 +195,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
-        areActionsEnabledInRule(ACC_MAX_VALUE_BY_RISK_SCORE, _actions);
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_BY_RISK_SCORE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -213,7 +213,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxTxValueByRiskScore());
-        areActionsEnabledInRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+        require(areActionsEnabledInRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -241,7 +241,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByAccessLevel());
-        areActionsEnabledInRule(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions), "Action Validation Failed");
     }
 
     /**
@@ -259,7 +259,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      */
     function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueOutByAccessLevel());
-        areActionsEnabledInRule(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions), "Action Validation Failed");
     }
 
     /**
