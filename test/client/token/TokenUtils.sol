@@ -15,7 +15,8 @@ abstract contract TokenUtils is RuleCreation {
     /** APPLICATION LEVEL RULES */
     function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(createActionTypeArrayAll(), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT);
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(actionTypes, ruleId);
     }
 
     function setAccountMaxTxValueByRiskRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
@@ -25,7 +26,8 @@ abstract contract TokenUtils is RuleCreation {
 
     function setAccountMaxValueByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByAccessLevelId(createActionTypeArrayAll(), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT);
+        applicationHandler.setAccountMaxValueByAccessLevelId(actionTypes, ruleId);
     }
 
     function setAccountMaxValueByAccessLevelRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
