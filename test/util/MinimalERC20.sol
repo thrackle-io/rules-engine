@@ -40,7 +40,7 @@ contract MinimalERC20 is IProtocolTokenMin, ERC20, ProtocolTokenCommon, ERC20Bur
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */
-    function connectHandlerToToken(address _handlerAddress) external override appAdministratorOnly(appManagerAddress) {
+    function connectHandlerToToken(address _handlerAddress) external override(IProtocolTokenMin, ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IProtocolTokenHandler(_handlerAddress);
         emit AD1467_HandlerConnected(_handlerAddress, address(this));

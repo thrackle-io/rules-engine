@@ -130,4 +130,14 @@ library RuleProcessorCommonLib {
             }
         }
     } 
+
+    /**
+     * @dev Perform the common volatility function
+     * @param _volumeTotalForPeriod total volume within the period
+     * @param _volumeMultiplier volume muliplier
+     * @param _totalSupply token total supply
+     */
+    function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultiplier, uint256 _totalSupply) internal pure returns(int256){
+        return ((_volumeTotalForPeriod * int(_volumeMultiplier)) / int(_totalSupply));
+    }
 }

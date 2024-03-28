@@ -20,8 +20,6 @@ import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 
 contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
     using Counters for Counters.Counter;
-    address public handlerAddress;
-    IHandlerDiamond handler;
     Counters.Counter internal _tokenIdCounter;
 
     /// Base Contract URI
@@ -108,7 +106,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+        require(IHandlerDiamond(handlerAddress).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
@@ -146,17 +144,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, ERC721URIStorage) returns (bool) {
         return ERC721Enumerable.supportsInterface(interfaceId) || ERC721URIStorage.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @dev Function to connect Token to previously deployed Handler contract
-     * @param _deployedHandlerAddress address of the currently deployed Handler Address
-     */
-    function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
-        handlerAddress = _deployedHandlerAddress;
-        handler = IHandlerDiamond(_deployedHandlerAddress);
-        emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
     /**

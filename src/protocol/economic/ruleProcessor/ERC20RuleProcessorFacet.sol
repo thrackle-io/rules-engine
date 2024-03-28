@@ -14,6 +14,7 @@ import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Errors {
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
+    using RuleProcessorCommonLib for int256;
 
     uint256 constant _VOLUME_MULTIPLIER = 10**8;
     uint256 constant _BASIS_POINT = 10000;
@@ -191,8 +192,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
                 /// Update total supply of token when outside of rule period
                 _tokenTotalSupply = _supply;
             }
-            // if (_volumeTotalForPeriod < 0) _volumeTotalForPeriod = _volumeTotalForPeriod * -1;
-            volatility = (_volumeTotalForPeriod * int(_VOLUME_MULTIPLIER)) / int(_tokenTotalSupply);
+            volatility = _volumeTotalForPeriod.calculateVolatility(_VOLUME_MULTIPLIER, _tokenTotalSupply);
             // Disabling the next finding, the multiplication here is used purely to get the absolute value 
             // slither-disable-next-line divide-before-multiply
             if (volatility < 0) volatility = volatility * -1;

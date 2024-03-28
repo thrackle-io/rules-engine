@@ -22,8 +22,6 @@ import "../handler/diamond/ERC20HandlerMainFacet.sol";
  * @dev The only thing to recognize is that flash minting is added but not yet allowed. 
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
-    // address of the Handler
-    IProtocolTokenHandler handler;
     
     /// Max supply should only be set once. Zero means infinite supply.
     // slither-disable-next-line constable-states
@@ -69,7 +67,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      // slither-disable-next-line calls-loop
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(ERC20HandlerMainFacet(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        require(ERC20HandlerMainFacet(handlerAddress).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -95,11 +93,11 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function transfer(address to, uint256 amount) public virtual nonReentrant override returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
-        if (FeesFacet(address(address(handler))).isFeeActive()) {
+        if (FeesFacet(handlerAddress).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees = 0;
-            (targetAccounts, feePercentages) = FeesFacet(address(handler)).getApplicableFees(owner, balanceOf(owner));
+            (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account
@@ -144,11 +142,11 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
-        if (FeesFacet(address(handler)).isFeeActive()) {
+        if (FeesFacet(handlerAddress).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees = 0;
-            (targetAccounts, feePercentages) = FeesFacet(address(handler)).getApplicableFees(from, balanceOf(from));
+            (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account
@@ -222,20 +220,10 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev Function to connect Token to previously deployed Handler contract
-     * @param _handlerAddress address of the currently deployed Handler Address
-     */
-    function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
-        if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = IProtocolTokenHandler(_handlerAddress);
-        emit AD1467_HandlerConnected(_handlerAddress, address(this));
-    }
-
-    /**
      * @dev This function returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view override returns (address) {
-        return address(address(handler));
+        return address(handlerAddress);
     }
 }

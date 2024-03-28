@@ -14,6 +14,7 @@ import {IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
     address newAppManagerAddress;
     address appManagerAddress;
+    address public handlerAddress;
     IAppManager appManager;
 
     /**
@@ -49,5 +50,15 @@ abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvent
      * @return handlerAddress
      */
     function getHandlerAddress() external view virtual returns (address);
+
+    /**
+     * @dev Function to connect Token to previously deployed Handler contract
+     * @param _deployedHandlerAddress address of the currently deployed Handler Address
+     */
+    function connectHandlerToToken(address _deployedHandlerAddress) external virtual appAdministratorOnly(appManagerAddress) {
+        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handlerAddress = _deployedHandlerAddress;
+        emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
+    }
 
 }
