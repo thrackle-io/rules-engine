@@ -472,8 +472,13 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+<<<<<<< HEAD
         ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
+=======
+        ruleProcessor.validateAccountMaxValueByAccessLevel(_actions, _ruleId);
+        for (uint i; i < _actions.length; ) {
+>>>>>>> d43355475 (fixed testApplication_ApplicationCommonTests_AccountMaxValueByAccessLevelAtomicFullReSet)
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions[i], _ruleId);
         }
@@ -488,8 +493,13 @@ contract ProtocolApplicationHandler is
     function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
+<<<<<<< HEAD
         for (uint i; i < _actions.length; ++i) {
             ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
+=======
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateAccountMaxValueByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
+>>>>>>> d43355475 (fixed testApplication_ApplicationCommonTests_AccountMaxValueByAccessLevelAtomicFullReSet)
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
             unchecked {
                 ++i;

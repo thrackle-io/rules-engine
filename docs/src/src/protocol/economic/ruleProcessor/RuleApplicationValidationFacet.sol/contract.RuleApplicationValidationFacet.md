@@ -91,26 +91,7 @@ function getTotalTokenMaxDailyTradesRules() internal view returns (uint32);
 
 
 ```solidity
-<<<<<<< HEAD
 function getTotalAccountMaxTradeSize() internal view returns (uint32);
-=======
-function validateAccountMaxBuySize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalAccountMaxBuySize
-
-*Function to get total account max buy size rules*
-
-
-```solidity
-function getTotalAccountMaxBuySize() internal view returns (uint32);
->>>>>>> b8f804fac (Initial commit)
 ```
 **Returns**
 
@@ -125,11 +106,7 @@ function getTotalAccountMaxBuySize() internal view returns (uint32);
 
 
 ```solidity
-<<<<<<< HEAD
 function validateAccountMaxTradeSize(uint32 _ruleId) external view;
-=======
-function validateAccountMaxSellSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
->>>>>>> b8f804fac (Initial commit)
 ```
 **Parameters**
 
@@ -234,11 +211,7 @@ function getTotalAccountApproveDenyOracle() internal view returns (uint32);
 
 
 ```solidity
-<<<<<<< HEAD
 function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
-=======
-function validateTokenMaxBuyVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
->>>>>>> b8f804fac (Initial commit)
 ```
 **Parameters**
 
@@ -253,41 +226,7 @@ function validateTokenMaxBuyVolume(ActionTypes[] memory _actions, uint32 _ruleId
 
 
 ```solidity
-<<<<<<< HEAD
 function getTotalTokenMaxBuySellVolume() internal view returns (uint32);
-=======
-function getTotalTokenMaxBuyVolume() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### validateTokenMaxSellVolume
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateTokenMaxSellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalTokenMaxSellVolume
-
-*Function to get total Token Max Sell Volume*
-
-
-```solidity
-function getTotalTokenMaxSellVolume() internal view returns (uint32);
->>>>>>> b8f804fac (Initial commit)
 ```
 **Returns**
 
