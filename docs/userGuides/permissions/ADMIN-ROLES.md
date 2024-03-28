@@ -7,12 +7,12 @@ The super admin account is set during the [deployment][deployAppManager-url] of 
 
 ## Index
 
-1. [Super Admin](#SUPER-ADMIN).
-2. [App Admin](#APP-ADMIN).
-3. [Risk Admin](#RISK-ADMIN).
-4. [Access Level Admin](#ACCESS-LEVEL-ADMIN).
-5. [Rule Admin](#RULE-ADMIN).
-6. [Rule-Bypass Account](#RULE-BYPASS-ACCOUNT).
+1. [Super Admin](#super-admin).
+2. [App Admin](#app-admin).
+3. [Risk Admin](#risk-admin).
+4. [Access Level Admin](#access-level-admin).
+5. [Rule Admin](#rule-admin).
+6. [Rule-Bypass Account](#rule-bypass-account).
 
 ## SUPER ADMIN
 
@@ -60,7 +60,7 @@ App admin can be granted only by the super admin at any time. App Admins do not 
 ### Add Command
 The following is an example of the command used to add an app admin:
 ````
-cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities 
@@ -86,7 +86,7 @@ Keccak256: 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60
 - To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
 
     ```
-    export APP_ADMIN_1_KEY=<app admin privkey>
+    export APP_ADMIN_PRIVATE_KEY=<app admin privkey>
     ```
 
 ---
@@ -101,7 +101,7 @@ Risk admin can be granted at any time by the app admin. This role sets the risk 
 ### Add Command
 The following is an example of the command used to add an risk admin:
 ````
-cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" $RISK_ADMIN  --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
@@ -133,7 +133,7 @@ Access level admin can be granted at any time by the app admin. This role sets t
 ### Add Command
 The following is an example of the command used to add an access level admin:
 ````
-cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" $ACCESS_LEVEL_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
@@ -164,7 +164,7 @@ Rule admin can be granted at any time by the app admin. This role can activate a
 ### Add Command
 The following is an example of the command used to add an rule admin:
 ````
-cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $RULE_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities 
@@ -195,7 +195,7 @@ Rule Bypass Account can be granted at any time by the app admin. This role is ex
 ### Add Command
 The following is an example of the command used to add an rule bypass account:
 ````
-cast send $APPLICATION_APP_MANAGER "addRuleBypassAccount(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRuleBypassAccount(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities

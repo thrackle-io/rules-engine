@@ -47,26 +47,17 @@ is an overview of this deployment process:
    export FOUNDRY_PROFILE=local
    ````
 
-8. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModulesPt1.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
-   ```
-   "hash": "0x1902f5f3c6f2ed24ae3a64c8ddb41e72fb71b57c3404278c965dee920aa6f40f",
-   "transactionType": "CREATE",
-   "contractName": "RuleProcessorDiamond",
-   "contractAddress": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
-   ```
-9. Note the address for the following contract deployments
-   1. RuleProcessorDiamond
-   2. Export it to zsh
-        ````
-        export RULE_PROCESSOR_DIAMOND=0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8(substitute with your deployed RuleProcessorDiamond contract address)
-        ````
-10. Set the version of the protocol:
+8. The deployment script will add the output RuleProcessorDiamond address to your .env file. Source it for the future interactions with the protocol:
+   ````
+   source .env
+   ````
+9. Set the version of the protocol:
    ```
    cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
    ```
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
-11. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
+10. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
       1. Export the multi-sig address to zsh:
          ```
          export MULTISIG_WALLET=<MULTI-SIG_ADDRESS>
