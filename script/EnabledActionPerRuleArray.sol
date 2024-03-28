@@ -30,11 +30,15 @@ contract EnabledActionPerRuleArray is ActionTypesArray {
     EnabledActionPerRule[] enabledActionPerRuleArray;
 
     constructor() {
-        enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_APPROVE_DENY_ORACLE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN)));
+        enabledActionPerRuleArray.push(
+            EnabledActionPerRule(ACCOUNT_APPROVE_DENY_ORACLE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN))
+        );
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_MAX_BUY_SIZE, createActionTypesArray(ActionTypes.BUY)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_MAX_SELL_SIZE, createActionTypesArray(ActionTypes.SELL)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN)));
+        enabledActionPerRuleArray.push(
+            EnabledActionPerRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN))
+        );
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACC_MAX_VALUE_BY_ACCESS_LEVEL, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACC_MAX_VALUE_BY_RISK_SCORE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL)));

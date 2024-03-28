@@ -11,7 +11,6 @@ import "test/util/RuleCreation.sol";
  */
 
 abstract contract TokenUtils is RuleCreation {
-
     /** APPLICATION LEVEL RULES */
     function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
