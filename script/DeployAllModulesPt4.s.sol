@@ -2,15 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
-// import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
-// import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-// import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
-// import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol";
-// import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-// import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
-// import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-// import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-// import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
 import "src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol";
 import "script/EnabledActionPerRuleArray.sol";
 
@@ -39,7 +30,7 @@ contract DeployAllModulesPt4Script is Script, EnabledActionPerRuleArray {
     }
 
     /**
-     * @dev Deploy the set of facets
+     * @dev set the enabled actions per rule according to the official list in EnabledActionPerRuleArray
      */
     function setEnabledActionsPerRule() internal {
         address ruleProcessorAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
