@@ -67,11 +67,14 @@ The account-max-value-by-risk-score-score rules are stored in a mapping indexed 
 
 The rule will be evaluated with the following logic:
 
-1. The processor receives the ID of the account-max-value-by-risk-score rule set in the application handler. 
-2. The processor receives the risk score of the user set in the app manager.
-3. The processor receives the U.S. dollar value of all protocol supported tokens owned by the to address and the U.S. dollar value of the transaction. 
-4. The processor finds the `max value` value for the risk score.  
-5. The processor checks if the transaction value + current balance total is less than the risk score `max value`. If total is greater than `max value`, the rule reverts. 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The processor receives the ID of the account-max-value-by-risk-score rule set in the application handler. 
+3. The processor receives the risk score of the user set in the app manager.
+4. The processor receives the U.S. dollar value of all protocol supported tokens owned by the to address and the U.S. dollar value of the transaction. 
+5. The processor finds the `max value` value for the risk score.  
+6. The processor checks if the transaction value + current balance total is less than the risk score `max value`. If total is greater than `max value`, the rule reverts. 
+
+applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
 ###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccountMaxValueByRiskScore*
 
@@ -130,7 +133,7 @@ The following validation will be carried out by the create function in order to 
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getAccountMaxValueByRiskScore(
@@ -159,21 +162,25 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Application Handler:
-    - Function to set and activate at the same time the rule in an application handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an application handler:
         ```c
-        function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an application handler:
+    - Function to atomically set and activate at the same time the rule for the supplied actions in an application handler:
         ```c
-        function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an application handler:
+    - Function to activate/deactivate the rule for the supplied actions in an application handler:
         ```c
-        function isAccountMaxValueByRiskScoreActive() external view returns (bool);
+        function activateAccountMaxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to get the rule Id from an application handler:
+    - Function to know the activation state of the rule for the supplied action in an application handler:
         ```c
-        function getAccountMaxValueByRiskScoreId() external view returns (uint32);
+        function isAccountMaxValueByRiskScoreActive(ActionTypes _action) external view returns (bool);
+        ```
+    - Function to get the rule Id for the supplied action from an application handler:
+        ```c
+        function getAccountMaxValueByRiskScoreId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -192,12 +199,20 @@ This rule does not require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event AD1467_ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerApplied(bytes32 indexed ruleType, ActionTypes _action, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "BALANCE_BY_RISK".
+        - action: the protocol action the rule is being applied to.
         - handlerAddress: the address of the application handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
+
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+    - Emitted when: rule has been applied in an application manager handler.
+    - Parameters: 
+        - ruleType: "BALANCE_BY_RISK".
+        - actions: the protocol actions the rule is being applied to.
+        - ruleIds: the ruleIds set for each action on this rule in the handler.
 
 ## Dependencies
 

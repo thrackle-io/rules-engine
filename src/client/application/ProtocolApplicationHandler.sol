@@ -426,7 +426,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     }
 
     /**
-     * @dev Set the ActivateAccountDenyForNoAccessLevelRuleId. 
+     * @dev Set the AccountDenyForNoAccessLevelRuleId. 
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      */

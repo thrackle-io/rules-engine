@@ -40,10 +40,11 @@ bool private accountDenyForNoAccessLevelRuleActive;
 
 The rule will be evaluated with the following logic:
 
-1. The application manager sends to the protocol's rule processor the the access level of the `to` account in the transaction.
-2. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
-3. The application manager sends to the procotol's rule processor the access level of the `from` account in the transaction.
-4. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The application manager sends to the protocol's rule processor the the access level of the `to` account in the transaction.
+3. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
+4. The application manager sends to the procotol's rule processor the access level of the `from` account in the transaction.
+5. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccountDenyForNoAccessLevel*
 
@@ -69,16 +70,10 @@ Adding a account-deny-for-no-access-level rule is done through the function:
 ```c
 /**
 * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+* @param _actions list of action types
 * @param _on boolean representing if a rule must be checked or not.
 */
-function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-    accountDenyForNoAccessLevelRuleActive = _on;
-    if (_on) {
-        emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
-    } else {
-        emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0);
-    }
-}
+function activateAccountDenyForNoAccessLevelRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress)
 ```
 
 This rule does not require an add function with the Rule Processor diamond. This rule is set in the application handler contract. 
@@ -89,9 +84,9 @@ This rule does not require an add function with the Rule Processor diamond. This
 ## Other Functions:
 
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
-     - Function to know the activation state of the rule in an application handler:
+     - Function to know the activation state of the rule for the supplied action in an application handler:
         ```c
-        function isAccountDenyForNoAccessLevelActive() external view returns (bool);
+        function isAccountDenyForNoAccessLevelActive(ActionTypes _action) external view returns (bool);
         ```
 
 ## Return Data
@@ -104,13 +99,20 @@ This rule doesn't require of any data to be recorded.
 
 ## Events
 
-- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL".
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+    - Emitted when: rule has been applied in an application manager handler.
+    - Parameters: 
+        - ruleType: "ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL".
+        - actions: the protocol actions the rule is being applied to.
+        - ruleIds: the ruleIds set for each action on this rule in the handler.
 
 
 ## Dependencies
 
-This rule has no dependancies. 
+This rule has no dependencies. 

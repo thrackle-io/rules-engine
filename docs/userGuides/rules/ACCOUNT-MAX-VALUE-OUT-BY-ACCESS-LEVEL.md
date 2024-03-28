@@ -60,8 +60,11 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account has already withdrawn, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
-2. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the withdrawal amount plus already withdrawn amount exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account has already withdrawn, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
+3. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the withdrawal amount plus already withdrawn amount exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkeithdrawalLimitsByAccessLevel*
 
@@ -139,21 +142,25 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
-    - Function to set and activate at the same time the rule in the application handler:
+    - Function to set and activate at the same time the rule for the supplied actions in the application handler:
         ```c
-        function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in the application handler:
+    - Function to atomically set and activate at the same time the rule for the supplied actions in the application handler:
         ```c
-        function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueOutByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in the application handler:
         ```c
-        function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
+        function activateAccountMaxValueOutByAccessLevel(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to get the rule Id from the application handler:
+     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
+        function isAccountMaxValueOutByAccessLevelActive(ActionTypes _action) external view returns (bool);
+        ```
+    - Function to get the rule Id for the supplied action from the application handler:
+        ```c
+        function getAccountMaxValueOutByAccessLevelId(ActionTypes _action) external view returns (uint32);
         ```
 
 ## Return Data
@@ -190,16 +197,25 @@ This rule requires recording of the following information in the application han
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
-- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
         - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
-- **event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
+  
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+    - Emitted when: rule has been applied in an application manager handler.
+    - Parameters: 
+        - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
+        - actions: the protocol actions the rule is being applied to.
+        - ruleIds: the ruleIds set for each action on this rule in the handler.
+
+- **event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes action)**:
     - Emitted when: a rule has been activated in an application handler:
     - Parameters: 
         - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
-        - handlerAddress: the address of the application handler where the rule has been activated.
+        - action: the protocol action for which the rule is being activated.
 
 
 ## Dependencies
