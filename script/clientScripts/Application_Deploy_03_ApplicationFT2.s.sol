@@ -35,8 +35,8 @@ contract ApplicationDeployFT2Script is Script, DeployBase {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
@@ -45,8 +45,8 @@ contract ApplicationDeployFT2Script is Script, DeployBase {
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
         applicationCoinHandlerDiamond2 = createERC20HandlerDiamond("Dracula Coin");
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
         coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));

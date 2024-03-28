@@ -34,8 +34,8 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
@@ -44,8 +44,8 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         ApplicationERC721AdminOrOwnerMint nft1 = new ApplicationERC721AdminOrOwnerMint("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         applicationNFTHandlerDiamond = createERC721HandlerDiamond("Clyde");
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
         nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));

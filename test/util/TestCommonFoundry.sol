@@ -494,6 +494,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
         applicationAppManager.registerTreasury(feeTreasury);
 
+        switchToSuperAdmin();
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
     }
@@ -527,7 +528,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToAppAdministrator();
+        switchToSuperAdmin();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
@@ -597,7 +598,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToAppAdministrator();
+        switchToSuperAdmin();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();

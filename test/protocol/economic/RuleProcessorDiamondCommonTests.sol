@@ -1007,7 +1007,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         assertEq(applicationNFT.balanceOf(user), 5);
         // add a blocked address
         badBoys.push(address(70));
+        switchToSuperAdmin();
         oracleDenied.addToDeniedList(badBoys);
+        switchToAppAdministrator();
         // add the rule.
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
@@ -1025,7 +1027,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         assertEq(applicationNFT.balanceOf(user), 5);
         // add a blocked address
         badBoys.push(address(70));
+        switchToSuperAdmin();
         oracleDenied.addToDeniedList(badBoys);
+        switchToAppAdministrator();
         // add the rule.
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
@@ -1043,7 +1047,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         }
         assertEq(applicationNFT.balanceOf(user), 5);
         goodBoys.push(address(59));
+        switchToSuperAdmin();
         oracleApproved.addToApprovedList(goodBoys);
+        switchToAppAdministrator();
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
         switchToUser();

@@ -9,7 +9,7 @@
 doom-abis/
 
 # Test specific environment variables
-*.env
+.env
 *.env.deployTest
 .DS_Store
 # Test binary, built with `go test -c`

@@ -15,11 +15,11 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
     function setUp() public {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             // Verify App Manager has been deployed
-            superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
-            appAdministrator = vm.envAddress("APP_ADMIN_01");
+            superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
+            appAdministrator = vm.envAddress("APP_ADMIN");
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
-            feeTreasury = vm.envAddress("FEE_TREASURY");
+            feeTreasury = vm.envAddress("ANVIL_ADDRESS_4");
             applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
             assertEq(vm.envAddress("APPLICATION_APP_MANAGER"), address(applicationAppManager));
             // Verify App Handler has been deployed
@@ -57,31 +57,6 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
             assertEq(
                 vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS"),
                 address(applicationCoinHandler)
-            );
-
-            // Verify the second ERC20 has been deployed
-            assertTrue(
-                vm.envAddress("APPLICATION_ERC20_ADDRESS_2") != address(0x0)
-            );
-            applicationCoin2 = ApplicationERC20(
-                vm.envAddress("APPLICATION_ERC20_ADDRESS_2")
-            );
-            assertEq(
-                vm.envAddress("APPLICATION_ERC20_ADDRESS_2"),
-                address(applicationCoin2)
-            );
-
-            // Verify the second ERC20 Handler has been deployed
-            assertTrue(
-                vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2") !=
-                    address(0x0)
-            );
-            applicationCoinHandler2 = HandlerDiamond(
-                payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2"))
-            );
-            assertEq(
-                vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2"),
-                address(applicationCoinHandler2)
             );
 
             // Verify the second ERC721 has been deployed

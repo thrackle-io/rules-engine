@@ -39,8 +39,8 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
@@ -49,8 +49,8 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
         applicationCoinHandlerDiamond = createERC20HandlerDiamond("Frankenstein Coin");
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
         coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
