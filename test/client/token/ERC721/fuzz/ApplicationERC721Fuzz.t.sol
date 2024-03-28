@@ -410,7 +410,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         // setAccountMaxValueByAccessLevelRule(ruleId);
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT), ruleId);
+        applicationHandler.setAccountMaxValueByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT), ruleId);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel_NoAccessLevel(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
