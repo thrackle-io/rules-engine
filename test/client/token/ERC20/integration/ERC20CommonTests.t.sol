@@ -1123,48 +1123,43 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     /* AdminMinTokenBalance */
     function testERC20_ERC20CommonTests_AdminMinTokenBalanceAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](3);
         // Set up rule
-        for (uint i; i < 5; i++) ruleIds[i] = createAdminMinTokenBalanceRule(i + 1, uint64(Blocktime + ((i + 1) * 100)));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < 3; i++) ruleIds[i] = createAdminMinTokenBalanceRule(i + 1, uint64(Blocktime + ((i + 1) * 100)));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
         // Apply the rules to all actions
         setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
         // Verify that all the rule id's were set correctly
         assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
         assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN), ruleIds[4]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN), ruleIds[2]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes(i)));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
     }
 
     function testERC20_ERC20CommonTests_AdminMinTokenBalanceAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
         for (uint i; i < 5; i++) ruleIds[i] = createAdminMinTokenBalanceRule(i + 1, uint64(Blocktime + ((i + 1) * 100)));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
         // Apply the rules to all actions
         // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](2);
+        ruleIds = new uint32[](1);
         ruleIds[0] = createAdminMinTokenBalanceRule(6, Blocktime + 600);
-        ruleIds[1] = createAdminMinTokenBalanceRule(7, Blocktime + 600);
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        actions = createActionTypeArray(ActionTypes.SELL);
         // Apply the new set of rules
         setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
         // Verify that all the rule id's were set correctly
         assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BUY), ruleIds[1]);
         // Verify that the old ones were cleared
         assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.MINT), 0);
         assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
         assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
-        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BUY));
         // Verify that the old rules are not activated
         assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.MINT));
         assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
     }
 
@@ -1415,10 +1410,10 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     /* TokenMaxTradingVolume */
     function testERC20_ERC20CommonTests_TokenMaxTradingVolumeAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](4);
         // Set up rule
-        for (uint i; i < 5; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < 4; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
         // Verify that all the rule id's were set correctly
@@ -1426,16 +1421,15 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.SELL), ruleIds[1]);
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BUY), ruleIds[2]);
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes(i)));
+        for (uint i; i < 4; i++) assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes(i)));
     }
 
     function testERC20_ERC20CommonTests_TokenMaxTradingVolumeAtomicFullReSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](4);
         // Set up rule
-        for (uint i; i < 5; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < 4; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
@@ -1451,14 +1445,12 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         // Verify that the old ones were cleared
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.P2P_TRANSFER), 0);
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), 0);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
         assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.SELL));
         assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BUY));
         // Verify that the old rules are not activated
         assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.P2P_TRANSFER));
         assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.MINT));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BURN));
     }
 
     /* TokenMinimumTransaction */
