@@ -29,7 +29,9 @@ We will call the function `addAccountMaxValueOutByAccessLevel(address,uint48[])`
 cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $PROTOCOL_ADDR --method "addAccountMaxValueOutByAccessLevel(address,uint48[])" $APP_MANAGER_ADDRESS "[0, 10000000, 10000000, 10000000, 10000000, 10000000]"
 ```
 
-The number is slightly larger to account for the 4 decimal places of the USDC token and repeated so that we account for all levels available when crafting an access level. This will return a uint256 which is the ID of the rule. Once we have this ruleId, we can add it to our access level using the `setAccountMaxValueOutByAccessLevelId(uint32 _ruleId)` function on the application handler.
+The number is slightly larger to account for the 4 decimal places of the USDC token and repeated so that we account for all levels available when crafting an access level. This will return a uint256 which is the ID of the rule. Because cast doesn't wrangle the calls well, we're going to have to take the tx id and parse for logs:
+
+It should be noted though that if you were to run this in a smart contract script, you would just need to take the return value which would be the ruleId. Once we have this ruleId, we can add it to our access level using the `setAccountMaxValueOutByAccessLevelId(uint32 _ruleId)` function on the application handler.
 
 ```
 cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $APP_HANDLER_ADDR --method "setAccountMaxValueOutByAccessLevelId(uint32 _ruleId)" $RULE_ID

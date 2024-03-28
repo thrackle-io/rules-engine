@@ -33,7 +33,7 @@ is an overview of this deployment process:
         ````
 6. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
-   foundryUp
+   foundryup
    ````
 
 7. In the same terminal as above, navigate to the cloned repo directory and run the build script.
