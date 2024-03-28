@@ -46,6 +46,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxSupplyVolatility();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxSupplyVolatilityIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_SUPPLY_VOLATILITY, _actions, _ruleIds);

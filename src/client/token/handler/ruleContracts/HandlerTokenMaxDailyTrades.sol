@@ -39,6 +39,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxDailyTrades();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxDailyTradesIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_DAILY_TRADES, _actions, _ruleIds);

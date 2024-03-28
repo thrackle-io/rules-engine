@@ -41,6 +41,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
@@ -64,7 +65,6 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      */
     // slither-disable-next-line calls-loop
     function setAccountApproveDenyOracleIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(createActionTypesArray(_action), _ruleId);
         AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
         if (data.accountApproveDenyOracle[_action].length >= MAX_ORACLE_RULES) {
             revert AccountApproveDenyOraclesPerAssetLimitReached();

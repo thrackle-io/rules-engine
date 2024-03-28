@@ -36,6 +36,7 @@ contract HandlerTokenMaxBuyVolume is ActionTypesArray, RuleAdministratorOnly, IT
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxBuyVolume();
         for (uint i; i < _actions.length; ) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuyVolume(createActionTypesArray(ActionTypes.BUY), _ruleId);
             setTokenMaxBuyVolumeIdUpdate(_actions[i], _ruleIds[i]);
             unchecked {
                 ++i;

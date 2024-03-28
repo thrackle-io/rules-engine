@@ -47,6 +47,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxTradingVolume();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxTradingVolumeIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);

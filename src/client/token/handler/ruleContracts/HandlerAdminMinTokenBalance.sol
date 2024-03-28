@@ -46,6 +46,7 @@ contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppM
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAdminMinTokenBalance();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAdminMinTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(ADMIN_MIN_TOKEN_BALANCE, _actions, _ruleIds);

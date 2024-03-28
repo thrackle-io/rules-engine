@@ -38,6 +38,7 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearMinMaxTokenBalance();
         for (uint i; i < _actions.length; ++i) {
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMinMaxTokenBalance(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMinMaxTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, _ruleIds);
