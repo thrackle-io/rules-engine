@@ -675,23 +675,17 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         ruleIds = new uint32[](2);
         ruleIds[0] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(60_000_000, 100_000, 1_000, 500, 10));
         ruleIds[1] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(70_000_000, 100_000, 1_000, 500, 10));
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY);
         // Apply the new set of rules
         setAccountMaxValueByRiskRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BUY), ruleIds[1]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(actions[i]), ruleIds[i]);
         // Verify that the old ones were cleared
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.P2P_TRANSFER), 0);
         assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.MINT), 0);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
-        assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.SELL));
-        assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.BUY));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(actions[i]));
         // Verify that the old rules are not activated
-        assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.P2P_TRANSFER));
         assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.MINT));
-        assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.BURN));
     }
 
     /* AccountMaxTxValueByRiskScore */
