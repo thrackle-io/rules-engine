@@ -51,6 +51,8 @@ forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast -
 
 #### Deploy The Protocol
 
+Be sure to [set environmental variables](./deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free to run this script:
+
 `scripts/deploy/DeployProtocol.sh`
 This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
 
