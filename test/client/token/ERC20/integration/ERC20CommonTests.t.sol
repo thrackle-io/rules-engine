@@ -352,8 +352,9 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// add address(0) to deny list and switch oracle rule to deny list
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
-        badBoys.push(address(0));
+        switchToAppAdministrator();
+        testCaseToken.transfer(user5, 10000);
+        badBoys.push(address(user5));
         oracleDenied.addToDeniedList(badBoys);
         /// attempt to burn (should fail)
         vm.startPrank(user5);
@@ -1223,7 +1224,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         // Verify that the new rules were activated
         assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.SELL));
     }
-
 
     function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeBuyActionAtomicFullReSet() public {
         uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 24, 0, Blocktime);

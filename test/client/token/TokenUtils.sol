@@ -14,7 +14,7 @@ abstract contract TokenUtils is RuleCreation {
     /** APPLICATION LEVEL RULES */
     function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
-        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN);
         applicationHandler.setAccountMaxTxValueByRiskScoreId(actionTypes, ruleId);
     }
 

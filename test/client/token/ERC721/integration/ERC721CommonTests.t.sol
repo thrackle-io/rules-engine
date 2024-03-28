@@ -209,8 +209,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
-        switchToSuperAdmin();
-        badBoys.push(address(0));
+        switchToAppAdministrator();
+        badBoys.push(address(user1));
         oracleDenied.addToDeniedList(badBoys);
         /// user attempts burn
         vm.startPrank(user1);
@@ -1562,7 +1562,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         if (deny) {
             // add the rule.
-            uint32 ruleId = createAccountApproveDenyOracleRule(0);  
+            uint32 ruleId = createAccountApproveDenyOracleRule(0);
             setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             // add a blocked address
             switchToSuperAdmin();

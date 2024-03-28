@@ -34,7 +34,12 @@ contract ERC721NonTaggedRuleFacet is
         _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
-        IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        if (action == ActionTypes.BURN || action == ActionTypes.SELL){
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+        } 
+        if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        }
 
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
             // get all the tags for this NFT
