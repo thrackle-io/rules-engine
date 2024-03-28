@@ -120,7 +120,6 @@ abstract contract RuleCreation is TestCommonFoundry {
         switchToRuleAdmin();
         uint48[] memory withdrawalLimits = createUint48Array(withdrawalLimits1, withdrawalLimits2, withdrawalLimits3, withdrawalLimits4, withdrawalLimits5);
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueOutByAccessLevel(address(applicationAppManager), withdrawalLimits);
-        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArrayAll(), ruleId);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueOutByAccessLevel(ruleId, 2);
         assertEq(balance, withdrawalLimits3);
         vm.stopPrank();

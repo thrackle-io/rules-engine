@@ -740,13 +740,11 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     /* AccountMaxValueOutByAccessLevel */
     function testApplication_ApplicationCommonTests_AccountMaxValueOutByAccessLevelAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](4);
+        uint32[] memory ruleIds = new uint32[](2);
         // Set up rule
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 350);
-        ruleIds[2] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 450);
-        ruleIds[3] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 550);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL);
         // Apply the rules to all actions
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
