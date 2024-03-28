@@ -14,28 +14,28 @@ LIVE DEMO
 
 
 ## transfer
-cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_KEY --from $APP_ADMIN
 
 ## check Token Balance
-cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $USER_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 
+cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $USER_1 --private-key $APP_ADMIN_KEY --from $APP_ADMIN 
 
 ## transferOverMax	
-cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 1 --private-key $APP_ADMIN_KEY --from $APP_ADMIN
 
 ## mintFranksToUser1
-cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_KEY --from $APP_ADMIN
 
 ## check Token Balance
-cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $USER_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 
+cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $USER_1 --private-key $APP_ADMIN_KEY --from $APP_ADMIN 
 
 ## applyRuleToMints
-cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" \[3\] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" \[3\] 0 --private-key $APP_ADMIN_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN
 
 ## mintFranksToUser1OverMax
-cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_KEY --from $APP_ADMIN
 
 ## deactivate the rule for transfers
-cast send $APPLICATION_ERC20_1_HANDLER "activateAccountMinMaxTokenBalance(uint8[], bool)" \[0\] false --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "activateAccountMinMaxTokenBalance(uint8[], bool)" \[0\] false --private-key $APP_ADMIN_KEY --from $APP_ADMIN
 
 ## transfer
-cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_KEY --from $APP_ADMIN
