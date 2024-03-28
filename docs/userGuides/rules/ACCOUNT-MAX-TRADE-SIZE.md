@@ -94,7 +94,7 @@ The rule will be evaluated with the following logic:
 7. The processor evaluates whether the current time is within a new period.
    -If it is a new period and action type is buy, the processor sets the cumulative buys to the current buy amount.
    -If it is not a new period, the processor adds the current buy amount to the accrued buy amount for the rule period. 
-   -If it is a new period and the action type is sell, the processor sets the cumulative buys to the current buy amount.
+   -If it is a new period and the action type is sell, the processor sets the cumulative sells to the current sell amount.
    -If it is not a new period, the processor adds the current sell amount to the accrued sell amount for the rule period. 
 8. The processor checks if the cumulative amount is greater than the `maxSize` defined in the rule. If true, the transaction reverts.
 9. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.

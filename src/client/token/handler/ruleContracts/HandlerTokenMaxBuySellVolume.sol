@@ -34,7 +34,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_ruleId);
         for (uint i; i < _actions.length; ) {
             setTokenMaxBuySellVolumeIdUpdate(_actions[i], _ruleId);
-            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_SELL_VOLUME, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
