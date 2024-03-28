@@ -9,6 +9,7 @@
 doom-abis/
 
 # Test specific environment variables
+.env
 *.env
 *.env.deployTest
 .DS_Store
