@@ -47,7 +47,7 @@ From the output, search for the third argument in the topics to get the ruleId i
 And can now call `addTag(address _account,bytes32 _tag)` with the App admin on the application manager to tag an account. 
 
  ```
- cast send $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_KEY "addTag(address,bytes32)" 0x... 0x4100000000000000000000000000000000000000000000000000000000000000
+ cast send $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_PRIVATE_KEY "addTag(address,bytes32)" 0x... 0x4100000000000000000000000000000000000000000000000000000000000000
  ```
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

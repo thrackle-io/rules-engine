@@ -22,7 +22,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_KEY --rpc-url $ETH_RPC_URL
+            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 
             ````
         5. locate the address from the output, example:
@@ -50,7 +50,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC20Pricing.sol:ApplicationERC20Pricing --private-key $APP_ADMIN_KEY --rpc-url $ETH_RPC_URL
+            forge create src/example/pricing/ApplicationERC20Pricing.sol:ApplicationERC20Pricing --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 
             ````
         5. locate the address from the output, example:
