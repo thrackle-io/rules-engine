@@ -192,20 +192,100 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     /// Token Minimum Transaction Size Tests
-    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Negative() public endWithStopPrank {
-        _tokenMinTransactionSetup();
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_P2PTransfer_Positive() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
+        vm.startPrank(rich_user);
+        // now we check for an allowed transfer
+        testCaseToken.transfer(user3, 10);
+        assertEq(testCaseToken.balanceOf(user3), 10);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_P2PTransfer_Negative() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
         vm.startPrank(rich_user);
         // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         testCaseToken.transfer(user3, 5);
     }
 
-    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Positive() public endWithStopPrank {
-        _tokenMinTransactionSetup();
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Sell_Positive() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.SELL);
+        switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        vm.startPrank(rich_user);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10, 10, true);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Sell_Negative() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.SELL);
+        switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        vm.startPrank(rich_user);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        vm.expectRevert(0x7a78c901);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 5, 5, true);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Buy_Positive() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.BUY);
+        switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        
+        vm.startPrank(rich_user);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 10, 10, true);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Buy_Negative() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.BUY);
+        switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        
+        vm.startPrank(rich_user);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        vm.expectRevert(0x7a78c901);
+        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 5, 5, true);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Positive() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
         vm.startPrank(rich_user);
         // now we check for an allowed transfer
-        testCaseToken.transfer(user3, 10);
+        ProtocolERC20(address(testCaseToken)).mint(user3, 10);
         assertEq(testCaseToken.balanceOf(user3), 10);
+    }
+
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Negative() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x7a78c901);
+        ProtocolERC20(address(testCaseToken)).mint(user3, 5);
+    }
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Burn_Positive() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
+        vm.startPrank(rich_user);
+        // now we check for an allowed transfer
+        ERC20Burnable(address(testCaseToken)).burn(10);
+        assertEq(testCaseToken.balanceOf(rich_user), 999990);
+    }
+
+
+    function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Burn_Negative() public endWithStopPrank {
+        _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x7a78c901);
+        ERC20Burnable(address(testCaseToken)).burn(5);
     }
 
     /// Account Min Max Token Balance Tests
@@ -216,6 +296,124 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(user2, 10);
         assertEq(testCaseToken.balanceOf(user2), 10);
         assertEq(testCaseToken.balanceOf(user1), 990);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_P2PTransfer_Positive() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.P2P_TRANSFER);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        testCaseToken.transfer(user2, 10);
+        assertEq(testCaseToken.balanceOf(user2), 10);
+        assertEq(testCaseToken.balanceOf(user1), 90);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_P2PTransfer_Negative() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.P2P_TRANSFER);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        vm.expectRevert(0x3e237976);
+        testCaseToken.transfer(user2, 99);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Buy_Positive() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.BUY);
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = new DummyAMM();
+        testCaseToken.approve(address(amm), 50);
+        applicationCoin2.approve(address(amm), 50);
+        vm.startPrank(rich_user);
+        testCaseToken.transfer(address(amm), 900);
+        applicationCoin2.transfer(address(amm), 900);
+        applicationCoin2.transfer(user1, 900);
+        vm.startPrank(user1);
+        
+        assertEq(testCaseToken.balanceOf(user1), 100);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 10, 10, true);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Buy_Negative() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.BUY);
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = new DummyAMM();
+        vm.startPrank(rich_user);
+        testCaseToken.transfer(address(amm), 950);
+        applicationCoin2.transfer(address(amm), 950);
+        applicationCoin2.transfer(user1, 950);
+        vm.startPrank(user1);
+        
+        assertEq(testCaseToken.balanceOf(user1), 100);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 901, 901, true);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Sell_Positive() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.SELL);
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = new DummyAMM();
+        testCaseToken.approve(address(amm), 50);
+        applicationCoin2.approve(address(amm), 50);
+        vm.startPrank(rich_user);
+        testCaseToken.transfer(address(amm), 900);
+        applicationCoin2.transfer(address(amm), 900);
+        vm.startPrank(user1);
+        
+        assertEq(testCaseToken.balanceOf(user1), 100);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10, 10, true);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Sell_Negative() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.SELL);
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = new DummyAMM();
+        vm.startPrank(rich_user);
+        testCaseToken.transfer(address(amm), 900);
+        applicationCoin2.transfer(address(amm), 900);
+        vm.startPrank(user1);
+        
+        assertEq(testCaseToken.balanceOf(user1), 100);
+        testCaseToken.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 100, 100, true);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Mint_Positive() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.MINT);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        ProtocolERC20(address(testCaseToken)).mint(user2, 10);
+        assertEq(testCaseToken.balanceOf(user2), 10);
+        assertEq(testCaseToken.balanceOf(user1), 100);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Mint_Negative() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.MINT);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        ProtocolERC20(address(testCaseToken)).mint(user2, 1001);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Burn_Positive() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.BURN);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        ERC20Burnable(address(testCaseToken)).burn(10);
+        assertEq(testCaseToken.balanceOf(user1), 90);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Burn_Negative() public endWithStopPrank {
+        _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.BURN);
+        ///perform transfer that checks rule but is allowed
+        vm.startPrank(user1);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        ERC20Burnable(address(testCaseToken)).burn(100);
     }
 
     function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Minimum() public endWithStopPrank {
@@ -1502,17 +1700,29 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     /// Utility Helper Functions
-    function _tokenMinTransactionSetup() private endWithStopPrank {
+    function _tokenMinTransactionSetup(ActionTypes action) private endWithStopPrank {
         /// We add the empty rule at index 0
         switchToRuleAdmin();
         uint32 ruleId = createTokenMinimumTransactionRule(10);
         setTokenMinimumTransactionRule(address(applicationCoinHandler), ruleId);
         switchToRuleAdmin();
         /// we update the rule id in the token
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
+        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(_createActionsArray(action), ruleId);
+
+        switchToSuperAdmin();
+        applicationCoin2 = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        switchToAppAdministrator();
+        applicationCoinHandler2 = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
+        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("DRAC", address(applicationCoin2));
+        applicationCoin2.mint(appAdministrator, 10000000000000000000000 * ATTO);
+
         switchToAppAdministrator();
         /// now we perform the transfer
         testCaseToken.transfer(rich_user, 1000000);
+        applicationCoin2.transfer(rich_user, 1000000);
     }
 
     function _accountMaxValueByAccessLevelSetup() private endWithStopPrank {
@@ -1570,6 +1780,27 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
             applicationAppManager.addTag(user3, "Oscar"); ///add tag
             assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
         }
+    }
+
+    function _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes action) private endWithStopPrank {
+        switchToAppAdministrator();
+        /// set up a non admin user with tokens
+        testCaseToken.transfer(rich_user, 100000);
+        testCaseToken.transfer(user1, 100);
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array(""), createUint256Array(10), createUint256Array(1000));
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), createActionTypeArray(action), ruleIds);
+
+        switchToSuperAdmin();
+        applicationCoin2 = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        switchToAppAdministrator();
+        applicationCoinHandler2 = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
+        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("DRAC", address(applicationCoin2));
+        applicationCoin2.mint(appAdministrator, 10000000000000000000000 * ATTO);
+        applicationCoin2.mint(rich_user, 10000);
     }
 
     function _maxValueOutByAccessLevelSetup() private endWithStopPrank {
