@@ -14,6 +14,7 @@ if [ $SCRIPT_MODE = "--with-build" ]; then
 fi
 
 if [ $SCRIPT_MODE = "--with-deploy" ]; then
+	source script/SetupProtocolDeploy.sh
 	forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
 	source script/ParseProtocolDeploy.sh
 	forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
