@@ -49,8 +49,8 @@ if [ "$LOCAL" = "y" ]; then
     IFS=' ' read -r -a array <<< "$ARRAY"
     echo $ARRAY
     echo
-    APP_ADMIN_1_KEY="${array[5]}"
-    APP_ADMIN_1="${array[1]//\"}"
+    APP_ADMIN_PRIVATE_KEY="${array[5]}"
+    APP_ADMIN="${array[1]//\"}"
     
     ARRAY=$(cat anvil_output.txt | grep \(1\) | tr '\n' ' ')
     IFS=' ' read -r -a array <<< "$ARRAY"
@@ -73,9 +73,9 @@ else
 
     # Request App Admin Address and Key
     echo Please enter App Admin Address
-    read APP_ADMIN_1
+    read APP_ADMIN
     echo Please enter App Admin Private Key
-    read APP_ADMIN_1_KEY
+    read APP_ADMIN_PRIVATE_KEY
     # Request and export ETH_RPC_URL
     echo please enter RPC URL
     read ETH_RPC_URL
@@ -134,8 +134,8 @@ else
     forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
     echo "################################################################"
-    echo export APP_ADMIN_1=$APP_ADMIN | tee $OUTPUTFILE
-    echo export APP_ADMIN_1_KEY=$APP_ADMIN_PRIVATE_KEY | tee -a $OUTPUTFILE
+    echo export APP_ADMIN=$APP_ADMIN | tee $OUTPUTFILE
+    echo export APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_PRIVATE_KEY | tee -a $OUTPUTFILE
     echo export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND | tee -a $OUTPUTFILE
 
 fi
