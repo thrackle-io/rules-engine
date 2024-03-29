@@ -84,12 +84,15 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
-2. The application handler then sends these values along with the rule Id of the ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
-3. The protocol then proceeds to check if the rule has a period enabled in which case it checks if the current transaction is part of an ongoing period, or if it is the first one in a new period. If the rule doesn't have a period enabled, then it treats current transaction as the first one in a new period.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
+3. The application handler then sends these values along with the rule Id of the ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
+4. The protocol then proceeds to check if the rule has a period enabled in which case it checks if the current transaction is part of an ongoing period, or if it is the first one in a new period. If the rule doesn't have a period enabled, then it treats current transaction as the first one in a new period.
     - **If it is a new period, or no period enabled**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
-4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
+5. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
 ###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccountMaxTxValueByRiskScore*
 
@@ -178,21 +181,25 @@ The following validation will be carried out by the create function in order to 
                 returns (uint128);
         ```
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
-    - Function to set and activate at the same time the rule in the application handler:
+    - Function to set and activate at the same time the rule for the supplied actions in the application handler:
         ```c
-        function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        ffunction setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in the application handler:
+    - Function to atomically set and activate at the same time the rule for the supplied actions in the application handler:
         ```c
-        function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxTxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an application handler:
+    - Function to activate/deactivate the rule for the supplied action in the application handler:
         ```c
-        function isAccountMaxTxValueByRiskScoreActive() external view returns (bool);
+        function activateAccountMaxTxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to get the rule Id from the application handler:
+     - Function to know the activation state of the rule for the supplied action in an application handler:
         ```c
-        function getAccountMaxTxValueByRiskScoreId() external view returns (uint32);
+        function isAccountMaxTxValueByRiskScoreActive(ActionTypes _action) external view returns (bool);
+        ```
+    - Function to get the rule Id for the supplied action from the application handler:
+        ```c
+        function getAccountMaxTxValueByRiskScoreId(ActionTypes _action) external view returns (uint32);
         ```
 
 ## Return Data
@@ -229,11 +236,18 @@ mapping(address => uint64) lastTxDateRiskRule;
         - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
-- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
         - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+    - Emitted when: rule has been applied in an application manager handler.
+    - Parameters: 
+        - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
+        - actions: the protocol actions the rule is being applied to.
+        - ruleIds: the ruleIds set for each action on this rule in the handler.
 
 ## Dependencies
 
