@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -119,18 +119,22 @@ function checkBalanceByAccessLevelPasses(
 |`_amountToTransfer`|`uint256`|total number of tokens to be transferred|
 
 
-### checkAccountMaxBuySize
+### checkAccountMaxTradeSize
 
-*This function receives a rule id for AccountMaxBuySize details and checks that transaction passes.*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*Rule checks if recipient balance + amount exceeded max amount for that action type during rule period, prevent transactions for that action for freeze period*
 
 
 ```solidity
-function checkAccountMaxBuySize(
+function checkAccountMaxTradeSize(
     uint32 ruleId,
-    uint256 boughtInPeriod,
+    uint256 transactedInPeriod,
     uint256 amount,
-    bytes32[] calldata toTags,
-    uint64 lastUpdateTime
+    bytes32[] memory toTags,
+    uint64 lastTransactionTime
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -138,35 +142,16 @@ function checkAccountMaxBuySize(
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`boughtInPeriod`|`uint256`|Number of tokens purchased within purchase Period|
+|`transactedInPeriod`|`uint256`|Number of tokens transacted during Period|
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+|`lastTransactionTime`|`uint64`|block.timestamp of most recent transaction transaction from sender for action type.|
 
-
-### checkAccountMaxSellSize
-
-*This function receives a rule id for AccountMaxSellSize details and checks that transaction passes.*
-
-
-```solidity
-function checkAccountMaxSellSize(
-    uint32 ruleId,
-    uint256 salesInPeriod,
-    uint256 amount,
-    bytes32[] calldata fromTags,
-    uint64 lastUpdateTime
-) external view returns (uint256);
-```
-**Parameters**
+**Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`salesInPeriod`|`uint256`||
-|`amount`|`uint256`|Number of tokens to be transferred|
-|`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+|`<none>`|`uint256`|cumulativeTotal total amount of tokens bought or sold within Trade period.|
 
 
 ### checkAccountMinMaxTokenBalanceAMM
@@ -344,6 +329,31 @@ function checkAccountMaxTxValueByRiskScore(
 |`<none>`|`uint128`|updated value for the _valueTransactedInPeriod. If _valueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
 
 
+### checkTokenMaxBuySellVolume
+
+*Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Sell Volume Rule passes*
+
+
+```solidity
+function checkTokenMaxBuySellVolume(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastTransactionTime,
+    uint256 totalWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastTransactionTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalWithinPeriod`|`uint256`|total amount of tokens sold within current period|
+
+
 ### checkAccountDenyForNoAccessLevel
 
 *Ensure that AccountDenyForNoAccessLevel passes.*
@@ -403,56 +413,6 @@ function checkPauseRules(address _dataServer) external view;
 |Name|Type|Description|
 |----|----|-----------|
 |`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
-
-
-### checkTokenMaxBuyVolume
-
-*Function receives a rule id, retrieves the rule data and checks if the TokenMaxBuyVolume Rule passes*
-
-
-```solidity
-function checkTokenMaxBuyVolume(
-    uint32 ruleId,
-    uint256 currentTotalSupply,
-    uint256 amountToTransfer,
-    uint64 lastPurchaseTime,
-    uint256 totalBoughtInPeriod
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|id of the rule to be checked|
-|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
-|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
-|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
-|`totalBoughtInPeriod`|`uint256`||
-
-
-### checkTokenMaxSellVolume
-
-*Function receives a rule id, retrieves the rule data and checks if the TokenMaxSellVolume Rule passes*
-
-
-```solidity
-function checkTokenMaxSellVolume(
-    uint32 ruleId,
-    uint256 currentTotalSupply,
-    uint256 amountToTransfer,
-    uint64 lastSellTime,
-    uint256 totalSoldInPeriod
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|id of the rule to be checked|
-|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
-|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
-|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
-|`totalSoldInPeriod`|`uint256`|total amount of tokens sold during period.|
 
 
 ### checkTokenMaxTradingVolume
@@ -611,28 +571,13 @@ function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateAccountMaxBuySize
+### validateAccountMaxTradeSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccountMaxBuySize(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### validateAccountMaxSellSize
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateAccountMaxSellSize(uint32 _ruleId) external view;
+function validateAccountMaxTradeSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -686,28 +631,13 @@ function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateTokenMaxBuyVolume
+### validateTokenMaxBuySellVolume
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### validateTokenMaxSellVolume
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateTokenMaxSellVolume(uint32 _ruleId) external view;
+function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
 ```
 **Parameters**
 

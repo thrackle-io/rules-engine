@@ -1,8 +1,8 @@
 # TradingRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/client/token/handler/diamond/TradingRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/client/token/handler/diamond/TradingRuleFacet.sol)
 
 **Inherits:**
-[HandlerAccountMaxBuySize](/src/client/token/handler/ruleContracts/HandlerAccountMaxBuySize.sol/contract.HandlerAccountMaxBuySize.md), [HandlerTokenMaxBuyVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxBuyVolume.sol/contract.HandlerTokenMaxBuyVolume.md), [HandlerAccountMaxSellSize](/src/client/token/handler/ruleContracts/HandlerAccountMaxSellSize.sol/contract.HandlerAccountMaxSellSize.md), [HandlerTokenMaxSellVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxSellVolume.sol/contract.HandlerTokenMaxSellVolume.md)
+[HandlerAccountMaxTradeSize](/src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol/contract.HandlerAccountMaxTradeSize.md), [HandlerTokenMaxBuySellVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol/contract.HandlerTokenMaxBuySellVolume.md)
 
 
 ## Functions

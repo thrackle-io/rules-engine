@@ -1,5 +1,5 @@
 # RuleStoragePositionLib
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -17,33 +17,19 @@ bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamo
 ```
 
 
-### ACCOUNT_MAX_BUY_SIZE_POSITION
+### ACCOUNT_MAX_TRADE_SIZE
 every rule has its own storage
 
 
 ```solidity
-bytes32 constant ACCOUNT_MAX_BUY_SIZE_POSITION = bytes32(uint256(keccak256("account-max-buy-size")) - 1);
+bytes32 constant ACCOUNT_MAX_TRADE_SIZE = bytes32(uint256(keccak256("account-max-trade-volume")) - 1);
 ```
 
 
-### ACCOUNT_MAX_SELL_SIZE_POSITION
+### ACCOUNT_MAX_BUY_SELL_VOLUME_POSITION
 
 ```solidity
-bytes32 constant ACCOUNT_MAX_SELL_SIZE_POSITION = bytes32(uint256(keccak256("account-max-sell-size")) - 1);
-```
-
-
-### ACCOUNT_MAX_BUY_VOLUME_POSITION
-
-```solidity
-bytes32 constant ACCOUNT_MAX_BUY_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-buy-volume")) - 1);
-```
-
-
-### ACCOUNT_MAX_SELL_VOLUME_POSITION
-
-```solidity
-bytes32 constant ACCOUNT_MAX_SELL_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-sell-volume")) - 1);
+bytes32 constant ACCOUNT_MAX_BUY_SELL_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-buy-sell-volume")) - 1);
 ```
 
 
@@ -151,64 +137,34 @@ bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION =
 
 
 ## Functions
-### accountMaxBuySizeStorage
+### accountMaxTradeSizeStorage
 
-*Function to store Purchase rules*
+*Function to store Trade rules*
 
 
 ```solidity
-function accountMaxBuySizeStorage() internal pure returns (IRuleStorage.AccountMaxBuySizeS storage ds);
+function accountMaxTradeSizeStorage() internal pure returns (IRuleStorage.AccountMaxTradeSizeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.AccountMaxBuySizeS`|Data Storage of Purchase Rule|
+|`ds`|`IRuleStorage.AccountMaxTradeSizeS`|Data Storage of Trade Rule|
 
 
-### accountMaxSellSizeStorage
-
-*Function to store Sell rules*
-
-
-```solidity
-function accountMaxSellSizeStorage() internal pure returns (IRuleStorage.AccountMaxSellSizeS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`IRuleStorage.AccountMaxSellSizeS`|Data Storage of Sell Rule|
-
-
-### accountMaxBuyVolumeStorage
+### accountMaxBuySellVolumeStorage
 
 *Function to store Account Max Buy Volume rules*
 
 
 ```solidity
-function accountMaxBuyVolumeStorage() internal pure returns (IRuleStorage.TokenMaxBuyVolumeS storage ds);
+function accountMaxBuySellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxBuySellVolumeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.TokenMaxBuyVolumeS`|Data Storage of Account Max Buy Volume Rule|
-
-
-### accountMaxSellVolumeStorage
-
-*Function to store Account Max Sell Volume rules*
-
-
-```solidity
-function accountMaxSellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxSellVolumeS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`IRuleStorage.TokenMaxSellVolumeS`|Data Storage of Account Max Sell Volume Rule|
+|`ds`|`IRuleStorage.TokenMaxBuySellVolumeS`|Data Storage of Account Max Buy Volume Rule|
 
 
 ### purchaseFeeByVolumeStorage

@@ -1,5 +1,5 @@
 # StorageLib
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/client/token/handler/diamond/StorageLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/client/token/handler/diamond/StorageLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -14,22 +14,6 @@ Library for Rules
 
 ```solidity
 bytes32 constant DIAMOND_CUT_STORAGE_HANDLER_POS = bytes32(uint256(keccak256("diamond-cut.storage-handler")) - 1);
-```
-
-
-### ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION
-
-```solidity
-bytes32 constant ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION =
-    bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
-```
-
-
-### ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION
-
-```solidity
-bytes32 constant ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION =
-    bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
 ```
 
 
@@ -68,22 +52,6 @@ bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-positio
 ```solidity
 bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION =
     bytes32(uint256(keccak256("admin-min-token-balance-position")) - 1);
-```
-
-
-### TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION
-
-```solidity
-bytes32 constant TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION =
-    bytes32(uint256(keccak256("token-max-buy-volume-position")) - 1);
-```
-
-
-### TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION
-
-```solidity
-bytes32 constant TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION =
-    bytes32(uint256(keccak256("token-max-sell-volume-position")) - 1);
 ```
 
 
@@ -139,6 +107,22 @@ bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("initialized-p
 ```
 
 
+### TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION
+
+```solidity
+bytes32 constant TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION =
+    bytes32(uint256(keccak256("token-max-buy-sell-position")) - 1);
+```
+
+
+### ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION
+
+```solidity
+bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION =
+    bytes32(uint256(keccak256("account-max-trading-size-handler-postion")) - 1);
+```
+
+
 ## Functions
 ### initializedStorage
 
@@ -185,64 +169,34 @@ function feeStorage() internal pure returns (FeeS storage ds);
 |`ds`|`FeeS`|Data Storage of Fees|
 
 
-### accountMaxBuySizeStorage
+### accountMaxTradeSizeStorage
 
-*Function to store Account Max Buy Size rules*
+*Function to store Max Trade Size rules*
 
 
 ```solidity
-function accountMaxBuySizeStorage() internal pure returns (AccountMaxBuySizeS storage ds);
+function accountMaxTradeSizeStorage() internal pure returns (AccountMaxTradeSizeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`AccountMaxBuySizeS`|Data Storage of Account Max Buy Size Rule|
+|`ds`|`AccountMaxTradeSizeS`|Data Storage of Max Trade Size Rule|
 
 
-### accountMaxSellSizeStorage
+### tokenMaxBuySellVolumeStorage
 
-*Function to store Max Sell Size rules*
+*Function to store Token Max Buy Sell Volume rules*
 
 
 ```solidity
-function accountMaxSellSizeStorage() internal pure returns (AccountMaxSellSizeS storage ds);
+function tokenMaxBuySellVolumeStorage() internal pure returns (TokenMaxBuySellVolumeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`AccountMaxSellSizeS`|Data Storage of Max Sell Size Rule|
-
-
-### tokenMaxBuyVolumeStorage
-
-*Function to store Token Max Buy Volume rules*
-
-
-```solidity
-function tokenMaxBuyVolumeStorage() internal pure returns (TokenMaxBuyVolumeS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`TokenMaxBuyVolumeS`|Data Storage of Token Max Buy Volume Rule|
-
-
-### tokenMaxSellVolumeStorage
-
-*Function to store Token Max Sell Volume rules*
-
-
-```solidity
-function tokenMaxSellVolumeStorage() internal pure returns (TokenMaxSellVolumeS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`TokenMaxSellVolumeS`|Data Storage of Token Max Sell Volume Rule|
+|`ds`|`TokenMaxBuySellVolumeS`|Data Storage of Token Max Buy Sell Volume Rule|
 
 
 ### tokenMaxTradingVolumeStorage

@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -251,22 +251,22 @@ function getTotalAdminMinTokenBalance() public view returns (uint32);
 |`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
-### checkAccountMaxBuySize
+### checkAccountMaxTradeSize
 
 If the rule applies to all users, it checks blank tag only. Otherwise loop through
 tags and check for specific application. This was done in a minimal way to allow for
 modifications later while not duplicating rule check logic.
 
-*Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period*
+*Rule checks if recipient balance + amount exceeded max amount for that action type during rule period, prevent transactions for that action for freeze period*
 
 
 ```solidity
-function checkAccountMaxBuySize(
+function checkAccountMaxTradeSize(
     uint32 ruleId,
-    uint256 boughtInPeriod,
+    uint256 transactedInPeriod,
     uint256 amount,
     bytes32[] memory toTags,
-    uint64 lastUpdateTime
+    uint64 lastTransactionTime
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -274,28 +274,28 @@ function checkAccountMaxBuySize(
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`boughtInPeriod`|`uint256`|Number of tokens bought during Period|
+|`transactedInPeriod`|`uint256`|Number of tokens transacted during Period|
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+|`lastTransactionTime`|`uint64`|block.timestamp of most recent transaction transaction from sender for action type.|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint256`|cumulativeTotal total amount of tokens bought within buy period.|
+|`<none>`|`uint256`|cumulativeTotal total amount of tokens bought or sold within Trade period.|
 
 
-### getAccountMaxBuySize
+### getAccountMaxTradeSize
 
-*Function get the account max buy size rule in the rule set that belongs to an account type*
+*Function get the account max Trade size rule in the rule set that belongs to an account type*
 
 
 ```solidity
-function getAccountMaxBuySize(uint32 _index, bytes32 _accountType)
+function getAccountMaxTradeSize(uint32 _index, bytes32 _accountType)
     public
     view
-    returns (TaggedRules.AccountMaxBuySize memory);
+    returns (TaggedRules.AccountMaxTradeSize memory);
 ```
 **Parameters**
 
@@ -308,16 +308,16 @@ function getAccountMaxBuySize(uint32 _index, bytes32 _accountType)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.AccountMaxBuySize`|AccountMaxBuySize rule at index position|
+|`<none>`|`TaggedRules.AccountMaxTradeSize`|AccountMaxBuySize rule at index position|
 
 
-### getAccountMaxBuySizeStart
+### getAccountMaxTradeSizeStart
 
-*Function get the account max buy size rule start timestamp*
+*Function get the account max trade size rule start timestamp*
 
 
 ```solidity
-function getAccountMaxBuySizeStart(uint32 _index) public view returns (uint64 startTime);
+function getAccountMaxTradeSizeStart(uint32 _index) public view returns (uint64 startTime);
 ```
 **Parameters**
 
@@ -332,105 +332,13 @@ function getAccountMaxBuySizeStart(uint32 _index) public view returns (uint64 st
 |`startTime`|`uint64`|startTimestamp of rule at index position|
 
 
-### getTotalAccountMaxBuySize
+### getTotalAccountMaxTradeSize
 
-*Function to get total account max buy size rules*
-
-
-```solidity
-function getTotalAccountMaxBuySize() public view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### checkAccountMaxSellSize
-
-*Sell rule functions similar to account max buy size rule but "resets" at 12 utc after maxSize is exceeded*
+*Function to get total account max trade size rules*
 
 
 ```solidity
-function checkAccountMaxSellSize(
-    uint32 ruleId,
-    uint256 salesInPeriod,
-    uint256 amount,
-    bytes32[] memory fromTags,
-    uint64 lastUpdateTime
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`salesInPeriod`|`uint256`||
-|`amount`|`uint256`|Number of tokens to be transferred|
-|`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|cumulativeSales Total tokens sold within sell period.|
-
-
-### getAccountMaxSellSize
-
-*Function to get Sell rule at index*
-
-
-```solidity
-function getAccountMaxSellSize(uint32 _index, bytes32 _accountType)
-    public
-    view
-    returns (TaggedRules.AccountMaxSellSize memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_index`|`uint32`|Position of rule in array|
-|`_accountType`|`bytes32`|Types of Accounts|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`TaggedRules.AccountMaxSellSize`|AccountMaxSellSize at position in array|
-
-
-### getAccountMaxSellSizeStartByIndex
-
-*Function get the account max buy size rule start timestamp*
-
-
-```solidity
-function getAccountMaxSellSizeStartByIndex(uint32 _index) public view returns (uint64 startTime);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_index`|`uint32`|Position of rule in array|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`startTime`|`uint64`|rule start timestamp.|
-
-
-### getTotalAccountMaxSellSize
-
-*Function to get total Sell rules*
-
-
-```solidity
-function getTotalAccountMaxSellSize() public view returns (uint32);
+function getTotalAccountMaxTradeSize() public view returns (uint32);
 ```
 **Returns**
 

@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/common/IErrors.sol/interface.IERC20Errors.md)
@@ -304,18 +304,18 @@ function getTotalTokenMaxSupplyVolatility() public view returns (uint32);
 |`<none>`|`uint32`|tokenMaxSupplyVolatility Rules total length of array|
 
 
-### checkTokenMaxBuyVolume
+### checkTokenMaxBuySellVolume
 
-*Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Volume Rule passes*
+*Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Sell Volume Rule passes*
 
 
 ```solidity
-function checkTokenMaxBuyVolume(
+function checkTokenMaxBuySellVolume(
     uint32 ruleId,
     uint256 currentTotalSupply,
     uint256 amountToTransfer,
-    uint64 lastPurchaseTime,
-    uint256 boughtInPeriod
+    uint64 lastTransactionTime,
+    uint256 totalWithinPeriod
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -325,17 +325,17 @@ function checkTokenMaxBuyVolume(
 |`ruleId`|`uint32`|id of the rule to be checked|
 |`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
 |`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
-|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
-|`boughtInPeriod`|`uint256`|total amount of tokens purchased in current period|
+|`lastTransactionTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalWithinPeriod`|`uint256`|total amount of tokens sold within current period|
 
 
-### getTokenMaxBuyVolume
+### getTokenMaxBuySellVolume
 
-*Function get Token Max Buy Volume by index*
+*Function get Token Max Buy Sell Volume by index*
 
 
 ```solidity
-function getTokenMaxBuyVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxBuyVolume memory);
+function getTokenMaxBuySellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxBuySellVolume memory);
 ```
 **Parameters**
 
@@ -347,77 +347,16 @@ function getTokenMaxBuyVolume(uint32 _index) public view returns (NonTaggedRules
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenMaxBuyVolume`|tokenMaxBuyVolumeRules rule at index position|
+|`<none>`|`NonTaggedRules.TokenMaxBuySellVolume`|tokenMaxSellVolumeRules rule at index position|
 
 
-### getTotalTokenMaxBuyVolume
+### getTotalTokenMaxBuySellVolume
 
-*Function to get total Token Max Buy Volume rules*
-
-
-```solidity
-function getTotalTokenMaxBuyVolume() public view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### checkTokenMaxSellVolume
-
-*Function receives a rule id, retrieves the rule data and checks if the Token Max Sell Volume Rule passes*
+*Function to get total Token Max Buy Sell Volume rules*
 
 
 ```solidity
-function checkTokenMaxSellVolume(
-    uint32 ruleId,
-    uint256 currentTotalSupply,
-    uint256 amountToTransfer,
-    uint64 lastSellTime,
-    uint256 soldWithinPeriod
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|id of the rule to be checked|
-|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
-|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
-|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
-|`soldWithinPeriod`|`uint256`|total amount of tokens sold within current period|
-
-
-### getTokenMaxSellVolume
-
-*Function get Token Max Sell Volume by index*
-
-
-```solidity
-function getTokenMaxSellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxSellVolume memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_index`|`uint32`|position of rule in array|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenMaxSellVolume`|tokenMaxSellVolumeRules rule at index position|
-
-
-### getTotalTokenMaxSellVolume
-
-*Function to get total Token Max Sell Volume rules*
-
-
-```solidity
-function getTotalTokenMaxSellVolume() public view returns (uint32);
+function getTotalTokenMaxBuySellVolume() public view returns (uint32);
 ```
 **Returns**
 

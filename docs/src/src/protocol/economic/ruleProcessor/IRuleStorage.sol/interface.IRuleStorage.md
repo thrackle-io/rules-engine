@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,52 +10,29 @@ This interface outlines the storage structures for each rule stored in diamond
 
 
 ## Structs
-### AccountMaxBuySizeS
+### AccountMaxTradeSizeS
 Note The following are market-related oppertation rules. Checks depend on the
 accuracy of the method to determine when a transfer is part of a trade and what
 direction it is taking (buy or sell).
-******** Account Max Buy Sizes ********
+******** Account Max Trade Sizes ********
 
 
 ```solidity
-struct AccountMaxBuySizeS {
-    mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxBuySize)) accountMaxBuySizeRules;
+struct AccountMaxTradeSizeS {
+    mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxTradeSize)) accountMaxTradeSizeRules;
     mapping(uint32 => uint64) startTimes;
-    uint32 accountMaxBuySizeIndex;
+    uint32 accountMaxTradeSizeIndex;
 }
 ```
 
-### AccountMaxSellSizeS
-******** Account Max Sell Sizes ********
+### TokenMaxBuySellVolumeS
+******** Token Max Buy Sell Volume ********
 
 
 ```solidity
-struct AccountMaxSellSizeS {
-    mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxSellSize)) AccountMaxSellSizesRules;
-    mapping(uint32 => uint64) startTimes;
-    uint32 AccountMaxSellSizesIndex;
-}
-```
-
-### TokenMaxBuyVolumeS
-******** Token Max Buy Volume ********
-
-
-```solidity
-struct TokenMaxBuyVolumeS {
-    mapping(uint32 => INonTaggedRules.TokenMaxBuyVolume) tokenMaxBuyVolumeRules;
-    uint32 tokenMaxBuyVolumeIndex;
-}
-```
-
-### TokenMaxSellVolumeS
-******** Token Max Sell Volume Rules ********
-
-
-```solidity
-struct TokenMaxSellVolumeS {
-    mapping(uint32 => INonTaggedRules.TokenMaxSellVolume) tokenMaxSellVolumeRules;
-    uint32 tokenMaxSellVolumeIndex;
+struct TokenMaxBuySellVolumeS {
+    mapping(uint32 => INonTaggedRules.TokenMaxBuySellVolume) tokenMaxBuySellVolumeRules;
+    uint32 tokenMaxBuySellVolumeIndex;
 }
 ```
 

@@ -1,5 +1,5 @@
 # INonTaggedRules
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -19,25 +19,12 @@ struct TokenMinTxSize {
 }
 ```
 
-### TokenMaxBuyVolume
-******** Token Max Buy Volume ********
+### TokenMaxBuySellVolume
+******** Token Max Buy Sell Volume Rules ********
 
 
 ```solidity
-struct TokenMaxBuyVolume {
-    uint16 tokenPercentage;
-    uint16 period;
-    uint256 totalSupply;
-    uint64 startTime;
-}
-```
-
-### TokenMaxSellVolume
-******** Token Max Sell Volume Rules ********
-
-
-```solidity
-struct TokenMaxSellVolume {
+struct TokenMaxBuySellVolume {
     uint16 tokenPercentage;
     uint16 period;
     uint256 totalSupply;

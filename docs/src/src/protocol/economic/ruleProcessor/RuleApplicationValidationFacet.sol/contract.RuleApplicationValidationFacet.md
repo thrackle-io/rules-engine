@@ -1,5 +1,5 @@
 # RuleApplicationValidationFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -85,28 +85,13 @@ function getTotalTokenMaxDailyTradesRules() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validateAccountMaxBuySize
+### getTotalAccountMaxTradeSize
 
-*Validate the existence of the rule*
-
-
-```solidity
-function validateAccountMaxBuySize(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalAccountMaxBuySize
-
-*Function to get total account max buy size rules*
+*Function to get total account max Trade size rules*
 
 
 ```solidity
-function getTotalAccountMaxBuySize() internal view returns (uint32);
+function getTotalAccountMaxTradeSize() internal view returns (uint32);
 ```
 **Returns**
 
@@ -115,34 +100,19 @@ function getTotalAccountMaxBuySize() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validateAccountMaxSellSize
+### validateAccountMaxTradeSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccountMaxSellSize(uint32 _ruleId) external view;
+function validateAccountMaxTradeSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalAccountMaxSellSize
-
-*Function to get total Account Max Sell Size rules*
-
-
-```solidity
-function getTotalAccountMaxSellSize() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
 
 
 ### validateAdminMinTokenBalance
@@ -235,13 +205,13 @@ function getTotalAccountApproveDenyOracle() internal view returns (uint32);
 |`<none>`|`uint32`|total accountApproveDenyOracleRules array length|
 
 
-### validateTokenMaxBuyVolume
+### validateTokenMaxBuySellVolume
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
+function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -250,43 +220,13 @@ function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getTotalTokenMaxBuyVolume
+### getTotalTokenMaxBuySellVolume
 
-*Function to get total Token Max Buy Volume*
-
-
-```solidity
-function getTotalTokenMaxBuyVolume() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### validateTokenMaxSellVolume
-
-*Validate the existence of the rule*
+*Function to get total Token Max Buy Sell Volume*
 
 
 ```solidity
-function validateTokenMaxSellVolume(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalTokenMaxSellVolume
-
-*Function to get total Token Max Sell Volume*
-
-
-```solidity
-function getTotalTokenMaxSellVolume() internal view returns (uint32);
+function getTotalTokenMaxBuySellVolume() internal view returns (uint32);
 ```
 **Returns**
 

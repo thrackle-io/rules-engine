@@ -1,5 +1,5 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/common/IErrors.sol/interface.IAppRuleInputErrors.md)
@@ -35,17 +35,17 @@ uint24 constant MAX_VOLUME_PERCENTAGE = 100000;
 
 
 ## Functions
-### addTokenMaxBuyVolume
+### addTokenMaxBuySellVolume
 
 Note that no update method is implemented for rules. Since reutilization of
 rules is encouraged, it is preferred to add an extra rule to the
 set instead of modifying an existing one.
 
-*Function to add a Token Max Buy Volume rule*
+*Function to add a Token Max Buy Sell Volume rule*
 
 
 ```solidity
-function addTokenMaxBuyVolume(
+function addTokenMaxBuySellVolume(
     address _appManagerAddr,
     uint16 _supplyPercentage,
     uint16 _period,
@@ -58,41 +58,10 @@ function addTokenMaxBuyVolume(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_supplyPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
+|`_supplyPercentage`|`uint16`|Percentage of Tokens allowed for transaction|
 |`_period`|`uint16`|Time period that transactions are accumulated (in hours)|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
 |`_startTime`|`uint64`|start timestamp for the rule|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|ruleId position of new rule in array|
-
-
-### addTokenMaxSellVolume
-
-*Function to add a Token Max Sell Volume rule*
-
-
-```solidity
-function addTokenMaxSellVolume(
-    address _appManagerAddr,
-    uint16 _supplyPercentage,
-    uint16 _period,
-    uint256 _totalSupply,
-    uint64 _startTime
-) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_supplyPercentage`|`uint16`|Percent of Tokens allowed to sell|
-|`_period`|`uint16`|Time period that transactions are frozen|
-|`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startTime`|`uint64`|start time for the period|
 
 **Returns**
 

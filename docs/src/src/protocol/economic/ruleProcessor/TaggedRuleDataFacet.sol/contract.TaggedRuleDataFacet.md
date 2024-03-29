@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/28055da058876a0a8138d3f9a19aa587a0c30e2b/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -13,20 +13,20 @@ This contract sets and gets the Tagged Rules for the protocol. Rules will be app
 
 
 ## Functions
-### addAccountMaxBuySize
+### addAccountMaxTradeSize
 
-Account Max Buy Size **********************
+Account Max Trade Size **********************
 
-*Function add an Account Max Buy Size rule*
+*Function add an Account Max Trade Size rule*
 
 *Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
-function addAccountMaxBuySize(
+function addAccountMaxTradeSize(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _maxSizes,
+    uint192[] calldata _maxSizes,
     uint16[] calldata _periods,
     uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
@@ -37,7 +37,7 @@ function addAccountMaxBuySize(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint256[]`|Allowed total purchase limits|
+|`_maxSizes`|`uint192[]`|Allowed total purchase limits|
 |`_periods`|`uint16[]`|Hours purhchases allowed|
 |`_startTime`|`uint64`|timestamp period to start|
 
@@ -48,7 +48,7 @@ function addAccountMaxBuySize(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### _addAccountMaxBuySize
+### _addAccountMaxTradeSize
 
 since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
 
@@ -56,9 +56,9 @@ since all the arrays must have matching lengths, it is only necessary to check f
 
 
 ```solidity
-function _addAccountMaxBuySize(
+function _addAccountMaxTradeSize(
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _maxSizes,
+    uint192[] calldata _maxSizes,
     uint16[] calldata _periods,
     uint64 _startTime
 ) internal returns (uint32);
@@ -68,73 +68,9 @@ function _addAccountMaxBuySize(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint256[]`|Allowed total buy sizes|
+|`_maxSizes`|`uint192[]`|Allowed total buy sizes|
 |`_periods`|`uint16[]`|Amount of hours that define the periods|
 |`_startTime`|`uint64`|timestamp for first period to start|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|position of new rule in array|
-
-
-### addAccountMaxSellSize
-
-Account Max Sell Size *********************
-
-*Function to add an Account Max Sell Size rules*
-
-
-```solidity
-function addAccountMaxSellSize(
-    address _appManagerAddr,
-    bytes32[] calldata _accountTypes,
-    uint192[] calldata _maxSizes,
-    uint16[] calldata _period,
-    uint64 _startTime
-) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint192[]`|Allowed total sell sizes|
-|`_period`|`uint16[]`|Amount of hours that define the periods|
-|`_startTime`|`uint64`|rule starts|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|position of new rule in array|
-
-
-### _addAccountMaxSellSize
-
-since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
-
-*Internal Function to avoid stack too deep error*
-
-
-```solidity
-function _addAccountMaxSellSize(
-    bytes32[] calldata _accountTypes,
-    uint192[] calldata _maxSizes,
-    uint16[] calldata _period,
-    uint64 _startTime
-) internal returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint192[]`|Allowed total sell limits|
-|`_period`|`uint16[]`|Period for sales|
-|`_startTime`|`uint64`|rule starts|
 
 **Returns**
 
