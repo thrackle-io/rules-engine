@@ -5,17 +5,11 @@ import "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import "test/util/TestArrays.sol";
 
 contract PredefinedRules is ITaggedRules, INonTaggedRules, IApplicationRules, TestArrays {
-    AccountMaxBuySize public accountMaxBuySizeRuleA = AccountMaxBuySize(13 * 10 ** 18, 24);
-    AccountMaxBuySize public accountMaxBuySizeRuleB = AccountMaxBuySize(20 * 10 ** 18, 24);
+    AccountMaxTradeSize public accountMaxTradeSizeRuleA = AccountMaxTradeSize(13 * 10 ** 18, 24);
+    AccountMaxTradeSize public accountMaxTradeSizeRuleB = AccountMaxTradeSize(20 * 10 ** 18, 24);
 
-    AccountMaxSellSize public accountMaxSellSizeRuleA = AccountMaxSellSize(13 * 10 ** 18, 24);
-    AccountMaxSellSize public accountMaxSellSizeRuleB = AccountMaxSellSize(20 * 10 ** 18, 24);
-
-    TokenMaxBuyVolume public tokenMaxBuyVolumeRuleA = TokenMaxBuyVolume(10, 24, 0, 0);
-    TokenMaxBuyVolume public tokenMaxBuyVolumeRuleB = TokenMaxBuyVolume(10, 24, 10_000 * 10 ** 18, 0);
-
-    TokenMaxSellVolume public tokenMaxSellVolumeRuleA = TokenMaxSellVolume(10, 24, 0, 0);
-    TokenMaxSellVolume public tokenMaxSellVolumeRuleB = TokenMaxSellVolume(10, 24, 10_000 * 10 ** 18, 0);
+    TokenMaxBuySellVolume public tokenMaxBuySellVolumeRuleA = TokenMaxBuySellVolume(10, 24, 0, 0);
+    TokenMaxBuySellVolume public tokenMaxBuySellVolumeRuleB = TokenMaxBuySellVolume(10, 24, 10_000 * 10 ** 18, 0);
 
     AccountMaxTxValueByRiskScore public accountMaxTxValueByRiskScoreA =
         AccountMaxTxValueByRiskScore(createUint48Array(uint48(50), uint48(35), uint48(25)), createUint8Array(uint8(9), uint8(39), uint8(69)), 24, 0);

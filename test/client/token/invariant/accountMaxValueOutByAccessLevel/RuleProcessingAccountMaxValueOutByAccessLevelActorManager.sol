@@ -11,11 +11,13 @@ import "../util/RuleProcessingInvariantActorManagerCommon.sol";
  */
 contract RuleProcessingAccountMaxValueOutByAccessLevelActorManager is RuleProcessingInvariantActorManagerCommon {
     address token;
+    address amm;
     RuleProcessingAccountMaxValueOutByAccessLevelActor[] actors;
 
-    constructor(RuleProcessingAccountMaxValueOutByAccessLevelActor[] memory _actors, address _token) {
+    constructor(RuleProcessingAccountMaxValueOutByAccessLevelActor[] memory _actors, address _token, address _amm) {
         actors = _actors;
         token = _token;
+        amm = _amm;
     }
 
     /**
@@ -24,6 +26,6 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelActorManager is RuleProces
     function checkAccountMaxValueOutByAccessLevel(uint8 _handlerIndex, uint256 _amount) public endWithStopPrank {
         _amount = ((_amount % (25 * ATTO)) + 2 * ATTO);
         _handlerIndex = uint8(bound(uint256(_handlerIndex), 0, actors.length - 1));
-        actors[_handlerIndex].checkAccountMaxValueOutByAccessLevel(_amount, token);
+        actors[_handlerIndex].checkAccountMaxValueOutByAccessLevel(_amount, token, amm);
     }
 }

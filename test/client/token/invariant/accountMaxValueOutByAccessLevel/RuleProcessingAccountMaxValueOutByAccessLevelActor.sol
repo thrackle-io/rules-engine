@@ -21,8 +21,8 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelActor is TestCommonFoundry
     /**
      * @dev test the rule
      */
-    function checkAccountMaxValueOutByAccessLevel(uint256 _amount, address _token) public {
-        IERC20(_token).transfer(address(0xABBA), _amount);
+    function checkAccountMaxValueOutByAccessLevel(uint256 _amount, address _token, address _amm) public {
+        DummySingleTokenAMM(_amm).sell(_amount, _token);
         totalOutInPeriod += _amount;
     }
 }

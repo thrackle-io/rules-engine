@@ -13,9 +13,8 @@ import "../RuleAdministratorOnly.sol";
 contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
-    using RuleProcessorCommonLib for uint8; 
-    using RuleProcessorCommonLib for bytes32[]; 
-
+    using RuleProcessorCommonLib for uint8;
+    using RuleProcessorCommonLib for bytes32[];
 
     /********************** Account Max Trade Size ***********************/
     /**
@@ -31,7 +30,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     function addAccountMaxTradeSize(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint192[] calldata _maxSizes,
+        uint240[] calldata _maxSizes,
         uint16[] calldata _periods,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
@@ -41,6 +40,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         _accountTypes.validateTags();
         return _addAccountMaxTradeSize(_accountTypes, _maxSizes, _periods, _startTime);
     }
+
     /**
      * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
@@ -49,7 +49,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _startTime timestamp for first period to start
      * @return position of new rule in array
      */
-    function _addAccountMaxTradeSize(bytes32[] calldata _accountTypes, uint192[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
+    function _addAccountMaxTradeSize(bytes32[] calldata _accountTypes, uint240[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
         RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
         uint32 index = data.accountMaxTradeSizeIndex;
         _startTime.validateTimestamp();
@@ -66,10 +66,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.accountMaxTradeSizeIndex;
         return index;
     }
-
-
-
-
 
     /********************** Account Min Max Token Balance ***********************/
 
@@ -109,8 +105,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @return position of new rule in array
      */
     function _addAccountMinMaxTokenBalance(
-        bytes32[] calldata _accountTypes, 
-        uint256[] calldata _min, 
+        bytes32[] calldata _accountTypes,
+        uint256[] calldata _min,
         uint256[] calldata _max,
         uint16[] calldata _periods,
         uint64 _startTime
@@ -204,5 +200,4 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.tokenMaxDailyTradesIndex;
         return index;
     }
-
 }

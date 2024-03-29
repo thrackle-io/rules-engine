@@ -23,18 +23,18 @@ contract RuleProcessingTokenMaxBuyVolumeMultiTest is RuleProcessingInvariantComm
     function setUp() public {
         (DummySingleTokenAMM amm, ProtocolERC20Pricing coinPricer, ProtocolERC721Pricing nftPricer) = prepareTradingRuleProcessingInvariant();
         switchToRuleAdmin();
-        uint32 index0 = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(
+        uint32 index0 = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuySellVolume(
             address(applicationAppManager),
-            tokenMaxBuyVolumeRuleA.tokenPercentage,
-            tokenMaxBuyVolumeRuleA.period,
-            tokenMaxBuyVolumeRuleA.totalSupply,
+            tokenMaxBuySellVolumeRuleA.tokenPercentage,
+            tokenMaxBuySellVolumeRuleA.period,
+            tokenMaxBuySellVolumeRuleA.totalSupply,
             uint64(block.timestamp)
         );
-        uint32 index1 = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(
+        uint32 index1 = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuySellVolume(
             address(applicationAppManager),
-            tokenMaxBuyVolumeRuleB.tokenPercentage,
-            tokenMaxBuyVolumeRuleB.period,
-            tokenMaxBuyVolumeRuleB.totalSupply,
+            tokenMaxBuySellVolumeRuleB.tokenPercentage,
+            tokenMaxBuySellVolumeRuleB.period,
+            tokenMaxBuySellVolumeRuleB.totalSupply,
             uint64(block.timestamp)
         );
         for (uint j; j < AMOUNT_MANAGERS; j++) {
@@ -55,7 +55,7 @@ contract RuleProcessingTokenMaxBuyVolumeMultiTest is RuleProcessingInvariantComm
             actors.push(tempActors);
             RuleProcessingTokenMaxBuyVolumeActorManager actorManager = new RuleProcessingTokenMaxBuyVolumeActorManager(tempActors, address(amm), address(testCoin));
             switchToRuleAdmin();
-            HandlerTokenMaxBuyVolume(address(testCoinHandler)).setTokenMaxBuyVolumeId(j % 2 == 0 ? index0 : index1);
+            HandlerTokenMaxBuySellVolume(address(testCoinHandler)).setTokenMaxBuySellVolumeId(createActionTypeArray(ActionTypes.BUY), j % 2 == 0 ? index0 : index1);
             targetContract(address(actorManager));
             actorManagers.push(actorManager);
             (testAppManager, testAppHandler);
@@ -67,7 +67,7 @@ contract RuleProcessingTokenMaxBuyVolumeMultiTest is RuleProcessingInvariantComm
      * maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
      */
     function invariant_amountBoughtCanNeverExceedRulesMaxPctOfTotalSupply() public view {
-        for (uint j; j < actors.length; j++) assertLe((actorManagers[j].totalBoughtInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuyVolumeRuleA.tokenPercentage);
+        for (uint j; j < actors.length; j++) assertLe((actorManagers[j].totalBoughtInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuySellVolumeRuleA.tokenPercentage);
     }
 
     /**
@@ -75,7 +75,7 @@ contract RuleProcessingTokenMaxBuyVolumeMultiTest is RuleProcessingInvariantComm
      */
     function invariant_deactivationIndependentPerAsset() public {
         switchToRuleAdmin();
-        HandlerTokenMaxBuyVolume(address(tokenHandlers[0])).activateTokenMaxBuyVolume(false);
-        for (uint j = 1; j < actors.length; j++) assertLe((actorManagers[j].totalBoughtInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuyVolumeRuleA.tokenPercentage);
+        HandlerTokenMaxBuySellVolume(address(tokenHandlers[0])).activateTokenMaxBuySellVolume(createActionTypeArray(ActionTypes.BUY), false);
+        for (uint j = 1; j < actors.length; j++) assertLe((actorManagers[j].totalBoughtInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuySellVolumeRuleA.tokenPercentage);
     }
 }

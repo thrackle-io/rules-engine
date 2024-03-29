@@ -22,11 +22,11 @@ contract RuleProcessingAccountMaxSellSizeMultiTest is RuleProcessingInvariantCom
     function setUp() public {
         (DummySingleTokenAMM amm, ProtocolERC20Pricing coinPricer, ProtocolERC721Pricing nftPricer) = prepareTradingRuleProcessingInvariant();
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(
+        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(
             address(applicationAppManager),
             createBytes32Array(bytes32("tagA"), bytes32("tagB")),
-            createUint192Array(uint192(accountMaxSellSizeRuleA.maxSize), uint192(accountMaxSellSizeRuleB.maxSize)),
-            createUint16Array(accountMaxSellSizeRuleA.period, accountMaxSellSizeRuleB.period),
+            createUint240Array(accountMaxTradeSizeRuleA.maxSize, accountMaxTradeSizeRuleB.maxSize),
+            createUint16Array(accountMaxTradeSizeRuleA.period, accountMaxTradeSizeRuleB.period),
             uint64(block.timestamp)
         );
         for (uint j; j < AMOUNT_MANAGERS; j++) {
@@ -55,7 +55,7 @@ contract RuleProcessingAccountMaxSellSizeMultiTest is RuleProcessingInvariantCom
             actors.push(tempActors);
             RuleProcessingAccountMaxSellSizeActorManager actorManager = new RuleProcessingAccountMaxSellSizeActorManager(tempActors, address(amm), address(testCoin));
             switchToRuleAdmin();
-            HandlerAccountMaxSellSize(address(testCoinHandler)).setAccountMaxSellSizeId(index);
+            HandlerAccountMaxTradeSize(address(testCoinHandler)).setAccountMaxTradeSizeId(createActionTypeArray(ActionTypes.SELL), index);
             targetContract(address(actorManager));
             actorManagers.push(actorManager);
             testAppHandler;
@@ -71,9 +71,9 @@ contract RuleProcessingAccountMaxSellSizeMultiTest is RuleProcessingInvariantCom
             for (uint i; i < actors[j].length; i++) {
                 // the more restrictive tag
                 if (i % 3 == 0)
-                    assertLe(actors[j][i].totalSoldInPeriod(), accountMaxSellSizeRuleA.maxSize);
+                    assertLe(actors[j][i].totalSoldInPeriod(), accountMaxTradeSizeRuleA.maxSize);
                     // the less restrictive tag
-                else if (i % 3 == 1) assertLe(actors[j][i].totalSoldInPeriod(), accountMaxSellSizeRuleB.maxSize);
+                else if (i % 3 == 1) assertLe(actors[j][i].totalSoldInPeriod(), accountMaxTradeSizeRuleB.maxSize);
                 // no tag, no limit to check.
             }
         }
@@ -85,14 +85,14 @@ contract RuleProcessingAccountMaxSellSizeMultiTest is RuleProcessingInvariantCom
     function invariant_deactivationIndependentPerAsset() public {
         for (uint j; j < actors.length; j++) {
             switchToRuleAdmin();
-            if (j % 2 == 0) HandlerAccountMaxSellSize(address(tokenHandlers[j])).activateAccountMaxSellSize(false);
+            if (j % 2 == 0) HandlerAccountMaxTradeSize(address(tokenHandlers[j])).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.SELL), false);
             for (uint i; i < actors[j].length; i++) {
                 if (j % 2 == 1) {
                     // the more restrictive tag
                     if (i % 3 == 0)
-                        assertLe(actors[j][i].totalSoldInPeriod(), accountMaxSellSizeRuleA.maxSize);
+                        assertLe(actors[j][i].totalSoldInPeriod(), accountMaxTradeSizeRuleA.maxSize);
                         // the less restrictive tag
-                    else if (i % 3 == 1) assertLe(actors[j][i].totalSoldInPeriod(), accountMaxSellSizeRuleB.maxSize);
+                    else if (i % 3 == 1) assertLe(actors[j][i].totalSoldInPeriod(), accountMaxTradeSizeRuleB.maxSize);
                     // no tag, no limit to check.
                 }
             }

@@ -9,7 +9,6 @@ pragma solidity ^0.8.24;
  */
 
 interface INonTaggedRules {
-
     /// ******** Token Min Tx Size Rules ********
     struct TokenMinTxSize {
         uint256 minSize;
@@ -63,7 +62,7 @@ interface INonTaggedRules {
 interface ITaggedRules {
     /// ******** Account Max Trade Size ********
     struct AccountMaxTradeSize {
-        uint256 maxSize; /// token units
+        uint240 maxSize; /// token units
         uint16 period; /// hours
     }
 
@@ -96,8 +95,8 @@ interface IFeeRules {
 interface IApplicationRules {
     /// ******** Account Max Transaction Value ByRisk Score Rules ********
     /**
-     * @dev maxValue size must be equal to _riskScore 
-     * The positioning of the arrays is ascendant in terms of risk scores, 
+     * @dev maxValue size must be equal to _riskScore
+     * The positioning of the arrays is ascendant in terms of risk scores,
      * and descendant in the size of transactions. (i.e. if highest risk score is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      */

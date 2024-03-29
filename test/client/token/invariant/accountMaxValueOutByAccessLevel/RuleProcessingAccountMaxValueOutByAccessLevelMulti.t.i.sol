@@ -20,7 +20,7 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
     uint8 constant AMOUNT_MANAGERS = 4;
 
     function setUp() public {
-        prepRuleProcessingInvariant();
+        (DummySingleTokenAMM amm, ProtocolERC20Pricing coinPricer, ProtocolERC721Pricing nftPricer) = prepareTradingRuleProcessingInvariant();
         switchToRuleAdmin();
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueOutByAccessLevel(address(applicationAppManager), accountMaxValueOutByAccessLevel);
         for (uint j; j < AMOUNT_MANAGERS; j++) {
@@ -35,17 +35,19 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
                 tempActors[i] = actor;
                 switchToAppAdministrator();
                 testCoin.mint(address(actor), 2_000 * ATTO);
+                vm.startPrank(address(actor));
+                testCoin.approve(address(amm), 2_000 * ATTO);
                 switchToAccessLevelAdmin();
                 applicationAppManager.addAccessLevel(address(actor), uint8(i / 2));
             }
             actors.push(tempActors);
-            RuleProcessingAccountMaxValueOutByAccessLevelActorManager actorManager = new RuleProcessingAccountMaxValueOutByAccessLevelActorManager(tempActors, address(testCoin));
+            RuleProcessingAccountMaxValueOutByAccessLevelActorManager actorManager = new RuleProcessingAccountMaxValueOutByAccessLevelActorManager(tempActors, address(testCoin), address(amm));
             targetContract(address(actorManager));
             actorManagers.push(actorManager);
             testCoinHandler;
         }
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY), index);
+        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL), index);
     }
 
     /**
