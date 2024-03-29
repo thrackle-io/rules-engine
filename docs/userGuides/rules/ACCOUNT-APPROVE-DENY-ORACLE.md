@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the account-approve-deny-oracle rule is to check if the receiver address in the transaction is an approved or denied address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. 
+The purpose of the account-approve-deny-oracle rule is to check if an address in the transaction is an approved or denied address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. Oracle rules are applied per [action type](./ACTION-TYPES.md) and for burn and sell actions the sender address is checked. For all other actions, the receiver address is checked. 
 
 If an address is not on an approved oracle list, they will be denied from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
 
@@ -16,7 +16,7 @@ The deny list is designed as a tool to reduce the risk of malicious actors in th
 ## Applies To Actions:
 
 - [x] MINT
-- [ ] BURN
+- [x] BURN
 - [x] BUY
 - [x] SELL
 - [x] TRANSFER(Peer to Peer)
@@ -67,10 +67,10 @@ The rule will be evaluated with the following logic (this logic will be evaluate
 3. The processor will receive the address that is to be checked in the oracle.
 4. The processor will determine the type of oracle based on the rule id. 
 5. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
-- Allow list: check if the receiver address is an approved address. If the address is not on the approved list the transaction will revert. 
-- Deny list: check if the sender is a denied address. If the address is denied the transaction will revert. 
+- Action types of Transfer, Mint and Buy: check if the receiver address is an approved address. If the address is not on the approved list the transaction will revert. 
+- Action types of Burn and Sell: check if the sender is a denied address. If the address is denied the transaction will revert. 
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkAccountApproveDenyOracle*
 
