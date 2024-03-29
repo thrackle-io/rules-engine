@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document outlines the overall fee structure of the protocol, how fees are applied and at what level the fees are applied. Each fee type has its own documentation associated to the specifics of that Fee type and are stored in the [FEE-GUIDE](./FEE-GUIDE.md).
+This document outlines the overall fee structure of the protocol, how fees are applied and at what level the fees are applied. Each fee type has its own documentation associated to the specifics of that Fee type and are stored in the [fee guide](./README.md).
 
 A Fee data contract is deployed at the same time as the token handler. All supporting fee data is stored in this contract and owned by the handler. Data contracts can be migrated to a new handler in the event of an upgrade so that fee data is not lost. Only the previous handler owner or [app administrators](../deployment/ADMIN-ROLES.md) can migrate the data contracts. Migrations to a new handler are completed through a two step migration process.
 
