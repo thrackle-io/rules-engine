@@ -30,11 +30,6 @@
 
 #### [Mainnet Deployments][mainnetDeployment-url]
 
-
-## Release History
-
-* 0.1.1
-    * Initial document creation
   
 <!-- These are the body links -->
 [localDeploymentFoundry-url]: ./nft/DEPLOYMENT-LOCAL.md

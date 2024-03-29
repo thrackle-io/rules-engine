@@ -14,8 +14,6 @@ Rule application is a two step process. First, the rule admin must obtain a rule
 Rule deactivation is done by sending a "false" boolean with the desired [economic action types](./ACTION-TYPES.md) to the activate function. When rule active status is set to "false", the [economic action type](./ACTION-TYPES.md) will not be validated through the protocol. Rule admins can check the activation status of a rule at any time. Within the handler contracts are functions that return the activation status of the rule. The rule id for each rule and [economic action type](./ACTION-TYPES.md) may be retrieved through the get rule id functions in each handler.
 
 
-[Action Types For Rules](./ACTION-TYPES.md)
-
 | Rule | Purpose |
 |:-|:-|
 | [Account Approve Deny Oracle](./ACCOUNT-APPROVE-DENY-ORACLE.md) | The purpose of the account-approve-deny-oracle rule is to check if the receiver address in the transaction is an allowed or restricted address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. The deny list is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the deny oracle list they are restricted receiving tokens. Any address not on the deny list will pass this rule check. |
