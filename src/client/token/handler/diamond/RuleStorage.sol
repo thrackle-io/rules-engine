@@ -6,104 +6,92 @@ import {Rule} from "../common/DataStructures.sol";
 
 
 struct Fee {
-    uint256 minBalance;
-    uint256 maxBalance;
-    int24 feePercentage;
-    address feeCollectorAccount;
+   uint256 minBalance;
+   uint256 maxBalance;
+   int24 feePercentage;
+   address feeCollectorAccount;
 }
 
 struct FeeS{    
-    mapping(bytes32 => Fee) feesByTag;
-    uint256 feeTotal;
-    bool feeActive;
+   mapping(bytes32 => Fee) feesByTag;
+   uint256 feeTotal;
+   bool feeActive;
 }
 
 struct TokenMinTxSizeS{
-    mapping(ActionTypes => Rule) tokenMinTxSize;
+   mapping(ActionTypes => Rule) tokenMinTxSize;
 }
 
- struct AccountApproveDenyOracleS{
-    mapping(ActionTypes => Rule[]) accountApproveDenyOracle;
- }
+struct AccountApproveDenyOracleS{
+   mapping(ActionTypes => Rule[]) accountApproveDenyOracle;
+}
 
- struct AccountMaxBuySizeS{
-    uint32 id;
-    bool active;
-    mapping(address => uint256) boughtInPeriod;
-    mapping(address => uint64) lastPurchaseTime;
- }
+struct AccountMaxTradeSizeS{
+   mapping(ActionTypes => Rule) accountMaxTradeSize; 
+   mapping(address => uint256) boughtInPeriod;
+   mapping(address => uint64) lastPurchaseTime;
+   mapping(address => uint256) salesInPeriod;
+   mapping(address => uint64) lastSellTime;
+}
 
- struct AccountMaxSellSizeS{
-    uint32 id;
-    bool active;
-    mapping(address => uint256) salesInPeriod;
-    mapping(address => uint64) lastSellTime;
- }
+struct TokenMaxBuySellVolumeS{
+   mapping(ActionTypes => Rule) tokenMaxBuySellVolume;
+   uint256 boughtInPeriod;
+   uint64 lastPurchaseTime;
+   uint256 salesInPeriod;
+   uint64 lastSellTime;
+}
 
- struct TokenMaxBuyVolumeS{
-    uint32 id;
-    bool active;
-    uint256 boughtInPeriod;
-    uint64 lastPurchaseTime;
- }
+struct AccountMinMaxTokenBalanceHandlerS{
+   mapping(ActionTypes => Rule) accountMinMaxTokenBalance; 
+}
 
- struct TokenMaxSellVolumeS{
-    uint32 id;
-    bool active;
-    uint256 salesInPeriod;
-    uint64 lastSellTime;
- }
+struct HandlerBaseS{
+   address newAppManagerAddress;
+   address ruleProcessor;
+   address appManager;
+   address assetAddress;
+   uint8 lastPossibleAction;
+}
 
- struct AccountMinMaxTokenBalanceHandlerS{
-    mapping(ActionTypes => Rule) accountMinMaxTokenBalance; 
- }
+struct AdminMinTokenBalanceS{
+   mapping(ActionTypes => Rule) adminMinTokenBalance; 
+}
 
-  struct HandlerBaseS{
-    address newAppManagerAddress;
-    address ruleProcessor;
-    address appManager;
-    address assetAddress;
-    uint8 lastPossibleAction;
- }
+struct TokenMaxSupplyVolatilityS{
+   mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
+   uint64 lastSupplyUpdateTime;
+   int256 volumeTotalForPeriod;
+   uint256 totalSupplyForPeriod;
+}
 
- struct AdminMinTokenBalanceS{
-    mapping(ActionTypes => Rule) adminMinTokenBalance; 
- }
+struct TokenMaxTradingVolumeS{
+   mapping(ActionTypes => Rule) tokenMaxTradingVolume;
+   uint256 transferVolume;
+   uint64 lastTransferTime;
+}
 
- struct TokenMaxSupplyVolatilityS{
-    mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
-    uint64 lastSupplyUpdateTime;
-    int256 volumeTotalForPeriod;
-    uint256 totalSupplyForPeriod;
- }
-
- struct TokenMaxTradingVolumeS{
-    mapping(ActionTypes => Rule) tokenMaxTradingVolume;
-    uint256 transferVolume;
-    uint64 lastTransferTime;
- }
-
- struct TokenMaxDailyTradesS{
-    mapping(ActionTypes => Rule) tokenMaxDailyTrades;
-    mapping(uint256 => uint256) tradesInPeriod;
-    mapping(uint256 => uint64) lastTxDate;
- }
+struct TokenMaxDailyTradesS{
+   mapping(ActionTypes => Rule) tokenMaxDailyTrades;
+   mapping(uint256 => uint256) tradesInPeriod;
+   mapping(uint256 => uint64) lastTxDate;
+}
 
 struct TokenMinHoldTime{
-    uint32 ruleId;
-    bool active;
-    uint32 period; //hours
+   uint32 ruleId;
+   bool active;
+   uint32 period; //hours
 }
 
- struct TokenMinHoldTimeS {
-    mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
-    mapping(uint256 => uint256) ownershipStart;
- }
+struct TokenMinHoldTimeS {
+   mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
+   mapping(uint256 => uint256) ownershipStart;
+}
 
- struct NFTValuationLimitS{
-    uint16 nftValuationLimit;
- }
+struct NFTValuationLimitS{
+   uint16 nftValuationLimit;
+}
 
 struct InitializedS{
-    bool initialized;
+   bool initialized;
 }

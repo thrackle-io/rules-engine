@@ -96,13 +96,9 @@
 - When this rule is applied, the cumulative net amount of tokens minted or burned in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the SupplyVolatilityRule applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
 
-### Purchase Percentage
+### Buy Sell Percentage
 
-- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
-
-### Sell Percentage
-
-- When this rule is applied, the cumulative amount of tokens sold in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenPercentageSellRule applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
+- When this rule is applied, the cumulative amount of tokens transacted in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuySellVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
 ## ERC20TaggedRuleProcessorFacet
 
@@ -114,13 +110,9 @@
 
 - When this rule is applied, the token balance of a rule bypasser account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the rule bypasser account must not be allowed to renounce its role.
 
-### Purchase Limit
+### Trade Limit
 
-- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the MaxBuySize applied for the asset.  
-
-### Sell Limit
-
-- When this rule is applied, the cumulative amount of tokens sold in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the AccountMaxSellSize applied for the asset.  
+- When this rule is applied, the cumulative amount of tokens traded in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the MaxTradeSize applied for the asset.  
 
 ## ERC721RuleProcessorFacet
 

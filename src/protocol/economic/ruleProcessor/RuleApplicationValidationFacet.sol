@@ -62,40 +62,23 @@ contract RuleApplicationValidationFacet {
         RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
         return data.tokenMaxDailyTradesIndex;
     }
-
+    
     /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAccountMaxBuySize(uint32 _ruleId) external view {
-        _ruleId.checkRuleExistence(getTotalAccountMaxBuySize());
-    }
-
-    /**
-     * @dev Function to get total account max buy size rules
+     * @dev Function to get total account max Trade size rules
      * @return Total length of array
      */
-    function getTotalAccountMaxBuySize() internal view returns (uint32) {
-        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
-        return data.accountMaxBuySizeIndex;
+    function getTotalAccountMaxTradeSize() internal view returns (uint32) {
+        RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
+        return data.accountMaxTradeSizeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxSellSize(uint32 _ruleId) external view {
+    function validateAccountMaxTradeSize(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getTotalAccountMaxSellSize());
-    }
-
-    /**
-     * @dev Function to get total Account Max Sell Size rules
-     * @return Total length of array
-     */
-    function getTotalAccountMaxSellSize() internal view returns (uint32) {
-        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
-        return data.AccountMaxSellSizesIndex;
+        _ruleId.checkRuleExistence(getTotalAccountMaxTradeSize());
     }
 
     /**
@@ -153,34 +136,17 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxBuyVolume(uint32 _ruleId) external view {
-        _ruleId.checkRuleExistence(getTotalTokenMaxBuyVolume());
+    function validateTokenMaxBuySellVolume(uint32 _ruleId) external view {
+        _ruleId.checkRuleExistence(getTotalTokenMaxBuySellVolume());
     }
 
     /**
-     * @dev Function to get total Token Max Buy Volume
+     * @dev Function to get total Token Max Buy Sell Volume
      * @return Total length of array
      */
-    function getTotalTokenMaxBuyVolume() internal view returns (uint32) {
-        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
-        return data.tokenMaxBuyVolumeIndex;
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateTokenMaxSellVolume(uint32 _ruleId) external view {
-        _ruleId.checkRuleExistence(getTotalTokenMaxSellVolume());
-    }
-
-    /**
-     * @dev Function to get total Token Max Sell Volume
-     * @return Total length of array
-     */
-    function getTotalTokenMaxSellVolume() internal view returns (uint32) {
-        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
-        return data.tokenMaxSellVolumeIndex;
+    function getTotalTokenMaxBuySellVolume() internal view returns (uint32) {
+        RuleS.TokenMaxBuySellVolumeS storage data = Storage.accountMaxBuySellVolumeStorage();
+        return data.tokenMaxBuySellVolumeIndex;
     }
 
     /**

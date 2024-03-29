@@ -15,15 +15,14 @@ abstract contract RuleCreation is TestCommonFoundry {
     Rule List: 
     AccountApproveDenyOracle
     AccountDenyForNoAccessLevel 
-    AccountMaxBuySize
-    AccountMaxSellSize
+    AccountMaxTradeSize
     AccountMaxTxValueByRisk
     AccountMaxValueByAccessLevel
     AccountMaxValueByRisk
     AccountMaxValueOutByAccessLevel
     AccountMin/MaxTokenBalanceRule
     AdminMinTokenBalance
-    TokenMaxBuyVolume
+    TokenMaxBuySellVolume
     TokenMaxDailyTradesRule
     TokenMaxSellVolume
     TokenMaxSupplyVolatilityRule
@@ -62,26 +61,14 @@ abstract contract RuleCreation is TestCommonFoundry {
         applicationHandler.activateAccountDenyForNoAccessLevelRule(createActionTypeArrayAll(), true);
     }
 
-    function createAccountMaxBuySizeRule(bytes32 tagForRule, uint256 maxBuySize, uint16 _period) public returns (uint32) {
+    function createAccountMaxTradeSizeRule(bytes32 tagForRule, uint192 maxSize, uint16 _period) public returns (uint32) {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array(tagForRule);
-        uint256[] memory maxBuySizes = createUint256Array(maxBuySize);
+        uint192[] memory amounts = createUint192Array(maxSize);
         uint16[] memory period = createUint16Array(_period);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, maxBuySizes, period, uint64(Blocktime));
-        TaggedRules.AccountMaxBuySize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxBuySize(ruleId, tagForRule);
-        assertEq(rule.maxSize, maxBuySize);
-        vm.stopPrank();
-        return ruleId;
-    }
-
-    function createAccountMaxSellSizeRule(bytes32 tagForRule, uint192 maxSellSize, uint16 _period) public returns (uint32) {
-        switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32Array(tagForRule);
-        uint192[] memory amounts = createUint192Array(maxSellSize);
-        uint16[] memory period = createUint16Array(_period);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
-        TaggedRules.AccountMaxSellSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxSellSize(ruleId, tagForRule);
-        assertEq(rule.maxSize, maxSellSize);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
+        TaggedRules.AccountMaxTradeSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxTradeSize(ruleId, tagForRule);
+        assertEq(rule.maxSize, maxSize);
         vm.stopPrank();
         return ruleId;
     }
@@ -168,15 +155,6 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId;
     }
 
-    function createTokenMaxBuyVolumeRule(uint16 tokenPercentage, uint16 period, uint256 _totalSupply, uint64 ruleStartTime) public returns (uint32) {
-        switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
-        NonTaggedRules.TokenMaxBuyVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxBuyVolume(ruleId);
-        assertEq(rule.tokenPercentage, tokenPercentage);
-        vm.stopPrank();
-        return ruleId;
-    }
-
     function createTokenMaxDailyTradesRule(bytes32 tag1, uint8 dailyTradeMax1) public returns (uint32) {
         switchToRuleAdmin();
         bytes32[] memory nftTags = createBytes32Array(tag1);
@@ -199,10 +177,10 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId;
     }
 
-    function createTokenMaxSellVolumeRule(uint16 tokenPercentage, uint16 period, uint256 _totalSupply, uint64 ruleStartTime) public returns (uint32) {
+    function createTokenMaxBuySellVolumeRule(uint16 tokenPercentage, uint16 period, uint256 _totalSupply, uint64 ruleStartTime) public returns (uint32) {
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
-        NonTaggedRules.TokenMaxSellVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxSellVolume(ruleId);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuySellVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
+        NonTaggedRules.TokenMaxBuySellVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxBuySellVolume(ruleId);
         assertEq(rule.tokenPercentage, tokenPercentage);
         vm.stopPrank();
         return ruleId;

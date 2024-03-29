@@ -11,10 +11,8 @@ import "./IRuleStorage.sol";
 library RuleStoragePositionLib {
     bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
     /// every rule has its own storage
-    bytes32 constant ACCOUNT_MAX_BUY_SIZE_POSITION = bytes32(uint256(keccak256("account-max-buy-size")) - 1);
-    bytes32 constant ACCOUNT_MAX_SELL_SIZE_POSITION = bytes32(uint256(keccak256("account-max-sell-size")) - 1);
-    bytes32 constant ACCOUNT_MAX_BUY_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-buy-volume")) - 1);
-    bytes32 constant ACCOUNT_MAX_SELL_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-sell-volume")) - 1);
+    bytes32 constant ACCOUNT_MAX_TRADE_SIZE = bytes32(uint256(keccak256("account-max-trade-volume")) - 1);
+    bytes32 constant ACCOUNT_MAX_BUY_SELL_VOLUME_POSITION = bytes32(uint256(keccak256("account-max-buy-sell-volume")) - 1);
     bytes32 constant BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
     bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_POSITION = bytes32(uint256(keccak256("token-max-price-volatility")) - 1);
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("token-max-trading-volume")) - 1);
@@ -31,22 +29,11 @@ library RuleStoragePositionLib {
     bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION = bytes32(uint256(keccak256("account-max-value-out-by-access-level")) - 1);
 
     /**
-     * @dev Function to store Purchase rules
-     * @return ds Data Storage of Purchase Rule
+     * @dev Function to store Trade rules
+     * @return ds Data Storage of Trade Rule
      */
-    function accountMaxBuySizeStorage() internal pure returns (IRuleStorage.AccountMaxBuySizeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_BUY_SIZE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Sell rules
-     * @return ds Data Storage of Sell Rule
-     */
-    function accountMaxSellSizeStorage() internal pure returns (IRuleStorage.AccountMaxSellSizeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_SELL_SIZE_POSITION;
+    function accountMaxTradeSizeStorage() internal pure returns (IRuleStorage.AccountMaxTradeSizeS storage ds) {
+        bytes32 position = ACCOUNT_MAX_TRADE_SIZE;
         assembly {
             ds.slot := position
         }
@@ -56,19 +43,8 @@ library RuleStoragePositionLib {
      * @dev Function to store Account Max Buy Volume rules
      * @return ds Data Storage of Account Max Buy Volume Rule
      */
-    function accountMaxBuyVolumeStorage() internal pure returns (IRuleStorage.TokenMaxBuyVolumeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_BUY_VOLUME_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Account Max Sell Volume rules
-     * @return ds Data Storage of Account Max Sell Volume Rule
-     */
-    function accountMaxSellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxSellVolumeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_SELL_VOLUME_POSITION;
+    function accountMaxBuySellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxBuySellVolumeS storage ds) {
+        bytes32 position = ACCOUNT_MAX_BUY_SELL_VOLUME_POSITION;
         assembly {
             ds.slot := position
         }

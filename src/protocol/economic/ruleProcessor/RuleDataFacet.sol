@@ -26,15 +26,15 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
      */
 
     /**
-     * @dev Function to add a Token Max Buy Volume rule
+     * @dev Function to add a Token Max Buy Sell Volume rule
      * @param _appManagerAddr Address of App Manager
-     * @param _supplyPercentage Percentage of Tokens allowed to purchase
+     * @param _supplyPercentage Percentage of Tokens allowed for transaction
      * @param _period Time period that transactions are accumulated (in hours)
      * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
      * @param _startTime start timestamp for the rule
      * @return ruleId position of new rule in array
      */
-    function addTokenMaxBuyVolume(
+    function addTokenMaxBuySellVolume(
         address _appManagerAddr,
         uint16 _supplyPercentage,
         uint16 _period,
@@ -45,41 +45,12 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         if (_supplyPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_supplyPercentage);
         if (_period == 0 || _supplyPercentage == 0) revert ZeroValueNotPermited();
         _startTime.validateTimestamp();
-        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
-        NonTaggedRules.TokenMaxBuyVolume memory rule = NonTaggedRules.TokenMaxBuyVolume(_supplyPercentage, _period, _totalSupply, _startTime);
-        uint32 ruleId = data.tokenMaxBuyVolumeIndex;
-        data.tokenMaxBuyVolumeRules[ruleId] = rule;
-        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_BUY_VOLUME, ruleId, new bytes32[](0));
-        ++data.tokenMaxBuyVolumeIndex;
-        return ruleId;
-    }
-
-    /**
-     * @dev Function to add a Token Max Sell Volume rule
-     * @param _appManagerAddr Address of App Manager
-     * @param _supplyPercentage Percent of Tokens allowed to sell
-     * @param _period Time period that transactions are frozen
-     * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
-     * @param _startTime start time for the period
-     * @return ruleId position of new rule in array
-     */
-    function addTokenMaxSellVolume(
-        address _appManagerAddr,
-        uint16 _supplyPercentage,
-        uint16 _period,
-        uint256 _totalSupply,
-        uint64 _startTime
-    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_supplyPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_supplyPercentage);
-        if (_period == 0 || _supplyPercentage == 0) revert ZeroValueNotPermited();
-        _startTime.validateTimestamp();
-        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
-        uint32 ruleId = data.tokenMaxSellVolumeIndex;
-        NonTaggedRules.TokenMaxSellVolume memory rule = NonTaggedRules.TokenMaxSellVolume(_supplyPercentage, _period, _totalSupply, _startTime);
-        data.tokenMaxSellVolumeRules[ruleId] = rule;
-        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_SELL_VOLUME, ruleId, new bytes32[](0));
-        ++data.tokenMaxSellVolumeIndex;
+        RuleS.TokenMaxBuySellVolumeS storage data = Storage.accountMaxBuySellVolumeStorage();
+        NonTaggedRules.TokenMaxBuySellVolume memory rule = NonTaggedRules.TokenMaxBuySellVolume(_supplyPercentage, _period, _totalSupply, _startTime);
+        uint32 ruleId = data.tokenMaxBuySellVolumeIndex;
+        data.tokenMaxBuySellVolumeRules[ruleId] = rule;
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_BUY_SELL_VOLUME, ruleId, new bytes32[](0));
+        ++data.tokenMaxBuySellVolumeIndex;
         return ruleId;
     }
 

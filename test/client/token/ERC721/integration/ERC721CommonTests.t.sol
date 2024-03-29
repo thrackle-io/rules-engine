@@ -774,21 +774,21 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationAppManager3.confirmAppManager(address(testCaseNFT));
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuyVolumeRule_Negative() public endWithStopPrank {
-        _tokenMaxBuyVolumeRuleSetup();
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleBuy_Negative() public endWithStopPrank {
+        _tokenMaxBuySellVolumeRuleSetupBuyAction();
         uint16 tokenPercentage = 10; /// 1%
         vm.startPrank(user);
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         _testBuyNFT(tokenPercentage, amm);
         /// switch users and test rule still fails
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         _testBuyNFT(tokenPercentage + 1, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuyVolumeRule_Period() public endWithStopPrank {
-        _tokenMaxBuyVolumeRuleSetup();
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleBuyAction_Period() public endWithStopPrank {
+        _tokenMaxBuySellVolumeRuleSetupBuyAction();
         uint16 tokenPercentage = 10; /// 1%
 
         /// let's go to another period
@@ -803,22 +803,22 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testBuyNFT(tokenPercentage + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRule_Negative() public endWithStopPrank {
-        _tokenMaxSellVolumeRuleSetup();
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRule_Negative() public endWithStopPrank {
+        _tokenMaxBuySellVolumeRuleSetupSellAction();
         uint16 tokenPercentageSell = 30; /// 0.30%
         /// If try to sell one more, it should fail in this period.
         vm.startPrank(user);
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         _testSellNFT(erc721Liq / 2 + tokenPercentageSell, amm);
         /// switch users and test rule still fails
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         _testSellNFT(erc721Liq / 2 + 100 + 1, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRule_Period() public endWithStopPrank {
-        _tokenMaxSellVolumeRuleSetup();
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRule_Period() public endWithStopPrank {
+        _tokenMaxBuySellVolumeRuleSetupBuyAction();
         uint16 tokenPercentageSell = 30; /// 0.30%
         /// let's go to another period
         vm.warp(Blocktime + 72 hours);
@@ -831,57 +831,57 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 100 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_Negative() public endWithStopPrank {
-        _accountMaxSellSizeSetup(true);
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeSell_Negative() public endWithStopPrank {
+        _accountMaxTradeSizeSellSetup(true);
         switchToUser();
         /// Swap that fails
-        vm.expectRevert(0x91985774);
+        vm.expectRevert(0x523976c2);
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_Period() public endWithStopPrank {
-        _accountMaxSellSizeSetup(true);
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeSell_Period() public endWithStopPrank {
+        _accountMaxTradeSizeSellSetup(true);
         switchToUser();
         /// we wait until the next period so user can swap again
         vm.warp(block.timestamp + 36 hours);
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_BlankTag_Negative() public endWithStopPrank {
-        _accountMaxSellSizeSetup(false);
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeSell_BlankTag_Negative() public endWithStopPrank {
+        _accountMaxTradeSizeSellSetup(false);
         switchToUser();
         /// Swap that fails
-        vm.expectRevert(0x91985774);
+        vm.expectRevert(0x523976c2);
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_BlankTag_Period() public endWithStopPrank {
-        _accountMaxSellSizeSetup(false);
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeSell_BlankTag_Period() public endWithStopPrank {
+        _accountMaxTradeSizeSellSetup(false);
         switchToUser();
         /// we wait until the next period so user can swap again
         vm.warp(block.timestamp + 36 hours);
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxBuySizeRule_Negative() public endWithStopPrank {
-        _accountMaxBuySizeRuleSetup();
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeBuy_Negative() public endWithStopPrank {
+        _accountMaxTradeSizeBuyRuleSetup();
         switchToUser();
         /// Swap that fails
-        vm.expectRevert(0xa7fb7b4b);
+        vm.expectRevert(0x523976c2);
         _testBuyNFT(1, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxBuySizeRule_Period() public endWithStopPrank {
-        _accountMaxBuySizeRuleSetup();
+    function testERC721_ERC721CommonTests_AccountMaxTradeSizeBuy_Period() public endWithStopPrank {
+        _accountMaxTradeSizeBuyRuleSetup();
         switchToUser();
         /// we wait until the next period so user can swap again
         vm.warp(block.timestamp + 36 hours);
         _testBuyNFT(1, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRuleByPasserRule_AllowListPass() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_AllowListPass() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxSellVolumeRuleByPasserRuleSetup();
+        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
         /// ALLOWLISTED USER
         switchToUser();
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -891,9 +891,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRuleByPasserRule_NotAllowListPass() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_NotAllowListPass() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxSellVolumeRuleByPasserRuleSetup();
+        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
         /// NOT ALLOWLISTED USER
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -903,9 +903,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRuleByPasserRule_Negative() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_Negative() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxSellVolumeRuleByPasserRuleSetup();
+        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         /// we test going right below the rule percentage in the period (... - 1)
@@ -913,7 +913,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             _testSellNFT(i, amm);
         }
         /// and now we test the actual rule with a non-allowlisted address to check it will fail
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         _testSellNFT(erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000, amm);
     }
 
@@ -1762,13 +1762,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         return amm;
     }
 
-    function _tokenMaxSellVolumeRuleSetup() public endWithStopPrank {
+    function _tokenMaxBuySellVolumeRuleSetupSellAction() public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
         /// now we setup the sell percentage rule
-        uint32 ruleId = createTokenMaxSellVolumeRule(30, 24, 0, Blocktime);
-        setTokenMaxSellVolumeRule(address(applicationNFTHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(30, 24, 0, Blocktime);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandler), actionTypes, ruleId);
         vm.warp(Blocktime + 36 hours);
         /// now we test
         switchToUser();
@@ -1781,17 +1782,18 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function _accountMaxSellSizeSetup(bool tag) public endWithStopPrank {
+    function _accountMaxTradeSizeSellSetup(bool tag) public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
         /// set the rule
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
         if (tag) {
-            uint32 ruleId = createAccountMaxSellSizeRule("AccountMaxSellSize", 1, 36); /// tag, maxNFtsPerPeriod, period
-            setAccountMaxSellSizeRule(address(applicationNFTHandler), ruleId);
+            uint32 ruleId = createAccountMaxTradeSizeRule("AccountMaxSellSize", 1, 36); /// tag, maxNFtsPerPeriod, period
+            setAccountMaxTradeSizeRule(address(applicationNFTHandler), actionTypes, ruleId);
         } else {
-            uint32 ruleId = createAccountMaxSellSizeRule("", 1, 36); /// tag, maxNFtsPerPeriod, period
-            setAccountMaxSellSizeRule(address(applicationNFTHandler), ruleId);
+            uint32 ruleId = createAccountMaxTradeSizeRule("", 1, 36); /// tag, maxNFtsPerPeriod, period
+            setAccountMaxTradeSizeRule(address(applicationNFTHandler), actionTypes, ruleId);
         }
 
         /// apply tag to user
@@ -1804,7 +1806,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 1, amm);
     }
 
-    function _tokenMaxSellVolumeRuleByPasserRuleSetup() public endWithStopPrank {
+    function _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell() public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1812,18 +1814,20 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationAppManager.approveAddressToTradingRuleAllowlist(user, true);
 
         /// SELL PERCENTAGE RULE
-        uint32 ruleId = createTokenMaxSellVolumeRule(30, 24, 0, Blocktime);
-        setTokenMaxSellVolumeRule(address(applicationNFTHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(30, 24, 0, Blocktime);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandler), actionTypes, ruleId);
         vm.warp(Blocktime + 36 hours);
     }
 
-    function _tokenMaxBuyVolumeRuleSetup() public endWithStopPrank {
+    function _tokenMaxBuySellVolumeRuleSetupBuyAction() public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
         /// set up rule
-        uint32 ruleId = createTokenMaxBuyVolumeRule(10, 24, 0, Blocktime);
-        setTokenMaxBuyVolumeRule(address(applicationNFTHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 24, 0, Blocktime);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandler), actionTypes, ruleId);
         /// we make sure we are in a new period
         vm.warp(Blocktime + 36 hours);
 
@@ -1838,13 +1842,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function _accountMaxBuySizeRuleSetup() public endWithStopPrank {
+    function _accountMaxTradeSizeBuyRuleSetup() public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
         /// set the rule
-        uint32 ruleId = createAccountMaxBuySizeRule("MaxBuySize", 1, 36); /// tag, maxNFtsPerPeriod, period
-        setAccountMaxBuySizeRule(address(applicationNFTHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        uint32 ruleId = createAccountMaxTradeSizeRule("MaxBuySize", 1, 36); /// tag, maxNFtsPerPeriod, period
+        setAccountMaxTradeSizeRule(address(applicationNFTHandler), actionTypes, ruleId);
         /// apply tag to user
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "MaxBuySize");

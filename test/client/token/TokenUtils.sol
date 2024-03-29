@@ -11,27 +11,8 @@ import "test/util/RuleCreation.sol";
  */
 
 abstract contract TokenUtils is RuleCreation {
-    function setAccountMaxBuySizeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        TradingRuleFacet(address(assetHandler)).setAccountMaxBuySizeId(ruleId);
-    }
 
-    function setAccountMaxSellSizeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        TradingRuleFacet(address(assetHandler)).setAccountMaxSellSizeId(ruleId);
-    }
-
-    function setTokenMaxBuyVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        TradingRuleFacet(address(assetHandler)).setTokenMaxBuyVolumeId(ruleId);
-    }
-
-    function setTokenMaxSellVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        TradingRuleFacet(address(assetHandler)).setTokenMaxSellVolumeId(ruleId);
-    }
-
-/** APPLICATION LEVEL RULES */
+    /** APPLICATION LEVEL RULES */
     function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxTxValueByRiskScoreId(createActionTypeArrayAll(), ruleId);
@@ -75,5 +56,15 @@ abstract contract TokenUtils is RuleCreation {
     function setAccountDenyForNoAccessLevelRuleFull(ActionTypes[] memory actions) public endWithStopPrank {
         switchToRuleAdmin();
         applicationHandler.setAccountDenyForNoAccessLevelIdFull(actions);
+    }
+
+    function setTokenMaxBuySellVolumeRule(address assetHandler, ActionTypes[] memory actions, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setTokenMaxBuySellVolumeId(actions, ruleId);
+    }
+
+    function setAccountMaxTradeSizeRule(address assetHandler, ActionTypes[] memory actions, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setAccountMaxTradeSizeId(actions, ruleId);
     }
 }

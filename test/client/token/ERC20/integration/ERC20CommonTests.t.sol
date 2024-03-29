@@ -609,7 +609,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(testCaseToken.balanceOf(user4), 60 * ATTO);
     }
 
-    function testERC20_ERC20CommonTests_MaxValueOutByAccessLevel_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_MaxValueOutByAccessLevel_Negative() public endWithStopPrank {
         /// test transfers fail over rule value
         _maxValueOutByAccessLevelSetup();
         vm.startPrank(user1);
@@ -646,7 +646,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     /// Account Max Transaction Value By Risk Score With Period Tests
-    function testERC20_ERC20CommonTests_AccountMaxTransactionValueByRiskScoreWithPeriod_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTransactionValueByRiskScoreWithPeriod_Negative() public endWithStopPrank {
         ///Transfer expected to fail in one large transaction
         _accountMaxTransactionValueByRiskScoreWithPeriodSetup();
         vm.startPrank(user1);
@@ -705,7 +705,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(testCaseToken.balanceOf(user1), 39_999 * ATTO);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxTradingVolumeWithSupplySet_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxTradingVolumeWithSupplySet_Negative() public endWithStopPrank {
         _tokenMaxTradingVolumeWithSupplySetSetup();
         vm.startPrank(rich_user);
         testCaseToken.transfer(user1, 39_000 * ATTO);
@@ -732,15 +732,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     /// Account Max Sell Size Tests
-
-    ///TODO Test sell rule through AMM once Purchase functionality is created
-    function testERC20_ERC20CommonTests_AccountMaxSellSize_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeSell_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
-        _setupAccountMaxSellSize();
+        _setupAccountMaxTradeSizeSell();
         /// Swap that passes rule check
         vm.startPrank(user1);
         /// Approve transfer(1M)
@@ -749,28 +747,27 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxSellSize_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeSell_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
-        _setupAccountMaxSellSize();
+        _setupAccountMaxTradeSizeSell();
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
         /// Swap that fails
-        vm.expectRevert(0x91985774);
+        vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
 
-    ///TODO Test sell rule through AMM once Purchase functionality is created
-    function testERC20_ERC20CommonTests_AccountMaxSellSize_BlankTag_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeSell_BlankTag_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
-        _setupAccountMaxSellSizeBlankTag();
+        _setupAccountMaxTradeSizeSellBlankTag();
         /// Swap that passes rule check
         vm.startPrank(user1);
         /// Approve transfer(1M)
@@ -779,28 +776,28 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxSellSize_BlankTag_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeSell_BlankTag_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
-        _setupAccountMaxSellSizeBlankTag();
+        _setupAccountMaxTradeSizeSellBlankTag();
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
         /// Swap that fails
-        vm.expectRevert(0x91985774);
+        vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
 
     // Account Max Buy Size Tests
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeRule_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuyRule_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         applicationCoin2.approve(address(amm), 50000);
-        _setupAccountMaxBuySizeRule();
+        _setupAccountMaxTradeSizeBuyRule();
         /// Swap that passes rule check
         vm.startPrank(user1);
         /// Approve transfer(1M)
@@ -809,27 +806,35 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeRule_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuyRule_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         applicationCoin2.approve(address(amm), 50000);
-        _setupAccountMaxBuySizeRule();
+        _setupAccountMaxTradeSizeBuyRule();
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
         /// Swap that fails
-        vm.expectRevert(0xa7fb7b4b);
+        vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeRule_BlankTag_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeRuleInvalidAction_Negative() public endWithStopPrank {
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.MINT);
+        uint32 ruleId = createAccountMaxTradeSizeRule("", 600, 36);
+        switchToRuleAdmin();
+        vm.expectRevert(0x4a7f394f);
+        TradingRuleFacet(address(applicationCoinHandler)).setAccountMaxTradeSizeId(actionTypes, ruleId);
+    }
+
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuyRule_BlankTag_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         applicationCoin2.approve(address(amm), 50000);
-        _setupAccountMaxBuySizeRuleBlankTag();
+        _setupAccountMaxTradeSizeBuyRuleBlankTag();
         /// Swap that passes rule check
         vm.startPrank(user1);
         /// Approve transfer(1M)
@@ -838,26 +843,26 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeRule_BlankTag_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuyRule_BlankTag_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         applicationCoin2.approve(address(amm), 50000);
-        _setupAccountMaxBuySizeRuleBlankTag();
+        _setupAccountMaxTradeSizeBuyRuleBlankTag();
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
         /// Swap that fails
-        vm.expectRevert(0xa7fb7b4b);
+        vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeRule_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleBuyAction_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxBuyVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -870,12 +875,12 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, true);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeRule_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleBuyAction_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxBuyVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -883,22 +888,22 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, false); /// percentage limit hit now
         /// test swaps after we hit limit
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
         /// switch users and test rule still fails
         vm.startPrank(user2);
         testCaseToken.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeRule_Period() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRule_Period() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxBuyVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -910,14 +915,14 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeRule_NewRule() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRule_NewRule() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// Low percentage rule checks
         switchToRuleAdmin();
         /// create new rule
-        _setupTokenMaxBuyVolumeRuleB();
+        _setupTokenMaxBuySellVolumeRuleBuyActionB();
         vm.warp(Blocktime + 96 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -925,16 +930,16 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 1, 1, false);
 
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 9, 9, false);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxSellVolumeRule_Passes() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleSellAction_Passes() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxSellVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleSellAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -943,12 +948,12 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, true); /// percentage limit hit now
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxSellVolumeRule_Fails() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleSellAction_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxSellVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleSellAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -956,22 +961,22 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, true); /// percentage limit hit now
         /// test swaps after we hit limit
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, true);
         /// switch users and test rule still fails
         vm.startPrank(user2);
         testCaseToken.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, true);
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxSellVolumeRule_Period() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleSellAction_Period() public endWithStopPrank {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         /// set up rule
-        _setupTokenMaxSellVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleSellAction();
         vm.warp(Blocktime + 36 hours);
         /// test swap below percentage
         vm.startPrank(user1);
@@ -986,13 +991,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
 
-    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_SellPercentage_Allowed() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_BuySellPercentage_Allowed() public endWithStopPrank {
         switchToAppAdministrator();
         DummyAMM amm = _tradeRuleSetup();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
 
         /// SELL PERCENTAGE RULE
-        _setupTokenMaxSellVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleSellAction();
         vm.warp(Blocktime + 36 hours);
         /// ALLOWLISTED USER
         vm.startPrank(user1);
@@ -1001,20 +1006,20 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, true);
     }
 
-    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_SellPercentage_NotAllowed() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_BuySellPercentageSellAction_NotAllowed() public endWithStopPrank {
         switchToAppAdministrator();
         DummyAMM amm = _tradeRuleSetup();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
 
         /// SELL PERCENTAGE RULE
-        _setupTokenMaxSellVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleSellAction();
         vm.warp(Blocktime + 36 hours);
         /// NOT ALLOWLISTED USER
         vm.startPrank(user2);
         testCaseToken.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, true);
-        vm.expectRevert(0x806a3391);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 20_000_000, 20_000_000, true);
     }
 
@@ -1023,7 +1028,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         DummyAMM amm = _tradeRuleSetup();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
         //BUY PERCENTAGE RULE
-        _setupTokenMaxBuyVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
         vm.warp(Blocktime + 36 hours);
         /// ALLOWLISTED USER
         vm.startPrank(user1);
@@ -1032,18 +1037,18 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
 
-    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_BuyPercentage_NotAllowed() public endWithStopPrank {
+    function testERC20_ERC20CommonTests_TradeRuleByPasserRule_BuySellPercentage_NotAllowed() public endWithStopPrank {
         switchToAppAdministrator();
         DummyAMM amm = _tradeRuleSetup();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
-        _setupTokenMaxBuyVolumeRule();
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
         vm.warp(Blocktime + 36 hours);
         /// NOT ALLOWLISTED USER
         vm.startPrank(user2);
         testCaseToken.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 30_000_000, 30_000_000, false);
-        vm.expectRevert(0x6a46d1f4);
+        vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 30_000_000, 30_000_000, false);
     }
 
@@ -1052,7 +1057,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         DummyAMM amm = _tradeRuleSetup();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
         /// SELL RULE
-        _setupAccountMaxSellSize();
+        _setupAccountMaxTradeSizeSell();
         vm.startPrank(user1);
         /// Approve transfer(1M)
         testCaseToken.approve(address(amm), 50000);
@@ -1162,123 +1167,103 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
     }
 
-    /* AccountMaxBuySize */
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeAtomicFullSet() public {
+    /* AccountMaxTradeSize */
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullSetSell() public {
         uint32[] memory ruleIds = new uint32[](1);
         // Set up rule(This one is different because it can only apply to buys)
-        ruleIds[0] = createAccountMaxBuySizeRule("Oscar", 1, 1);
+        ruleIds[0] = createAccountMaxTradeSizeRule("Oscar", 1, 1);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
         // Apply the rules to all actions
-        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleIds[0]);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleIds[0]);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxBuySizeId(), ruleIds[0]);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(ActionTypes.SELL), ruleIds[0]);
         // Verify that all the rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxBuySizeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.SELL));
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxBuySizeAtomicFullReSet() public {
-        uint32 ruleId;
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleId = createAccountMaxBuySizeRule("Oscar", 100, 5);
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullReSetBuy() public {
+        uint32 ruleId = createAccountMaxTradeSizeRule("Oscar", 100, 5);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
         // Apply the rules to all actions
-        ruleId = createAccountMaxBuySizeRule("Oscar", 100, 5);
-        actions = createActionTypeArray(ActionTypes.BUY);
-        // Apply the new set of rules
-        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleId);
+        ruleId = createAccountMaxTradeSizeRule("Oscar", 100, 5);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actions, ruleId);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxBuySizeId(), ruleId);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(ActionTypes.BUY), ruleId);
+        // Verify that all the rule id's were set correctly
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(ActionTypes.BUY), ruleId);
         // Verify that the new rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxBuySizeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.BUY));
     }
 
-    /* AccountMaxSellSize */
-    function testERC20_ERC20CommonTests_AccountMaxSellSizeAtomicFullSet() public {
+    /* AccountMaxTradeSize */
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullSetBuy() public {
         uint32[] memory ruleIds = new uint32[](1);
         // Set up rule(This one is different because it can only apply to buys)
-        ruleIds[0] = createAccountMaxSellSizeRule("Oscar", 1, 1);
+        ruleIds[0] = createAccountMaxTradeSizeRule("Oscar", 1, 1);
         // Apply the rules to all actions
-        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleIds[0]);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleIds[0]);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxSellSizeId(), ruleIds[0]);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(ActionTypes.BUY), ruleIds[0]);
         // Verify that all the rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxSellSizeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.BUY));
     }
 
-    function testERC20_ERC20CommonTests_AccountMaxSellSizeAtomicFullReSet() public {
-        uint32 ruleId;
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleId = createAccountMaxSellSizeRule("Oscar", 100, 5);
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullReSetSell() public {
+        uint32 ruleId = createAccountMaxTradeSizeRule("Oscar", 100, 5);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
-        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actions, ruleId);
         // Apply the rules to all actions
-        ruleId = createAccountMaxSellSizeRule("Oscar", 200, 5);
+        ruleId = createAccountMaxTradeSizeRule("Oscar", 200, 5);
+        // Apply the new set of rules
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleId);
+        // Verify that all the rule id's were set correctly
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(ActionTypes.SELL), ruleId);
+        // Verify that the new rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.SELL));
+    }
+
+
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeBuyActionAtomicFullReSet() public {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 24, 0, Blocktime);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actions, ruleId);
+        // Apply the rules to all actions
+        ruleId = createTokenMaxBuySellVolumeRule(10, 48, 0, Blocktime);
         actions = createActionTypeArray(ActionTypes.BUY);
         // Apply the new set of rules
-        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actions, ruleId);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxSellSizeId(), ruleId);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(ActionTypes.BUY), ruleId);
         // Verify that the new rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxSellSizeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(ActionTypes.BUY));
     }
 
-    /* TokenMaxBuyVolume */
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](1);
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleIds[0] = createTokenMaxBuyVolumeRule(10, 48, 0, Blocktime);
+    /* TokenMaxBuySellVolume */
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeAtomicFullSet() public {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 48, 0, Blocktime);
         // Apply the rules to all actions
-        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleIds[0]);
-        // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuyVolumeId(), ruleIds[0]);
-        // Verify that all the rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuyVolumeActive());
-    }
-
-    function testERC20_ERC20CommonTests_TokenMaxBuyVolumeAtomicFullReSet() public {
-        uint32 ruleId;
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleId = createTokenMaxBuyVolumeRule(10, 24, 0, Blocktime);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
-        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleId);
-        // Apply the rules to all actions
-        ruleId = createTokenMaxBuyVolumeRule(10, 48, 0, Blocktime);
-        actions = createActionTypeArray(ActionTypes.BUY);
-        // Apply the new set of rules
-        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actions, ruleId);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuyVolumeId(), ruleId);
-        // Verify that the new rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuyVolumeActive());
-    }
-
-    /* TokenMaxSellVolume */
-    function testERC20_ERC20CommonTests_TokenMaxSellVolumeAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](1);
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleIds[0] = createTokenMaxSellVolumeRule(10, 48, 0, Blocktime);
-        // Apply the rules to all actions
-        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleIds[0]);
-        // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxSellVolumeId(), ruleIds[0]);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(ActionTypes.BUY), ruleId);
         // Verify that all the rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxSellVolumeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(ActionTypes.BUY));
     }
 
-    function testERC20_ERC20CommonTests_TokenMaxSellVolumeAtomicFullReSet() public {
-        uint32 ruleId;
-        // Set up rule(This one is different because it can only apply to buys)
-        ruleId = createTokenMaxSellVolumeRule(10, 24, 0, Blocktime);
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeAtomicFullReSet() public {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 24, 0, Blocktime);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
-        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actions, ruleId);
         // Apply the rules to all actions
-        ruleId = createTokenMaxSellVolumeRule(10, 48, 0, Blocktime);
-        actions = createActionTypeArray(ActionTypes.BUY);
+        ruleId = createTokenMaxBuySellVolumeRule(10, 48, 0, Blocktime);
         // Apply the new set of rules
-        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actions, ruleId);
         // Verify that all the rule id's were set correctly
-        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxSellVolumeId(), ruleId);
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(ActionTypes.BUY), ruleId);
         // Verify that the new rules were activated
-        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxSellVolumeActive());
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(ActionTypes.BUY));
     }
 
     /* AccountApproveDenyOracle */
@@ -1741,68 +1726,57 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         return amm;
     }
 
-    function _setupAccountMaxSellSize() private endWithStopPrank {
+    function _setupAccountMaxTradeSizeSell() private endWithStopPrank {
         ///Add tag to user
         switchToAppAdministrator();
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
         applicationAppManager.addTag(user2, "AccountMaxSellSize");
         /// add the rule.
-        uint32 ruleId = createAccountMaxSellSizeRule("AccountMaxSellSize", 600, 36);
-        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        uint32 ruleId = createAccountMaxTradeSizeRule("AccountMaxSellSize", 600, 36);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupAccountMaxSellSizeBlankTag() private {
+    function _setupAccountMaxTradeSizeSellBlankTag() private {
         /// add the rule.
-        uint32 ruleId = createAccountMaxSellSizeRule("", 600, 36);
-        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        uint32 ruleId = createAccountMaxTradeSizeRule("", 600, 36);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupAccountMaxBuySizeRule() private endWithStopPrank {
+    function _setupAccountMaxTradeSizeBuyRule() private endWithStopPrank {
         switchToAppAdministrator();
         /// Add tag to users
         applicationAppManager.addTag(user1, "MaxBuySize");
         applicationAppManager.addTag(user2, "MaxBuySize");
         /// add the rule.
-        uint32 ruleId = createAccountMaxBuySizeRule("MaxBuySize", 600, 36);
-        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleId);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        uint32 ruleId = createAccountMaxTradeSizeRule("MaxBuySize", 600, 36);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupAccountMaxBuySizeRuleBlankTag() private {
-        uint32 ruleId = createAccountMaxBuySizeRule("", 600, 36);
-        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleId);
+    function _setupAccountMaxTradeSizeBuyRuleBlankTag() private {
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        uint32 ruleId = createAccountMaxTradeSizeRule("", 600, 36);
+        setAccountMaxTradeSizeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupTokenMaxBuyVolumeRule() internal endWithStopPrank {
-        uint16 tokenPercentage = 5000; /// 50%
-        uint16 period = 24; /// 24 hour periods
-        uint256 _totalSupply = 100_000_000;
-        uint64 ruleStartTime = Blocktime;
-        switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
-        /// add and activate rule
-        TradingRuleFacet(address(applicationCoinHandler)).setTokenMaxBuyVolumeId(ruleId);
+    function _setupTokenMaxBuySellVolumeRuleBuyAction() internal endWithStopPrank {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(5000, 24, 100_000_000, Blocktime);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupTokenMaxBuyVolumeRuleB() internal endWithStopPrank {
-        uint16 tokenPercentage = 1; /// 0.01%
-        uint16 period = 24; /// 24 hour periods
-        uint256 _totalSupply = 100_000;
-        uint64 ruleStartTime = Blocktime;
-        switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
-        /// add and activate rule
-        TradingRuleFacet(address(applicationCoinHandler)).setTokenMaxBuyVolumeId(ruleId);
+    function _setupTokenMaxBuySellVolumeRuleBuyActionB() internal endWithStopPrank {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(1, 24, 100_000, Blocktime);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
-    function _setupTokenMaxSellVolumeRule() internal endWithStopPrank {
-        uint16 tokenPercentage = 5000; /// 50%
-        uint16 period = 24; /// 24 hour periods
-        uint256 _totalSupply = 100_000_000;
-        uint64 ruleStartTime = Blocktime;
-        switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
-        /// add and activate rule
-        TradingRuleFacet(address(applicationCoinHandler)).setTokenMaxSellVolumeId(ruleId);
+    function _setupTokenMaxBuySellVolumeRuleSellAction() internal endWithStopPrank {
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(5000, 24, 100_000_000, Blocktime);
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.SELL);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
     }
 
     function initializeAMMAndUsers() public returns (DummyAMM amm) {

@@ -15,16 +15,8 @@ interface INonTaggedRules {
         uint256 minSize;
     }
 
-    /// ******** Token Max Buy Volume ********
-    struct TokenMaxBuyVolume {
-        uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint16 period;
-        uint256 totalSupply; /// set 0 to use erc20 totalSupply
-        uint64 startTime; /// start of time period for the rule
-    }
-
-    /// ******** Token Max Sell Volume Rules ********
-    struct TokenMaxSellVolume {
+    /// ******** Token Max Buy Sell Volume Rules ********
+    struct TokenMaxBuySellVolume {
         uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
         uint16 period;
         uint256 totalSupply; /// set 0 to use erc20 totalSupply
@@ -69,15 +61,8 @@ interface INonTaggedRules {
 }
 
 interface ITaggedRules {
-
-    /// ******** Account Max Buy Volume ********
-    struct AccountMaxBuySize {
-        uint256 maxSize; /// token units
-        uint16 period; /// hours
-    }
-
-    /// ******** Account Max Sell Size ********
-    struct AccountMaxSellSize {
+    /// ******** Account Max Trade Size ********
+    struct AccountMaxTradeSize {
         uint256 maxSize; /// token units
         uint16 period; /// hours
     }
