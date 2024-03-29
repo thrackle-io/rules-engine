@@ -1,8 +1,8 @@
 # Overview
 
-This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20Pricing](../../src/client/common/IProtocolERC20Pricing.sol) interface, and follow the [price format](./README.md) guideline.
+This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20Pricing](../../../src/client/common/IProtocolERC20Pricing.sol) interface, and follow the [price format](./README.md) guideline.
 
-[This template](../../src/client/pricing/ProtocolERC20Pricing.sol) is available for developers to quickly get their pricing modules up and running.
+[This template](../../../src/client/pricing/ProtocolERC20Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
 # Deployment
 
@@ -45,7 +45,7 @@ function version() external pure returns (string memory);
 
 # Set an ERC20-Pricing Contract in an Asset Handler 
 
-Use the following function in the [asset handler](../../src/client/token/ProtocolHandlerCommon.sol):
+Use the following function in the [asset handler](../../../src/client/token/ProtocolHandlerCommon.sol):
 
 ```c
 function setERC20PricingAddress(
