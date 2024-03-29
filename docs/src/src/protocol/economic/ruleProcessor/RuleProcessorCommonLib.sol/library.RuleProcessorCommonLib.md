@@ -1,5 +1,5 @@
 # RuleProcessorCommonLib
-[Git Source](https://github.com/thrackle-io/tron/blob/a0f5ead5c8fc9d4614336dc446184e42c1f4b0fa/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -145,6 +145,28 @@ function validateTags(bytes32[] calldata _accountTags) internal pure;
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTags`|`bytes32[]`|the timestamp the rule was enabled|
+
+
+### calculateVolatility
+
+If more than one tag, none can be blank.
+
+*Perform the common volatility function*
+
+
+```solidity
+function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultiplier, uint256 _totalSupply)
+    internal
+    pure
+    returns (int256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_volumeTotalForPeriod`|`int256`|total volume within the period|
+|`_volumeMultiplier`|`uint256`|volume muliplier|
+|`_totalSupply`|`uint256`|token total supply|
 
 
 ## Errors

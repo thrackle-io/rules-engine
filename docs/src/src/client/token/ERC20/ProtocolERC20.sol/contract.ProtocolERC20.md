@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/a0f5ead5c8fc9d4614336dc446184e42c1f4b0fa/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -13,13 +13,6 @@ This is the base contract for all protocol ERC20s
 
 
 ## State Variables
-### handler
-
-```solidity
-IProtocolTokenHandler handler;
-```
-
-
 ### MAX_SUPPLY
 Max supply should only be set once. Zero means infinite supply.
 
@@ -193,21 +186,6 @@ function setMaxSupply(uint256 _maxSupply) external appAdministratorOnly(appManag
 ```solidity
 function getMaxSupply() external view returns (uint256);
 ```
-
-### connectHandlerToToken
-
-*Function to connect Token to previously deployed Handler contract*
-
-
-```solidity
-function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_handlerAddress`|`address`|address of the currently deployed Handler Address|
-
 
 ### getHandlerAddress
 

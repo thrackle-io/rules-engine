@@ -1,5 +1,5 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/tron/blob/a0f5ead5c8fc9d4614336dc446184e42c1f4b0fa/src/client/token/ERC721/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d3ca0c014d883c12f0128d8139415e7b12c9e982/src/client/token/ERC721/ProtocolERC721.sol)
 
 **Inherits:**
 ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), ReentrancyGuard
@@ -11,20 +11,6 @@ This is the base contract for all protocol ERC721s
 
 
 ## State Variables
-### handlerAddress
-
-```solidity
-address public handlerAddress;
-```
-
-
-### handler
-
-```solidity
-IHandlerDiamond handler;
-```
-
-
 ### _tokenIdCounter
 
 ```solidity
@@ -222,21 +208,6 @@ function supportsInterface(bytes4 interfaceId)
     override(ERC721, ERC721Enumerable, ERC721URIStorage)
     returns (bool);
 ```
-
-### connectHandlerToToken
-
-*Function to connect Token to previously deployed Handler contract*
-
-
-```solidity
-function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
-
 
 ### getHandlerAddress
 
