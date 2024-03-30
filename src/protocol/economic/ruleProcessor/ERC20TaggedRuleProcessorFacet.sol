@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "./RuleProcessorDiamondImports.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 
-
 /**
  * @title ERC20 Tagged Rule Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -52,7 +51,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         uint256 amountIn,
         uint256 amountOut,
         bytes32[] calldata fromTags
-    ) public view {       
+    ) public view {
         // no need to check for max tags here since it is checked in the min and max functions
         checkAccountMinTokenBalance(tokenBalance0, fromTags, amountOut, ruleIdToken0);
         checkAccountMaxTokenBalance(tokenBalance1, fromTags, amountIn, ruleIdToken1);
@@ -64,13 +63,13 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param toTags Account tags applied to recipient via App Manager
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through   
-     * tags and check for specific application. This was done in a minimal way to allow for   
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
         toTags.checkMaxTags();
-        if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).max > 0){
+        if (getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).max > 0) {
             toTags = new bytes32[](1);
             toTags[0] = BLANK_TAG;
         }
@@ -78,12 +77,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
-        if (startTime <= block.timestamp){
-            for (uint i; i < toTags.length; ) {
+        if (startTime <= block.timestamp) {
+            for (uint i; i < toTags.length; ++i) {
                 TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, toTags[i]);
                 /// check if period is 0, 0 means a period hasn't been applied to this rule
-                if(rule.period != 0) {
-
+                if (rule.period != 0) {
                     // slither-disable-next-line timestamp
                     if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
                         if (rule.max > 0 && balanceTo + amount > rule.max) revert TxnInFreezeWindow();
@@ -92,13 +90,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                     /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
                     if (rule.max > 0 && balanceTo + amount > rule.max) revert OverMaxBalance();
                 }
-                unchecked {
-                    ++i;
-                }
             }
         }
     }
-
 
     /**
      * @dev Check if tagged account passes AccountMinTokenBalance rule
@@ -106,15 +100,15 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param fromTags Account tags applied to sender via App Manager
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
-     * tags and check for specific application. This was done in a minimal way to allow for  
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) public view {
         // if the balanceFrom is 0, then skip processing because this is a mint and it's impossible for a mint to violate the minium balance
-        if (balanceFrom!=0){
+        if (balanceFrom != 0) {
             fromTags.checkMaxTags();
-            if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).min > 0){            
+            if (getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).min > 0) {
                 fromTags = new bytes32[](1);
                 fromTags[0] = BLANK_TAG;
             }
@@ -122,11 +116,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
             // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
             // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
             // slither-disable-next-line timestamp
-            if (startTime <= block.timestamp){
-                for (uint i = 0; i < fromTags.length; ) {
+            if (startTime <= block.timestamp) {
+                for (uint i = 0; i < fromTags.length; ++i) {
                     TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, fromTags[i]);
                     /// check if period is 0, 0 means a period hasn't been applied to this rule
-                    if(rule.period != 0) {
+                    if (rule.period != 0) {
                         /// Check to see if still in the hold period
                         if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
                             /// If the transaction will violate the rule, then revert
@@ -135,9 +129,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                     } else {
                         /// if a min is 0 it means it is an empty-rule/no-rule. a min should be greater than 0
                         if (rule.min > 0 && balanceFrom - amount < rule.min) revert UnderMinBalance();
-                    }
-                    unchecked {
-                        ++i;
                     }
                 }
             }
@@ -188,7 +179,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
         TaggedRules.AdminMinTokenBalance memory rule = getAdminMinTokenBalance(ruleId);
-        if(amount > currentBalance) revert NotEnoughBalance();
+        if (amount > currentBalance) revert NotEnoughBalance();
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
@@ -224,8 +215,8 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param toTags Account tags applied to sender via App Manager
      * @param lastTransactionTime block.timestamp of most recent transaction transaction from sender for action type.
      * @return cumulativeTotal total amount of tokens bought or sold within Trade period.
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
-     * tags and check for specific application. This was done in a minimal way to allow for  
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkAccountMaxTradeSize(uint32 ruleId, uint256 transactedInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastTransactionTime) external view returns (uint256) {
@@ -235,20 +226,17 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
-        if (startTime <= block.timestamp){
-            if (getAccountMaxTradeSize(ruleId, BLANK_TAG).period > 0){
+        if (startTime <= block.timestamp) {
+            if (getAccountMaxTradeSize(ruleId, BLANK_TAG).period > 0) {
                 toTags = new bytes32[](1);
                 toTags[0] = BLANK_TAG;
             }
-            for (uint i = 0; i < toTags.length;) {
+            for (uint i = 0; i < toTags.length; ++i) {
                 TaggedRules.AccountMaxTradeSize memory rule = getAccountMaxTradeSize(ruleId, toTags[i]);
                 if (rule.period > 0 && rule.maxSize > 0) {
                     if (startTime.isWithinPeriod(rule.period, lastTransactionTime)) cumulativeTotal = transactedInPeriod + amount;
                     else cumulativeTotal = amount;
                     if (cumulativeTotal > rule.maxSize) revert OverMaxSize();
-                }
-                unchecked {
-                    ++i;
                 }
             }
         }

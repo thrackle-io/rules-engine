@@ -78,7 +78,7 @@ library RuleProcessorDiamondLib {
      *             calldata is executed with delegatecall on "init"
      */
     function diamondCut(FacetCut[] memory _diamondCut, address init, bytes memory data) internal {
-        for (uint256 facetIndex; facetIndex < _diamondCut.length; ) {
+        for (uint256 facetIndex; facetIndex < _diamondCut.length; ++facetIndex) {
             bytes4[] memory functionSelectors = _diamondCut[facetIndex].functionSelectors;
             address facetAddress = _diamondCut[facetIndex].facetAddress;
 
@@ -95,9 +95,6 @@ library RuleProcessorDiamondLib {
                 removeFunctions(facetAddress, functionSelectors);
             } else {
                 revert IncorrectFacetCutAction(uint8(action));
-            }
-            unchecked {
-                ++facetIndex;
             }
         }
         emit DiamondCut(_diamondCut, init, data);
@@ -118,7 +115,7 @@ library RuleProcessorDiamondLib {
         uint16 selectorCount = uint16(ds.selectors.length);
         enforceHasContractCode(_facetAddress, "DiamondCutLib: Add facet has no code");
 
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             address oldFacetAddress = ds.facetAddressAndSelectorPosition[selector].facetAddress;
             if (oldFacetAddress != address(0)) {
@@ -127,9 +124,6 @@ library RuleProcessorDiamondLib {
             ds.facetAddressAndSelectorPosition[selector] = FacetAddressAndSelectorPosition(_facetAddress, selectorCount);
             ds.selectors.push(selector);
             ++selectorCount;
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 
@@ -144,7 +138,7 @@ library RuleProcessorDiamondLib {
             revert CannotReplaceFunctionsFromFacetWithZeroAddress(_functionSelectors);
         }
         enforceHasContractCode(_facetAddress, "DiamondCutLib: Replace facet has no code");
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             address oldFacetAddress = ds.facetAddressAndSelectorPosition[selector].facetAddress;
             /// can't replace immutable functions -- functions defined directly in the diamond in this case
@@ -159,9 +153,6 @@ library RuleProcessorDiamondLib {
             }
             /// replace old facet address
             ds.facetAddressAndSelectorPosition[selector].facetAddress = _facetAddress;
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 
@@ -176,7 +167,7 @@ library RuleProcessorDiamondLib {
         if (_facetAddress != address(0)) {
             revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
         }
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             FacetAddressAndSelectorPosition memory oldFacetAddressAndSelectorPosition = ds.facetAddressAndSelectorPosition[selector];
             if (oldFacetAddressAndSelectorPosition.facetAddress == address(0)) {
@@ -197,9 +188,6 @@ library RuleProcessorDiamondLib {
             /// delete last selector
             ds.selectors.pop();
             delete ds.facetAddressAndSelectorPosition[selector];
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 

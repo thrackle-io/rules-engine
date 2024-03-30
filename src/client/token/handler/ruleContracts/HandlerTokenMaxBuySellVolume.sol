@@ -30,12 +30,9 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
      */
     function setTokenMaxBuySellVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_ruleId);
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             setTokenMaxBuySellVolumeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_SELL_VOLUME, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -49,11 +46,8 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
         if (_actions.length == 0) revert InputArraysSizesNotValid();
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxBuySellVolume();
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             setTokenMaxBuySellVolumeIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_BUY_SELL_VOLUME, _actions, _ruleIds);
     }
@@ -63,15 +57,12 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
      */
     function clearTokenMaxBuySellVolume() internal {
         TokenMaxBuySellVolumeS storage data = lib.tokenMaxBuySellVolumeStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxBuySellVolume[ActionTypes(i)];
             delete data.boughtInPeriod;
             delete data.lastPurchaseTime;
             delete data.salesInPeriod;
             delete data.lastSellTime;
-            unchecked {
-                ++i;
-            }
         }
     }
 

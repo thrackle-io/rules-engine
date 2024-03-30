@@ -308,13 +308,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function _appRuleTokens() internal endWithStopPrank {
         switchToAppAdministrator();
-        for (uint i; i < 30; ) {
+        for (uint i; i < 30; ++i) {
             applicationNFT.safeMint(ruleBypassAccount);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -488,13 +485,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         if (_amountToMint < 245) _amountToMint += 10;
         uint8 mintAmount = _amountToMint;
         /// mint and load user 1 with 10-255 NFTs
-        for (uint i; i < mintAmount; ) {
+        for (uint i; i < mintAmount; ++i) {
             applicationNFT.safeMint(_user1);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO); //setting at $1
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * ATTO);
-            unchecked {
-                ++i;
-            }
         }
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user1, 2);

@@ -215,13 +215,10 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT_Complex(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         switchToAppAdministrator();
-        for (uint i; i < 30; ) {
+        for (uint i; i < 30; ++i) {
             applicationNFT.safeMint(appAdministrator);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
-            unchecked {
-                ++i;
-            }
         }
         (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
         uint8[] memory riskScores = createUint8Array(20, 40, 60, 80, 99);
@@ -304,13 +301,10 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
-        for (uint i; i < 30; ) {
+        for (uint i; i < 30; ++i) {
             applicationNFT.safeMint(ruleBypassAccount);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
-            unchecked {
-                ++i;
-            }
         }
         applicationCoin.transfer(ruleBypassAccount, type(uint256).max);
         (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
@@ -421,14 +415,11 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         if (_amountToMint < 245) _amountToMint += 10;
         uint8 mintAmount = _amountToMint;
         /// mint and load user 1 with 10-255 NFTs
-        for (uint i; i < mintAmount; ) {
+        for (uint i; i < mintAmount; ++i) {
             applicationNFT.safeMint(appAdministrator);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO); //setting at $1
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * ATTO);
             applicationNFT.transferFrom(appAdministrator, _user1, i);
-            unchecked {
-                ++i;
-            }
         }
 
         switchToAppAdministrator();
@@ -480,14 +471,11 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
 
         /// mint and load user 1 with 50 NFTs
-        for (uint i; i < 50; ) {
+        for (uint i; i < 50; ++i) {
             applicationNFT.safeMint(appAdministrator);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO); //setting at $1
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * ATTO);
             applicationNFT.transferFrom(appAdministrator, _user1, i);
-            unchecked {
-                ++i;
-            }
         }
 
         switchToAppAdministrator();
@@ -807,14 +795,11 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
 
         // we find the max balance user2
         uint32 maxValueForUser2;
-        for (uint i; i < balanceLimits.length - 1; ) {
+        for (uint i; i < balanceLimits.length - 1; ++i) {
             if (riskScore < riskScores[i]) {
                 maxValueForUser2 = uint32(balanceLimits[i]);
             } else {
                 maxValueForUser2 = uint32(balanceLimits[3]);
-            }
-            unchecked {
-                ++i;
             }
         }
 
@@ -847,13 +832,10 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueOutByAccessLevel(uint8 _addressIndex, uint8 accessLevel) public endWithStopPrank {
         switchToAppAdministrator();
-        for (uint i; i < 30; ) {
+        for (uint i; i < 30; ++i) {
             applicationNFT.safeMint(appAdministrator);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
-            unchecked {
-                ++i;
-            }
         }
         (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
@@ -1038,14 +1020,11 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
             uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
             uint48[] memory balanceLimits = createUint48Array(10_000_000, 100_000, 1_000, 500, 10);
             // we find the max balance user2
-            for (uint i; i < balanceLimits.length - 1; ) {
+            for (uint i; i < balanceLimits.length - 1; ++i) {
                 if (riskScore < riskScores[i]) {
                     maxValueForUser2 = uint32(balanceLimits[i]);
                 } else {
                     maxValueForUser2 = uint32(balanceLimits[4]);
-                }
-                unchecked {
-                    ++i;
                 }
             }
             uint32 ruleIdRisk = createAccountMaxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(10_000_000, 100_000, 1_000, 500, 10));

@@ -2,21 +2,19 @@
 pragma solidity ^0.8.24;
 
 import "./HandlerRuleContractsCommonImports.sol";
-import {IAppManagerErrors, IInputErrors } from "../../../../common/IErrors.sol";
-import {ITokenHandlerEvents } from "../../../../common/IEvents.sol";
+import {IAppManagerErrors, IInputErrors} from "../../../../common/IErrors.sol";
+import {ITokenHandlerEvents} from "../../../../common/IEvents.sol";
 import "../../IAdminMinTokenBalanceCapable.sol";
 import {IInputErrors} from "src/common/IErrors.sol";
 
 /**
- * @title Handler Admin Min Token Balance 
+ * @title Handler Admin Min Token Balance
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.
  */
 
-
-contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
-
+contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
     /// Rule Setters and Getters
     /**
      * @dev Set the AdminMinTokenBalance. Restricted to rule administrators only.
@@ -30,13 +28,10 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         if (isAdminMinTokenBalanceActiveForAnyAction()) {
             if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
         }
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
             setAdminMinTokenBalanceIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(ADMIN_MIN_TOKEN_BALANCE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -47,16 +42,13 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAdminMinTokenBalanceIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if(_actions.length == 0) revert InputArraysSizesNotValid();
-        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
-        clearAdminMinTokenBalance(); 
-        for (uint i; i < _actions.length; ) {
+        if (_actions.length == 0) revert InputArraysSizesNotValid();
+        if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearAdminMinTokenBalance();
+        for (uint i; i < _actions.length; ++i) {
             setAdminMinTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationHandlerActionAppliedFull(ADMIN_MIN_TOKEN_BALANCE, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationHandlerActionAppliedFull(ADMIN_MIN_TOKEN_BALANCE, _actions, _ruleIds);
     }
 
     /**
@@ -64,16 +56,13 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      */
     function clearAdminMinTokenBalance() internal {
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.adminMinTokenBalance[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AdminMinTokenBalance. 
+     * @dev Set the AdminMinTokenBalance.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -83,21 +72,21 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(_ruleId);
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();
         data.adminMinTokenBalance[_action].ruleId = _ruleId;
-        data.adminMinTokenBalance[_action].active = true;            
+        data.adminMinTokenBalance[_action].active = true;
     }
 
     /**
      * @dev This function is used by the app manager to determine if the AdminMinTokenBalance rule is active for any actions
      * @return Success equals true if all checks pass
      */
-     // Disabling this finding, the necessary data for the checks lives in two different facets so the external calls to another
-     // facet inside of a loop are required here.
-     // slither-disable-next-line calls-loop
+    // Disabling this finding, the necessary data for the checks lives in two different facets so the external calls to another
+    // facet inside of a loop are required here.
+    // slither-disable-next-line calls-loop
     function isAdminMinTokenBalanceActiveAndApplicable() public view override returns (bool) {
         uint8 action = 0;
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
         /// if the rule is active for any actions, set it as active and applicable.
-        while (action <= lib.handlerBaseStorage().lastPossibleAction) { 
+        while (action <= lib.handlerBaseStorage().lastPossibleAction) {
             if (adminMinTokenBalance[ActionTypes(action)].active) {
                 try IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(adminMinTokenBalance[ActionTypes(action)].ruleId, 1, 1) {} catch {
                     return true;
@@ -116,7 +105,7 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         uint8 action = 0;
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
         /// if the rule is active for any actions, set it as active and applicable.
-        while (action <= lib.handlerBaseStorage().lastPossibleAction) { 
+        while (action <= lib.handlerBaseStorage().lastPossibleAction) {
             if (adminMinTokenBalance[ActionTypes(action)].active) {
                 return true;
             }
@@ -136,11 +125,8 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
             if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
         }
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             adminMinTokenBalance[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions);
@@ -154,7 +140,7 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isAdminMinTokenBalanceActive(ActionTypes _action) external view returns (bool) {        
+    function isAdminMinTokenBalanceActive(ActionTypes _action) external view returns (bool) {
         return lib.adminMinTokenBalanceStorage().adminMinTokenBalance[_action].active;
     }
 
@@ -167,4 +153,3 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         return lib.adminMinTokenBalanceStorage().adminMinTokenBalance[_action].ruleId;
     }
 }
-

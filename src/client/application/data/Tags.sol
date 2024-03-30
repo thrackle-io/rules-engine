@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "./DataModule.sol";
 import "./ITags.sol";
-import { INoAddressToRemove } from "src/common/IErrors.sol";
+import {INoAddressToRemove} from "src/common/IErrors.sol";
 
 /**
  * @title Tags Data Contract
@@ -17,7 +17,6 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
     mapping(address => mapping(bytes32 => bool)) isTagRegistered;
 
     uint8 constant MAX_TAGS = 10;
-
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
@@ -44,7 +43,6 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
             tagRecords[_address].push(_tag);
             isTagRegistered[_address][_tag] = true;
             emit AD1467_Tag(_address, _tag, true);
-
         }
     }
 
@@ -57,7 +55,7 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
      */
     function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
         if (_tag == "") revert BlankTag();
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             if (hasTag(_accounts[i], _tag)) emit AD1467_TagAlreadyApplied(_accounts[i]);
             else {
                 if (tagRecords[_accounts[i]].length >= MAX_TAGS) revert MaxTagLimitReached();
@@ -65,9 +63,6 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
                 tagRecords[_accounts[i]].push(_tag);
                 isTagRegistered[_accounts[i]][_tag] = true;
                 emit AD1467_Tag(_accounts[i], _tag, true);
-            }
-            unchecked {
-                ++i;
             }
         }
     }
@@ -79,11 +74,11 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
      */
     function removeTag(address _address, bytes32 _tag) external virtual onlyOwner {
         /// we only remove the tag if this exists in the account's tag list
-        if( hasTag(_address, _tag)){
+        if (hasTag(_address, _tag)) {
             /// we store the last tag on a local variable to avoid unnecessary costly memory reads
-            bytes32 LastTag = tagRecords[_address][tagRecords[_address].length -1];
+            bytes32 LastTag = tagRecords[_address][tagRecords[_address].length - 1];
             /// we check if we are trying to remove the last tag since this would mean we can skip some steps
-            if(LastTag != _tag){
+            if (LastTag != _tag) {
                 /// if it is not the last tag, then we store the index of the address to remove
                 uint index = tagToIndex[_address][_tag];
                 /// we remove the tag by replacing it in the array with the last tag (now duplicated)
@@ -99,23 +94,19 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
             delete tagToIndex[_address][_tag];
             /// only one event should be emitted and only if a tag was actually removed
             emit AD1467_Tag(_address, _tag, false);
-        }else revert NoAddressToRemove();
-
+        } else revert NoAddressToRemove();
     }
 
-   /**
+    /**
      * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
      * @param _accounts Address array to be tagged
      * @param _tags Tag array for the account at index. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external onlyOwner() {
+    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external onlyOwner {
         if (_accounts.length != _tags.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             addTag(_accounts[i], _tags[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 

@@ -6,7 +6,7 @@ import "src/common/IOracle.sol";
 import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 
 /**
- * @title ERC20 Handler Facet 
+ * @title ERC20 Handler Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
@@ -16,16 +16,17 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for int256;
 
-    uint256 constant _VOLUME_MULTIPLIER = 10**8;
+    uint256 constant _VOLUME_MULTIPLIER = 10 ** 8;
     uint256 constant _BASIS_POINT = 10000;
+
     /**
      * @dev Check if transaction passes Token Min Tx Size rule.
      * @param _ruleId Rule Identifier for rule arguments
      * @param amountToTransfer total number of tokens to be transferred
      */
     function checkTokenMinTxSize(uint32 _ruleId, uint256 amountToTransfer) external view {
-            NonTaggedRules.TokenMinTxSize memory rule = getTokenMinTxSize(_ruleId);
-            if (rule.minSize > amountToTransfer) revert UnderMinTxSize();
+        NonTaggedRules.TokenMinTxSize memory rule = getTokenMinTxSize(_ruleId);
+        if (rule.minSize > amountToTransfer) revert UnderMinTxSize();
     }
 
     /**
@@ -54,12 +55,8 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param _address user address to be checked
      */
     function checkAccountApproveDenyOracles(Rule[] memory _rules, address _address) external view {
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < _rules.length; ) {
-            if (_rules[accountApproveDenyOracleIndex].active) 
-                checkAccountApproveDenyOracle(_rules[accountApproveDenyOracleIndex].ruleId, _address);
-            unchecked {
-                ++accountApproveDenyOracleIndex;
-            }
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < _rules.length; ++accountApproveDenyOracleIndex) {
+            if (_rules[accountApproveDenyOracleIndex].active) checkAccountApproveDenyOracle(_rules[accountApproveDenyOracleIndex].ruleId, _address);
         }
     }
 
@@ -69,25 +66,25 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param _address user address to be checked
      */
     function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) internal view {
-            NonTaggedRules.AccountApproveDenyOracle memory oracleRule = getAccountApproveDenyOracle(_ruleId);
-            uint256 oType = oracleRule.oracleType;
-            address oracleAddress = oracleRule.oracleAddress;
-            if (oType == uint(ORACLE_TYPE.APPROVED_LIST)) {
-                /// If Approve List Oracle rule active, address(0) is exempt to allow for burning
-                if (_address != address(0)) {
-                    // slither-disable-next-line calls-loop
-                    if (!IOracle(oracleAddress).isApproved(_address)) {
-                        revert AddressNotApproved();
-                    }
-                }
-            } else if (oType == uint(ORACLE_TYPE.DENIED_LIST)) {
+        NonTaggedRules.AccountApproveDenyOracle memory oracleRule = getAccountApproveDenyOracle(_ruleId);
+        uint256 oType = oracleRule.oracleType;
+        address oracleAddress = oracleRule.oracleAddress;
+        if (oType == uint(ORACLE_TYPE.APPROVED_LIST)) {
+            /// If Approve List Oracle rule active, address(0) is exempt to allow for burning
+            if (_address != address(0)) {
                 // slither-disable-next-line calls-loop
-                if (IOracle(oracleAddress).isDenied(_address)) {
-                    revert AddressIsDenied();
+                if (!IOracle(oracleAddress).isApproved(_address)) {
+                    revert AddressNotApproved();
                 }
-            } else {
-                revert OracleTypeInvalid();
             }
+        } else if (oType == uint(ORACLE_TYPE.DENIED_LIST)) {
+            // slither-disable-next-line calls-loop
+            if (IOracle(oracleAddress).isDenied(_address)) {
+                revert AddressIsDenied();
+            }
+        } else {
+            revert OracleTypeInvalid();
+        }
     }
 
     /**
@@ -185,7 +182,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
             if (_tokenTotalSupply == 0) _tokenTotalSupply = _supply;
             if (rule.startTime.isWithinPeriod(rule.period, _lastSupplyUpdateTime)) {
                 _volumeTotalForPeriod += _amount;
-                /// The _tokenTotalSupply is not modified during the rule period. 
+                /// The _tokenTotalSupply is not modified during the rule period.
                 /// It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token.
             } else {
                 _volumeTotalForPeriod = _amount;
@@ -193,7 +190,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
                 _tokenTotalSupply = _supply;
             }
             volatility = _volumeTotalForPeriod.calculateVolatility(_VOLUME_MULTIPLIER, _tokenTotalSupply);
-            // Disabling the next finding, the multiplication here is used purely to get the absolute value 
+            // Disabling the next finding, the multiplication here is used purely to get the absolute value
             // slither-disable-next-line divide-before-multiply
             if (volatility < 0) volatility = volatility * -1;
             if (uint256(volatility) > uint(rule.max) * _BASIS_POINT) {
@@ -231,18 +228,11 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param lastTransactionTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
      * @param totalWithinPeriod total amount of tokens sold within current period
      */
-    function checkTokenMaxBuySellVolume(
-        uint32 ruleId, 
-        uint256 currentTotalSupply, 
-        uint256 amountToTransfer,  
-        uint64 lastTransactionTime, 
-        uint256 totalWithinPeriod
-    ) external view returns (uint256) {
+    function checkTokenMaxBuySellVolume(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastTransactionTime, uint256 totalWithinPeriod) external view returns (uint256) {
         uint256 totalForPeriod;
         NonTaggedRules.TokenMaxBuySellVolume memory rule = getTokenMaxBuySellVolume(ruleId);
-        totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ?
-            amountToTransfer + totalWithinPeriod : amountToTransfer;
-        uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply: rule.totalSupply;
+        totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ? amountToTransfer + totalWithinPeriod : amountToTransfer;
+        uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply : rule.totalSupply;
         uint16 percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
         if (percentOfTotalSupply >= rule.tokenPercentage) revert OverMaxVolume();
         return totalForPeriod;
@@ -267,5 +257,4 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         RuleS.TokenMaxBuySellVolumeS storage data = Storage.accountMaxBuySellVolumeStorage();
         return data.tokenMaxBuySellVolumeIndex;
     }
-
 }

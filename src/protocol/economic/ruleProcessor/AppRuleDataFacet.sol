@@ -5,7 +5,6 @@ import "./RuleProcessorDiamondImports.sol";
 import "../RuleAdministratorOnly.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 
-
 /**
  * @title Application Rules Storage Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -16,7 +15,7 @@ import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
-    using RuleProcessorCommonLib for uint8; 
+    using RuleProcessorCommonLib for uint8;
     uint8 constant MAX_ACCESSLEVELS = 5;
     uint8 constant MAX_RISKSCORE = 99;
 
@@ -34,17 +33,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         RuleS.AccountMaxValueByAccessLevelS storage data = Storage.accountMaxValueByAccessLevelStorage();
         uint32 index = data.accountMaxValueByAccessLevelIndex;
         if (_maxValues.length != MAX_ACCESSLEVELS) revert BalanceAmountsShouldHave5Levels(uint8(_maxValues.length));
-        for (uint i = 1; i < _maxValues.length; ) {
+        for (uint i = 1; i < _maxValues.length; ++i) {
             if (_maxValues[i] < _maxValues[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
-        for (uint8 i; i < _maxValues.length; ) {
+        for (uint8 i; i < _maxValues.length; ++i) {
             data.accountMaxValueByAccessLevelRules[index][i] = _maxValues[i];
-            unchecked {
-                ++i;
-            }
         }
         ++data.accountMaxValueByAccessLevelIndex;
         emit AD1467_ProtocolRuleCreated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, index, new bytes32[](0));
@@ -64,17 +57,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
         uint32 index = data.accountMaxValueOutByAccessLevelIndex;
         if (_withdrawalAmounts.length != MAX_ACCESSLEVELS) revert WithdrawalAmountsShouldHave5Levels(uint8(_withdrawalAmounts.length));
-        for (uint i = 1; i < _withdrawalAmounts.length; ) {
+        for (uint i = 1; i < _withdrawalAmounts.length; ++i) {
             if (_withdrawalAmounts[i] < _withdrawalAmounts[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
-        for (uint8 i; i < _withdrawalAmounts.length; ) {
+        for (uint8 i; i < _withdrawalAmounts.length; ++i) {
             data.accountMaxValueOutByAccessLevelRules[index][i] = _withdrawalAmounts[i];
-            unchecked {
-                ++i;
-            }
         }
         ++data.accountMaxValueOutByAccessLevelIndex;
         emit AD1467_ProtocolRuleCreated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, index, new bytes32[](0));
@@ -102,7 +89,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *                                   0-24  =   NO LIMIT 
+     *                                   0-24  =   NO LIMIT
      *    25              500            25-49 =   500
      *    50              250            50-74 =   250
      *    75              100            75-99 =   100
@@ -118,17 +105,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxValue.length == 0) revert InvalidRuleInput();
         if (_riskScore[_riskScore.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
-        for (uint256 i = 1; i < _riskScore.length; ) {
+        for (uint256 i = 1; i < _riskScore.length; ++i) {
             if (_riskScore[i] <= _riskScore[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
-        for (uint256 i = 1; i < _maxValue.length; ) {
+        for (uint256 i = 1; i < _maxValue.length; ++i) {
             if (_maxValue[i] > _maxValue[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
         _startTime.validateTimestamp();
         RuleS.AccountMaxTxValueByRiskScoreS storage data = Storage.accountMaxTxValueByRiskScoreStorage();
@@ -155,7 +136,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *                                   0-24  =   NO LIMIT 
+     *                                   0-24  =   NO LIMIT
      *    25              500            25-49 =   500
      *    50              250            50-74 =   250
      *    75              100            75-99 =   100
@@ -164,17 +145,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         if (_maxValue.length != _riskScores.length) revert InputArraysSizesNotValid();
         if (_maxValue.length == 0) revert InvalidRuleInput();
         if (_riskScores[_riskScores.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
-        for (uint i = 1; i < _riskScores.length; ) {
+        for (uint i = 1; i < _riskScores.length; ++i) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
-        for (uint i = 1; i < _maxValue.length; ) {
+        for (uint i = 1; i < _maxValue.length; ++i) {
             if (_maxValue[i] > _maxValue[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
         }
         return _addAccountMaxValueByRiskScore(_riskScores, _maxValue);
     }

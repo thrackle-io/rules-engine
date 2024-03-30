@@ -41,11 +41,8 @@ contract RiskScores is IRiskScores, DataModule {
      */
     function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyOwner {
         if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             addScore(_accounts[i], _scores[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -56,12 +53,9 @@ contract RiskScores is IRiskScores, DataModule {
      */
     function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external virtual onlyOwner {
         if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             scores[_accounts[i]] = _score;
             emit AD1467_RiskScoreAdded(_accounts[i], _score);
-            unchecked {
-                ++i;
-            }
         }
     }
 
