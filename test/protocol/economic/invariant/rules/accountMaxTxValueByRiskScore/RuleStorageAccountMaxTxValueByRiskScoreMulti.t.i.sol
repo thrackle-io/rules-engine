@@ -11,7 +11,6 @@ import "./RuleStorageAccountMaxTxValueByRiskScoreActorManager.sol";
  * @dev This is the multi actor rule storage invariant test for multiple actors.
  */
 contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvariantCommon {
-    
     RuleStorageAccountMaxTxValueByRiskScoreActorManager actorManager;
     RuleStorageAccountMaxTxValueByRiskScoreActor[] actors;
     AppRules.AccountMaxTxValueByRiskScore ruleBefore;
@@ -19,12 +18,12 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     function setUp() public {
         prepRuleStorageInvariant();
         // Load 10 actors
-        for(uint i; i < 10; i++){
-            ApplicationAppManager actorAppManager =  _createAppManager();
+        for (uint i; i < 10; i++) {
+            ApplicationAppManager actorAppManager = _createAppManager();
             switchToSuperAdmin();
             actorAppManager.addAppAdministrator(appAdministrator);
             actors.push(new RuleStorageAccountMaxTxValueByRiskScoreActor(ruleProcessor, actorAppManager));
-            if(i % 2 == 0){
+            if (i % 2 == 0) {
                 vm.startPrank(appAdministrator);
                 actorAppManager.addRuleAdministrator(address(actors[actors.length - 1]));
             }
@@ -39,21 +38,19 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     // The total amount of rules will never decrease.
     function invariant_rulesTotalAccountMaxTxValueByRiskScoreNeverDecreases() public view {
         uint256 total;
-        for(uint i; i < actors.length; i++){
+        for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
         // index must be incremented by one to account for 0 based array
-        assertLe(index+1, ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore());
+        assertLe(index + 1, ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore());
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
     function invariant_rulesTotalAccountMaxTxValueByRiskScoreEqualsAppBalances() public view {
         uint256 total;
-        for(uint i; i < actors.length; i++){
+        for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
-        console.log(total);
-        console.log(ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore());
         // adding 1 to total for the initial rule created in the setup function
         assertEq(total + 1, ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore());
     }
@@ -67,8 +64,12 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     function invariant_rulesTotalAccountMaxTxValueByRiskScoreIncrementsByOne() public {
         uint256 previousTotal = ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore();
         // not incrementing previousTotal by one due to zero based ruleId
-        assertEq(previousTotal, AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager),createUint48Array(100), createUint8Array(50), 24, uint64(block.timestamp)));
+        assertEq(
+            previousTotal,
+            AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), createUint48Array(100), createUint8Array(50), 24, uint64(block.timestamp))
+        );
     }
+
     // Rules can never be modified.
     function invariant_AccountMaxTxValueByRiskScoreImmutable() public view {
         AppRules.AccountMaxTxValueByRiskScore memory ruleAfter = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(index);
@@ -77,5 +78,4 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
         assertEq(ruleBefore.period, ruleAfter.period);
         assertEq(ruleBefore.startTime, ruleAfter.startTime);
     }
-    
 }

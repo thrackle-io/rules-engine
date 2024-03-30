@@ -9,8 +9,7 @@ import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "../ruleContracts/HandlerTokenMinTxSize.sol";
 
-contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize{
-
+contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
      * @param _from address of the from account
@@ -21,15 +20,21 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
     function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
-        
-        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
+
+        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active)
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
 
         IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
 
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
-            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);
+            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(
+                maxTradingVolume.tokenMaxTradingVolume[action].ruleId,
+                maxTradingVolume.transferVolume,
+                IToken(msg.sender).totalSupply(),
+                _amount,
+                maxTradingVolume.lastTransferTime
+            );
             maxTradingVolume.lastTransferTime = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
@@ -46,7 +51,4 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
             maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);
         }
     }
-
-
-
 }

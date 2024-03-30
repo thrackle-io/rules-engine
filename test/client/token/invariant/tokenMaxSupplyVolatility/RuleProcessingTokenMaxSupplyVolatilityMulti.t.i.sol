@@ -77,8 +77,6 @@ contract RuleProcessingTokenMaxSupplyVolatilityMultiTest is RuleProcessingInvari
         for (uint j; j < actors.length; j++) {
             uint256 minted = actorManagers[j].totalMinted();
             uint256 burnt = actorManagers[j].totalBurnt();
-            console.log("minted", minted);
-            console.log("burnt", burnt);
             if (minted > burnt) assertLe(((minted - burnt) * 10000) / TOTAL_SUPPLY, tokenMaxSupplyVolatilityRuleA.max);
             else assertLe(((burnt - minted) * 10000) / TOTAL_SUPPLY, tokenMaxSupplyVolatilityRuleA.max);
         }

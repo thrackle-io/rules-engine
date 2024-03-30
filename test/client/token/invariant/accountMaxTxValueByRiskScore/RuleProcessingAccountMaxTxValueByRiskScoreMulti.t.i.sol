@@ -62,7 +62,6 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
         for (uint j; j < actors.length; j++) {
             for (uint i; i < actors[j].length; i++) {
                 uint256 totalTransactedInPeriodWeis = actors[j][i].totalTransactedInPeriod();
-                console.log(totalTransactedInPeriodWeis);
                 if (i < 1) console.log("no limit", totalTransactedInPeriodWeis / (ATTO));
                 else if (i < 6) assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[0]);
                 else if (i < 8) assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[1]);

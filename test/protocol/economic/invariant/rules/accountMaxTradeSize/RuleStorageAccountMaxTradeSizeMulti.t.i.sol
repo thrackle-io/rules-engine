@@ -57,8 +57,6 @@ contract RuleStorageAccountMaxTradeSizeMultiTest is RuleStorageInvariantCommon {
         for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
-        console.log(total);
-        console.log(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTradeSize());
         // adding 1 to total for the initial rule created in the setup function
         assertEq(total + 1, ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTradeSize());
     }

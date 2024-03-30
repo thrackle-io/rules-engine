@@ -22,27 +22,16 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
             ApplicationAppManager actorAppManager = _createAppManager();
             switchToSuperAdmin();
             actorAppManager.addAppAdministrator(appAdministrator);
-            actors.push(
-                new RuleStorageTokenMinTxSizeActor(
-                    ruleProcessor,
-                    actorAppManager
-                )
-            );
+            actors.push(new RuleStorageTokenMinTxSizeActor(ruleProcessor, actorAppManager));
             if (i % 2 == 0) {
                 vm.startPrank(appAdministrator);
-                actorAppManager.addRuleAdministrator(
-                    address(actors[actors.length - 1])
-                );
+                actorAppManager.addRuleAdministrator(address(actors[actors.length - 1]));
             }
         }
         actorManager = new RuleStorageTokenMinTxSizeActorManager(actors);
         switchToRuleAdmin();
-        index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(
-            address(applicationAppManager),
-            1
-        );
-        ruleBefore = ERC20RuleProcessorFacet(address(ruleProcessor))
-            .getTokenMinTxSize(index);
+        index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1);
+        ruleBefore = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index);
         targetContract(address(actorManager));
     }
 
@@ -53,11 +42,7 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
             total += actors[i].totalRules();
         }
         // index must be incremented by one to account for 0 based array
-        assertLe(
-            index + 1,
-            ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMinTxSize()
-        );
+        assertLe(index + 1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize());
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
@@ -66,47 +51,25 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
         for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
-        console.log(total);
-        console.log(
-            ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMinTxSize()
-        );
         // adding 1 to total for the initial rule created in the setup function
-        assertEq(
-            total + 1,
-            ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMinTxSize()
-        );
+        assertEq(total + 1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize());
     }
 
     // There can be only a total of 2**32 of each rule type.
     function invariant_rulesTotalMinTxSizeLessThanMax() public view {
-        assertLe(
-            ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMinTxSize(),
-            maxRuleCount
-        );
+        assertLe(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize(), maxRuleCount);
     }
 
     /// The next ruleId created in a specific rule type will always be the same as the previous ruleId + 1.
     function invariant_rulesTotalMinTxSizeIncrementsByOne() public {
-        uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor))
-            .getTotalTokenMinTxSize();
+        uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize();
         // not incrementing previousTotal by one due to zero based ruleId
-        assertEq(
-            previousTotal,
-            RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(
-                address(applicationAppManager),
-                1
-            )
-        );
+        assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1));
     }
 
     // Rules can never be modified.
     function invariant_MinTxSizeImmutable() public view {
-        NonTaggedRules.TokenMinTxSize
-            memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTokenMinTxSize(index);
+        NonTaggedRules.TokenMinTxSize memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index);
         assertEq(ruleBefore.minSize, ruleAfter.minSize);
     }
 }

@@ -58,7 +58,6 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
         for (uint j; j < actors.length; j++) {
             for (uint i; i < actors[j].length; i++) {
                 uint256 totalOutInPeriodWeis = actors[j][i].totalOutInPeriod();
-                console.log(totalOutInPeriodWeis);
                 if (i / 2 < 1) assertLe(totalOutInPeriodWeis / (ATTO), accountMaxValueOutByAccessLevel[0]);
                 else if (i / 2 < 2) assertLe(totalOutInPeriodWeis / (ATTO), accountMaxValueOutByAccessLevel[1]);
                 else if (i / 2 < 3) assertLe(totalOutInPeriodWeis / (ATTO), accountMaxValueOutByAccessLevel[2]);
