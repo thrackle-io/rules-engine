@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/35220e3468902ae927d760ed6963ae4507446c20/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d0e19eee889b51e6e21299e25b4ddf10ffd75bd7/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -26,7 +26,7 @@ Account Max Trade Size **********************
 function addAccountMaxTradeSize(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
-    uint192[] calldata _maxSizes,
+    uint240[] calldata _maxSizes,
     uint16[] calldata _periods,
     uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
@@ -37,7 +37,7 @@ function addAccountMaxTradeSize(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint192[]`|Allowed total purchase limits|
+|`_maxSizes`|`uint240[]`|Allowed total purchase limits|
 |`_periods`|`uint16[]`|Hours purhchases allowed|
 |`_startTime`|`uint64`|timestamp period to start|
 
@@ -58,7 +58,7 @@ since all the arrays must have matching lengths, it is only necessary to check f
 ```solidity
 function _addAccountMaxTradeSize(
     bytes32[] calldata _accountTypes,
-    uint192[] calldata _maxSizes,
+    uint240[] calldata _maxSizes,
     uint16[] calldata _periods,
     uint64 _startTime
 ) internal returns (uint32);
@@ -68,7 +68,7 @@ function _addAccountMaxTradeSize(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint192[]`|Allowed total buy sizes|
+|`_maxSizes`|`uint240[]`|Allowed total buy sizes|
 |`_periods`|`uint16[]`|Amount of hours that define the periods|
 |`_startTime`|`uint64`|timestamp for first period to start|
 
