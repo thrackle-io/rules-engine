@@ -11,7 +11,6 @@ import "./RuleStorageAccountApproveDenyOracleActorManager.sol";
  * @dev This is the multi actor rule storage invariant test for multiple actors.
  */
 contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCommon {
-    
     RuleStorageAccountApproveDenyOracleActorManager actorManager;
     RuleStorageAccountApproveDenyOracleActor[] actors;
     NonTaggedRules.AccountApproveDenyOracle ruleBefore;
@@ -19,12 +18,12 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     function setUp() public {
         prepRuleStorageInvariant();
         // Load 10 actors
-        for(uint i; i < 10; i++){
-            ApplicationAppManager actorAppManager =  _createAppManager();
+        for (uint i; i < 10; i++) {
+            ApplicationAppManager actorAppManager = _createAppManager();
             switchToSuperAdmin();
             actorAppManager.addAppAdministrator(appAdministrator);
             actors.push(new RuleStorageAccountApproveDenyOracleActor(ruleProcessor, actorAppManager));
-            if(i % 2 == 0){
+            if (i % 2 == 0) {
                 vm.startPrank(appAdministrator);
                 actorAppManager.addRuleAdministrator(address(actors[actors.length - 1]));
             }
@@ -39,21 +38,19 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     // The total amount of rules will never decrease.
     function invariant_rulesTotalAccountApproveDenyOracleNeverDecreases() public view {
         uint256 total;
-        for(uint i; i < actors.length; i++){
+        for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
         // index must be incremented by one to account for 0 based array
-        assertLe(index+1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle());
+        assertLe(index + 1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle());
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
     function invariant_rulesTotalAccountApproveDenyOracleEqualsAppBalances() public view {
         uint256 total;
-        for(uint i; i < actors.length; i++){
+        for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
         }
-        console.log(total);
-        console.log(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle());
         // adding 1 to total for the initial rule created in the setup function
         assertEq(total + 1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle());
     }
@@ -69,11 +66,11 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
         // not incrementing previousTotal by one due to zero based ruleId
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(0xabc)));
     }
+
     // Rules can never be modified.
     function invariant_AccountApproveDenyOracleImmutable() public view {
         NonTaggedRules.AccountApproveDenyOracle memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(index);
         assertEq(ruleBefore.oracleType, ruleAfter.oracleType);
         assertEq(ruleBefore.oracleAddress, ruleAfter.oracleAddress);
     }
-    
 }

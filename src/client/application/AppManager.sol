@@ -20,7 +20,7 @@ import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
-import {IAppLevelEvents,IApplicationEvents} from "src/common/IEvents.sol";
+import {IAppLevelEvents, IApplicationEvents} from "src/common/IEvents.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 
 /**
@@ -81,7 +81,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     mapping(address => bool) isTradingRuleAllowlisted;
     mapping(address => uint) tradingRuleAllowlistAddressToIndex;
 
-
     /**
      * @dev This constructor sets up the super admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
      * @param root address to set as the super admin and first app administrator
@@ -111,10 +110,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @dev This function overrides the parent's grantRole function. This disables its public nature to make it private.
      * @param role the role to grant to an acount.
      * @param account address being granted the role.
-     * @notice This is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
+     * @notice This is purposely going to fail every time it will be invoked in order to force users to only use the appropiate
      * channels to grant roles, and therefore enforce the special rules in an app.
      */
-     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+    function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// this is done to funnel all the role granting functions through the app manager functions since
         /// the superAdmins could add other superAdmins through this back door
         role;
@@ -130,7 +129,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
-        if(role == SUPER_ADMIN_ROLE ) revert BelowMinAdminThreshold();
+        if (role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
         AccessControl.renounceRole(role, account);
     }
 
@@ -140,13 +139,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param role the role to revoke.
      * @param account address of revoked role.
      */
-    function revokeRole(bytes32 role, address account) public virtual nonReentrant override(AccessControl, IAccessControl) {
+    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) nonReentrant {
         /// enforcing the min-1-admin requirement.
-        if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        if (role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        if(role == RULE_BYPASS_ACCOUNT) checkForAdminMinTokenBalanceCapable();
+        if (role == RULE_BYPASS_ACCOUNT) checkForAdminMinTokenBalanceCapable();
         // slither-disable-next-line reentrancy-events
         AccessControl.revokeRole(role, account);
     }
@@ -169,19 +168,18 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param account address to be added
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
-        if(account == address(0)) revert ZeroAddress();
-        if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
+        if (account == address(0)) revert ZeroAddress();
+        if (getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0) {
             updateProposedRole(account);
         } else {
             super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, account);
         }
-        
     }
 
     /**
      * A function used specifically for moving the proposed super admin from one account
-     * to another. Allows revoke and grant to be called in the same function without the possibility 
-     * of re-entrancy. 
+     * to another. Allows revoke and grant to be called in the same function without the possibility
+     * of re-entrancy.
      * @param newAddress the new Proposed Super Admin account.
      */
     function updateProposedRole(address newAddress) private onlyRole(SUPER_ADMIN_ROLE) {
@@ -190,7 +188,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     }
 
     /**
-     * @dev confirm the superAdmin role. 
+     * @dev confirm the superAdmin role.
      * @notice only the proposed account can accept this role.
      */
     function confirmSuperAdmin() external {
@@ -230,11 +228,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _accounts address array to be added
      */
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             addAppAdministrator(_accounts[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -272,11 +267,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param account address to be added as a rule admin
      */
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
-        for (uint256 i; i < account.length; ) {
+        for (uint256 i; i < account.length; ++i) {
             addRuleAdministrator(account[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -314,22 +306,19 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _accounts addresses to be added as a rule bypass account
      */
     function addMultipleRuleBypassAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE) {
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             addRuleBypassAccount(_accounts[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
      * @dev Remove oneself from the rule bypass account role.
-     * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active. 
+     * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
      */
     function renounceRuleBypassAccount() external nonReentrant {
         /// If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminMinTokenBalanceCapable();
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-benign
         renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
@@ -339,19 +328,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Loop through all the registered tokens, if they are capable of admin min token balance, see if it's active. If so, revert
-     * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules. 
+     * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules.
      */
     function checkForAdminMinTokenBalanceCapable() internal {
         uint256 length = tokenList.length;
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < length; ++i) {
             // check to see if supports the rule first
             if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminMinTokenBalanceCapable).interfaceId)) {
                 if (IAdminMinTokenBalanceCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminMinTokenBalanceActiveAndApplicable()) {
                     revert AdminMinTokenBalanceisActive();
                 }
-            }
-            unchecked {
-                ++i;
             }
         }
     }
@@ -381,11 +367,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param account address to be added as a access level
      */
     function addMultipleAccessLevelAdmins(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
-        for (uint256 i; i < account.length; ) {
+        for (uint256 i; i < account.length; ++i) {
             addAccessLevelAdmin(account[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -423,11 +406,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param account address to be added
      */
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
-        for (uint256 i; i < account.length; ) {
+        for (uint256 i; i < account.length; ++i) {
             addRiskAdmin(account[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -535,7 +515,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Add a pause rule. Restricted to Application Administrators
-     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked. 
+     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
@@ -546,13 +526,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Remove a pause rule. Restricted to Application Administrators
-     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added. 
+     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
     function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
-        if (pauseRules.isPauseRulesEmpty()){
+        if (pauseRules.isPauseRulesEmpty()) {
             /// set handler bool to false to save gas and prevent pause rule checks when non exist
             applicationHandler.activatePauseRule(false);
         }
@@ -560,11 +540,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * This function calls the appHandler contract to enable/disable this check.  
+     * This function calls the appHandler contract to enable/disable this check.
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE) {
-        applicationHandler.activatePauseRule(_on); 
+        applicationHandler.activatePauseRule(_on);
     }
 
     /**
@@ -729,17 +709,26 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Check Application Rules for valid transactions.
-     * @param _tokenAddress address of the token calling the rule check 
+     * @param _tokenAddress address of the token calling the rule check
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _amount number of tokens to be transferred 
+     * @param _amount number of tokens to be transferred
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      * @param _tokenId tokenId of the NFT token
      * @param _action Action to be checked
-     * @param _handlerType type of handler calling checkApplicationRules function 
+     * @param _handlerType type of handler calling checkApplicationRules function
      */
-    function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyHandler {
-        if (applicationHandler.requireApplicationRulesChecked(_action)) {    
+    function checkApplicationRules(
+        address _tokenAddress,
+        address _from,
+        address _to,
+        uint256 _amount,
+        uint16 _nftValuationLimit,
+        uint256 _tokenId,
+        ActionTypes _action,
+        HandlerTypes _handlerType
+    ) external onlyHandler {
+        if (applicationHandler.requireApplicationRulesChecked(_action)) {
             applicationHandler.checkApplicationRules(_tokenAddress, _from, _to, _amount, _nftValuationLimit, _tokenId, _action, _handlerType);
         }
     }
@@ -770,12 +759,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        if(!isTokenRegistered[_tokenAddress]){  
+        if (!isTokenRegistered[_tokenAddress]) {
             _addAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, _tokenAddress);
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
             emit AD1467_TokenRegistered(_token, _tokenAddress);
-        }else emit AD1467_TokenNameUpdated(_token, _tokenAddress);
-        
+        } else emit AD1467_TokenNameUpdated(_token, _tokenAddress);
     }
 
     /**
@@ -803,7 +791,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
         address tokenAddress = tokenToAddress[_tokenId];
-        if(!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
+        if (!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
         _removeAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, tokenAddress);
         delete tokenToAddress[_tokenId];
         delete addressToToken[tokenAddress];
@@ -812,37 +800,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         emit AD1467_RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
-     /**
+    /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
      * @param _addressArray The array to have an address removed
      * @param _addressToIndex mapping that keeps track of the indexes in the list by address
      * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to remove
      */
-    function _removeAddressWithMapping(
-        address[] storage  _addressArray, 
-        mapping(address => uint) storage _addressToIndex, 
-        mapping(address => bool) storage _registerFlag, 
-        address _address) 
-        private 
-        {
-            /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
-            address LastAddress = _addressArray[_addressArray.length -1];
-            /// we check if we're trying to remove the last address in the array since this means we can skip some steps
-            if(_address != LastAddress){
-                /// if it is not the last address in the array, then we store the index of the address to remove
-                uint index = _addressToIndex[_address];
-                /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
-                _addressArray[index] = LastAddress;
-                /// we update the last address index to its new position (the removed-address index)
-                _addressToIndex[LastAddress] = index;
-            }
-            /// we remove the last element of the _addressArray since it is now duplicated
-            _addressArray.pop();
-            /// we set to false the membership mapping for this address in _addressArray
-            delete _registerFlag[_address];
-            /// we set the index to zero for this address in _addressArray
-            delete _addressToIndex[_address];
+    function _removeAddressWithMapping(address[] storage _addressArray, mapping(address => uint) storage _addressToIndex, mapping(address => bool) storage _registerFlag, address _address) private {
+        /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+        address LastAddress = _addressArray[_addressArray.length - 1];
+        /// we check if we're trying to remove the last address in the array since this means we can skip some steps
+        if (_address != LastAddress) {
+            /// if it is not the last address in the array, then we store the index of the address to remove
+            uint index = _addressToIndex[_address];
+            /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
+            _addressArray[index] = LastAddress;
+            /// we update the last address index to its new position (the removed-address index)
+            _addressToIndex[LastAddress] = index;
+        }
+        /// we remove the last element of the _addressArray since it is now duplicated
+        _addressArray.pop();
+        /// we set to false the membership mapping for this address in _addressArray
+        delete _registerFlag[_address];
+        /// we set the index to zero for this address in _addressArray
+        delete _addressToIndex[_address];
     }
 
     /**
@@ -852,16 +834,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to add
      */
-    function _addAddressWithMapping(
-        address[] storage  _addressArray, 
-        mapping(address => uint) storage _addressToIndex, 
-        mapping(address => bool) storage _registerFlag, 
-        address _address) 
-        private 
-        {
-            _addressToIndex[_address] = _addressArray.length;
-            _registerFlag[_address] = true;
-            _addressArray.push(_address);
+    function _addAddressWithMapping(address[] storage _addressArray, mapping(address => uint) storage _addressToIndex, mapping(address => bool) storage _registerFlag, address _address) private {
+        _addressToIndex[_address] = _addressArray.length;
+        _registerFlag[_address] = true;
+        _addressArray.push(_address);
     }
 
     /**
@@ -926,14 +902,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param isApproved set to true to indicate that _address can bypass trading rules.
      */
     function approveAddressToTradingRuleAllowlist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE) {
-        if(!isApproved){
-            if( !isTradingRuleAllowlisted[_address])
-                revert NoAddressToRemove();
+        if (!isApproved) {
+            if (!isTradingRuleAllowlisted[_address]) revert NoAddressToRemove();
             _removeAddressWithMapping(tradingRuleAllowList, tradingRuleAllowlistAddressToIndex, isTradingRuleAllowlisted, _address);
-            
-        }else{
-            if( isTradingRuleAllowlisted[_address])
-                revert AddressAlreadyRegistered();
+        } else {
+            if (isTradingRuleAllowlisted[_address]) revert AddressAlreadyRegistered();
             _addAddressWithMapping(tradingRuleAllowList, tradingRuleAllowlistAddressToIndex, isTradingRuleAllowlisted, _address);
         }
         emit AD1467_TradingRuleAddressAllowlist(_address, isApproved);
@@ -1013,7 +986,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
-        emit AD1467_HandlerConnected(applicationHandlerAddress, address(this)); 
+        emit AD1467_HandlerConnected(applicationHandlerAddress, address(this));
     }
 
     /**
@@ -1057,13 +1030,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external nonReentrant() onlyRole(APP_ADMIN_ROLE) {
+    function proposeDataContractMigration(address _newOwner) external nonReentrant onlyRole(APP_ADMIN_ROLE) {
         accounts.proposeOwner(_newOwner);
         accessLevels.proposeOwner(_newOwner);
         riskScores.proposeOwner(_newOwner);
         tags.proposeOwner(_newOwner);
         pauseRules.proposeOwner(_newOwner);
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-events
         emit AD1467_AppManagerDataUpgradeProposed(_newOwner, address(this));
@@ -1084,13 +1057,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         riskScores.confirmOwner();
         tags.confirmOwner();
         pauseRules.confirmOwner();
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-events
         emit AD1467_DataContractsMigrated(address(this));
     }
 
-    
     /**
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
      * @param _providerType the type of data provider

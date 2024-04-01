@@ -4,16 +4,14 @@ pragma solidity ^0.8.24;
 import "./HandlerRuleContractsCommonImports.sol";
 import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
-
 /**
- * @title Handler Account Min Max Token Balance 
+ * @title Handler Account Min Max Token Balance
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.
  */
 
-
-contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
+contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
     /**
      * @dev Set the accountMinMaxTokenBalanceRuleId. Restricted to rule administrators only.
@@ -23,13 +21,10 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
      */
     function setAccountMinMaxTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMinMaxTokenBalance(_ruleId);
-        for (uint i; i < _actions.length; ) {
-            setAccountMinMaxTokenBalanceIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountMinMaxTokenBalanceIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }            
+        }
     }
 
     /**
@@ -39,16 +34,13 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMinMaxTokenBalanceIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if(_actions.length == 0) revert InputArraysSizesNotValid();
-        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
-        clearMinMaxTokenBalance(); 
-        for (uint i; i < _actions.length; ) {
+        if (_actions.length == 0) revert InputArraysSizesNotValid();
+        if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearMinMaxTokenBalance();
+        for (uint i; i < _actions.length; ++i) {
             setAccountMinMaxTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, _ruleIds);
     }
 
     /**
@@ -56,16 +48,13 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
      */
     function clearMinMaxTokenBalance() internal {
         AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.accountMinMaxTokenBalance[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountMaxSellSizeRuleId. 
+     * @dev Set the AccountMaxSellSizeRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -75,19 +64,17 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMinMaxTokenBalance(_ruleId);
         AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
         data.accountMinMaxTokenBalance[_action].ruleId = _ruleId;
-        data.accountMinMaxTokenBalance[_action].active = true;            
+        data.accountMinMaxTokenBalance[_action].active = true;
     }
+
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
@@ -113,7 +100,4 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
     function isAccountMinMaxTokenBalanceActive(ActionTypes _action) external view returns (bool) {
         return lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_action].active;
     }
-
-
 }
-

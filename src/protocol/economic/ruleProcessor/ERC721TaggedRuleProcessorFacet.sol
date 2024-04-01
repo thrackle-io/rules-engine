@@ -23,14 +23,14 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param balanceTo Token balance of the recipient address
      * @param toTags tags applied via App Manager to recipient address
      * @param fromTags tags applied via App Manager to sender address
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
-     * tags and check for specific application. This was done in a minimal way to allow for  
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] memory toTags, bytes32[] memory fromTags) public view {
         fromTags.checkMaxTags();
         toTags.checkMaxTags();
-        if(getAccountMinMaxTokenBalanceERC721(ruleId, BLANK_TAG).max > 0){
+        if (getAccountMinMaxTokenBalanceERC721(ruleId, BLANK_TAG).max > 0) {
             toTags = new bytes32[](1);
             toTags[0] = BLANK_TAG;
             fromTags = toTags;
@@ -47,12 +47,9 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @notice most restrictive tag will be enforced.
      */
     function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] memory fromTags, uint32 ruleId) internal view {
-        for (uint256 i; i < fromTags.length; ) {
+        for (uint256 i; i < fromTags.length; ++i) {
             uint256 min = getAccountMinMaxTokenBalanceERC721(ruleId, fromTags[i]).min;
             if (min > 0 && balanceFrom <= min) revert UnderMinBalance();
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -63,12 +60,9 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param ruleId Rule identifier for rule arguments
      */
     function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] memory toTags, uint32 ruleId) internal view {
-        for (uint256 i = 0; i < toTags.length; ) {
+        for (uint256 i = 0; i < toTags.length; ++i) {
             uint256 max = getAccountMinMaxTokenBalanceERC721(ruleId, toTags[i]).max;
             if (max > 0 && balanceTo >= max) revert OverMaxBalance();
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -101,30 +95,26 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param transfersWithinPeriod Number of transfers within the time period
      * @param nftTags NFT tags
      * @param lastTransferTime block.timestamp of most recent transaction from sender.
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
-     * tags and check for specific application. This was done in a minimal way to allow for  
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkTokenMaxDailyTrades(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] memory nftTags, uint64 lastTransferTime) public view returns (uint256) {
         nftTags.checkMaxTags();
         uint256 cumulativeTotal = 0;
-        if(getTokenMaxDailyTrades(ruleId, BLANK_TAG).startTime > 0){
+        if (getTokenMaxDailyTrades(ruleId, BLANK_TAG).startTime > 0) {
             nftTags = new bytes32[](1);
             nftTags[0] = BLANK_TAG;
         }
-        for (uint i = 0; i < nftTags.length; ) {
+        for (uint i = 0; i < nftTags.length; ++i) {
             // if the tag is blank, then ignore
             if (bytes32(nftTags[i]).length != 0) {
                 cumulativeTotal = 0;
                 TaggedRules.TokenMaxDailyTrades memory rule = getTokenMaxDailyTrades(ruleId, nftTags[i]);
                 uint32 period = 24; // set purchase period to one day(24 hours)
                 uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
-                cumulativeTotal = rule.startTime.isWithinPeriod(period, lastTransferTime) ? 
-                transfersWithinPeriod + 1 : 1;
+                cumulativeTotal = rule.startTime.isWithinPeriod(period, lastTransferTime) ? transfersWithinPeriod + 1 : 1;
                 if (cumulativeTotal > tradesAllowedPerDay) revert OverMaxDailyTrades();
-                unchecked {
-                    ++i;
-                }
             }
         }
         return cumulativeTotal;
@@ -151,5 +141,4 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
         RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
         return data.tokenMaxDailyTradesIndex;
     }
-
 }

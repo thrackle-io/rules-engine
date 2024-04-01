@@ -15,9 +15,8 @@ import "../diamond/RuleStorage.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, IFeesErrors, RuleAdministratorOnly {
-    
     bytes32 constant BLANK_TAG = bytes32("");
- 
+
     /**
      * @dev This function adds a fee to the token. Blank tags are allowed
      * @param _tag meta data tag for fee
@@ -40,8 +39,8 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         if (_maxBalance == 0) _maxBalance = type(uint256).max;
         // add the fee to the mapping. If it already exists, it will replace the old one.
         data.feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount);
-        // once fee is added to mapping, set the fee to active 
-        lib.feeStorage().feeActive = true; 
+        // once fee is added to mapping, set the fee to active
+        lib.feeStorage().feeActive = true;
         emit AD1467_FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount);
     }
 
@@ -92,16 +91,13 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         bytes32[] memory _fromTags;
         int24 totalFeePercent = 0;
         uint24 discount = 0;
-        /// To insure that default fees are checked when they're set, add a blank tag to the tag list. 
-        if(getFee(BLANK_TAG).feePercentage > 0){
-            _fromTags = new bytes32[](fromTags.length+1);
-            for (uint i; i < fromTags.length; ) {
+        /// To insure that default fees are checked when they're set, add a blank tag to the tag list.
+        if (getFee(BLANK_TAG).feePercentage > 0) {
+            _fromTags = new bytes32[](fromTags.length + 1);
+            for (uint i; i < fromTags.length; ++i) {
                 _fromTags[i] = fromTags[i];
-                unchecked {
-                    ++i;
-                }
             }
-            _fromTags[_fromTags.length-1] = BLANK_TAG;
+            _fromTags[_fromTags.length - 1] = BLANK_TAG;
         } else {
             _fromTags = fromTags;
         }
@@ -111,7 +107,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
             feeCollectorAccounts = new address[](_fromTags.length);
             feePercentages = new int24[](_fromTags.length);
             /// loop through and accumulate the fee percentages based on tags
-            for (uint i; i < _fromTags.length; ) {
+            for (uint i; i < _fromTags.length; ++i) {
                 fee = getFee(_fromTags[i]);
                 // fee must be active and the initiating account must have an acceptable balance
                 if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
@@ -128,23 +124,17 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
                         }
                     }
                 }
-                unchecked {
-                    ++i;
-                }
             }
             /// if an applicable discount(s) was found, then distribute it among all the fees
             if (discount > 0 && feeCount != 0) {
                 // if there are fees to discount then do so
                 uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
-                for (uint i; i < feeCount; ) {
+                for (uint i; i < feeCount; ++i) {
                     // if discount is greater than fee, then set to zero
                     if (int24(discountSlice) > feePercentages[i]) {
                         feePercentages[i] = 0;
                     } else {
                         feePercentages[i] -= int24(discountSlice);
-                    }
-                    unchecked {
-                        ++i;
                     }
                 }
             }
@@ -155,5 +145,4 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         }
         return (feeCollectorAccounts, feePercentages);
     }
-
 }

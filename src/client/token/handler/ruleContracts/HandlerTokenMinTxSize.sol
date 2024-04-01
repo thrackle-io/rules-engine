@@ -11,11 +11,9 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-
-contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
-
+contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
-    
+
     /**
      * @dev Set the TokenMinTxSize. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
@@ -24,13 +22,10 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
-        for (uint i; i < _actions.length; ) {
-            setTokenMinTxSizeIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setTokenMinTxSizeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }            
+        }
     }
 
     /**
@@ -40,15 +35,12 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setTokenMinTxSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if(_actions.length == 0) revert InputArraysSizesNotValid();
-        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
-        clearTokenMinTxSize(); 
-        for (uint i; i < _actions.length; ) {
+        if (_actions.length == 0) revert InputArraysSizesNotValid();
+        if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearTokenMinTxSize();
+        for (uint i; i < _actions.length; ++i) {
             setTokenMinTxSizeIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
+        }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MIN_TX_SIZE, _actions, _ruleIds);
     }
 
@@ -57,16 +49,13 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      */
     function clearTokenMinTxSize() internal {
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMinTxSize[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
-    
+
     /**
-     * @dev Set the TokenMinTxSize. 
+     * @dev Set the TokenMinTxSize.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -76,7 +65,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
         data.tokenMinTxSize[_action].ruleId = _ruleId;
-        data.tokenMinTxSize[_action].active = true;            
+        data.tokenMinTxSize[_action].active = true;
     }
 
     /**
@@ -85,11 +74,8 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             lib.tokenMinTxSizeStorage().tokenMinTxSize[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
 
         if (_on) {
@@ -116,6 +102,4 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
     function isTokenMinTxSizeActive(ActionTypes _action) external view returns (bool) {
         return lib.tokenMinTxSizeStorage().tokenMinTxSize[_action].active;
     }
-    
 }
-

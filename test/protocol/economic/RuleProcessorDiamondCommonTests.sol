@@ -121,7 +121,7 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(
             address(applicationAppManager),
             createBytes32Array("Oscar", "Tayler", "Shane"),
-            createUint192Array(1000, 2000, 3000),
+            createUint240Array(1000, 2000, 3000),
             createUint16Array(24, 36, 48),
             Blocktime
         );
@@ -141,7 +141,7 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
     function testProtocol_RuleProcessorDiamond_AccountMaxTradeSizeSettingWithoutAppAdministratorAccount() public endWithStopPrank ifDeploymentTestsEnabled {
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(address(applicationAppManager), createBytes32Array("Oscar"), createUint192Array(1000), createUint16Array(24), Blocktime);
+        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(address(applicationAppManager), createBytes32Array("Oscar"), createUint240Array(1000), createUint16Array(24), Blocktime);
     }
 
     /// Test mismatched arrays sizes
@@ -151,7 +151,7 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(
             address(applicationAppManager),
             createBytes32Array("Oscar", "Tayler", "Shane"),
-            createUint192Array(1000),
+            createUint240Array(1000),
             createUint16Array(24),
             Blocktime
         );

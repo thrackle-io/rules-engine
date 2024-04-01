@@ -13,9 +13,8 @@ import "../RuleAdministratorOnly.sol";
 contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
-    using RuleProcessorCommonLib for uint8; 
-    using RuleProcessorCommonLib for bytes32[]; 
-
+    using RuleProcessorCommonLib for uint8;
+    using RuleProcessorCommonLib for bytes32[];
 
     /********************** Account Max Trade Size ***********************/
     /**
@@ -31,7 +30,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     function addAccountMaxTradeSize(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint192[] calldata _maxSizes,
+        uint240[] calldata _maxSizes,
         uint16[] calldata _periods,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
@@ -41,6 +40,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         _accountTypes.validateTags();
         return _addAccountMaxTradeSize(_accountTypes, _maxSizes, _periods, _startTime);
     }
+
     /**
      * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
@@ -49,27 +49,19 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _startTime timestamp for first period to start
      * @return position of new rule in array
      */
-    function _addAccountMaxTradeSize(bytes32[] calldata _accountTypes, uint192[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
+    function _addAccountMaxTradeSize(bytes32[] calldata _accountTypes, uint240[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
         RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
         uint32 index = data.accountMaxTradeSizeIndex;
         _startTime.validateTimestamp();
-        for (uint256 i; i < _accountTypes.length; ) {
+        for (uint256 i; i < _accountTypes.length; ++i) {
             if (_periods[i] == 0 || _maxSizes[0] == 0) revert ZeroValueNotPermited();
             data.accountMaxTradeSizeRules[index][_accountTypes[i]] = TaggedRules.AccountMaxTradeSize(_maxSizes[i], _periods[i]);
-
-            unchecked {
-                ++i;
-            }
         }
         data.startTimes[index] = _startTime;
         emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_TRADE_SIZE, index, _accountTypes);
         ++data.accountMaxTradeSizeIndex;
         return index;
     }
-
-
-
-
 
     /********************** Account Min Max Token Balance ***********************/
 
@@ -109,8 +101,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @return position of new rule in array
      */
     function _addAccountMinMaxTokenBalance(
-        bytes32[] calldata _accountTypes, 
-        uint256[] calldata _min, 
+        bytes32[] calldata _accountTypes,
+        uint256[] calldata _min,
         uint256[] calldata _max,
         uint16[] calldata _periods,
         uint64 _startTime
@@ -121,14 +113,11 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
         if (_startTime == 0) _startTime = uint64(block.timestamp);
-        for (uint256 i; i < _accountTypes.length; ) {
+        for (uint256 i; i < _accountTypes.length; ++i) {
             if (_min[i] == 0 || _max[i] == 0) revert ZeroValueNotPermited();
             if (_min[i] > _max[i]) revert InvertedLimits();
             if (_periods.length > 0 && _periods[i] == 0) revert CantMixPeriodicAndNonPeriodic();
             data.accountMinMaxTokenBalanceRules[index][_accountTypes[i]] = TaggedRules.AccountMinMaxTokenBalance(_min[i], _max[i], _periods.length == 0 ? 0 : _periods[i]);
-            unchecked {
-                ++i;
-            }
         }
         data.startTimes[index] = _startTime;
         emit AD1467_ProtocolRuleCreated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, index, _accountTypes);
@@ -193,16 +182,12 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     function _addTokenMaxDailyTrades(bytes32[] calldata _nftTags, uint8[] calldata _tradesAllowed, uint64 _startTime) internal returns (uint32) {
         RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
         uint32 index = data.tokenMaxDailyTradesIndex;
-        for (uint256 i; i < _nftTags.length; ) {
+        for (uint256 i; i < _nftTags.length; ++i) {
             TaggedRules.TokenMaxDailyTrades memory rule = TaggedRules.TokenMaxDailyTrades(_tradesAllowed[i], _startTime);
             data.tokenMaxDailyTradesRules[index][_nftTags[i]] = rule;
-            unchecked {
-                ++i;
-            }
         }
         emit AD1467_ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, new bytes32[](0));
         ++data.tokenMaxDailyTradesIndex;
         return index;
     }
-
 }

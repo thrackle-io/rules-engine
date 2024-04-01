@@ -19,7 +19,6 @@ error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
 error CannotRemoveImmutableFunction(bytes4 _selector);
 error InitializationFunctionReverted(address initializationContractAddress, bytes data);
 
-
 struct FacetAddressAndSelectorPosition {
     address facetAddress;
     uint16 selectorPosition;
@@ -52,7 +51,6 @@ library HandlerDiamondLib {
         }
     }
 
-
     event DiamondCut(FacetCut[] _diamondCut, address init, bytes data);
 
     /**
@@ -63,7 +61,7 @@ library HandlerDiamondLib {
      *             calldata is executed with delegatecall on "init"
      */
     function diamondCut(FacetCut[] memory _diamondCut, address init, bytes memory data) internal {
-        for (uint256 facetIndex; facetIndex < _diamondCut.length; ) {
+        for (uint256 facetIndex; facetIndex < _diamondCut.length; ++facetIndex) {
             bytes4[] memory functionSelectors = _diamondCut[facetIndex].functionSelectors;
             address facetAddress = _diamondCut[facetIndex].facetAddress;
 
@@ -80,9 +78,6 @@ library HandlerDiamondLib {
                 removeFunctions(facetAddress, functionSelectors);
             } else {
                 revert IncorrectFacetCutAction(uint8(action));
-            }
-            unchecked {
-                ++facetIndex;
             }
         }
         emit DiamondCut(_diamondCut, init, data);
@@ -103,7 +98,7 @@ library HandlerDiamondLib {
         uint16 selectorCount = uint16(ds.selectors.length);
         enforceHasContractCode(_facetAddress, "DiamondCutLib: Add facet has no code");
 
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             address oldFacetAddress = ds.facetAddressAndSelectorPosition[selector].facetAddress;
             if (oldFacetAddress != address(0)) {
@@ -112,9 +107,6 @@ library HandlerDiamondLib {
             ds.facetAddressAndSelectorPosition[selector] = FacetAddressAndSelectorPosition(_facetAddress, selectorCount);
             ds.selectors.push(selector);
             ++selectorCount;
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 
@@ -129,7 +121,7 @@ library HandlerDiamondLib {
             revert CannotReplaceFunctionsFromFacetWithZeroAddress(_functionSelectors);
         }
         enforceHasContractCode(_facetAddress, "DiamondCutLib: Replace facet has no code");
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             address oldFacetAddress = ds.facetAddressAndSelectorPosition[selector].facetAddress;
             /// can't replace immutable functions -- functions defined directly in the diamond in this case
@@ -144,9 +136,6 @@ library HandlerDiamondLib {
             }
             /// replace old facet address
             ds.facetAddressAndSelectorPosition[selector].facetAddress = _facetAddress;
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 
@@ -161,7 +150,7 @@ library HandlerDiamondLib {
         if (_facetAddress != address(0)) {
             revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
         }
-        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
+        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ++selectorIndex) {
             bytes4 selector = _functionSelectors[selectorIndex];
             FacetAddressAndSelectorPosition memory oldFacetAddressAndSelectorPosition = ds.facetAddressAndSelectorPosition[selector];
             if (oldFacetAddressAndSelectorPosition.facetAddress == address(0)) {
@@ -182,9 +171,6 @@ library HandlerDiamondLib {
             /// delete last selector
             ds.selectors.pop();
             delete ds.facetAddressAndSelectorPosition[selector];
-            unchecked {
-                ++selectorIndex;
-            }
         }
     }
 

@@ -22,8 +22,16 @@ import "src/client/application/ProtocolApplicationHandlerCommon.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IZeroAddressError, IAppHandlerErrors {
-    string private constant VERSION="1.1.0";
+contract ProtocolApplicationHandler is
+    ProtocolApplicationHandlerCommon,
+    Ownable,
+    RuleAdministratorOnly,
+    IApplicationHandlerEvents,
+    ICommonApplicationHandlerEvents,
+    IZeroAddressError,
+    IAppHandlerErrors
+{
+    string private constant VERSION = "1.1.0";
     AppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -36,7 +44,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     mapping(ActionTypes => Rule) accountDenyForNoAccessLevel;
 
     /// Pause Rule on-off switch
-    bool private pauseRuleActive; 
+    bool private pauseRuleActive;
 
     /// Pricing Module interfaces
     IProtocolERC20Pricing erc20Pricer;
@@ -49,7 +57,6 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     mapping(address => uint64) lastTxDateRiskRule;
     /// AdminMinTokenBalanceRule data
     mapping(address => uint128) usdValueTotalWithrawals;
-   
 
     /**
      * @dev Initializes the contract setting the AppManager address as the one provided and setting the ruleProcessor for protocol access
@@ -68,32 +75,45 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     /**
      * @dev checks if any of the Application level rules are active
      * @param _action the current action type
-     * @return true if one or more rules are active  
+     * @return true if one or more rules are active
      */
     function requireApplicationRulesChecked(ActionTypes _action) public view returns (bool) {
-        return pauseRuleActive ||
-               accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active || 
-               accountMaxValueByAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active;
+        return
+            pauseRuleActive ||
+            accountMaxValueByRiskScore[_action].active ||
+            accountMaxTxValueByRiskScore[_action].active ||
+            accountMaxValueByAccessLevel[_action].active ||
+            accountMaxValueOutByAccessLevel[_action].active ||
+            accountDenyForNoAccessLevel[_action].active;
     }
 
     /**
      * @dev Check Application Rules for valid transaction.
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _amount amount of tokens to be transferred 
+     * @param _amount amount of tokens to be transferred
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      * @param _tokenId tokenId of the NFT token
      * @param _action Action to be checked. This param is intentially added for future enhancements.
      * @param _handlerType the type of handler, used to direct to correct token pricing
      */
-    function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyOwner {
+    function checkApplicationRules(
+        address _tokenAddress,
+        address _from,
+        address _to,
+        uint256 _amount,
+        uint16 _nftValuationLimit,
+        uint256 _tokenId,
+        ActionTypes _action,
+        HandlerTypes _handlerType
+    ) external onlyOwner {
         _action;
         uint128 balanceValuation;
         uint128 price;
         uint128 transferValuation;
 
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
-        /// Based on the Handler Type retrieve pricing valuations 
+        /// Based on the Handler Type retrieve pricing valuations
         if (_handlerType == HandlerTypes.ERC20HANDLER) {
             balanceValuation = uint128(getAccTotalValuation(_to, 0));
             price = uint128(_getERC20Price(_tokenAddress));
@@ -105,13 +125,13 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (accountMaxValueByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active) {
             _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation, _action);
         }
-        if (accountMaxValueByRiskScore[_action].active|| accountMaxTxValueByRiskScore[_action].active) {
+        if (accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active) {
             _checkRiskRules(_from, _to, balanceValuation, transferValuation, _action);
         }
     }
 
     /**
-     * @dev This function consolidates all the Risk rule checks. 
+     * @dev This function consolidates all the Risk rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
@@ -162,7 +182,12 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
         if (accountMaxValueOutByAccessLevel[_action].active) {
-            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(accountMaxValueOutByAccessLevel[_action].ruleId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
+            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                accountMaxValueOutByAccessLevel[_action].ruleId,
+                fromScore,
+                usdValueTotalWithrawals[_from],
+                _transferValuation
+            );
         }
     }
 
@@ -195,7 +220,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _account address to get the balance for
      * @return totalValuation of the account in dollars
      */
-     // slither-disable-next-line calls-loop
+    // slither-disable-next-line calls-loop
     function getAccTotalValuation(address _account, uint256 _nftValuationLimit) public view returns (uint256 totalValuation) {
         address[] memory tokenList = appManager.getTokenList();
         uint256 tokenAmount;
@@ -204,7 +229,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
             return totalValuation;
         } else {
             /// Loop through all Nfts and ERC20s and add values to balance for account valuation
-            for (uint256 i; i < tokenList.length; ) {
+            for (uint256 i; i < tokenList.length; ++i) {
                 /// Check to see if user owns the asset
                 tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
                 if (tokenAmount > 0) {
@@ -220,9 +245,6 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
                         totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
                     }
                 }
-                unchecked {
-                    ++i;
-                }
             }
         }
     }
@@ -235,7 +257,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function _getERC20Price(address _tokenAddress) internal view returns (uint256) {
         if (erc20PricingAddress != address(0)) {
-            // Disabling this finding, it is a false positive. The if statement for the zero address check 
+            // Disabling this finding, it is a false positive. The if statement for the zero address check
             // is being treated as a loop.
             // slither-disable-next-line calls-loop
             return erc20Pricer.getTokenPrice(_tokenAddress);
@@ -252,15 +274,11 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _tokenAmount amount of NFTs from _tokenAddress contract
      * @return totalValueInThisContract in whole USD
      */
-     // slither-disable-next-line calls-loop
+    // slither-disable-next-line calls-loop
     function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount) internal view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
-            
-            for (uint i; i < _tokenAmount; ) {
+            for (uint i; i < _tokenAmount; ++i) {
                 totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, IERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
-                unchecked {
-                    ++i;
-                }
             }
         } else {
             revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
@@ -276,7 +294,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
-            // Disabling this finding, it is a false positive. The if statement for the zero address check 
+            // Disabling this finding, it is a false positive. The if statement for the zero address check
             // is being treated as a loop.
             // slither-disable-next-line calls-loop
             totalValueInThisContract = _tokenAmount * uint256(nftPricer.getNFTCollectionPrice(_tokenAddress));
@@ -285,7 +303,6 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         }
     }
 
-
     /**
      * @dev Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
@@ -293,13 +310,10 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }      
+        }
     }
 
     /**
@@ -310,30 +324,24 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function setAccountMaxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
-        clearAccountMaxValueByRiskScore(); 
-        for (uint i; i < _actions.length; ) {
+        clearAccountMaxValueByRiskScore();
+        for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
     }
 
-     /**
+    /**
      * @dev Clear the rule data structure
      */
     function clearAccountMaxValueByRiskScore() internal {
-        for (uint i; i <= lastPossibleAction; ) {
+        for (uint i; i <= lastPossibleAction; ++i) {
             delete accountMaxValueByRiskScore[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountMaxValuebyAccessLevelRuleId. 
+     * @dev Set the AccountMaxValuebyAccessLevelRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -342,7 +350,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(_ruleId);
         accountMaxValueByRiskScore[_action].ruleId = _ruleId;
-        accountMaxValueByRiskScore[_action].active = true;            
+        accountMaxValueByRiskScore[_action].active = true;
     }
 
     /**
@@ -351,11 +359,8 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             accountMaxValueByRiskScore[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
@@ -382,19 +387,16 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         return accountMaxValueByRiskScore[_action].ruleId;
     }
 
-  /**
+    /**
      * @dev Set the activateAccountDenyForNoAccessLevel. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions action types in which to apply the rules
      */
     function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);
             emit AD1467_ApplicationRuleApplied(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions[i], 0);
-            unchecked {
-                ++i;
-             }
-        }      
+        }
     }
 
     /**
@@ -403,36 +405,30 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _actions actions to have the rule applied to
      */
     function setAccountDenyForNoAccessLevelIdFull(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
-        clearAccountDenyForNoAccessLevel(); 
-        for (uint i; i < _actions.length; ) {
+        clearAccountDenyForNoAccessLevel();
+        for (uint i; i < _actions.length; ++i) {
             setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);
-            unchecked {
-                ++i;
-            }
-        } 
+        }
         emit AD1467_ApplicationRuleAppliedFull(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions, new uint32[](_actions.length));
     }
 
-     /**
+    /**
      * @dev Clear the rule data structure
      */
     function clearAccountDenyForNoAccessLevel() internal {
-        for (uint i; i <= lastPossibleAction; ) {
+        for (uint i; i <= lastPossibleAction; ++i) {
             delete accountDenyForNoAccessLevel[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountDenyForNoAccessLevelRuleId. 
+     * @dev Set the AccountDenyForNoAccessLevelRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      */
     // slither-disable-next-line calls-loop
     function setAccountDenyForNoAccessLevelIdUpdate(ActionTypes _action) internal {
-        accountDenyForNoAccessLevel[_action].active = true;            
+        accountDenyForNoAccessLevel[_action].active = true;
     }
 
     /**
@@ -441,11 +437,8 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountDenyForNoAccessLevelRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             accountDenyForNoAccessLevel[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
@@ -470,13 +463,10 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }      
+        }
     }
 
     /**
@@ -487,30 +477,24 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
-        clearAccountMaxValueByAccessLevel(); 
-        for (uint i; i < _actions.length; ) {
+        clearAccountMaxValueByAccessLevel();
+        for (uint i; i < _actions.length; ++i) {
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
     }
 
-     /**
+    /**
      * @dev Clear the rule data structure
      */
     function clearAccountMaxValueByAccessLevel() internal {
-        for (uint i; i <= lastPossibleAction; ) {
+        for (uint i; i <= lastPossibleAction; ++i) {
             delete accountMaxValueByAccessLevel[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountMaxValuebyAccessLevelRuleId. 
+     * @dev Set the AccountMaxValuebyAccessLevelRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -519,7 +503,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(ruleProcessor).validateAccountMaxValueByAccessLevel(_ruleId);
         accountMaxValueByAccessLevel[_action].ruleId = _ruleId;
-        accountMaxValueByAccessLevel[_action].active = true;            
+        accountMaxValueByAccessLevel[_action].active = true;
     }
 
     /**
@@ -528,11 +512,8 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxValueByAccessLevel(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             accountMaxValueByAccessLevel[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
@@ -559,8 +540,6 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         return accountMaxValueByAccessLevel[_action].ruleId;
     }
 
-    
-
     /**
      * @dev Set the AccountMaxValueOutByAccessLevel. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
@@ -568,13 +547,10 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }      
+        }
     }
 
     /**
@@ -585,30 +561,24 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function setAccountMaxValueOutByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
-        clearAccountMaxValueOutByAccessLevel(); 
-        for (uint i; i < _actions.length; ) {
+        clearAccountMaxValueOutByAccessLevel();
+        for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions, _ruleIds);
     }
 
-     /**
+    /**
      * @dev Clear the rule data structure
      */
     function clearAccountMaxValueOutByAccessLevel() internal {
-        for (uint i; i <= lastPossibleAction; ) {
+        for (uint i; i <= lastPossibleAction; ++i) {
             delete accountMaxValueOutByAccessLevel[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountMaxValueOutByAccessLevelRuleId. 
+     * @dev Set the AccountMaxValueOutByAccessLevelRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -617,7 +587,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     function setAccountMaxValueOutByAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(ruleProcessor).validateAccountMaxValueOutByAccessLevel(_ruleId);
         accountMaxValueOutByAccessLevel[_action].ruleId = _ruleId;
-        accountMaxValueOutByAccessLevel[_action].active = true;            
+        accountMaxValueOutByAccessLevel[_action].active = true;
     }
 
     /**
@@ -626,11 +596,8 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxValueOutByAccessLevel(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             accountMaxValueOutByAccessLevel[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
@@ -664,13 +631,10 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleId);  
+        for (uint i; i < _actions.length; ++i) {
+            setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-             }
-        }      
+        }
     }
 
     /**
@@ -681,30 +645,24 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function setAccountMaxTxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
-        clearAccountMaxTxValueByRiskScore(); 
-        for (uint i; i < _actions.length; ) {
+        clearAccountMaxTxValueByRiskScore();
+        for (uint i; i < _actions.length; ++i) {
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
-        } 
-         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
+        }
+        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
     }
 
-     /**
+    /**
      * @dev Clear the rule data structure
      */
     function clearAccountMaxTxValueByRiskScore() internal {
-        for (uint i; i <= lastPossibleAction; ) {
+        for (uint i; i <= lastPossibleAction; ++i) {
             delete accountMaxTxValueByRiskScore[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
     /**
-     * @dev Set the AccountMaxTxValueByRiskScoreRuleId. 
+     * @dev Set the AccountMaxTxValueByRiskScoreRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
@@ -713,7 +671,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     function setAccountMaxTxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(ruleProcessor).validateAccountMaxTxValueByRiskScore(_ruleId);
         accountMaxTxValueByRiskScore[_action].ruleId = _ruleId;
-        accountMaxTxValueByRiskScore[_action].active = true;            
+        accountMaxTxValueByRiskScore[_action].active = true;
     }
 
     /**
@@ -722,11 +680,8 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxTxValueByRiskScore(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        for (uint i; i < _actions.length; ++i) {
             accountMaxTxValueByRiskScore[_actions[i]].active = _on;
-            unchecked {
-                ++i;
-            }
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
@@ -755,13 +710,13 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * This function does not use ruleAdministratorOnly modifier, the onlyOwner modifier checks that the caller is the appManager contract. 
-     * @notice This function uses the onlyOwner modifier since the appManager contract is calling this function when adding a pause rule or removing the final pause rule of the array. 
+     * This function does not use ruleAdministratorOnly modifier, the onlyOwner modifier checks that the caller is the appManager contract.
+     * @notice This function uses the onlyOwner modifier since the appManager contract is calling this function when adding a pause rule or removing the final pause rule of the array.
      * @param _on boolean representing if a rule must be checked or not.
      */
 
     function activatePauseRule(bool _on) external onlyOwner {
-        pauseRuleActive = _on; 
+        pauseRuleActive = _on;
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(PAUSE_RULE);
         } else {

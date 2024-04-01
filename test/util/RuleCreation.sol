@@ -61,10 +61,10 @@ abstract contract RuleCreation is TestCommonFoundry {
         applicationHandler.activateAccountDenyForNoAccessLevelRule(createActionTypeArrayAll(), true);
     }
 
-    function createAccountMaxTradeSizeRule(bytes32 tagForRule, uint192 maxSize, uint16 _period) public returns (uint32) {
+    function createAccountMaxTradeSizeRule(bytes32 tagForRule, uint240 maxSize, uint16 _period) public returns (uint32) {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array(tagForRule);
-        uint192[] memory amounts = createUint192Array(maxSize);
+        uint240[] memory amounts = createUint240Array(maxSize);
         uint16[] memory period = createUint16Array(_period);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
         TaggedRules.AccountMaxTradeSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxTradeSize(ruleId, tagForRule);

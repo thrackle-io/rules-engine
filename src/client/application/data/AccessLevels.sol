@@ -38,13 +38,10 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _accounts address array upon which to apply the Access Level
      * @param _level Access Level array to add
      */
-    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyOwner() {
+    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyOwner {
         if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             addLevel(_accounts[i], _level[i]);
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -55,12 +52,9 @@ contract AccessLevels is IAccessLevels, DataModule {
      */
     function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
-        for (uint256 i; i < _accounts.length; ) {
+        for (uint256 i; i < _accounts.length; ++i) {
             levels[_accounts[i]] = _level;
             emit AD1467_AccessLevelAdded(_accounts[i], _level);
-            unchecked {
-                ++i;
-            }
         }
     }
 
