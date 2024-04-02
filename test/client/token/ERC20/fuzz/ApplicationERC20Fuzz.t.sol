@@ -2,9 +2,10 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "../../TestTokenCommon.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
-contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
+contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
     // event Log(string eventString, uint256 number);
     ApplicationERC20 draculaCoin;
 
@@ -92,7 +93,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         assertEq(applicationCoin.balanceOf(_user1), 0);
     }
 
-    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+/* TOKEN MINIMUM TRANSACTION SIZE RULE */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_All_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
         _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
         address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
@@ -104,7 +106,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
     }
 
-    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_All_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
         // if the transferAmount is the max, adjust so the internal arithmetic works
         _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
@@ -122,8 +125,168 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.transfer(_user2, _transferAmount - 1);
     }
 
-    // NOTE: this function had to be delineated with braces to prevent "stack too deep" errors
-    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+    /* Test TRANSFER only */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Transfer_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        applicationCoin.transfer(_user1, _transferAmount + 1);
+        assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
+    }
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Transfer_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        // if the transferAmount is the max, adjust so the internal arithmetic works
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
+        // Then we add the rule.
+        uint32 ruleId;
+        switchToRuleAdmin();
+        ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        applicationCoin.transfer(_user2, _transferAmount - 1);
+    }
+
+    /* Test MINT only */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Mint_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        applicationCoin.mint(_user1, _transferAmount + 1);
+        assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
+    }
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Mint_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        // if the transferAmount is the max, adjust so the internal arithmetic works
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
+        // Then we add the rule.
+        uint32 ruleId;
+        switchToRuleAdmin();
+        ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        applicationCoin.mint(_user2, _transferAmount - 1);
+    }
+
+    /* Test BURN only */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Burn_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        applicationCoin.transfer(_user1, _transferAmount + 1);
+        vm.startPrank(_user1);
+        applicationCoin.burn(_transferAmount + 1);
+        assertEq(applicationCoin.balanceOf(_user1), 0);
+    }
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Burn_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        applicationCoin.transfer(_user1, _transferAmount - 1);
+        vm.startPrank(_user1);
+         // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        applicationCoin.burn(_transferAmount - 1);
+        assertEq(applicationCoin.balanceOf(_user1), _transferAmount - 1);
+    }
+
+    /* Test BUY only */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Buy_Positive(uint8 _addressIndex, uint256 _transferAmount) public endWithStopPrank {
+        _transferAmount = bound(uint256(_transferAmount), 1, type(uint128).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, false);
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin2.approve(address(amm), _transferAmount);
+        /// Buy some applicationCoin
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), _transferAmount, _transferAmount, false);
+        assertEq(applicationCoin.balanceOf(_user1), _transferAmount);
+    }
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Buy_Negative(uint8 _addressIndex, uint256 _transferAmount) public endWithStopPrank {
+        _transferAmount = bound(uint256(_transferAmount), 1, type(uint128).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, false);
+        switchToRuleAdmin();
+        // Set the minimum as one more than the transfer amount
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount+1);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin2.approve(address(amm), _transferAmount);
+        // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), _transferAmount, _transferAmount, false);
+    }
+
+    /* Test SELL only */
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Sell_Positive(uint8 _addressIndex, uint256 _transferAmount) public endWithStopPrank {
+        _transferAmount = bound(uint256(_transferAmount), 1, type(uint128).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, true);
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin.approve(address(amm), _transferAmount);
+        /// Sell some applicationCoin
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), _transferAmount, _transferAmount, true);
+        assertEq(applicationCoin2.balanceOf(_user1), _transferAmount);
+    }
+
+    function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Sell_Negative(uint8 _addressIndex, uint256 _transferAmount) public endWithStopPrank {
+        _transferAmount = bound(uint256(_transferAmount), 1, type(uint128).max);
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, true);
+        switchToRuleAdmin();
+        // Set the minimum as one more than the transfer amount
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount+1);
+        setTokenMinimumTransactionRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin.approve(address(amm), _transferAmount);
+        // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), _transferAmount, _transferAmount, true);
+    }
+
+/* TOKEN MIN MAX TOKEN BALANCE RULE */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_All_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
         switchToAppAdministrator();
         if (_tag == "") _tag = bytes32("TEST");
@@ -131,35 +294,127 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         // set up amounts
         uint256 maxAmount = _amountSeed * 100;
         uint256 minAmount = _amountSeed;
-        {
-            applicationCoin.mint(appAdministrator, type(uint256).max);
-        }
-        {
-            /// set up a non admin user with tokens
-            applicationCoin.transfer(_richUser, maxAmount);
-            applicationCoin.transfer(_user1, maxAmount);
-            uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
-            setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
-            switchToAppAdministrator();
-        }
-        {
-            ///Add Tag to account
-            address[3] memory tempAddresses = [_user1, _user2, _user3];
-            for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
-            for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
-        }
-        {
-            ///perform transfer that checks rule
-            vm.stopPrank();
-            vm.startPrank(_user1);
-            applicationCoin.transfer(_user2, minAmount);
-            assertEq(applicationCoin.balanceOf(_user2), minAmount);
-            assertEq(applicationCoin.balanceOf(_user1), maxAmount - minAmount);
-        }
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(_richUser, maxAmount);
+        applicationCoin.transfer(_user1, maxAmount);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+        setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        ///Add Tag to account
+        address[3] memory tempAddresses = [_user1, _user2, _user3];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+        for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationCoin.transfer(_user2, minAmount);
+        assertEq(applicationCoin.balanceOf(_user2), minAmount);
+        assertEq(applicationCoin.balanceOf(_user1), maxAmount - minAmount);
+    }
+    /* Test MINT only */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Mint_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+        _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
+        switchToAppAdministrator();
+        if (_tag == "") _tag = bytes32("TEST");
+        (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
+        // set up amounts
+        uint256 maxAmount = _amountSeed * 100;
+        uint256 minAmount = _amountSeed;
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+        setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        ///Add Tag to account
+        address[3] memory tempAddresses = [_user1, _user2, _user3];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+        for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationCoin.mint(_user1, minAmount);
+        assertEq(applicationCoin.balanceOf(_user1), minAmount);
+    }
+    /* Test BURN only */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Burn_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+        _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
+        switchToAppAdministrator();
+        if (_tag == "") _tag = bytes32("TEST");
+        (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
+        // set up amounts
+        uint256 maxAmount = _amountSeed * 100;
+        uint256 minAmount = _amountSeed;
+        applicationCoin.mint(appAdministrator, type(uint256).max);
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(_user1, maxAmount);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+        setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        ///Add Tag to account
+        address[3] memory tempAddresses = [_user1, _user2, _user3];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+        for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationCoin.burn(maxAmount-minAmount);
+        assertEq(applicationCoin.balanceOf(_user1), maxAmount-(maxAmount-minAmount));
     }
 
-    // NOTE: this function had to be delineated with braces to prevent "stack too deep" errors
-    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_UnderMinBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+    /* Test BUY only */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Buy_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+        _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
+        switchToAppAdministrator();
+        if (_tag == "") _tag = bytes32("TEST");
+        (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
+        // set up amounts
+        uint256 maxAmount = _amountSeed * 100;
+        uint256 minAmount = _amountSeed;
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, maxAmount, false);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+        setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        ///Add Tag to account
+        address[3] memory tempAddresses = [_user1, _user2, _user3];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+        for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+        ///perform transfer that checks rule
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin2.approve(address(amm), minAmount);
+        /// Buy some applicationCoin
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), minAmount, minAmount, false);
+        assertEq(applicationCoin.balanceOf(_user1), minAmount);
+    }
+
+    /* Test SELL only */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Sell_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+        _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
+        switchToAppAdministrator();
+        if (_tag == "") _tag = bytes32("TEST");
+        (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
+        // set up amounts
+        uint256 maxAmount = _amountSeed * 100;
+        uint256 minAmount = _amountSeed;
+        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
+        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, maxAmount, true);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+        setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
+        switchToAppAdministrator();
+        ///Add Tag to account
+        address[3] memory tempAddresses = [_user1, _user2, _user3];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+        for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+        ///perform transfer that checks rule
+        vm.startPrank(_user1);
+        /// Approve transfer
+        applicationCoin.approve(address(amm), minAmount);
+        /// Buy some applicationCoin
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), minAmount, minAmount, true);
+        assertEq(applicationCoin2.balanceOf(_user1), minAmount);
+    }
+    /* Test All actions */
+    function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_All_UnderMinBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 2, 167770));
         switchToAppAdministrator();
         if (_tag != "") {
@@ -167,28 +422,45 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
             // set up amounts
             uint256 maxAmount = _amountSeed * 100;
             uint256 minAmount = _amountSeed;
-            {
-                applicationCoin.mint(appAdministrator, type(uint256).max);
-            }
-            {
-                /// set up a non admin user with tokens
-                applicationCoin.transfer(_user1, maxAmount);
-                uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
-                setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
-                switchToAppAdministrator();
-            }
-            {
-                ///Add Tag to account
-                applicationAppManager.addTag(_user1, _tag); ///add tag
-                applicationAppManager.addTag(_user2, _tag); ///add tag
-                ///perform transfer that checks rule
-                vm.startPrank(_user1);
-                // make sure the minimum rules fail results in revert
-                vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-                applicationCoin.transfer(_user2, maxAmount);
-            }
+            applicationCoin.mint(appAdministrator, type(uint256).max);
+            /// set up a non admin user with tokens
+            applicationCoin.transfer(_user1, maxAmount);
+            uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
+            setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
+            switchToAppAdministrator();
+            ///Add Tag to account
+            applicationAppManager.addTag(_user1, _tag); ///add tag
+            applicationAppManager.addTag(_user2, _tag); ///add tag
+            ///perform transfer that checks rule
+            vm.startPrank(_user1);
+            // make sure the minimum rules fail results in revert
+            vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+            applicationCoin.transfer(_user2, maxAmount);
         }
     }
+    /* Test MINT only */
+    // function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Mint_UnderMinBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
+    //     _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
+    //     switchToAppAdministrator();
+    //     if (_tag == "") _tag = bytes32("TEST");
+    //     (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
+    //     // set up amounts
+    //     uint256 maxAmount = _amountSeed * 100;
+    //     uint256 minAmount = _amountSeed;
+    //     uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount+1), createUint256Array(maxAmount));
+    //     setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
+    //     switchToAppAdministrator();
+    //     ///Add Tag to account
+    //     address[3] memory tempAddresses = [_user1, _user2, _user3];
+    //     for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+    //     for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
+    //     ///perform transfer that checks rule
+    //     vm.stopPrank();
+    //     vm.startPrank(_user1);
+    //     // make sure the minimum rules fail results in revert
+    //     vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+    //     applicationCoin.mint(_user1, minAmount);
+    // }
 
     // NOTE: this function had to be delineated with braces to prevent "stack too deep" errors
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_OverMaxBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
@@ -1124,5 +1396,34 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         accessBalance2 = _amountSeed + 100;
         accessBalance3 = _amountSeed + 500;
         accessBalance4 = _amountSeed + 1000;
+    }
+
+    function _createAndInitializeAMM(ApplicationERC20 token1, ApplicationERC20 token2, address user, uint256 tokenAmount, bool isToken1In) public returns (DummyAMM amm) {
+        switchToAppAdministrator();
+        amm = new DummyAMM();
+        tokenAmount = tokenAmount + 1_000;
+        if (token1.balanceOf(appAdministrator) < tokenAmount){
+            token1.mint(appAdministrator, tokenAmount - token1.balanceOf(appAdministrator));
+        }
+        if (token2.balanceOf(appAdministrator) < tokenAmount){
+            token2.mint(appAdministrator, tokenAmount - token2.balanceOf(appAdministrator));
+        }
+        /// Approve the transfer of tokens into AMM
+        token1.approve(address(amm), tokenAmount);
+        token2.approve(address(amm), tokenAmount);
+        /// Transfer the tokens into the AMM
+        token1.transfer(address(amm), tokenAmount);
+        token2.transfer(address(amm), tokenAmount);
+        /// Make sure the tokens made it
+        assertEq(token1.balanceOf(address(amm)), tokenAmount);
+        assertEq(token2.balanceOf(address(amm)), tokenAmount);
+        if (isToken1In){
+            token1.mint(user,tokenAmount); 
+            assertEq(token1.balanceOf(user), tokenAmount); 
+        } else {
+            token2.mint(user,tokenAmount);
+            assertEq(token2.balanceOf(user), tokenAmount);   
+        }
+        return amm;     
     }
 }

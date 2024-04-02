@@ -17,6 +17,12 @@ abstract contract ERC20Util is TokenUtils {
         ERC20NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(actionTypes, ruleId);
     }
 
+    function setAccountApproveDenyOracleRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
+        ERC20NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(actionTypes, ruleId);
+    }
+
     function setAccountApproveDenyOracleRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleIdFull(actions, ruleIds);
@@ -25,6 +31,12 @@ abstract contract ERC20Util is TokenUtils {
     function setAccountMinMaxTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BUY, ActionTypes.BURN);
+        ERC20TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
+    }
+
+    function setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
         ERC20TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
     }
 
@@ -39,6 +51,12 @@ abstract contract ERC20Util is TokenUtils {
         ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
     }
 
+    function setAdminMinTokenBalanceRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
+        ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
+    }
+
     function setAdminMinTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceIdFull(actions, ruleIds);
@@ -47,6 +65,12 @@ abstract contract ERC20Util is TokenUtils {
     function setTokenMaxSupplyVolatilityRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
+        ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityId(actionTypes, ruleId);
+    }
+
+    function setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityId(actionTypes, ruleId);
     }
 
@@ -61,6 +85,12 @@ abstract contract ERC20Util is TokenUtils {
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeId(actionTypes, ruleId);
     }
 
+    function setTokenMaxTradingVolumeRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
+        ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeId(actionTypes, ruleId);
+    }
+
     function setTokenMaxTradingVolumeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeIdFull(actions, ruleIds);
@@ -72,8 +102,15 @@ abstract contract ERC20Util is TokenUtils {
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeId(actionTypes, ruleId);
     }
 
+    function setTokenMinimumTransactionRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(action);
+        ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeId(actionTypes, ruleId);
+    }
+
     function setTokenMinimumTransactionRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeIdFull(actions, ruleIds);
     }
+
 }

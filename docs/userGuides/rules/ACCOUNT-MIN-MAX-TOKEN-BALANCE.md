@@ -84,7 +84,7 @@ The rule will be evaluated with the following logic:
 3. The processor receives these tags along with the ID of the account-min-max-token-balance rule set in the token handler. 
 4. The processor tries to retrieve the sub-rule associated with each tag.
 5. The processor evaluates whether each sub-rule's period is still active (if the current time is within `period` from the `starting timestamp`). If not, processing of the rule for the selected tag does not proceed.
-6. The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts.
+6. The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts. NOTE: This means that minting will never violate the minimum balance as it a transfer in and not out.
 7. The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
 8. Step 4-7 are repeated for each of the account's tags. 
 
