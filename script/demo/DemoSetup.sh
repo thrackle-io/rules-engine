@@ -49,8 +49,8 @@ if [ "$LOCAL" = "y" ]; then
     IFS=' ' read -r -a array <<< "$ARRAY"
     echo $ARRAY
     echo
-    APP_ADMIN_PRIVATE_KEY="${array[5]}"
-    APP_ADMIN="${array[1]//\"}"
+    APP_ADMIN_1_KEY="${array[5]}"
+    APP_ADMIN_1="${array[1]//\"}"
     
     ARRAY=$(cat anvil_output.txt | grep \(1\) | tr '\n' ' ')
     IFS=' ' read -r -a array <<< "$ARRAY"
@@ -73,9 +73,9 @@ else
 
     # Request App Admin Address and Key
     echo Please enter App Admin Address
-    read APP_ADMIN
+    read APP_ADMIN_1
     echo Please enter App Admin Private Key
-    read APP_ADMIN_PRIVATE_KEY
+    read APP_ADMIN_1_KEY
     # Request and export ETH_RPC_URL
     echo please enter RPC URL
     read ETH_RPC_URL
@@ -100,8 +100,8 @@ else
 
 fi
 
-sed -i '' 's/DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN'/g' $ENV_FILE
-sed -i '' 's/DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+sed -i '' 's/DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN_1'/g' $ENV_FILE
+sed -i '' 's/DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
 
 if [ "$ALREADY_DEPLOYED" = "y" ]; then
     echo "Protocol already deployed skipping Protocol Deployment Scripts"
@@ -134,8 +134,8 @@ else
     forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
     echo "################################################################"
-    echo export APP_ADMIN=$APP_ADMIN | tee $OUTPUTFILE
-    echo export APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_PRIVATE_KEY | tee -a $OUTPUTFILE
+    echo export APP_ADMIN_1=$APP_ADMIN_1 | tee $OUTPUTFILE
+    echo export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY | tee -a $OUTPUTFILE
     echo export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND | tee -a $OUTPUTFILE
 
 fi
@@ -283,27 +283,27 @@ echo  Mint a billion coins
 echo "################################################################"
 echo
 
-echo $APP_ADMIN
-echo $APP_ADMIN_PRIVATE_KEY
+echo $APP_ADMIN_1
+echo $APP_ADMIN_1_KEY
 echo $APPLICATION_ERC20_1
 
-cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN 10000000000000000000000000000000 --private-key $APP_ADMIN_PRIVATE_KEY --from $APP_ADMIN --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Set Price of ERC721 collection
 echo "################################################################"
 echo
 
-#cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL 
+cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
 echo  Make Rule Admin
 echo "################################################################"
 echo
 
-cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
-cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Add to allowed list
@@ -312,14 +312,14 @@ echo
 
 # Comment the following line out to see the oracle rule fail
 
-cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule
 echo "################################################################"
 echo
 
-cast send $RULE_PROCESSOR_DIAMOND "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" $APPLICATION_APP_MANAGER [0x0000000000000000000000000000000000000000000000000000000000000000\] [1] [100] [] 1675723152 --private-key $APP_ADMIN_PRIVATE_KEY --from $APP_ADMIN --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
+cast send $RULE_PROCESSOR_DIAMOND "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" $APPLICATION_APP_MANAGER [0x0000000000000000000000000000000000000000000000000000000000000000\] [1] [100] [] 1675723152 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
 
 OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
 
@@ -337,7 +337,7 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt
@@ -345,8 +345,8 @@ fi
 ECHO "export ETH_RPC_URL=http://127.0.0.1:8545"
 ECHO "export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND"
 ECHO "export APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER"
-ECHO "export APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_PRIVATE_KEY"
-ECHO "export APP_ADMIN=$APP_ADMIN"
+ECHO "export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY"
+ECHO "export APP_ADMIN_1=$APP_ADMIN_1"
 ECHO "export USER_1=$USER_1"
 ECHO "export USER_2=$USER_2"
 ECHO "export APPLICATION_ERC20_1=$APPLICATION_ERC20_1"
