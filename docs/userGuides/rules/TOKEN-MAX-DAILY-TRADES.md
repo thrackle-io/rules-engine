@@ -20,7 +20,7 @@ The token-max-daily-trades rule enforces a daily limit on the number of trades f
   
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at a token level. It must be activated and configured for each desired token collection in the corresponding token handler.
 
 ## Data Structure
 

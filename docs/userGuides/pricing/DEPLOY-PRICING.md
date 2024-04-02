@@ -22,7 +22,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 
             ````
         5. locate the address from the output, example:
@@ -50,7 +50,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC20Pricing.sol:ApplicationERC20Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+            forge create src/example/pricing/ApplicationERC20Pricing.sol:ApplicationERC20Pricing --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 
             ````
         5. locate the address from the output, example:
@@ -65,13 +65,13 @@ In order for US-Dollar-based application rules to function properly, the protoco
 
 # Third-Party Pricing Solutions
 
-To be able to use third-party pricing solutions with the protocol, you must make sure that the third party contract complies with our interfaces. If they don't, an adapter contract will have to be deployed. For more information see the [third-party solution guide](../pricing/THIRD-PARTY-SOLUTIONS.md).
+To be able to use third-party pricing solutions with the protocol, you must make sure that the third party contract complies with our interfaces. If they don't, an adapter contract will have to be deployed. For more information see the [third-party solution guide](./THIRD-PARTY-SOLUTIONS.md).
 
 # Pricing Module Configuration 
 
 Once your pricing modules have been deployed, it is time to set their addresses in your appManager handler. The appManager handler needs both variables set to work:
 
-Signing with a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
+Signing with a ruleAdmin private key (see [admin roles](../permissions/ADMIN-CONFIG.md)), do:
 - For ERC20 pricer:
     ```
     cast send $APP_MANAGER_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
@@ -82,7 +82,7 @@ Signing with a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
     ```
 
 <!-- These are the body links -->
-[environment-url]: ./SET-ENVIRONMENT.md
+[environment-url]: ../deployment/SET-ENVIRONMENT.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

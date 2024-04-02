@@ -4,20 +4,19 @@
 ---
 | Rule | Level | Actions |
 |:-|:-|:-| 
-| [Account Balance by Risk Rule](./ACCOUNT-MAX-VALUE-BY-RISK-SCORE.md) | Application | mint/buy/transfer |
+| [Account Balance by Risk Rule](./ACCOUNT-MAX-VALUE-BY-RISK.md) | Application | mint/buy/transfer |
 | [Account Max Value By Access Level Rule](./ACCOUNT-MAX-VALUE-BY-ACCESS-LEVEL.md) | Application | mint/buy/transfer |
 | [Account Min/Max Token Balance Rule](./ACCOUNT-MIN-MAX-TOKEN-BALANCE.md) | ERC20/ERC721 | mint/burn/buy/sell/transfer |
 | [Account Max Value Out By Access Level](./ACCOUNT-MAX-VALUE-BY-ACCESS-LEVEL.md) | Application | burn/sell/transfer |
-| [Account Max Buy Size](./ACCOUNT-MAX-BUY-SIZE.md) | ERC20/ERC721 | buy |
-| [Account Max Sell Size](./ACCOUNT-MAX-SELL-SIZE.md) | ERC20/ERC721 | sell |
+| [Account Max Trade Size](./ACCOUNT-MAX-TRADE-SIZE.md) | ERC20/ERC721 | buy/sell |
 | [Token Max Trading Volume](./TOKEN-MAX-TRADING-VOLUME.md) | ERC20/ERC721 | mint/buy/sell/transfer |
-| [Token Max Sell Volume Rule](./TOKEN-MAX-SELL-VOLUME.md) | ERC20/ERC721 | sell |
-| [Token Max Buy Volume Rule](./TOKEN-MAX-BUY-VOLUME.md) | ERC20/ERC721 | buy |
+| [Token Max Buy-Sell Volume Rule](./TOKEN-MAX-BUY-SELL-VOLUME.md) | ERC20/ERC721 | buy/sell |
 | [Token Max Supply Volatility Rule](./TOKEN-MAX-SUPPLY-VOLATILITY.md) | ERC20/ERC721 | mint/burn |
 | [Token Max Daily Trades Rule](./TOKEN-MAX-DAILY-TRADES.md) | ERC721 | mint/buy/sell/transfer |
 | [Token Minimum Hold Time](./TOKEN-MIN-HOLD-TIME.md) | ERC721 | burn/sell/transfer | 
 | [Token Minimum Transaction](./TOKEN-MIN-TRANSACTION-SIZE.md)| ERC20 | mint/burn/buy/sell/transfer |
-| [Admin Min Token Balance](../rules/ADMIN-MIN-TOKEN-BALANCE.md) | ERC20/ERC721 | burn/sell/transfer |
+| [Admin Min Token Balance](./ADMIN-MIN-TOKEN-BALANCE.md) | ERC20/ERC721 | burn/sell/transfer |
+| [Account Max Tx Value By Risk Score](./ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE.md)| ERC20/ERC721 | mint/buy/sell/transfer |
 | [Oracle](./ACCOUNT-APPROVE-DENY-ORACLE.md) | ERC20/ERC721/AMM | mint/buy/sell/transfer |
 | [Pause Rule](./PAUSE-RULE.md) | Application | mint/burn/buy/sell/transfer |
 | [Transaction Size Per Time Period by Risk Score](./ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE.md) | Application | mint/buy/sell/transfer |

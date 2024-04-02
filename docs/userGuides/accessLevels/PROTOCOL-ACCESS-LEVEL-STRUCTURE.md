@@ -70,7 +70,11 @@ function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _lev
 
 ## Remove Function
 
-No removal function exists. 
+To remove an access level simply use the remove function:
+
+```c
+function removeAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
+```
 
 ### Parameters:
 

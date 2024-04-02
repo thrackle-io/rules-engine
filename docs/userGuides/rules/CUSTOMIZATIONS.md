@@ -46,11 +46,19 @@ Protocol supported NFT's implement OpenZeppelin ERC721Burnable, ERC721URIStorage
 
 Additional logic may be added to the constructor, but it MUST still invoke the ProtocolERC721 constructor
 
+### Deploying Custom Application and Token Rules
+
+Sometimes no matter what, there are just modifications that you would like to make that fall outside of the scope of what is supported by the protocol. For an example of updating the application level rules and deploying them, it is recommended to read about applying [app rules to the protocol diamond][addingNewApplicationRules-url]. If you are interested in adding token level rules, first you must add the rule to the [handler][addingRuleToHandlerDiamond-url] and then be sure to add the rule to the [rule processor][addingRuleToRuleProcessorDiamond-url].
+
 <!-- These are the body links -->
-[createAppRules-url]: ../CREATE-APP-RULES.md
-[createNftRules-url]: ../CREATE-NFT-RULES.md
+[createAppRules-url]: ./CREATE-APP-RULES.md
+[createNftRules-url]: ../deployment/CREATE-NFT-RULES.md
 [appRuleDirectory-url]: ../../rules/APP-RULE-DIRECTORY.md
-[tokenSpecificRuleDirectory-url]: ../../rules/TOKEN-RULE-DIRECTORY.md
+[tokenSpecificRuleDirectory-url]: ./README.md
+[addingNewApplicationRules-url]: ./addingNewRules/applicationLevelRules/ADDING_APP_RULE_TO_PROTOCOL_RULE_DIAMOND.md
+[addingRuleToHandlerDiamond-url]: ./addingNewRules/tokenLevelRules/ADDING_TOKEN_RULE_TO_HANDLER_DIAMOND.md
+[addingRuleToRuleProcessorDiamond-url]: ./addingNewRules/tokenLevelRules/ADDING_TOKEN_RULE_TO_PROTOCOL_RULE_DIAMOND.md
+
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

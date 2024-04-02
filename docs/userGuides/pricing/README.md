@@ -41,18 +41,18 @@ To set up the pricer contracts:
 
 Pass the addresses for your pricer contracts respectively, and you're done!
 
-### Example
+### ERC20 Example
 
 - Cast command example to set the ERC20 pricer contract:
 
     ```
-    cast send $APPLICATION_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    cast send $APPLICATION_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
     ```
 
 - Cast command example to set the ERC721 pricer contract:
 
     ```
-    cast send $APPLICATION_HANDLER "setNFTPricingAddress(address)()" $APPLICATION_ERC721_PRICER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    cast send $APPLICATION_HANDLER "setNFTPricingAddress(address)()" $APPLICATION_ERC721_PRICER --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
     ```
 
 This set of contracts can be reset at any time by an ruleAdministrator. Simply follow the same steps mentioned above with the new addresses.

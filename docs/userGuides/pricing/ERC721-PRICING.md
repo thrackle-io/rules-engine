@@ -1,12 +1,12 @@
 # Overview
 
-This is a protocol template for an ERC721-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC721Pricing](../../src/pricing/IProtocolERC721Pricing.sol) interface, and follow the [price format](./README.md) guideline.
+This is a protocol template for an ERC721-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC721Pricing](../../../src/pricing/IProtocolERC721Pricing.sol) interface, and follow the [price format](./README.md) guideline.
 
-[This template](../../src/pricing/ProtocolERC721Pricing.sol) is available for developers to quickly get their pricing modules up and running.
+[This template](../../../src/pricing/ProtocolERC721Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
 # Deployment
 
-Refer to the deployment document [here](../deployment/DEPLOY-PRICING.md).
+Refer to the deployment document [here](./DEPLOY-PRICING.md).
 
 # Public Functions
 
@@ -62,7 +62,7 @@ function version() external pure returns (string memory);
 
 # Set an ERC721-Pricing Contract in an Asset Handler 
 
-Use the following function in the [asset handler](../../src/token/ProtocolHandlerCommon.sol):
+Use the following function in the [asset handler](../../../src/token/ProtocolHandlerCommon.sol):
 
 ```c
 function setNFTPricingAddress(

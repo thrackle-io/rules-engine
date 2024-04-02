@@ -21,4 +21,4 @@ An application relies on many [administrator roles][admin-roles] to work properl
 [version-url]: https://github.com/thrackle-io/Tron
 
 <!-- These are the body links -->
-[admin-roles]: ../permissions/ADMIN-ROLES.md 
+[admin-roles]: ./ADMIN-ROLES.md 
