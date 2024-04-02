@@ -7,7 +7,7 @@ This document seeks to inform onboarding developers and project managers as to h
 
 1. Start by moving the topmost Ready For Development issue to the In Progress column on the applicable Project Board.
 
-    a. If the top issue cannot be worked due to lack of clarity, move the issue to the To Do column. The Project Lead  should respond as soon as possible and no later than 18 hours after the ticket is moved to To Do.
+    a. If the top issue cannot be worked due to lack of clarity, move the issue to the To Do column. The Project Lead should respond as soon as possible and no later than 18 hours after the ticket is moved to To Do.
 
     b. Set the Assignee within the ticket as the team member working the ticket
 
@@ -23,7 +23,7 @@ This document seeks to inform onboarding developers and project managers as to h
 
     d. Write initial [tests](https://book.getfoundry.sh/forge/tests). Use Foundry's `forge coverage` to see how much of the codebase has been covered by tests. Cleanup the implementation based on results. Repeat this process until the implementation is complete and the tests pass.
 
-    e. Run the [slither](https://github.com/crytic/slither) static analyzer. This will detect if in theory there are holes in the implementation.
+    e. Run the [slither](https://github.com/crytic/slither) static analyzer. This tool detects known vulnerability patterns and can help to prevent holes in implementation.
 
     f. Depending on the change, consider writing [fuzz tests](https://book.getfoundry.sh/forge/fuzz-testing). A good fuzz test should consider all valid inputs, and include as many state transition assertions as possible (think: is this function monotonically in/decreasing, should it be always less than something else, etc.)
 

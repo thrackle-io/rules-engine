@@ -23,7 +23,7 @@ For example, we can set a rule for the user to only be able to withdraw 1000 USD
 cast send --rpc-url $ETH_RPC_URL --private-key $RULE_ADMIN_KEY $RULE_PROCESSOR_DIAMOND --method "addAccountMaxValueOutByAccessLevel(address,uint48[])" $APPLICATION_APP_MANAGER "[0, 10000000, 10000000, 10000000, 10000000]"
 ```
 
-The number is slightly larger to account for the 4 decimal places of the USDC token and repeated so that we account for all levels available when crafting an access level. This will return a uint256 which is the ID of the rule. Because cast doesn't wrangle the calls well, we're going to have to take the tx id and parse for the event logs. Take note of the receipt that was generated from the last command and be mindful of the `to` and the `blockNumber` fields:
+The number is slightly larger to account for the 4 decimal places of the USDC token and repeated so that we account for all levels available when crafting an access level. This will return a uint32 which is the ID of the rule. Because cast doesn't wrangle the calls well, we're going to have to take the tx id and parse for the event logs. Take note of the receipt that was generated from the last command and be mindful of the `to` and the `blockNumber` fields:
 
 ```
 cast logs --from-block $blockNumber --address $to
