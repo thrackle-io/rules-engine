@@ -294,7 +294,7 @@ echo  Set Price of ERC721 collection
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL 
+#cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
 echo  Make Rule Admin
