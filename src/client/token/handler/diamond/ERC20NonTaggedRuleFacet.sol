@@ -23,10 +23,10 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
 
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active)
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
-        if (action == ActionTypes.BURN || action == ActionTypes.BUY){
+        if (action == ActionTypes.BURN || action == ActionTypes.SELL){
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
         } 
-        if (action == ActionTypes.MINT || action == ActionTypes.SELL || action == ActionTypes.P2P_TRANSFER){
+        if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         }  
 
