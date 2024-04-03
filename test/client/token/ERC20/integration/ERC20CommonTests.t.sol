@@ -64,7 +64,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OracleApproveEventEmission_Positive() public endWithStopPrank {
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         vm.expectEmit(true, false, false, false);
         emit AD1467_OracleListChanged(true, ADDRESSES);
         oracleApproved.addToApprovedList(ADDRESSES);
@@ -72,7 +72,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_OracleApproveEventEmission_Negative() public endWithStopPrank {
         // switch to an address other than the owner
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         vm.expectRevert("Ownable: caller is not the owner");
         oracleApproved.addToApprovedList(ADDRESSES);
     }
@@ -96,7 +96,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OracleDeniedEventEmission_Positive() public endWithStopPrank {
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         vm.expectEmit(true, false, false, false);
         emit AD1467_OracleListChanged(true, ADDRESSES);
         oracleDenied.addToDeniedList(ADDRESSES);
@@ -104,7 +104,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_OracleDeniedEventEmission_Negative() public endWithStopPrank {
         // switch to an address other than the owner
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         vm.expectRevert("Ownable: caller is not the owner");
         oracleDenied.addToDeniedList(ADDRESSES);
     }
@@ -258,7 +258,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Positive() public endWithStopPrank {
         _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
-        vm.startPrank(rich_user);
+        switchToAppAdministrator();
         // now we check for an allowed transfer
         ProtocolERC20(address(testCaseToken)).mint(user3, 10);
         assertEq(testCaseToken.balanceOf(user3), 10);
@@ -266,7 +266,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Negative() public endWithStopPrank {
         _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
-        vm.startPrank(rich_user);
+        switchToAppAdministrator();
         vm.expectRevert(0x7a78c901);
         ProtocolERC20(address(testCaseToken)).mint(user3, 5);
     }
@@ -384,7 +384,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Mint_Positive() public endWithStopPrank {
         _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.MINT);
         ///perform transfer that checks rule but is allowed
-        vm.startPrank(user1);
+        switchToAppAdministrator();
         ProtocolERC20(address(testCaseToken)).mint(user2, 10);
         assertEq(testCaseToken.balanceOf(user2), 10);
         assertEq(testCaseToken.balanceOf(user1), 100);
@@ -393,7 +393,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Mint_Negative() public endWithStopPrank {
         _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.MINT);
         ///perform transfer that checks rule but is allowed
-        vm.startPrank(user1);
+        switchToAppAdministrator();
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         ProtocolERC20(address(testCaseToken)).mint(user2, 1001);
     }
@@ -483,7 +483,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         // add the rule.
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(address(69));
         oracleDenied.addToDeniedList(badBoys);
@@ -691,28 +691,28 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_DeniedList_Mint_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, true);
-        vm.startPrank(user1);
+        switchToAppAdministrator();
         ProtocolERC20(address(testCaseToken)).mint(user1, 100);
         assertEq(testCaseToken.balanceOf(user1), 100100);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_DeniedList_Mint_Negative() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, true);
-        vm.startPrank(address(user1));
+        switchToAppAdministrator();
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         ProtocolERC20(address(testCaseToken)).mint(address(69), 100);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_ApprovedList_Mint_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, false);
-        vm.startPrank(user1);
+        switchToAppAdministrator();
         ProtocolERC20(address(testCaseToken)).mint(user1, 100);
         assertEq(testCaseToken.balanceOf(user1), 100100);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_ApprovedList_Mint_Negative() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, false);
-        vm.startPrank(address(user1));
+        switchToAppAdministrator();
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         ProtocolERC20(address(testCaseToken)).mint(address(69), 100);
     }
@@ -725,7 +725,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
 
         // add approved addresses
         goodBoys.push(address(59));
@@ -752,7 +752,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
         /// first mint to user
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         goodBoys.push(address(user5));
         oracleApproved.addToApprovedList(goodBoys);
         switchToAppAdministrator();
@@ -778,13 +778,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_AddSingleAddress_Approved() public endWithStopPrank {
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         oracleApproved.addAddressToApprovedList(address(59));
         assertEq(oracleApproved.isApproved(address(59)), true);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_AddSingleAddress_Denied() public endWithStopPrank {
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         oracleDenied.addAddressToDeniedList(address(69));
         assertEq(oracleDenied.isDenied(address(69)), true);
     }
@@ -1251,7 +1251,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.MINT);
         uint32 ruleId = createAccountMaxTradeSizeRule("", 600, 36);
         switchToRuleAdmin();
-        vm.expectRevert(0x4a7f394f);
+        vm.expectRevert("Action Validation Failed");
         TradingRuleFacet(address(applicationCoinHandler)).setAccountMaxTradeSizeId(actionTypes, ruleId);
     }
 

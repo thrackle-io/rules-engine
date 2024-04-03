@@ -1538,14 +1538,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             uint32 ruleId = createAccountApproveDenyOracleRule(0);
             setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             // add a blocked address
-            switchToSuperAdmin();
+            switchToAppAdministrator();
             badBoys.push(address(69));
             oracleDenied.addToDeniedList(badBoys);
         } else {
             uint32 ruleId = createAccountApproveDenyOracleRule(1);
             setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             // add an allowed address
-            switchToSuperAdmin();
+            switchToAppAdministrator();
             goodBoys.push(address(user2));
             oracleApproved.addToApprovedList(goodBoys);
         }

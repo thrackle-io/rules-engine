@@ -159,7 +159,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationNFT.balanceOf(_user1), 5);
         // add a blacklist address
         badBoys.push(_user3);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         oracleDenied.addToDeniedList(badBoys);
         // add an allowed address
         goodBoys.push(randomUser);

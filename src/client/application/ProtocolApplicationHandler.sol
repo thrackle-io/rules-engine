@@ -490,9 +490,6 @@ contract ProtocolApplicationHandler is
         for (uint i; i < _actions.length; ++i) {
             ruleProcessor.validateAccountMaxValueByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
-            unchecked {
-                ++i;
-            }
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
     }

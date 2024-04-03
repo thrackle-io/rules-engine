@@ -503,7 +503,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
 
         applicationAppManager.registerTreasury(feeTreasury);
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
     }
@@ -537,7 +537,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
@@ -607,7 +607,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();

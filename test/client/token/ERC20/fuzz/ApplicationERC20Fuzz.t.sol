@@ -93,7 +93,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         assertEq(applicationCoin.balanceOf(_user1), 0);
     }
 
-/* TOKEN MINIMUM TRANSACTION SIZE RULE */
+    /* TOKEN MINIMUM TRANSACTION SIZE RULE */
     function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_All_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
         _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
@@ -105,7 +105,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         applicationCoin.transfer(_user1, _transferAmount + 1);
         assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
     }
-
 
     function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_All_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
         // if the transferAmount is the max, adjust so the internal arithmetic works
@@ -211,7 +210,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         switchToAppAdministrator();
         applicationCoin.transfer(_user1, _transferAmount - 1);
         vm.startPrank(_user1);
-         // now we check for proper failure
+        // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         applicationCoin.burn(_transferAmount - 1);
         assertEq(applicationCoin.balanceOf(_user1), _transferAmount - 1);
@@ -241,7 +240,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, false);
         switchToRuleAdmin();
         // Set the minimum as one more than the transfer amount
-        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount+1);
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount + 1);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
         vm.startPrank(_user1);
         /// Approve transfer
@@ -275,7 +274,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, _user1, _transferAmount, true);
         switchToRuleAdmin();
         // Set the minimum as one more than the transfer amount
-        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount+1);
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount + 1);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
         vm.startPrank(_user1);
         /// Approve transfer
@@ -285,7 +284,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), _transferAmount, _transferAmount, true);
     }
 
-/* TOKEN MIN MAX TOKEN BALANCE RULE */
+    /* TOKEN MIN MAX TOKEN BALANCE RULE */
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_All_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
         switchToAppAdministrator();
@@ -312,6 +311,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         assertEq(applicationCoin.balanceOf(_user2), minAmount);
         assertEq(applicationCoin.balanceOf(_user1), maxAmount - minAmount);
     }
+
     /* Test MINT only */
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Mint_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
@@ -334,6 +334,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         applicationCoin.mint(_user1, minAmount);
         assertEq(applicationCoin.balanceOf(_user1), minAmount);
     }
+
     /* Test BURN only */
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Burn_Positive(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
@@ -356,8 +357,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         ///perform transfer that checks rule
         vm.stopPrank();
         vm.startPrank(_user1);
-        applicationCoin.burn(maxAmount-minAmount);
-        assertEq(applicationCoin.balanceOf(_user1), maxAmount-(maxAmount-minAmount));
+        applicationCoin.burn(maxAmount - minAmount);
+        assertEq(applicationCoin.balanceOf(_user1), maxAmount - (maxAmount - minAmount));
     }
 
     /* Test BUY only */
@@ -413,6 +414,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), minAmount, minAmount, true);
         assertEq(applicationCoin2.balanceOf(_user1), minAmount);
     }
+
     /* Test All actions */
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_All_UnderMinBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(uint256(_amountSeed), 2, 167770));
@@ -438,6 +440,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
             applicationCoin.transfer(_user2, maxAmount);
         }
     }
+
     /* Test MINT only */
     // function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Mint_UnderMinBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
     //     _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
@@ -518,7 +521,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(_user3);
         oracleDenied.addToDeniedList(badBoys);
@@ -543,7 +546,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(_user3);
         oracleDenied.addToDeniedList(badBoys);
@@ -1402,10 +1405,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         switchToAppAdministrator();
         amm = new DummyAMM();
         tokenAmount = tokenAmount + 1_000;
-        if (token1.balanceOf(appAdministrator) < tokenAmount){
+        if (token1.balanceOf(appAdministrator) < tokenAmount) {
             token1.mint(appAdministrator, tokenAmount - token1.balanceOf(appAdministrator));
         }
-        if (token2.balanceOf(appAdministrator) < tokenAmount){
+        if (token2.balanceOf(appAdministrator) < tokenAmount) {
             token2.mint(appAdministrator, tokenAmount - token2.balanceOf(appAdministrator));
         }
         /// Approve the transfer of tokens into AMM
@@ -1417,13 +1420,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         /// Make sure the tokens made it
         assertEq(token1.balanceOf(address(amm)), tokenAmount);
         assertEq(token2.balanceOf(address(amm)), tokenAmount);
-        if (isToken1In){
-            token1.mint(user,tokenAmount); 
-            assertEq(token1.balanceOf(user), tokenAmount); 
+        if (isToken1In) {
+            token1.mint(user, tokenAmount);
+            assertEq(token1.balanceOf(user), tokenAmount);
         } else {
-            token2.mint(user,tokenAmount);
-            assertEq(token2.balanceOf(user), tokenAmount);   
+            token2.mint(user, tokenAmount);
+            assertEq(token2.balanceOf(user), tokenAmount);
         }
-        return amm;     
+        return amm;
     }
 }
