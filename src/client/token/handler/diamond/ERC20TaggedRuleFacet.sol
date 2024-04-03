@@ -46,8 +46,18 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
             toTags = new bytes32[](0);
             fromTags = new bytes32[](0);
         }
-        if (accountMinMaxTokenBalance[action].active) 
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+
+        if (accountMinMaxTokenBalance[action].active) {
+            if (action == ActionTypes.BUY || action == ActionTypes.MINT) {
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[action].ruleId);
+            }
+            if (action == ActionTypes.SELL || action == ActionTypes.BURN) {
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
+            } else {
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            }
+        }
+
         if(mustCheckBuyRules || mustCheckSellRules)
             callAnotherFacet(
                 0xd874686f, 

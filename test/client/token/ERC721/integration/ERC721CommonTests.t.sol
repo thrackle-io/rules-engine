@@ -175,6 +175,98 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 2);
     }
 
+    /**
+    Min/MaxTokenBalance action types tests
+    Buy
+    Sell
+    */
+    // Test that Minting up to the Maximum results in rule check
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Mint_Maxmimum() public {
+        _accountMinMaxTokenBalanceRuleSetup(true);
+        switchToAppAdministrator();
+        /// mint 6 NFTs to appAdministrator for transfer
+        for (uint i; i < 4; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(rich_user);
+        }
+        assertEq(testCaseNFT.balanceOf(rich_user), 6);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Mint_Maxmimum_Negative() public {
+        _accountMinMaxTokenBalanceRuleSetup(true);
+        switchToAppAdministrator();
+        /// mint 6 NFTs to appAdministrator for transfer
+        for (uint i; i < 4; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(rich_user);
+        }
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        ProtocolERC721(address(testCaseNFT)).safeMint(rich_user);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Burn_Minimum() public {
+        _accountMinMaxTokenBalanceRuleSetup(true);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        ProtocolERC721(address(testCaseNFT)).burn(1);
+    }
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Burn_Minimum_Negative() public {
+        _accountMinMaxTokenBalanceRuleSetup(true);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        ProtocolERC721(address(testCaseNFT)).burn(4);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Buy_Positive() public {
+        _setUpAccountMinMaxTokenBuySellActions(createActionTypesArray(ActionTypes.BUY)); 
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        assertEq(testCaseNFT.balanceOf(user), 4);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Buy_Negative() public {
+
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Sell_Positive() public {
+        _setUpAccountMinMaxTokenBuySellActions(createActionTypesArray(ActionTypes.SELL)); 
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        assertEq(testCaseNFT.balanceOf(user), 2);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Sell_Negative() public {
+        _setUpAccountMinMaxTokenBuySellActions(createActionTypesArray(ActionTypes.SELL)); 
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 10, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        assertEq(testCaseNFT.balanceOf(user), 1);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+    }
+
+    function _setUpAccountMinMaxTokenBuySellActions(ActionTypes[] memory _action) internal {
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(""), createUint256Array(1), createUint256Array(11));
+        setAccountMinMaxTokenBalanceRuleSingleAction(address(applicationNFTHandler), _action, ruleId);
+        switchToAppAdministrator();
+        amm = new DummyNFTAMM();
+        for (uint i; i < 10; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(appAdministrator);
+            ProtocolERC721(address(testCaseNFT)).safeTransferFrom(appAdministrator, address(amm), i);
+        }
+        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
+        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
+        applicationCoin.mint(user, 1000 * ATTO);
+        for (uint i; i < 3; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(user); // tokenId 10,11,12
+        }
+        assertEq(testCaseNFT.balanceOf(user), 3);
+        applicationAppManager.registerAMM(address(amm));
+    }
+
     /// Account Approve Deny Oracle Tests
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Negative() public endWithStopPrank {
         ///perform transfer that checks rule
@@ -1508,6 +1600,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
             applicationAppManager.addTag(user3, "Oscar"); ///add tag
             assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
+            applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
+            assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
             switchToRuleAdmin();
             ///update ruleId in application NFT handler
             uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6));

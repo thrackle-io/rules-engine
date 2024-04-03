@@ -26,6 +26,27 @@ interface IRuleProcessor {
     function checkAccountMinMaxTokenBalance(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] calldata toTags, bytes32[] calldata fromTags) external view;
 
     /**
+     * @dev Check the AccountMinTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the from account does not
+     * exceed the min balance.
+     * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
+     * @param balanceFrom Token balance of the sender address
+     * @param amount total number of tokens to be transferred
+     * @param fromTags tags applied via App Manager to sender address
+     */
+    function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) external view;
+
+    /**
+     * @dev Check the AccountMaxTokenBalance hald of the AccountMinMaxTokenBalance rule. This rule ensures that the to account does not
+     * exceed the max balance.
+     * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
+     * @param balanceTo Token balance of the recipient address
+     * @param amount total number of tokens to be transferred
+     * @param toTags tags applied via App Manager to recipient address
+     */
+    function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) external view;
+
+
+    /**
      * @dev Check the TokenMinTxSize rule. This rule ensures accounts cannot transfer less than
      * the specified amount.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.

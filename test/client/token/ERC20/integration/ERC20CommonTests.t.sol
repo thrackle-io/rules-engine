@@ -342,10 +342,11 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user1);
 
         assertEq(testCaseToken.balanceOf(user1), 100);
+        assertEq(applicationCoin2.balanceOf(user1), 950);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
-        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 901, 901, true);
+        amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 10, 901, true);
     }
 
     function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Sell_Positive() public endWithStopPrank {
