@@ -139,7 +139,7 @@ contract RuleApplicationValidationFacet is ERC173 {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxBuySellVolume(uint32 _ruleId) external view {
+    function validateTokenMaxBuySellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxBuySellVolume());
         require(areActionsEnabledInRule(TOKEN_MAX_BUY_SELL_VOLUME, _actions), "Action Validation Failed");
     }

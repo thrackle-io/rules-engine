@@ -14,7 +14,7 @@ import {IInputErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
+contract HandlerAdminMinTokenBalance is ActionTypesArray, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
     /// Rule Setters and Getters
     /**
      * @dev Set the AdminMinTokenBalance. Restricted to rule administrators only.

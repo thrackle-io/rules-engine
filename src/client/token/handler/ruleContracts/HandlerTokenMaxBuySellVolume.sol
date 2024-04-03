@@ -11,7 +11,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
     /**
      * @dev Retrieve the Account Max Buy Sell Size Rule Id
@@ -29,7 +29,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
      * @param _ruleId Rule Id to set
      */
     function setTokenMaxBuySellVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxBuySellVolumeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_SELL_VOLUME, _actions[i], _ruleId);
@@ -75,7 +75,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ITokenHandlerEve
     // slither-disable-next-line calls-loop
     function setTokenMaxBuySellVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         if (!(_action == ActionTypes.SELL || _action == ActionTypes.BUY)) revert InvalidAction();
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(createActionTypesArray(_action), _ruleId);
         TokenMaxBuySellVolumeS storage data = lib.tokenMaxBuySellVolumeStorage();
         data.tokenMaxBuySellVolume[_action].ruleId = _ruleId;
         data.tokenMaxBuySellVolume[_action].active = true;

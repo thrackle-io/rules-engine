@@ -11,7 +11,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
 
     /**

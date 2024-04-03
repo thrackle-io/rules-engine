@@ -13,7 +13,7 @@ uint8 constant MAX_ORACLE_RULES = 10;
  * facet to easily support the rule.
  */
 
-contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
 
     /**

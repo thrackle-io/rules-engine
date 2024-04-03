@@ -10,7 +10,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.
  */
-contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
     /**
      * @dev Retrieve the token max supply volatility rule id

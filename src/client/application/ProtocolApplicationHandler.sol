@@ -25,7 +25,6 @@ import "src/client/common/ActionTypesArray.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is
-    ProtocolApplicationHandlerCommon,
     ActionTypesArray,
     Ownable,
     RuleAdministratorOnly,
@@ -315,7 +314,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueByRiskScore(_actions, _ruleIds);
+        ruleProcessor.validateAccountMaxValueByRiskScore(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
@@ -515,7 +514,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypeArray(_actions), _ruleId);
         accountMaxValueByAccessLevel[_action].ruleId = _ruleId;
         accountMaxValueByAccessLevel[_action].active = true;
     }

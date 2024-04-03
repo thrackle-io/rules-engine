@@ -236,7 +236,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
-        
+
         vm.startPrank(rich_user);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -248,7 +248,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
-        
+
         vm.startPrank(rich_user);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -264,7 +264,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(testCaseToken.balanceOf(user3), 10);
     }
 
-
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Negative() public endWithStopPrank {
         _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
         vm.startPrank(rich_user);
@@ -279,7 +278,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         ERC20Burnable(address(testCaseToken)).burn(10);
         assertEq(testCaseToken.balanceOf(rich_user), 999990);
     }
-
 
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Burn_Negative() public endWithStopPrank {
         _tokenMinTransactionSetup(ActionTypes.P2P_TRANSFER);
@@ -326,7 +324,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.transfer(address(amm), 900);
         applicationCoin2.transfer(user1, 900);
         vm.startPrank(user1);
-        
+
         assertEq(testCaseToken.balanceOf(user1), 100);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -342,7 +340,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.transfer(address(amm), 950);
         applicationCoin2.transfer(user1, 950);
         vm.startPrank(user1);
-        
+
         assertEq(testCaseToken.balanceOf(user1), 100);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -360,7 +358,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(address(amm), 900);
         applicationCoin2.transfer(address(amm), 900);
         vm.startPrank(user1);
-        
+
         assertEq(testCaseToken.balanceOf(user1), 100);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -375,7 +373,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(address(amm), 900);
         applicationCoin2.transfer(address(amm), 900);
         vm.startPrank(user1);
-        
+
         assertEq(testCaseToken.balanceOf(user1), 100);
         testCaseToken.approve(address(amm), 50000);
         applicationCoin2.approve(address(amm), 50000);
@@ -508,7 +506,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(address(69), 1000);
         // add the rule.
         uint32[] memory ruleIds = new uint32[](1);
-        if(deny) {
+        if (deny) {
             ruleIds[0] = createAccountApproveDenyOracleRule(0);
         } else {
             ruleIds[0] = createAccountApproveDenyOracleRule(1);
@@ -525,12 +523,11 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationAppManager.registerToken("DRAC", address(applicationCoin2));
         applicationCoin2.mint(appAdministrator, 10000000000000000000000 * ATTO);
         applicationCoin2.mint(rich_user, 10000);
-        
 
         switchToAppAdministrator();
         DummyAMM amm = new DummyAMM();
 
-        if(deny) {
+        if (deny) {
             // add a blocked address
             badBoys.push(address(69));
             oracleDenied.addToDeniedList(badBoys);
@@ -557,7 +554,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_DeniedList_Transfer_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.P2P_TRANSFER, true);
-       
+
         ///perform transfer that checks rule
         vm.startPrank(user1);
         testCaseToken.transfer(user2, 10);
@@ -576,7 +573,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_ApprovedList_Transfer_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.P2P_TRANSFER, false);
-       
+
         ///perform transfer that checks rule
         vm.startPrank(user1);
         testCaseToken.transfer(address(59), 10);
@@ -1956,7 +1953,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.transfer(rich_user, 1000000);
     }
 
-    function _accountMaxValueByAccessLevelSetup(ActionTypes action) private endWithStopPrank  {
+    function _accountMaxValueByAccessLevelSetup(ActionTypes action) private endWithStopPrank {
         switchToAppAdministrator();
         /// set up a non admin user with tokens
         testCaseToken.transfer(user1, 100000 * ATTO);
@@ -1980,7 +1977,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         uint32[] memory ruleIds = new uint32[](1);
         ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 100, 500, 1000, 10000);
         setAccountMaxValueByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
-
     }
 
     function _accountMinMaxTokenBalanceSetup(bool tag, bool period) private endWithStopPrank {

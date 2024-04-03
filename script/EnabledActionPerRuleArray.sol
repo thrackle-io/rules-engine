@@ -34,8 +34,7 @@ contract EnabledActionPerRuleArray is ActionTypesArray {
             EnabledActionPerRule(ACCOUNT_APPROVE_DENY_ORACLE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN))
         );
         enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_MAX_BUY_SIZE, createActionTypesArray(ActionTypes.BUY)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_MAX_SELL_SIZE, createActionTypesArray(ActionTypes.SELL)));
+        enabledActionPerRuleArray.push(EnabledActionPerRule(ACCOUNT_MAX_TRADE_SIZE, createActionTypesArray(ActionTypes.BUY, ActionTypes.SELL)));
         enabledActionPerRuleArray.push(
             EnabledActionPerRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN))
         );
@@ -49,8 +48,7 @@ contract EnabledActionPerRuleArray is ActionTypesArray {
             EnabledActionPerRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN))
         );
         enabledActionPerRuleArray.push(EnabledActionPerRule(ADMIN_MIN_TOKEN_BALANCE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_BUY_VOLUME, createActionTypesArray(ActionTypes.BUY)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_SELL_VOLUME, createActionTypesArray(ActionTypes.SELL)));
+        enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_BUY_SELL_VOLUME, createActionTypesArray(ActionTypes.BUY, ActionTypes.SELL)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_DAILY_TRADES, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_SUPPLY_VOLATILITY, createActionTypesArray(ActionTypes.MINT, ActionTypes.BURN)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_TRADING_VOLUME, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
