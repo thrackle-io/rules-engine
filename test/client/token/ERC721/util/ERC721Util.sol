@@ -55,6 +55,11 @@ abstract contract ERC721Util is TokenUtils {
         ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
     }
 
+    function setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(createActionTypeArray(action), ruleId);
+    }
+
     function setAccountMinMaxTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceIdFull(actions, ruleIds);

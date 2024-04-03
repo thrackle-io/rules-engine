@@ -93,7 +93,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         randomUser2;
     }
 
-    function _buildMinMaxTokenBalance(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+    function _buildMinMaxTokenBalance(uint8 _addressIndex, ActionTypes action) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _get5RandomAddresses(_addressIndex);
         switchToAppAdministrator();
         _mintAmount(randomUser, 11);
@@ -114,41 +114,45 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         switchToRuleAdmin();
         /// Apply Rule
         uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6));
-        setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
+        setAccountMinMaxTokenBalanceRuleSingleAction(action, address(applicationNFTHandler), ruleId);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
-        /// test we can go to the minimum without issues
+        applicationNFT.transferFrom(_user1, _user2, 3);
+        assertEq(applicationNFT.balanceOf(_user1), 1);
+        (randomUser, richGuy, _user2, _user3);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_PositiveMax(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
+        vm.startPrank(_user1);
         applicationNFT.transferFrom(_user1, _user2, 3);
         vm.startPrank(randomUser);
-        /// test we can go to the maximum without issues
         for (uint i = 6; i < 10; i++) applicationNFT.transferFrom(randomUser, richGuy, i);
-    }
-
-    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex);
-        assertEq(applicationNFT.balanceOf(_user1), 1);
-        console.log(randomUser, richGuy, _user2, _user3);
-    }
-
-    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_PositiveMax(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex);
         assertEq(applicationNFT.balanceOf(richGuy), 6);
-        console.log(randomUser, _user1, _user2, _user3);
+        (randomUser, _user1, _user2, _user3);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_NegativeMinimum(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_NegativeMinimum(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
+        applicationNFT.transferFrom(_user1, _user2, 3);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.transferFrom(_user1, _user3, 4);
         console.log(randomUser, richGuy, _user2);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_NegativeMaximum(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_NegativeMaximum(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
+        vm.startPrank(_user1);
+        applicationNFT.transferFrom(_user1, _user2, 3);
         vm.startPrank(randomUser);
+        for (uint i = 6; i < 10; i++) applicationNFT.transferFrom(randomUser, richGuy, i);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         applicationNFT.transferFrom(randomUser, richGuy, 10);
-        console.log(_user1, _user2, _user3);
+        (_user1, _user2, _user3);
     }
 
     function _buildAccountApproveDenyOracle(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
