@@ -149,14 +149,14 @@ contract ProtocolApplicationHandler is
             ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
         if (accountMaxTxValueByRiskScore[_action].active) {
-            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-                accountMaxTxValueByRiskScore[_action].ruleId,
-                usdValueTransactedInRiskPeriod[_from],
-                _transferValuation,
-                lastTxDateRiskRule[_from],
-                riskScoreFrom
-            );
-            if (_to != address(0)) {
+            if (_action == ActionTypes.P2P_TRANSFER) {
+                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                    accountMaxTxValueByRiskScore[_action].ruleId,
+                    usdValueTransactedInRiskPeriod[_from],
+                    _transferValuation,
+                    lastTxDateRiskRule[_from],
+                    riskScoreFrom
+                );
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
                 usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
                     accountMaxTxValueByRiskScore[_action].ruleId,
@@ -166,6 +166,26 @@ contract ProtocolApplicationHandler is
                     riskScoreTo
                 );
                 lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            }
+            if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) {
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                    accountMaxTxValueByRiskScore[_action].ruleId,
+                    usdValueTransactedInRiskPeriod[_to],
+                    _transferValuation,
+                    lastTxDateRiskRule[_to],
+                    riskScoreTo
+                );
+                lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            }
+            if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) {
+                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                    accountMaxTxValueByRiskScore[_action].ruleId,
+                    usdValueTransactedInRiskPeriod[_from],
+                    _transferValuation,
+                    lastTxDateRiskRule[_from],
+                    riskScoreFrom
+                );
+                lastTxDateRiskRule[_from] = uint64(block.timestamp);
             }
         }
     }

@@ -39,6 +39,11 @@ abstract contract ERC721Util is TokenUtils {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxDailyTradesId(actionTypes, ruleId);
     }
 
+    function setTokenMaxDailyTradesRuleSingleAction(address assetHandler, ActionTypes[] memory actions, uint32 ruleId) public endWithStopPrank endWithStopPrank {
+        switchToRuleAdmin();
+        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxDailyTradesId(actions, ruleId);
+    }
+
     function setTokenMaxDailyTradesRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxDailyTradesIdFull(actions, ruleIds);

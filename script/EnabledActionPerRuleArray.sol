@@ -49,7 +49,7 @@ contract EnabledActionPerRuleArray is ActionTypesArray {
         );
         enabledActionPerRuleArray.push(EnabledActionPerRule(ADMIN_MIN_TOKEN_BALANCE, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_BUY_SELL_VOLUME, createActionTypesArray(ActionTypes.BUY, ActionTypes.SELL)));
-        enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_DAILY_TRADES, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
+        enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_DAILY_TRADES, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_SUPPLY_VOLATILITY, createActionTypesArray(ActionTypes.MINT, ActionTypes.BURN)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MAX_TRADING_VOLUME, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT)));
         enabledActionPerRuleArray.push(EnabledActionPerRule(TOKEN_MIN_HOLD_TIME, createActionTypesArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN)));

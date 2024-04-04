@@ -63,6 +63,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     // slither-disable-next-line calls-loop
     function setTokenMaxDailyTradesIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        if (_action == ActionTypes.BURN) revert InvalidAction(); 
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(createActionTypesArray(_action), _ruleId);
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
         data.tokenMaxDailyTrades[_action].ruleId = _ruleId;
@@ -76,6 +77,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ++i) {
+            if (_actions[i] == ActionTypes.BURN) revert InvalidAction(); 
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;
         }
         if (_on) {
