@@ -200,7 +200,8 @@ contract ProtocolApplicationHandler is
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+        // Exempting address(0) allows for minting.
+        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)  && _from != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         /// Exempting address(0) allows for burning.
         if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))

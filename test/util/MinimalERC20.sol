@@ -55,11 +55,11 @@ contract MinimalERC20 is IProtocolTokenMin, ERC20, ProtocolTokenCommon, ERC20Bur
     }
 
         /**
-     * @dev Function mints new tokens. AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
+     * @dev Function mints new tokens.
      * @param to recipient address
      * @param amount number of tokens to mint
      */
-    function mint(address to, uint256 amount) public virtual appAdministratorOnly(appManagerAddress) {
+    function mint(address to, uint256 amount) public virtual {
         _mint(to, amount);
     }
 }

@@ -61,6 +61,11 @@ abstract contract RuleCreation is TestCommonFoundry {
         applicationHandler.activateAccountDenyForNoAccessLevelRule(createActionTypeArrayAll(), true);
     }
 
+    function createAccountDenyForNoAccessLevelRuleFull(ActionTypes[] memory actions) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.activateAccountDenyForNoAccessLevelRule(actions, true);
+    }
+
     function createAccountMaxTradeSizeRule(bytes32 tagForRule, uint240 maxSize, uint16 _period) public returns (uint32) {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array(tagForRule);
