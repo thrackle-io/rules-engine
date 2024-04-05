@@ -160,7 +160,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         (_user1, _user2, _user3);
     }
 
-    /** MIN MAX TOKEN BALANCE MINT */
+    /******************************************************
+     ************* MIN MAX TOKEN BALANCE MINT *************
+     *****************************************************/
 
     function _buildMinMaxTokenBalanceMint(
         uint8 _addressIndex,
@@ -300,7 +302,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         (randomUser, _user2, _user3);
     }
 
-    /**************** ACCOUNT APPROVE DENY ORACLE ****************/
+    /******************************************************
+     ************ ACCOUNT APPROVE DENY ORACLE ************
+     ******************************************************/
+
     function _buildAccountApproveDenyOracle(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _get5RandomAddresses(_addressIndex);
         /// set up a non admin user an nft
@@ -554,14 +559,18 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         (randomUser, richGuy, _user3, _user2);
     }
 
-    //////////
+    /** ACCOUNT APPROVE DENY ORACLE : ORACLE TYPE */
     function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_NegativeOracleType() public endWithStopPrank {
         switchToRuleAdmin();
         vm.expectRevert("Oracle Type Invalid");
         createAccountApproveDenyOracleRule(2);
     }
 
-    function _buildTokenMaxDailyTradesSimple(uint8 _addressIndex) internal endWithStopPrank returns (address _user1, address _user2) {
+    /******************************************************
+     *************** TOKEN MAX DAILY TRADES ***************
+     ******************************************************/
+
+    function _buildTokenMaxDailyTradesSimple(uint8 _addressIndex, ActionTypes action) internal endWithStopPrank returns (address _user1, address _user2) {
         (_user1, _user2) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user an nft
         _mintAmount(_user1, 5);
@@ -572,24 +581,124 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
         uint32 ruleId = createTokenMaxDailyTradesRule("BoredGrape", "DiscoPunk", 1, 5);
-        setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleId);
+        if (action != ActionTypes.P2P_TRANSFER && action != ActionTypes.BUY) {
+            setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleId);
+        } else {
+            setTokenMaxDailyTradesRuleSingleAction(action, address(applicationNFTHandler), ruleId);
+        }
     }
 
     /**
-     * @dev Test the TokenMaxDailyTrades rule
+     * @dev transfers an *nft* back and forth between 2 addresses for *_trades* amount of times
      */
-    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_PositiveSimple(uint8 _addressIndex) public endWithStopPrank {
-        (address _user1, address _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex);
-        vm.startPrank(_user1);
-        applicationNFT.transferFrom(_user1, _user2, 0);
-        assertEq(applicationNFT.balanceOf(_user2), 1);
-        vm.startPrank(_user2);
-        applicationNFT.transferFrom(_user2, _user1, 0);
-        assertEq(applicationNFT.balanceOf(_user2), 0);
+    function _transferBackAndForth(address _user1, address _user2, uint256 nft, uint256 _trades) internal {
+        uint initialBalanceUser1 = applicationNFT.balanceOf(_user1);
+        uint initialBalanceUser2 = applicationNFT.balanceOf(_user2);
+        for (uint i; i < _trades; i++) {
+            vm.startPrank(i % 2 == 0 ? _user1 : _user2);
+            applicationNFT.transferFrom(i % 2 == 0 ? _user1 : _user2, i % 2 == 0 ? _user2 : _user1, nft);
+            assertEq(applicationNFT.balanceOf(_user2), i % 2 == 0 ? initialBalanceUser2 + 1 : initialBalanceUser2);
+            assertEq(applicationNFT.balanceOf(_user1), i % 2 == 0 ? initialBalanceUser1 - 1 : initialBalanceUser1);
+        }
     }
 
+    /**  TOKEN MAX DAILY TRADES : TRANSFER */
+
+    function _buildTokenMaxDailyTradesSimpleTransfer(uint8 _addressIndex, uint256 _trades) internal endWithStopPrank returns (address _user1, address _user2) {
+        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex, ActionTypes.P2P_TRANSFER);
+        _transferBackAndForth(_user1, _user2, 0, _trades);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Transfer_SimplePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2) = _buildTokenMaxDailyTradesSimpleTransfer(_addressIndex, 5);
+        assertEq(applicationNFT.ownerOf(0), _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Transfer_SimpleNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2) = _buildTokenMaxDailyTradesSimpleTransfer(_addressIndex, 5);
+        vm.startPrank(_user2);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        applicationNFT.transferFrom(_user2, _user1, 0);
+    }
+
+    /**  TOKEN MAX DAILY TRADES : MINT - TRANSFER */
+
+    function _buildTokenMaxDailyTradesSimpleMint(uint8 _addressIndex, uint256 _trades) internal endWithStopPrank returns (address _user1, address _user2) {
+        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        applicationNFT.safeMint(_user1);
+        uint nft = applicationNFT.tokenOfOwnerByIndex(_user1, applicationNFT.balanceOf(_user1) - 1);
+        _transferBackAndForth(_user1, _user2, nft, _trades);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Mint_SimplePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2) = _buildTokenMaxDailyTradesSimpleMint(_addressIndex, 4);
+        assertEq(applicationNFT.ownerOf(0), _user1);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Mint_SimpleNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2) = _buildTokenMaxDailyTradesSimpleMint(_addressIndex, 4);
+        uint nft = applicationNFT.tokenOfOwnerByIndex(_user1, applicationNFT.balanceOf(_user1) - 1);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        applicationNFT.transferFrom(_user1, _user2, nft);
+    }
+
+    /**  TOKEN MAX DAILY TRADES : SELL - TRANSFER */
+
+    function _buildTokenMaxDailyTradesSimpleSell(uint8 _addressIndex, uint256 _trades) internal endWithStopPrank returns (address _user1, address _user2, DummyNFTAMM _amm) {
+        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex, ActionTypes.SELL);
+        _transferBackAndForth(_user1, _user2, 0, _trades);
+        _amm = _setupAMM();
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        vm.startPrank(_user2);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Sell_SimplePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2, DummyNFTAMM _amm) = _buildTokenMaxDailyTradesSimpleSell(_addressIndex, 4);
+        vm.startPrank(_user1);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        assertEq(applicationNFT.ownerOf(0), address(_amm));
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Sell_SimpleNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2, DummyNFTAMM _amm) = _buildTokenMaxDailyTradesSimpleSell(_addressIndex, 5);
+        vm.startPrank(_user2);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+    }
+
+    /**  TOKEN MAX DAILY TRADES : BUY */
+
+    function _buildTokenMaxDailyTradesSimpleBuy(uint8 _addressIndex, uint256 _trades, bool even) internal endWithStopPrank returns (address _user1, address _user2, DummyNFTAMM _amm) {
+        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex, ActionTypes.BUY);
+        _amm = _setupAMM();
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        for (uint256 i; i < _trades * 2 + (even ? 0 : 1); i++) {
+            /// buys and sells back and forth the same nft with the amm
+            _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, i % 2 == 0 ? false : true);
+            assertEq(applicationNFT.ownerOf(0), i % 2 == 0 ? address(_amm) : _user1);
+        }
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Buy_SimplePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2, DummyNFTAMM _amm) = _buildTokenMaxDailyTradesSimpleBuy(_addressIndex, 5, true);
+        assertEq(applicationNFT.ownerOf(0), _user1);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxDailyTrades_Buy_SimpleNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address _user1, address _user2, DummyNFTAMM _amm) = _buildTokenMaxDailyTradesSimpleBuy(_addressIndex, 5, false);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, true);
+    }
+
+    /**  TOKEN MAX DAILY TRADES : RESTRICTIVE TAGS */
     function _buildTokenMaxDailyTradesRrestrictiveTag(uint8 _addressIndex) internal endWithStopPrank returns (address _user1, address _user2) {
-        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex);
+        (_user1, _user2) = _buildTokenMaxDailyTradesSimple(_addressIndex, ActionTypes.P2P_TRANSFER);
         switchToAppAdministrator();
         applicationAppManager.removeTag(address(applicationNFT), "DiscoPunk"); ///add tag
         applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
@@ -612,6 +721,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationNFT.balanceOf(_user2), 1);
     }
 
+    /**  TOKEN MAX DAILY TRADES : PERIOD A */
+
     function _buildTokenMaxDailyTradesRrestrictiveTagNewPeriodA(uint8 _addressIndex) internal endWithStopPrank returns (address _user1, address _user2) {
         (_user1, _user2) = _buildTokenMaxDailyTradesRrestrictiveTag(_addressIndex);
         vm.warp(block.timestamp + 1 days);
@@ -624,6 +735,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationNFT.balanceOf(_user2), 0);
         _user1;
     }
+
+    /**  TOKEN MAX DAILY TRADES : PERIOD A */
 
     function _buildTokenMaxDailyTradesRrestrictiveTagNewPeriodB(uint8 _addressIndex) internal endWithStopPrank returns (address _user1, address _user2) {
         (_user1, _user2) = _buildTokenMaxDailyTradesRrestrictiveTagNewPeriodA(_addressIndex);
@@ -647,6 +760,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.transferFrom(_user2, _user1, 2);
     }
 
+    /// APP LEVEL RULES
     function _appRuleTokens() internal endWithStopPrank {
         switchToAppAdministrator();
         for (uint i; i < 30; ++i) {
@@ -655,6 +769,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
         }
     }
+
+    /******************************************************
+     *************** TX VALUE BY RISK SCORE ***************
+     ******************************************************/
 
     function _buildAccountMaxTransactionValueByRiskScoreRuleNFT(uint8 _addressIndex, uint8 _risk) internal endWithStopPrank returns (address _user1, address _user2, address _user3, address _user4) {
         _appRuleTokens();
