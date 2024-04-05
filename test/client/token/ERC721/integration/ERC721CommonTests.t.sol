@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "test/util/TestCommonFoundry.sol";
 import "../../TestTokenCommon.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
-import "forge-std/console2.sol";
 
 abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     IERC721 testCaseNFT;
@@ -1336,7 +1335,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20);
         uint gasBegin = gasleft();
-        uint totalValuation = applicationHandler.getAccTotalValuation(appAdministrator, 20);
+        applicationHandler.getAccTotalValuation(appAdministrator, 20);
         uint gasEnd = gasleft();
         assertLt(gasBegin - gasEnd, 42000);
     }
@@ -1351,10 +1350,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToAppAdministrator();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20000);
         uint gasBegin = gasleft();
-        uint totalValuation = applicationHandler.getAccTotalValuation(appAdministrator, 20000);
+        applicationHandler.getAccTotalValuation(appAdministrator, 20000);
         uint gasEnd = gasleft();
 
-        console2.log("valuation: ", totalValuation);
         assertLt(gasBegin - gasEnd, 42000);
     }
 
@@ -1454,7 +1452,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         uint totalValuation = applicationHandler.getAccTotalValuation(appAdministrator, 10);
         uint gasEnd = gasleft();
         
-        console2.log("Gas: ", gasBegin - gasEnd);
+        //console2.log("Gas: ", gasBegin - gasEnd);
 
         assertLt(gasBegin - gasEnd, 70000); // assert that this is less than 70k. This gives us a baseline to understand what our lower bound should be.
         assertEq(totalValuation, 10173620000000000000000000); // get a free valuation assertion while we're here
