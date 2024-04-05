@@ -93,6 +93,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         randomUser2;
     }
 
+    /******** MIN MAX TOKEN BALANCE *********/
+
     function _buildMinMaxTokenBalance(uint8 _addressIndex, ActionTypes action) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _get5RandomAddresses(_addressIndex);
         switchToAppAdministrator();
@@ -108,7 +110,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationNFT.balanceOf(_user1), 2);
         ///Add Tag to account
         switchToAppAdministrator();
-        address[3] memory tempAddresses = [_user1, _user2, richGuy];
+        address[4] memory tempAddresses = [_user1, _user2, _user3, richGuy];
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], "Oscar"); ///add tag
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], "Oscar"));
         switchToRuleAdmin();
@@ -117,44 +119,188 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         setAccountMinMaxTokenBalanceRuleSingleAction(action, address(applicationNFTHandler), ruleId);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
+    /** MIN MAX TOKEN BALANCE TRANSFER */
+
+    function _buildMinMaxTokenBalanceTransfer(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalance(_addressIndex, action);
         vm.startPrank(_user1);
         applicationNFT.transferFrom(_user1, _user2, 3);
+        vm.startPrank(randomUser);
+        for (uint i = 6; i < 10; i++) applicationNFT.transferFrom(randomUser, richGuy, i);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, ActionTypes.P2P_TRANSFER);
         assertEq(applicationNFT.balanceOf(_user1), 1);
         (randomUser, richGuy, _user2, _user3);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_PositiveMax(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
-        vm.startPrank(_user1);
-        applicationNFT.transferFrom(_user1, _user2, 3);
-        vm.startPrank(randomUser);
-        for (uint i = 6; i < 10; i++) applicationNFT.transferFrom(randomUser, richGuy, i);
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, ActionTypes.P2P_TRANSFER);
         assertEq(applicationNFT.balanceOf(richGuy), 6);
         (randomUser, _user1, _user2, _user3);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_NegativeMinimum(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
-        applicationNFT.transferFrom(_user1, _user2, 3);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.transferFrom(_user1, _user3, 4);
         console.log(randomUser, richGuy, _user2);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Transfer_NegativeMaximum(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalance(_addressIndex, ActionTypes.P2P_TRANSFER);
-        vm.startPrank(_user1);
-        applicationNFT.transferFrom(_user1, _user2, 3);
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(randomUser);
-        for (uint i = 6; i < 10; i++) applicationNFT.transferFrom(randomUser, richGuy, i);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         applicationNFT.transferFrom(randomUser, richGuy, 10);
         (_user1, _user2, _user3);
     }
 
+    /** MIN MAX TOKEN BALANCE MINT */
+
+    function _buildMinMaxTokenBalanceMint(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalance(_addressIndex, action);
+        switchToAppAdministrator();
+        // we mint max allowed to these users:
+        _mintAmount(_user2, 6);
+        _mintAmount(_user3, 6);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Mint_PositiveMax(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceMint(_addressIndex, ActionTypes.MINT);
+        assertEq(applicationNFT.balanceOf(_user2), 6);
+        assertEq(applicationNFT.balanceOf(_user3), 6);
+        (randomUser, _user1, richGuy);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Mint_NegativeMaximum(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceMint(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        applicationNFT.safeMint(_user2);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        applicationNFT.safeMint(_user3);
+        (_user1, richGuy, randomUser);
+    }
+
+    /** MIN MAX TOKEN BALANCE BURN */
+
+    function _buildMinMaxTokenBalanceBurn(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, action);
+        // we burn max allowed from rich guy:
+        vm.startPrank(richGuy);
+        for (uint i = 6; i < 10; i++) applicationNFT.burn(i);
+        applicationNFT.burn(1);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Burn_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceBurn(_addressIndex, ActionTypes.BURN);
+        assertEq(applicationNFT.balanceOf(richGuy), 1);
+        assertEq(applicationNFT.balanceOf(_user1), 1);
+        (randomUser, _user2, _user3);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Burn_NegativeMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildMinMaxTokenBalanceBurn(_addressIndex, ActionTypes.BURN);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        applicationNFT.burn(4);
+        vm.startPrank(richGuy);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        applicationNFT.burn(0);
+        (_user2, _user3, randomUser);
+    }
+
+    /** MIN MAX TOKEN BALANCE BUY */
+
+    function _setupAMM() internal returns (DummyNFTAMM _amm) {
+        _amm = new DummyNFTAMM();
+        switchToAppAdministrator();
+        _mintAmount(address(_amm), 20);
+    }
+
+    function _buildMinMaxTokenBalanceBuy(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _ammAddress) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalance(_addressIndex, action);
+        // we burn max allowed from rich guy:
+        DummyNFTAMM _amm = _setupAMM();
+        _ammAddress = address(_amm);
+        vm.startPrank(_user3);
+        for (uint i = 11; i < 11 + 6; i++) _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, true);
+        vm.startPrank(richGuy);
+        for (uint i = 21; i < 21 + 4; i++) _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, true);
+        (_user1, _amm);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Buy_PositiveMax(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _amm) = _buildMinMaxTokenBalanceBuy(_addressIndex, ActionTypes.BUY);
+        assertEq(applicationNFT.balanceOf(richGuy), 6);
+        assertEq(applicationNFT.balanceOf(_user3), 6);
+        (randomUser, _user2, _user1, _amm);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Buy_NegativeMax(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _amm) = _buildMinMaxTokenBalanceBuy(_addressIndex, ActionTypes.BUY);
+        DummyNFTAMM __amm = DummyNFTAMM(_amm);
+        vm.startPrank(_user3);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 18, true);
+        vm.startPrank(richGuy);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
+        __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 18, true);
+        (randomUser, _user1, _user2);
+    }
+
+    /** MIN MAX TOKEN BALANCE SELL */
+
+    function _buildMinMaxTokenBalanceSell(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _ammAddress) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalance(_addressIndex, action);
+        // we burn max allowed from rich guy:
+        DummyNFTAMM _amm = _setupAMM();
+        _ammAddress = address(_amm);
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(_ammAddress, true);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 3, false);
+        vm.startPrank(richGuy);
+        applicationNFT.setApprovalForAll(_ammAddress, true);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 1, false);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Sell_PositiveMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _amm) = _buildMinMaxTokenBalanceSell(_addressIndex, ActionTypes.SELL);
+        assertEq(applicationNFT.balanceOf(richGuy), 1);
+        assertEq(applicationNFT.balanceOf(_user1), 1);
+        (randomUser, _user2, _user3, _amm);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalanceRule_Sell_NegativeMin(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3, address _amm) = _buildMinMaxTokenBalanceSell(_addressIndex, ActionTypes.SELL);
+        DummyNFTAMM __amm = DummyNFTAMM(_amm);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 4, false);
+        vm.startPrank(richGuy);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        (randomUser, _user2, _user3);
+    }
+
+    /**************** ACCOUNT APPROVE DENY ORACLE ****************/
     function _buildAccountApproveDenyOracle(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _get5RandomAddresses(_addressIndex);
         /// set up a non admin user an nft
@@ -170,32 +316,31 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         oracleApproved.addToApprovedList(goodBoys);
     }
 
-    function _buildAccountApproveDenyOracleDeny(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+    /******* ACCOUNT APPROVE DENY ORACLE : DENY *******/
+
+    function _buildAccountApproveDenyOracleDeny(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _buildAccountApproveDenyOracle(_addressIndex);
         /// connect the rule to this handler
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
-        setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
+        setAccountApproveDenyOracleRuleSingleAction(action, address(applicationNFTHandler), ruleId);
     }
 
-    function _buildAccountApproveDenyOracleApprove(uint8 _addressIndex) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
-        (randomUser, richGuy, _user1, _user2, _user3) = _buildAccountApproveDenyOracle(_addressIndex);
-        /// connect the rule to this handler
-        switchToRuleAdmin();
-        uint32 ruleId = createAccountApproveDenyOracleRule(1);
-        setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
-    }
+    /** ACCOUNT APPROVE DENY ORACLE : DENY TRANSFER */
 
-    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_PositiveDeny(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Transfer_DenyPositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
         applicationNFT.transferFrom(_user1, _user2, 0);
         assertEq(applicationNFT.balanceOf(_user2), 1);
         console.log(randomUser, richGuy, _user3);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_NegativeDeny(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Transfer_DenyNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         applicationNFT.transferFrom(_user1, _user3, 1);
@@ -203,21 +348,213 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         console.log(randomUser, richGuy, _user2);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_PositiveApprove(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex);
+    /** ACCOUNT APPROVE DENY ORACLE : DENY MINT */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Mint_DenyPositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        applicationNFT.safeMint(_user1);
+        assertEq(applicationNFT.balanceOf(_user1), 6);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Mint_DenyNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
+        applicationNFT.safeMint(_user3);
+        assertEq(applicationNFT.balanceOf(_user3), 0);
+        (randomUser, richGuy, _user2, _user1);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : DENY BURN */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Burn_DenyPositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.BURN);
+        uint initialBalance = applicationNFT.balanceOf(_user1);
+        vm.startPrank(_user1);
+        applicationNFT.burn(0);
+        assertEq(applicationNFT.balanceOf(_user1), initialBalance - 1);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Burn_DenyNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.BURN);
+        vm.startPrank(_user1);
+        applicationNFT.safeTransferFrom(_user1, _user3, 0);
+        vm.startPrank(_user3);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
+        applicationNFT.burn(0);
+        (randomUser, richGuy, _user2, _user1);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : DENY SELL */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Sell_DenyPositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.SELL);
+        DummyNFTAMM _amm = _setupAMM();
+        uint initialBalance = applicationNFT.balanceOf(_user1);
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        assertEq(applicationNFT.balanceOf(_user1), initialBalance - 1);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Sell_DenyNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.SELL);
+        DummyNFTAMM _amm = _setupAMM();
+        uint initialBalance = applicationNFT.balanceOf(_user1);
+        vm.startPrank(_user1);
+        applicationNFT.safeTransferFrom(_user1, _user3, 0);
+        vm.startPrank(_user3);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        assertEq(applicationNFT.balanceOf(_user1), initialBalance - 1);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : DENY BUY */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Buy_DenyPositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.BUY);
+        DummyNFTAMM _amm = _setupAMM();
+        uint initialBalance = applicationNFT.balanceOf(_user1);
+        uint nft = applicationNFT.tokenOfOwnerByIndex(address(_amm), 0);
+        vm.startPrank(_user1);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, nft, true);
+        assertEq(applicationNFT.balanceOf(_user1), initialBalance + 1);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Buy_DenyNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleDeny(_addressIndex, ActionTypes.BUY);
+        DummyNFTAMM _amm = _setupAMM();
+        uint nft = applicationNFT.tokenOfOwnerByIndex(address(_amm), 0);
+        vm.startPrank(_user3);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, nft, true);
+        (randomUser, richGuy, _user1, _user2);
+    }
+
+    /******* ACCOUNT APPROVE DENY ORACLE : APPROVE *******/
+
+    function _buildAccountApproveDenyOracleApprove(
+        uint8 _addressIndex,
+        ActionTypes action
+    ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
+        (randomUser, richGuy, _user1, _user2, _user3) = _buildAccountApproveDenyOracle(_addressIndex);
+        /// connect the rule to this handler
+        switchToRuleAdmin();
+        uint32 ruleId = createAccountApproveDenyOracleRule(1);
+        setAccountApproveDenyOracleRuleSingleAction(action, address(applicationNFTHandler), ruleId);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : APPROVE TRANSFER */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Transfer_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
         applicationNFT.transferFrom(_user1, randomUser, 2);
         console.log(richGuy, _user2, _user3);
     }
 
-    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_NegativeApprove(uint8 _addressIndex) public endWithStopPrank {
-        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Transfer_ApproveNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.P2P_TRANSFER);
         vm.startPrank(_user1);
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         applicationNFT.transferFrom(_user1, richGuy, 3);
         console.log(randomUser, _user2, _user3);
     }
 
+    /** ACCOUNT APPROVE DENY ORACLE : APPROVE MINT */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Mint_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        applicationNFT.safeMint(randomUser);
+        console.log(richGuy, _user1, _user2, _user3);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Mint_ApproveNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.MINT);
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
+        applicationNFT.safeMint(richGuy);
+        (randomUser, _user1, _user2, _user3);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : APPROVE BURN */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Burn_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.BURN);
+        uint initialBalance = applicationNFT.balanceOf(randomUser);
+        vm.startPrank(_user1);
+        applicationNFT.safeTransferFrom(_user1, randomUser, 0);
+        vm.startPrank(randomUser);
+        applicationNFT.burn(0);
+        assertEq(applicationNFT.balanceOf(randomUser), initialBalance);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Burn_ApproveNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.BURN);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
+        applicationNFT.burn(0);
+        (randomUser, richGuy, _user2, _user3);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : APPROVE SELL */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Sell_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.SELL);
+        DummyNFTAMM _amm = _setupAMM();
+        uint initialBalance = applicationNFT.balanceOf(randomUser);
+        vm.startPrank(_user1);
+        applicationNFT.safeTransferFrom(_user1, randomUser, 0);
+        vm.startPrank(randomUser);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        assertEq(applicationNFT.balanceOf(randomUser), initialBalance);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Sell_ApproveNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.SELL);
+        DummyNFTAMM _amm = _setupAMM();
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    /** ACCOUNT APPROVE DENY ORACLE : APPROVE BUY */
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Buy_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.BUY);
+        DummyNFTAMM _amm = _setupAMM();
+        uint initialBalance = applicationNFT.balanceOf(randomUser);
+        uint nft = applicationNFT.tokenOfOwnerByIndex(address(_amm), 0);
+        vm.startPrank(randomUser);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, nft, true);
+        assertEq(applicationNFT.balanceOf(randomUser), initialBalance + 1);
+        (richGuy, _user1, _user3, _user2);
+    }
+
+    function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Buy_ApproveNegative(uint8 _addressIndex) public endWithStopPrank {
+        (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.BUY);
+        DummyNFTAMM _amm = _setupAMM();
+        uint nft = applicationNFT.tokenOfOwnerByIndex(address(_amm), 0);
+        vm.startPrank(_user1);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, nft, true);
+        (randomUser, richGuy, _user3, _user2);
+    }
+
+    //////////
     function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_NegativeOracleType() public endWithStopPrank {
         switchToRuleAdmin();
         vm.expectRevert("Oracle Type Invalid");

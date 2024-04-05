@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "test/client/token/TokenUtils.sol";
+import {DummyNFTAMM} from "test/client/token/TestTokenCommon.sol";
 
 /**
  * @title Rule Creation Functions
@@ -15,6 +16,11 @@ abstract contract ERC721Util is TokenUtils {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN);
         ERC721NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(actionTypes, ruleId);
+    }
+
+    function setAccountApproveDenyOracleRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ERC721NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(createActionTypeArray(action), ruleId);
     }
 
     function setAccountApproveDenyOracleRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
