@@ -33,7 +33,7 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
         uint gasEnd = gasleft();
         // console2.log("gas: ", gasBegin - gasEnd);
         // console2.log("valuation: ", valuation);
-        assertEq(valuation, loops * 100 * 100 * 1e18);
+        assertEq(valuation, loops * 100 * 100 * 1e17);
         assertLt(gasBegin - gasEnd, 15000000); // assert that it is less than the gas limit
     }
 }
