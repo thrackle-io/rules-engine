@@ -44,7 +44,7 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
             RuleProcessingAccountMaxValueOutByAccessLevelActorManager actorManager = new RuleProcessingAccountMaxValueOutByAccessLevelActorManager(tempActors, address(testCoin), address(amm));
             targetContract(address(actorManager));
             actorManagers.push(actorManager);
-            (testCoinHandler, coinPricer);
+            (testCoinHandler, coinPricer, nftPricer);
         }
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL), index);
