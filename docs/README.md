@@ -17,11 +17,11 @@ forge doc
 ```
 
 <!-- These are the body links -->
-[userGuide-url]: ./userGuides/README.md
-[deploymentGuide-url]: ./userGuides/deployment/NFT-DEPLOYMENT.md
 [archOverview-url]: ./userGuides/ARCHITECTURE-OVERVIEW.md
-[ruleGuide-url]: ./userGuides/rules/RULE-GUIDE.md
+[deploymentGuide-url]: ./userGuides/deployment/NFT-DEPLOYMENT.md
 [glossary-url]: ./userGuides/GLOSSARY.md
+[ruleGuide-url]: ./userGuides/rules/RULE-GUIDE.md
+[userGuide-url]: ./userGuides/README.md
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
