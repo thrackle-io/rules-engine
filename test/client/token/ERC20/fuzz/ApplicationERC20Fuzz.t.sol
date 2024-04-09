@@ -768,7 +768,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
         vm.stopPrank();
         vm.startPrank(_user1);
         applicationCoin.burn(10);
-        assertEq(applicationCoin.balanceOf(_user1), 10);
+        assertEq(applicationCoin.balanceOf(_user1), 90);
     }
 
     /** Test BUY only */
