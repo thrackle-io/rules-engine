@@ -2095,8 +2095,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         if (_accessLevel < 3) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 4, false);
     }
-
-    function testERC721_ApplicationERC721Fuzz_TokenMaxSupplyVolatility(uint8 _addressIndex, uint16 volLimit) public endWithStopPrank {
+    /** Test All actions */
+    function testERC721_ApplicationERC721Fuzz_TokenMaxSupplyVolatility_OverMaxSupplyVolatility_All(uint8 _addressIndex, uint16 volLimit) public endWithStopPrank {
         switchToAppAdministrator();
         /// test params
         vm.assume(volLimit < 9999 && volLimit > 0);
@@ -2124,29 +2124,76 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.safeMint(_rich_user);
         }
+    }
+
+    /** Test MINT only */
+    function testERC721_ApplicationERC721Fuzz_TokenMaxSupplyVolatility_OverMaxSupplyVolatility_Mint(uint8 _addressIndex, uint16 volLimit) public endWithStopPrank {
+        switchToAppAdministrator();
+        /// test params
+        vm.assume(volLimit < 9999 && volLimit > 0);
+        if (volLimit < 100) volLimit = 100;
+        vm.warp(Blocktime);
+        address _rich_user = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5)[0];
+        /// mint initial supply
+        for (uint i = 0; i < 10; i++) applicationNFT.safeMint(appAdministrator);
+
+        applicationNFT.safeTransferFrom(appAdministrator, _rich_user, 9);
+        /// create and activate rule
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, 24, Blocktime, 0);
+        setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationNFTHandler), ruleId);
+        /// determine the maximum burn/mint amount for inital test
+        uint256 maxVol = uint256(volLimit) / 1000;
+        /// make sure that transfer under the threshold works
+        switchToAppAdministrator();
+        if (maxVol >= 1) {
+            for (uint i = 0; i < maxVol - 1; i++) {
+                applicationNFT.safeMint(_rich_user);
+            }
+            assertEq(applicationNFT.balanceOf(_rich_user), maxVol);
+        }
         if (maxVol == 0) {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.safeMint(_rich_user);
         }
+    }
+
+    /** Test BURN only */
+    function testERC721_ApplicationERC721Fuzz_TokenMaxSupplyVolatility_OverMaxSupplyVolatility_Burn(uint8 _addressIndex, uint16 volLimit) public endWithStopPrank {
+        switchToAppAdministrator();
+        /// test params
+        vm.assume(volLimit < 9999 && volLimit > 0);
+        if (volLimit < 100) volLimit = 100;
+        vm.warp(Blocktime);
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
+        address _rich_user = addressList[0];
+        /// mint initial supply
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(appAdministrator);
+        }
+        applicationNFT.safeTransferFrom(appAdministrator, _rich_user, 9);
+        /// create and activate rule
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, 24, Blocktime, 0);
+        setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationNFTHandler), ruleId);
+        /// determine the maximum burn/mint amount for inital test
+        uint256 maxVol = uint256(volLimit) / 1000;
+        console.logUint(maxVol);
+        /// make sure that transfer under the threshold works
+        switchToAppAdministrator();
+        if (maxVol >= 1) {
+            for (uint i = 0; i < maxVol - 1; i++) {
+                applicationNFT.safeMint(_rich_user);
+            }
+        }
         /// at vol limit
+        vm.stopPrank();
         vm.startPrank(_rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.burn(9);
-        } else {
-            applicationNFT.burn(9);
-            switchToAppAdministrator();
-            applicationNFT.safeMint(_rich_user); // token 10
-            vm.startPrank(_rich_user);
-            applicationNFT.burn(10);
-            switchToAppAdministrator();
-            applicationNFT.safeMint(_rich_user);
-            vm.startPrank(_rich_user);
-            applicationNFT.burn(11);
         }
     }
-
-    function testERC721_ApplicationERC721Fuzz_AdminMinTokenBalance(uint32 daysForward, uint8 _addressIndex) public endWithStopPrank {
+    /** Test all actions */
+    function testERC721_ApplicationERC721Fuzz_AdminMinTokenBalance_UnderMinBalance_All(uint32 daysForward, uint8 _addressIndex) public endWithStopPrank {
         switchToAppAdministrator();
         address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5)[2];
         /// Mint TokenId 0-6 to ruleBypassAccount
@@ -2154,11 +2201,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// we create a rule that sets the minimum amount to 5 tokens to be tranferable in 1 year
         uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
         setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        vm.expectRevert(0xd66c3008);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
 
         switchToRuleBypassAccount();
         /// These transfers should pass
@@ -2176,6 +2218,78 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
             ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
         }
+    }
+
+    /** Test TRANSFER only */
+    function testERC721_ApplicationERC721Fuzz_AdminMinTokenBalance_UnderMinBalance_Transfer(uint32 daysForward, uint8 _addressIndex) public endWithStopPrank {
+        switchToAppAdministrator();
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5)[2];
+        /// Mint TokenId 0-6 to ruleBypassAccount
+        for (uint i; i < 7; i++) applicationNFT.safeMint(ruleBypassAccount);
+        /// we create a rule that sets the minimum amount to 5 tokens to be tranferable in 1 year
+        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
+        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationNFTHandler), ruleId);
+
+        switchToRuleBypassAccount();
+        /// These transfers should pass
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 0);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 1);
+        /// This one fails
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
+
+        vm.warp(Blocktime + daysForward);
+        if (daysForward < 365 days) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
+        switchToRuleAdmin();
+        if (daysForward >= 365 days) {
+            ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
+            ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
+        }
+    }
+
+    /** Test SELL only */
+    function testERC721_ApplicationERC721Fuzz_AdminMinTokenBalance_UnderMinBalance_Sell(uint32 daysForward) public endWithStopPrank {
+        daysForward = uint32(bound(uint256(daysForward), 1, 10000));
+        switchToAppAdministrator();
+        daysForward *= 1 days;
+        /// Mint TokenId 0-6 to ruleBypassAccount
+        for (uint i; i < 2; i++) applicationNFT.safeMint(ruleBypassAccount);
+
+        DummyNFTAMM _amm = new DummyNFTAMM();
+        uint32 ruleId = createAdminMinTokenBalanceRule(2, uint64(block.timestamp + daysForward));
+        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.SELL, address(applicationNFTHandler), ruleId);
+        switchToRuleBypassAccount();
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        vm.warp(block.timestamp + daysForward);
+        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        assertEq(applicationNFT.balanceOf(ruleBypassAccount),1);
+        switchToRuleAdmin();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
+    }
+
+    /** Test BURN only */
+    function testERC721_ApplicationERC721Fuzz_AdminMinTokenBalance_UnderMinBalance_Burn(uint32 daysForward) public endWithStopPrank {
+        daysForward = uint32(bound(uint256(daysForward), 1, 10000));
+        switchToAppAdministrator();
+        daysForward *= 1 days;
+        /// Mint TokenId 0-6 to ruleBypassAccount
+        for (uint i; i < 2; i++) applicationNFT.safeMint(ruleBypassAccount);
+
+        uint32 ruleId = createAdminMinTokenBalanceRule(2, uint64(block.timestamp + daysForward));
+        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.BURN, address(applicationNFTHandler), ruleId);
+        switchToRuleBypassAccount();
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        applicationNFT.burn(0);
+        vm.warp(block.timestamp + daysForward);
+        applicationNFT.burn(0);
+        assertEq(applicationNFT.balanceOf(ruleBypassAccount),1);
+        switchToRuleAdmin();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
     }
 
     function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzzNFT(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {

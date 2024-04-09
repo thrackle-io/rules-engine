@@ -34,6 +34,11 @@ abstract contract ERC721Util is TokenUtils {
         ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
     }
 
+    function setAdminMinTokenBalanceRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(createActionTypeArray(action), ruleId);
+    }
+
     function setAdminMinTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceIdFull(actions, ruleIds);
@@ -79,6 +84,11 @@ abstract contract ERC721Util is TokenUtils {
     function setAccountMinMaxTokenBalanceRuleSingleAction(address assetHandler, ActionTypes[] memory actions, uint32 ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actions, ruleIds);
+    }
+
+    function setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityId(createActionTypeArray(action), ruleId);
     }
 
     function setTokenMaxSupplyVolatilityRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
