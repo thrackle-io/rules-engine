@@ -789,6 +789,85 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Burn() public endWithStopPrank {
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 1);
+        vm.startPrank(user1);
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+        assertEq(testCaseNFT.balanceOf(user1), 4);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Burn_Negative() public endWithStopPrank {
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAccessLevelAdmin();
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+        assertEq(testCaseNFT.balanceOf(user1), 5);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Mint() public endWithStopPrank {
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 1);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        assertEq(testCaseNFT.balanceOf(user1), 6);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Mint_Negative() public endWithStopPrank {
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        assertEq(testCaseNFT.balanceOf(user1), 5);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Buy() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user, 1);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Buy_Negative() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Sell() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user, 1);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Sell_Negative() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        _accountDenyForNoAccessLevelInNFTSetup();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        /// User is minted NFTs in set up prior to rule activation. Selling accquired NFT's post rule activation results in revert
+        vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
     function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Positive() public endWithStopPrank {
         /// Transfers passing (above min value limit)
         _accountMinMaxTokenBalanceSetup(true);
@@ -881,6 +960,67 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
     }
 
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Burn_Positive() public endWithStopPrank {
+        _adminMinTokenBalanceSetup();
+        vm.warp(Blocktime + 366 days);
+        switchToRuleBypassAccount();
+        ERC721Burnable(address(testCaseNFT)).burn(2);
+    }
+
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Burn_Negative() public endWithStopPrank {
+        _adminMinTokenBalanceSetup();
+        switchToRuleBypassAccount();
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        ERC721Burnable(address(testCaseNFT)).burn(2);
+    }
+
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Sell_Positive() public endWithStopPrank {
+        switchToAppAdministrator();
+        amm = new DummyNFTAMM();
+        for (uint i; i < 10; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(address(amm));
+        }
+        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
+        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
+        applicationCoin.mint(ruleBypassAccount, 1000 * ATTO);
+        for (uint i; i < 6; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
+        }
+        assertEq(testCaseNFT.balanceOf(ruleBypassAccount), 6);
+        applicationAppManager.registerAMM(address(amm));
+        switchToAppAdministrator();
+        _adminMinTokenBalanceSetupNoMints();
+        vm.warp(Blocktime + 366 days);
+        switchToRuleBypassAccount();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
+    }
+
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Sell_Negative() public endWithStopPrank {
+        switchToAppAdministrator();
+        amm = new DummyNFTAMM();
+        for (uint i; i < 10; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(address(amm));
+        }
+        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
+        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
+        applicationCoin.mint(ruleBypassAccount, 1000 * ATTO);
+        for (uint i; i < 6; i++) {
+            ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
+        }
+        assertEq(testCaseNFT.balanceOf(ruleBypassAccount), 6);
+        applicationAppManager.registerAMM(address(amm));
+        switchToAppAdministrator();
+        _adminMinTokenBalanceSetupNoMints();
+        switchToRuleBypassAccount();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
     function testERC721_ERC721CommonTests_TransferVolumeRule_Negative() public endWithStopPrank {
         _transferVolumeRuleSetup();
         vm.startPrank(user1);
@@ -933,17 +1073,168 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 3);
     }
 
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Mint() public endWithStopPrank { 
+        _transferVolumeRuleWithSupplySet();
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Mint_Negative() public endWithStopPrank { 
+        _transferVolumeRuleWithSupplySet();
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Burn() public endWithStopPrank { 
+        _transferVolumeRuleWithSupplySet();
+        vm.stopPrank();
+        vm.startPrank(user1);
+        ProtocolERC721(address(testCaseNFT)).burn(2);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Burn_Negative() public endWithStopPrank { 
+        _transferVolumeRuleWithSupplySet();
+        vm.stopPrank();
+        vm.startPrank(user1);
+        ProtocolERC721(address(testCaseNFT)).burn(2);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
+        ProtocolERC721(address(testCaseNFT)).burn(3);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet__Buy() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        _transferVolumeRuleWithSupplySet();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Buy_Negative() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        _transferVolumeRuleWithSupplySet();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 2, true);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet__Sell() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        _transferVolumeRuleWithSupplySet();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet__Negative() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        _transferVolumeRuleWithSupplySet();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Negative() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
-        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1); /// ensure mint works with rule active 
         vm.startPrank(user1);
-        // transfer should fail
+        /// ensure that mint triggers the hold time clock and that applicable actions check the clock (p2p transfer)
         vm.expectRevert(0x5f98112f);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Burn() public endWithStopPrank { 
+        /// ensure that burn works while rule is active 
+        switchToRuleAdmin();
+        setTokenMinHoldTimeRule(24);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        vm.warp(Blocktime + 24 hours);
+        vm.startPrank(user1);
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Burn_Negative() public endWithStopPrank { 
+        /// ensure that transfers trigger the hold time clock and that the applicable action checks the clock (Burn)
+        switchToRuleAdmin();
+        setTokenMinHoldTimeRule(24);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+        vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
+        vm.startPrank(user1);
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy() public endWithStopPrank { 
+        /// ensure that buys work while rule is active 
+        _setUpNFTAMMForRuleChecks();
+        setTokenMinHoldTimeRule(24);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Negative() public endWithStopPrank { 
+        /// ensure that buys trigger the hold time clock and that applicaple actions check the clock (p2p transfer)
+        _setUpNFTAMMForRuleChecks();
+        setTokenMinHoldTimeRule(24);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
+        testCaseNFT.safeTransferFrom(user, user2, 1); 
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Burn_Negative() public endWithStopPrank { 
+        /// ensure that buys trigger the hold time clock and that applicaple actions check the clock (Burn)
+        _setUpNFTAMMForRuleChecks();
+        setTokenMinHoldTimeRule(24);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
+        ERC721Burnable(address(testCaseNFT)).burn(1);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Sell() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        vm.warp(Blocktime + 24 hours);
+        setTokenMinHoldTimeRule(24);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+    }
+
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Sell_Negative() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks();
+        vm.warp(Blocktime + 24 hours);
+        setTokenMinHoldTimeRule(24);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        /// buy token back from AMM (agnostic to how long AMM holds token)
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, true);
+        /// resell token back to AMM
+        vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Period() public endWithStopPrank {
@@ -1003,6 +1294,349 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         /// mint
         switchToAppAdministrator();
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Transfer() public endWithStopPrank {
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 25);
+        applicationAppManager.addRiskScore(user2, 25);
+        switchToUser();
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Transfer_Negative() public endWithStopPrank {
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 25);
+        applicationAppManager.addRiskScore(user2, 75);
+        switchToUser();
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 1);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Mint() public endWithStopPrank {
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.MINT);
+        switchToAppAdministrator(); 
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 75);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Mint_Negative() public endWithStopPrank {
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.MINT);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 100 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 100 * ATTO);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 75);
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Burn() public endWithStopPrank {
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 25);
+        applicationAppManager.addRiskScore(user2, 75);
+        switchToUser();
+        /// check that burns are not checked by the rule 
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Buy() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.BUY);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 1);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Buy_Negative() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.BUY);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 25);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Sell() public endWithStopPrank {
+        /// ensure user can sell when rule is active for buys (rule is agnostic to sales)
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.BUY);
+        switchToRiskAdmin(); 
+        applicationAppManager.addRiskScore(user, 25);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function _setUpAccountMaxValueByRiskScoreRule(ActionTypes action) internal {
+        uint32 ruleId = createAccountMaxValueByRiskRule(createUint8Array(25,50,75), createUint48Array(3,2,1));
+        setAccountMaxValueByRiskRuleSingleAction(action, ruleId);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Transfer() public endWithStopPrank {
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user, 1);
+        applicationAppManager.addAccessLevel(user2, 1);
+        switchToUser();
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Transfer_Negative() public endWithStopPrank {
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 2);
+        applicationAppManager.addAccessLevel(user2, 0);
+        switchToUser();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Mint() public endWithStopPrank {
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.MINT);
+        switchToAppAdministrator(); 
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 2);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Mint_Negative() public endWithStopPrank {
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.MINT);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 0);
+        switchToAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Burn() public endWithStopPrank {
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 2);
+        applicationAppManager.addAccessLevel(user2, 0);
+        switchToUser();
+        /// check that burns are not checked by the rule 
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Buy() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.BUY);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 4);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Buy_Negative() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.BUY);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 0);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+    }
+
+    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Sell() public endWithStopPrank {
+        /// ensure user can sell when rule is active for buys (rule is agnostic to sales)
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.BUY);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 0);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function _setUpAccountMaxValueByAccessLevelRule(ActionTypes action) internal {
+        uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, 100, 500, 750, 1500);
+        setAccountMaxValueByAccessLevelSingleAction(action, ruleId);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Transfer_Positive() public endWithStopPrank {
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user, 1);
+        applicationAppManager.addAccessLevel(user2, 1);
+        switchToUser();
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Transfer_Negative() public endWithStopPrank {
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 0);
+        applicationAppManager.addAccessLevel(user2, 2);
+        switchToUser();
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
+        ProtocolERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Burn_Positive() public endWithStopPrank {
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.BURN);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 2);
+        switchToUser();
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Burn_Negative() public endWithStopPrank {
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.BURN);
+        switchToAppAdministrator();
+        ProtocolERC721(address(testCaseNFT)).safeMint(user); 
+        ProtocolERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToUser();
+        ERC721Burnable(address(testCaseNFT)).burn(1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
+        ERC721Burnable(address(testCaseNFT)).burn(0);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Sell_Positive() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.SELL);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 1);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Sell_Negative() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.SELL);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+    }
+
+    function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Buy_Positive() public endWithStopPrank {
+        _setUpNFTAMMForRuleChecks();
+        switchToAppAdministrator();
+        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
+            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
+        }
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.SELL);
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        // ensure Buys do not trigger the rule (allow for accumulation through purchases)
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
+    }
+
+    function _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes action) internal {
+        uint32 ruleId = createAccountMaxValueOutByAccessLevelRule(1, 100, 500, 750, 1500);
+        setAccountMaxValueOutByAccessLevelSingleAction(action, ruleId);
     }
 
     function testERC721_ERC721CommonTests_NFTValuationOrig_Fails() public endWithStopPrank {
@@ -2087,6 +2721,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         /// These transfers should pass
         testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
         testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 1);
+    }
+
+    function _adminMinTokenBalanceSetupNoMints() public endWithStopPrank {
+        /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
+        switchToRuleAdmin();
+        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
+        setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
     }
 
     function _transferVolumeRuleSetup() public endWithStopPrank {

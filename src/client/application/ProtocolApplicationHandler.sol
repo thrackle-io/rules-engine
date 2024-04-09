@@ -206,7 +206,7 @@ contract ProtocolApplicationHandler is
         if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
-        if (accountMaxValueOutByAccessLevel[_action].active) {
+        if (accountMaxValueOutByAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
                 accountMaxValueOutByAccessLevel[_action].ruleId,
                 fromScore,

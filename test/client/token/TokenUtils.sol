@@ -34,6 +34,11 @@ abstract contract TokenUtils is RuleCreation {
         applicationHandler.setAccountMaxValueByAccessLevelId(actionTypes, ruleId);
     }
 
+    function setAccountMaxValueByAccessLevelSingleAction(ActionTypes action, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByAccessLevelId(createActionTypeArray(action), ruleId);
+    }
+
     function setAccountMaxValueByAccessLevelRuleSingleAction(ActionTypes _action, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(_action);
@@ -50,20 +55,24 @@ abstract contract TokenUtils is RuleCreation {
         applicationHandler.setAccountMaxValueByRiskScoreId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT), ruleId);
     }
 
-    function setAccountMaxValueByRiskRuleSingleAction(ActionTypes _action, uint32 ruleId) public endWithStopPrank {
+    function setAccountMaxValueByRiskRuleSingleAction(ActionTypes action, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByRiskScoreId(createActionTypeArray(_action), ruleId);
+        applicationHandler.setAccountMaxValueByRiskScoreId(createActionTypeArray(action), ruleId);
     }
 
     function setAccountMaxValueByRiskRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueByRiskScoreIdFull(actions, ruleIds);
     }
-    
 
     function setAccountMaxValueOutByAccessLevelRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL), ruleId);
+    }
+
+    function setAccountMaxValueOutByAccessLevelSingleAction(ActionTypes action, uint32 ruleId) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArray(action), ruleId);
     }
 
     function setAccountMaxValueOutByAccessLevelRuleFull(ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
