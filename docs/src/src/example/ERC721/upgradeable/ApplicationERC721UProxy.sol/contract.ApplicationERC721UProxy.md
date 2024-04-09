@@ -1,5 +1,5 @@
 # ApplicationERC721UProxy
-[Git Source](https://github.com/thrackle-io/tron/blob/f7f6e3590faaa9c8f0fe0115492201b8f8dd1711/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
 
 **Inherits:**
 ERC1967Proxy
@@ -30,7 +30,7 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 ### constructor
 
 *Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
-optionally initialized with `_data` as explained in [ERC1967Proxy-constructor](/src/example/OracleApproved.sol/contract.OracleApproved.md#constructor).*
+optionally initialized with `_data` as explained in [ERC1967Proxy-constructor](/src/example/application/ApplicationAppManager.sol/contract.ApplicationAppManager.md#constructor).*
 
 
 ```solidity
