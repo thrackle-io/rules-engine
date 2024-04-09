@@ -1326,6 +1326,138 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertFalse(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
     }
 
+    function testERC721_ERC721CommonTests_getAccTotalValuation_TestGasLimitBreakageNFTsValueLimitLow() public {
+        // fill an account with NFTs and try to break the gas limit
+        switchToAppAdministrator();
+        _safeMintERC721(20000);
+
+        erc721Pricer.setNFTCollectionPrice(address(testCaseNFT), 1 * ATTO);
+
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20);
+        uint gasBegin = gasleft();
+        applicationHandler.getAccTotalValuation(appAdministrator, 20);
+        uint gasEnd = gasleft();
+        assertLt(gasBegin - gasEnd, 42000);
+    }
+
+    function testERC721_ERC721CommonTests_getAccTotalValuation_TestGasLimitBreakageNFTsValueLimitHigh() public {
+        // fill an account with NFTs and try to break the gas limit
+        switchToAppAdministrator();
+        _safeMintERC721(20000);
+
+        erc721Pricer.setNFTCollectionPrice(address(testCaseNFT), 1 * ATTO);
+
+        switchToAppAdministrator();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20000);
+        uint gasBegin = gasleft();
+        applicationHandler.getAccTotalValuation(appAdministrator, 20000);
+        uint gasEnd = gasleft();
+
+        assertLt(gasBegin - gasEnd, 42000);
+    }
+
+    function testERC721_ERC721CommonTests_getAccTotalValuation_TestGasLimitBreakageMultipleNFTsValueLimitHigh() public {
+        // fill an account with NFTs and try to break the gas limit
+        switchToAppAdministrator();
+
+        // deploy its always sunny nfts
+        (ApplicationERC721 FrankCoin, ) = deployAndSetupERC721("Frankcoin", "FRANK");
+        (ApplicationERC721 DennisCoin, ) = deployAndSetupERC721("Denniscoin", "DENNIS");
+        (ApplicationERC721 DeeCoin, ) = deployAndSetupERC721("Deecoin", "DEE");
+        (ApplicationERC721 MacCoin, ) = deployAndSetupERC721("Maccoin", "MAC");
+        (ApplicationERC721 CharlieCoin, ) = deployAndSetupERC721("Charliecoin", "CHARLIE");
+        (ApplicationERC721 WaitressCoin, ) = deployAndSetupERC721("Waitresscoin", "WAITRESS");
+        (ApplicationERC721 CricketCoin, ) = deployAndSetupERC721("Cricketcoin", "CRICKET");
+        
+        
+        // mint a crapload of nfts
+        switchToAppAdministrator();
+        _safeMintERC721(10000);
+        _safeMintERC721TokenDefined(address(FrankCoin), 1000);
+        _safeMintERC721TokenDefined(address(DennisCoin), 500);
+        _safeMintERC721TokenDefined(address(DeeCoin), 300);
+        _safeMintERC721TokenDefined(address(MacCoin), 200);
+        _safeMintERC721TokenDefined(address(CharlieCoin), 140);
+        _safeMintERC721TokenDefined(address(WaitressCoin), 140);
+        _safeMintERC721TokenDefined(address(CricketCoin), 140);
+
+
+        // set pricing
+        switchToAppAdministrator();
+        erc721Pricer.setNFTCollectionPrice(address(testCaseNFT), 1 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(FrankCoin), 10000 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(DennisCoin), 69 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(DeeCoin), 2 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(MacCoin), 7 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(CharlieCoin), 42 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(CricketCoin), 666 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(WaitressCoin), 200 * ATTO);
+        
+        /// set the nftHandler nftValuationLimit variable
+        switchToAppAdministrator();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20000);
+        
+        // track the gas
+        uint gasBegin = gasleft();
+        uint totalValuation = applicationHandler.getAccTotalValuation(appAdministrator, 10000);
+        uint gasEnd = gasleft();
+
+        assertLt(gasBegin - gasEnd, 30000000); // assert that this is less than the block gas limit on polygon pos
+        assertEq(totalValuation, 10173620000000000000000000); // get a free valuation assertion while we're here
+    }
+
+    function testERC721_ERC721CommonTests_getAccTotalValuation_TestGasLimitBreakageMultipleNFTsValueLimitLow() public {
+        // fill an account with NFTs and try to break the gas limit
+        switchToAppAdministrator();
+
+        // deploy its always sunny nfts
+        (ApplicationERC721 FrankCoin, ) = deployAndSetupERC721("Frankcoin", "FRANK");
+        (ApplicationERC721 DennisCoin, ) = deployAndSetupERC721("Denniscoin", "DENNIS");
+        (ApplicationERC721 DeeCoin, ) = deployAndSetupERC721("Deecoin", "DEE");
+        (ApplicationERC721 MacCoin, ) = deployAndSetupERC721("Maccoin", "MAC");
+        (ApplicationERC721 CharlieCoin, ) = deployAndSetupERC721("Charliecoin", "CHARLIE");
+        (ApplicationERC721 WaitressCoin, ) = deployAndSetupERC721("Waitresscoin", "WAITRESS");
+        (ApplicationERC721 CricketCoin, ) = deployAndSetupERC721("Cricketcoin", "CRICKET");
+        
+        
+        // mint a crapload of nfts
+        switchToAppAdministrator();
+        _safeMintERC721(10000);
+        _safeMintERC721TokenDefined(address(FrankCoin), 1000);
+        _safeMintERC721TokenDefined(address(DennisCoin), 500);
+        _safeMintERC721TokenDefined(address(DeeCoin), 300);
+        _safeMintERC721TokenDefined(address(MacCoin), 200);
+        _safeMintERC721TokenDefined(address(CharlieCoin), 140);
+        _safeMintERC721TokenDefined(address(WaitressCoin), 140);
+        _safeMintERC721TokenDefined(address(CricketCoin), 140);
+
+
+        // set pricing
+        switchToAppAdministrator();
+        erc721Pricer.setNFTCollectionPrice(address(testCaseNFT), 1 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(FrankCoin), 10000 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(DennisCoin), 69 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(DeeCoin), 2 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(MacCoin), 7 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(CharlieCoin), 42 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(CricketCoin), 666 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(WaitressCoin), 200 * ATTO);
+        
+        /// set the nftHandler nftValuationLimit variable
+        switchToAppAdministrator();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(10);
+        
+        // track the gas
+        uint gasBegin = gasleft();
+        uint totalValuation = applicationHandler.getAccTotalValuation(appAdministrator, 10);
+        uint gasEnd = gasleft();
+        
+        //console2.log("Gas: ", gasBegin - gasEnd);
+
+        assertLt(gasBegin - gasEnd, 70000); // assert that this is less than 70k. This gives us a baseline to understand what our lower bound should be.
+        assertEq(totalValuation, 10173620000000000000000000); // get a free valuation assertion while we're here
+    }
+
     /// INTERNAL HELPER FUNCTIONS
     function _approveTokens(DummyNFTAMM _amm, uint256 amountERC20, bool _isApprovalERC721) internal {
         applicationCoin.approve(address(_amm), amountERC20);
@@ -1335,6 +1467,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function _safeMintERC721(uint256 amount) internal {
         for (uint256 i; i < amount; i++) {
             ProtocolERC721(address(testCaseNFT)).safeMint(appAdministrator);
+        }
+    }
+
+    function _safeMintERC721TokenDefined(address token, uint256 amount) internal endWithStopPrank {
+        switchToAppAdministrator();
+        for (uint256 i = 0; i < amount; i++) {
+            ProtocolERC721(address(token)).safeMint(appAdministrator);
         }
     }
 
