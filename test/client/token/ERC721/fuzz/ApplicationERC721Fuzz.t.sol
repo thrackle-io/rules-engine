@@ -2292,26 +2292,33 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
     }
 
-    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzzNFT(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+    function tokenMaxTradingVolumeFuzzNFTSetup(uint8 _addressIndex, uint8 _period, uint16 _maxPercent, ActionTypes action) public endWithStopPrank returns (address _rich_user, address _user1, uint16 _updatedPercent) {
         if (_period == 0) _period = 1;
         //since NFT's take so long to mint, don't test for below 10% because the test pool will only be 10 NFT's
-        if (_maxPercent < 100) _maxPercent = 100;
-        if (_maxPercent > 9999) _maxPercent = 9999;
+        _updatedPercent = _maxPercent;
+        if (_updatedPercent < 1000) _updatedPercent = 1000;
+        if (_updatedPercent > 9999) _updatedPercent = 9999;
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
-        address _rich_user = addressList[0];
-        address _user1 = addressList[1];
+        _rich_user = addressList[0];
+        _user1 = addressList[1];
         switchToAppAdministrator();
         /// load non admin users with nft's
         // mint 10 nft's to non admin user
-        for (uint i = 0; i < 10; i++) applicationNFT.safeMint(_rich_user);
+        if(action == ActionTypes.P2P_TRANSFER || action == ActionTypes.SELL || action == ActionTypes.BURN) {
+            for (uint i = 0; i < 10; i++) applicationNFT.safeMint(_rich_user);
+        }
 
         // apply the rule
+        uint32 ruleId = createTokenMaxTradingVolumeRule(_updatedPercent, _period, Blocktime, 10);
+        setTokenMaxTradingVolumeRuleSingleAction(action, address(applicationNFTHandler), ruleId);
+    }
 
-        uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 0);
-        setTokenMaxTradingVolumeRule(address(applicationNFTHandler), ruleId);
+    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Transfer(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+        (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.P2P_TRANSFER);
+
         /// determine the maximum transfer amount
-        uint256 maxSize = uint256(_maxPercent) / 1000;
-        console.logUint(maxSize);
+        uint256 maxSize = uint256(_updatedPercent) / 1000;
+        console.log(maxSize);
         vm.startPrank(_rich_user);
         /// make sure that transfer under the threshold works
         if (maxSize > 1) {
@@ -2326,7 +2333,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             applicationNFT.safeTransferFrom(_rich_user, _user1, 0);
         } else {
             /// account for decimal percentages
-            if (uint256(_maxPercent) % 1000 == 0) {
+            if (uint256(_updatedPercent) % 1000 == 0) {
                 vm.expectRevert(0x009da0ce);
                 applicationNFT.safeTransferFrom(_rich_user, _user1, maxSize - 1);
             } else {
@@ -2337,8 +2344,129 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
-        (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
+    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Burn(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+        (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.BURN);
+
+        /// determine the maximum transfer amount 
+        uint256 maxSize = uint256(_updatedPercent) / 1000;
+        console.log(maxSize);
+        vm.startPrank(_rich_user);
+        /// make sure that transfer under the threshold works
+        if (maxSize > 1) {
+            for (uint i = 0; i < maxSize - 1; i++) {
+                applicationNFT.burn(i);
+            }
+        }
+        /// Now break the rule
+        if (maxSize == 0) {
+            vm.expectRevert(0x009da0ce);
+            applicationNFT.burn(0);
+        } else {
+            /// account for decimal percentages
+            if (uint256(_updatedPercent) % 1000 == 0) {
+                vm.expectRevert(0x009da0ce);
+                applicationNFT.burn(maxSize - 1);
+            } else {
+                applicationNFT.burn(maxSize - 1);
+                vm.expectRevert(0x009da0ce);
+                applicationNFT.burn(maxSize);
+            }
+        }
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Mint(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+        (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.MINT);
+
+        /// determine the maximum transfer amount
+        uint256 maxSize = uint256(_updatedPercent) / 1000;
+        console.log(maxSize);
+        switchToAppAdministrator();
+        if (maxSize > 1) {
+            for (uint i = 0; i < maxSize -1; i++) {
+                applicationNFT.safeMint(_user1);
+            }
+        }
+        /// Now break the rule
+        if (maxSize == 0) {
+            vm.expectRevert(0x009da0ce);
+            applicationNFT.safeMint(_user1);
+        } else {
+            /// account for decimal percentages
+            if (uint256(_updatedPercent) % 1000 == 0) {
+                vm.expectRevert(0x009da0ce);
+                applicationNFT.safeMint(_user1);
+            } else {
+                applicationNFT.safeMint(_user1);
+                vm.expectRevert(0x009da0ce);
+                applicationNFT.safeMint(_user1);
+            }
+        }
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Buy(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+        (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.BUY);
+        switchToAppAdministrator();
+        DummyNFTAMM _amm = new DummyNFTAMM();
+        for (uint i = 0; i < 10; i++) applicationNFT.safeMint(address(_amm));
+        /// determine the maximum transfer amount
+        uint256 maxSize = uint256(_updatedPercent) / 1000;
+        console.log(maxSize);
+        vm.startPrank(_user1);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        if (maxSize > 1) {
+            for (uint i = 0; i < maxSize - 1; i++) {
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, true);
+            }
+        }
+               /// Now break the rule
+        if (maxSize == 0) {
+            vm.expectRevert(0x009da0ce);
+            _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, true);
+        } else {
+            /// account for decimal percentages
+            if (uint256(_updatedPercent) % 1000 == 0) {
+                vm.expectRevert(0x009da0ce);
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize - 1, true);
+            } else {
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize - 1, true);
+                vm.expectRevert(0x009da0ce);
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize, true);
+            }
+        }
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Sell(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
+        (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.SELL);
+        DummyNFTAMM _amm = new DummyNFTAMM();
+        /// determine the maximum transfer amount
+        uint256 maxSize = uint256(_updatedPercent) / 1000;
+        console.log(maxSize);
+        vm.startPrank(_rich_user);
+        applicationNFT.setApprovalForAll(address(_amm), true);
+        if (maxSize > 1) {
+            for (uint i = 0; i < maxSize - 1; i++) {
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, false);
+            }
+        }
+               /// Now break the rule
+        if (maxSize == 0) {
+            vm.expectRevert(0x009da0ce);
+            _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        } else {
+            /// account for decimal percentages
+            if (uint256(_updatedPercent) % 1000 == 0) {
+                vm.expectRevert(0x009da0ce);
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize - 1, false);
+            } else {
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize - 1, false);
+                vm.expectRevert(0x009da0ce);
+                _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, maxSize, false);
+            }
+        }
+    }
+
+    function _tokenMinHoldTimeSetup(uint8 _addressIndex, uint32 _hours, ActionTypes action) public endWithStopPrank returns(address _user1, address _user2) {
+        (_user1, _user2) = _get2RandomAddresses(_addressIndex);
         switchToRuleAdmin();
         // hold time range must be between 1 hour and 5 years
         if (_hours == 0 || _hours > 43830) {
@@ -2347,14 +2475,19 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             } else {
                 vm.expectRevert(abi.encodeWithSignature("PeriodExceeds5Years()"));
             }
-            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), _hours);
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(action), _hours);
         } else {
             /// set the rule for x hours
-            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), _hours);
-            assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), _hours);
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(action), _hours);
+            assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(action), _hours);
             // mint 1 nft to non admin user(this should set their ownership start time)
             switchToAppAdministrator();
             applicationNFT.safeMint(_user1);
+        }
+    }
+    function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Transfer(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.P2P_TRANSFER);
+        if (_hours > 0 && _hours < 43830) {
             vm.startPrank(_user1);
             // transfer should fail
             vm.expectRevert(0x5f98112f);
@@ -2371,6 +2504,38 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             Blocktime = Blocktime + (_hours * 1 hours);
             vm.warp(Blocktime);
             applicationNFT.safeTransferFrom(_user2, _user1, 0);
+        }
+    }
+
+    function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Sell(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.SELL);
+        if (_hours > 0 && _hours < 43830) {
+            DummyNFTAMM _amm = new DummyNFTAMM();
+            vm.startPrank(_user1);
+            applicationNFT.setApprovalForAll(address(_amm), true);
+            // transfer should fail
+            vm.expectRevert(0x5f98112f);
+            _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+            // move forward in time x hours and it should pass
+            Blocktime = Blocktime + (_hours * 1 hours);
+            vm.warp(Blocktime);
+            _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
+        }
+    }
+
+        function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Burn(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.BURN);
+        if (_hours > 0 && _hours < 43830) {
+            DummyNFTAMM _amm = new DummyNFTAMM();
+            vm.startPrank(_user1);
+            applicationNFT.setApprovalForAll(address(_amm), true);
+            // transfer should fail
+            vm.expectRevert(0x5f98112f);
+            applicationNFT.burn(0);
+            // move forward in time x hours and it should pass
+            Blocktime = Blocktime + (_hours * 1 hours);
+            vm.warp(Blocktime);
+            applicationNFT.burn(0);
         }
     }
 }
