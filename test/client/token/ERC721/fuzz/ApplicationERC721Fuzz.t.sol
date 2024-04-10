@@ -1128,6 +1128,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false); // a 30-dollar NFT
 
         vm.startPrank(_user2);
+        applicationNFT.setApprovalForAll(address(_amm), true);
         if (_risk >= riskScoresRuleA[4]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
@@ -1144,6 +1145,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 1, false); // a 60-dollar NFT
 
         vm.startPrank(_user3);
+        applicationNFT.setApprovalForAll(address(_amm), true);
         if (_risk >= riskScoresRuleA[4]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
