@@ -216,19 +216,15 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 9, true);
         assertEq(testCaseNFT.balanceOf(user), 4);
-    }
-
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Buy_Negative() public endWithStopPrank {
-
     }
 
     function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Sell_Positive() public endWithStopPrank {
         _setUpAccountMinMaxTokenBuySellActions(createActionTypesArray(ActionTypes.SELL)); 
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
         assertEq(testCaseNFT.balanceOf(user), 2);
     }
 
@@ -236,11 +232,11 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _setUpAccountMinMaxTokenBuySellActions(createActionTypesArray(ActionTypes.SELL)); 
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 10, false);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 10, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 11, false);
         assertEq(testCaseNFT.balanceOf(user), 1);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
     }
 
     function _setUpAccountMinMaxTokenBuySellActions(ActionTypes[] memory _action) internal {
@@ -311,7 +307,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 9, true);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Buy_Negative() public endWithStopPrank {
@@ -323,7 +319,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 9, true);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Sell() public endWithStopPrank {
@@ -332,7 +328,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Sell_Negative() public endWithStopPrank {
@@ -345,7 +341,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Burn() public endWithStopPrank {
@@ -367,7 +363,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 9, true);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Buy_Negative() public endWithStopPrank {
@@ -379,7 +375,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 9, true);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Sell() public endWithStopPrank {
@@ -388,7 +384,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Sell_Negative() public endWithStopPrank {
@@ -401,7 +397,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
     }
 
 
@@ -516,7 +512,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 9, true);
     }
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Buy_Negative() public endWithStopPrank { 
@@ -525,9 +521,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 9, true);
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 9, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 9, false);
     }
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Sell() public endWithStopPrank { 
@@ -536,9 +532,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, false);
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 12, true);
     }
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Sell_Negative() public endWithStopPrank { 
@@ -547,7 +543,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
     }
 
     /// Account Max Transaction Value By Risk Score Tests
@@ -722,7 +718,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Buy_Negative() public endWithStopPrank {
@@ -735,7 +731,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationCoin.approve(address(amm), 10 * ATTO);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 0, 17000000000000000000));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Sell_Positive() public endWithStopPrank {
@@ -746,7 +742,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Sell_Negative() public endWithStopPrank {
@@ -759,7 +755,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationCoin.approve(address(amm), 10 * ATTO);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 0, 17000000000000000000));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     /**
@@ -833,7 +829,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Buy_Negative() public endWithStopPrank {
@@ -843,7 +839,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Sell() public endWithStopPrank {
@@ -854,7 +850,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Sell_Negative() public endWithStopPrank {
@@ -865,7 +861,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationCoin.approve(address(amm), 10 * ATTO);
         /// User is minted NFTs in set up prior to rule activation. Selling accquired NFT's post rule activation results in revert
         vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Positive() public endWithStopPrank {
@@ -1018,7 +1014,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationCoin.approve(address(amm), 10 * ATTO);
         amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_TransferVolumeRule_Negative() public endWithStopPrank {
@@ -1109,7 +1105,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Buy_Negative() public endWithStopPrank { 
@@ -1118,9 +1114,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 2, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 2, true);
         vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet__Sell() public endWithStopPrank { 
@@ -1129,7 +1125,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet__Negative() public endWithStopPrank { 
@@ -1138,9 +1134,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
         vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Negative() public endWithStopPrank {
@@ -1185,7 +1181,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Negative() public endWithStopPrank { 
@@ -1195,7 +1191,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
         vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
         testCaseNFT.safeTransferFrom(user, user2, 1); 
     }
@@ -1207,7 +1203,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
         vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
         ERC721Burnable(address(testCaseNFT)).burn(1);
     }
@@ -1219,7 +1215,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Sell_Negative() public endWithStopPrank { 
@@ -1229,12 +1225,12 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
         /// buy token back from AMM (agnostic to how long AMM holds token)
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, true);
         /// resell token back to AMM
         vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Period() public endWithStopPrank {
@@ -1373,7 +1369,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Buy_Negative() public endWithStopPrank {
@@ -1389,23 +1385,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
-    }
-
-    function testERC721_ERC721CommonTests_AccountMaxValueByRisk_Sell() public endWithStopPrank {
-        /// ensure user can sell when rule is active for buys (rule is agnostic to sales)
-        _setUpNFTAMMForRuleChecks();
-        switchToAppAdministrator();
-        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
-            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
-        }
-        _setUpAccountMaxValueByRiskScoreRule(ActionTypes.BUY);
-        switchToRiskAdmin(); 
-        applicationAppManager.addRiskScore(user, 25);
-        switchToUser();
-        testCaseNFT.setApprovalForAll(address(amm), true);
-        applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function _setUpAccountMaxValueByRiskScoreRule(ActionTypes action) internal {
@@ -1493,7 +1473,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 1, true);
     }
 
     function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Buy_Negative() public endWithStopPrank {
@@ -1509,23 +1489,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 1, true);
-    }
-
-    function testERC721_ERC721CommonTests_AccountMaxValueByAccessLevel_Sell() public endWithStopPrank {
-        /// ensure user can sell when rule is active for buys (rule is agnostic to sales)
-        _setUpNFTAMMForRuleChecks();
-        switchToAppAdministrator();
-        for (uint256 i; i < 15; i++) { /// set all NFTs up to tokenId 15 to valuation of $1 
-            erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, 1 * ATTO);
-        }
-        _setUpAccountMaxValueByAccessLevelRule(ActionTypes.BUY);
-        switchToAccessLevelAdmin(); 
-        applicationAppManager.addAccessLevel(user, 0);
-        switchToUser();
-        testCaseNFT.setApprovalForAll(address(amm), true);
-        applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 1, true);
     }
 
     function _setUpAccountMaxValueByAccessLevelRule(ActionTypes action) internal {
@@ -1602,7 +1566,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Sell_Negative() public endWithStopPrank {
@@ -1615,9 +1579,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 12, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
         vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, 11, false);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
     }
 
     function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Buy_Positive() public endWithStopPrank {
@@ -2407,11 +2371,11 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
     function _testBuyNFT(uint256 _tokenId, DummyNFTAMM _amm) internal {
-        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, true);
+        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, _tokenId, true);
     }
 
     function _testSellNFT(uint256 _tokenId, DummyNFTAMM _amm) internal {
-        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, false);
+        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, _tokenId, false);
     }
 
     function _fundThreeAccounts() internal endWithStopPrank {

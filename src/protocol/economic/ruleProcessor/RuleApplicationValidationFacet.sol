@@ -73,7 +73,7 @@ contract RuleApplicationValidationFacet is ERC173 {
     }
 
     /**
-     * @dev Function to get total account max buy size rules
+     * @dev Function to get total account max trade size rules
      * @return Total length of array
      */
     function getTotalAccountMaxTradeSize() internal view returns (uint32) {

@@ -23,7 +23,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray
     }
 
     /**
-     * @dev Set the TokenMaxBuyVolume. Restricted to rule administrators only.
+     * @dev Set the TokenMaxBuySellVolume. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
      * @param _ruleId Rule Id to set

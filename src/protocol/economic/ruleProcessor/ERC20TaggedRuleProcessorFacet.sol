@@ -247,7 +247,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @dev Function get the account max Trade size rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of account
-     * @return AccountMaxBuySize rule at index position
+     * @return AccountMaxTradeSize rule at index position
      */
     function getAccountMaxTradeSize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxTradeSize memory) {
         RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
