@@ -8,8 +8,12 @@ import "test/protocol/economic/RuleProcessorDiamondCommonTests.sol";
 contract RuleProcessorDiamondTest is Test, TestCommonFoundry, RuleCreation, RuleProcessorDiamondCommonTests {
 
     function setUp() public {
-        setUpProcotolAndCreateERC20AndDiamondHandler();
-        testDeployments = true;
-        vm.warp(Blocktime);
+        if (vm.envAddress("DEPLOYMENT_OWNER") == address(0x0)) {
+            setUpProcotolAndCreateERC20AndDiamondHandler();
+            testDeployments = true;
+            vm.warp(Blocktime);
+        } else {
+            testDeployments = false;
+        }
     }
 }

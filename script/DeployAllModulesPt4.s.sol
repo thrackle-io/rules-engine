@@ -20,8 +20,8 @@ contract DeployAllModulesPt4Script is Script, EnabledActionPerRuleArray {
      * @dev This is the main function that gets called by the Makefile or CLI
      */
     function run() external {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
         setEnabledActionsPerRule();
