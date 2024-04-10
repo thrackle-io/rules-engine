@@ -3,42 +3,32 @@
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1"
   },
-  "name": "@thrackle-io/rules-protocol-client",
-  "version": "1.1.0",
+  "name": "@thrackle-io/rules-protocol-client-test",
+  "version": "1.0.1",
   "description": "Set of contracts to easily start an application in rules protocol",
   "dependencies": {
     "@openzeppelin/contracts": "4.9.6",
     "@openzeppelin/contracts-upgradeable": "4.9.6"
   },
   "files": [
-    "src/application",
-    "src/interfaces",
-    "src/data",
-    "src/pricing",
-    "src/token",
-    "src/economic/IRuleProcessor.sol",
-    "src/economic/AppAdministratorOnly.sol",
-    "src/economic/AppAdministratorOrOwnerOnly.sol",
-    "src/economic/RuleAdministratorOnly.sol",
-    "src/economic/AppAdministratorOnlyU.sol",
-    "src/economic/ruleStorage/RuleCodeData.sol",
-    "src/protocol/economic/ruleProcessor/ActionEnum.sol",
-    "unpack.sh",
+    "lib/diamond-std",
+    "src/client",
+    "src/common",
+    "src/protocol/economic/IRuleProcessor.sol",
+    "src/protocol/economic/AppAdministratorOnly.sol",
+    "src/protocol/economic/AppAdministratorOrOwnerOnly.sol",
+    "src/protocol/economic/RuleAdministratorOnly.sol",
+    "src/protocol/economic/AppAdministratorOnlyU.sol",
+    "src/protocol/economic/ruleProcessor/RuleCodeData.sol",
     "to_relative.sh"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "chmod +x unpack.sh to_relative.sh & ./to_relative.sh",
-    "postinstall": "./unpack.sh"
+    "install": "chmod +x to_relative.sh & ./to_relative.sh"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/thrackle-io/rules-protocol.git"
-  },
+  "repository": {},
   "author": "Thrackle",
-  "license": "TBD",
-  "bugs": {
-    "url": "https://github.com/thrackle-io/rules-protocol/issues"
-  },
-  "homepage": "https://github.com/thrackle-io/rules-protocol#readme"
+  "license": "UNLICENSED",
+  "bugs": {},
+  "homepage": ""
 }
