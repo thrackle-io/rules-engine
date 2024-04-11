@@ -25,12 +25,7 @@ struct TokenMinTxSizeS{
 Finally we'll want to add a function to retrieve the storage for our rule to StorageLib.sol. For our example we would add the following function:
 
 ```c
-    function tokenMinTxSizeStorage() internal pure returns (TokenMinTxSizeS storage ds) {
-        bytes32 position = TOKEN_MIN_TX_SIZE_HANDLER_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
+    function tokenMinTxSizeStorage() internal pure returns (TokenMinTxSizeS storage ds);
 ```
 
 ### Facet Updates
@@ -40,52 +35,25 @@ The next step is to create the contract responsible for managing the rule. In `s
 The following function uses the ruleId we received when we created the instance of the rule to set the instance in the diamond and activate it for the list of passed in actions:
 
 ```c
-    function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_action), _ruleId);
-        for (uint i; i < _actions.length; ) {
-            data.tokenMinTxSize[_actions[i]].ruleId = _ruleId;
-            data.tokenMinTxSize[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-            }
-        }
-    }
+    function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
 ```
 
 The following function is used to activate/deactivate the instance of the rule that's already set in the diamond for the list of passed in actions:
 
 ```c
-    function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        for (uint i; i < _actions.length; ) {
-            lib.tokenMinTxSizeStorage().tokenMinTxSize[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions[i]);
-            }
-            unchecked {
-                ++i;
-            }
-        }
-    }
+    function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
 ```
 
 The following function is used to retrieve the rule id for the Minimum Transaction Size Rule currently set on the diamond (for the specified action):
 
 ```c
-    function getTokenMinTxSizeId(ActionTypes _action) external view returns (uint32) {
-        return lib.tokenMinTxSizeStorage().tokenMinTxSize[_action].ruleId;
-    }
+    function getTokenMinTxSizeId(ActionTypes _action) external view returns (uint32);
 ```
 
 The following function is used to check whether the rule is currently active for the given action:
 
 ```c 
-    function isTokenMinTxSizeActive(ActionTypes _action) external view returns (bool) {
-        return lib.tokenMinTxSizeStorage().tokenMinTxSize[_action].active;
-    }
+    function isTokenMinTxSizeActive(ActionTypes _action) external view returns (bool);
 ```
 
 The next step is to update the appropriate Rule Facet to include a check for our new rule. For our example we'll be updating the [ERC20NonTaggedRuleFacet](../../../../../src/client/token/handler/ERC20NonTaggedRuleFacet.sol). 

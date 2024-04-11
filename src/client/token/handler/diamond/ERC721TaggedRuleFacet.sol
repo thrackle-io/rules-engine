@@ -51,12 +51,16 @@ contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
         }
 
         if (accountMinMaxTokenBalance[action].active) {
+            /// The action type determines if the _to or _from is checked by the rule
+            /// _to address and their tags are checked for Buy and Mint action types. Check only the Max Token Balance. 
             if (action == ActionTypes.BUY || action == ActionTypes.MINT) {
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[action].ruleId);
             }
+            /// _from address and their tags are checked for Sell and Burn action types. Check only the Min Token Balance.
             if (action == ActionTypes.SELL || action == ActionTypes.BURN) {
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
             } else {
+                /// check both _from and _to addresses and their tags for transfer action types. Check both Min and Max Token Balance
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
             }
         }

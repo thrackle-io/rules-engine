@@ -261,6 +261,11 @@ contract RuleApplicationValidationFacet is ERC173 {
         return data.accountMaxValueOutByAccessLevelIndex;
     }
 
+    /**
+     * @dev Function to check if the action type is enabled for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be checked if type is enabled 
+     */
     function areActionsEnabledInRule(bytes32 _rule, ActionTypes[] memory _actions) public view returns (bool allEnabled) {
         allEnabled = true;
         RuleS.EnabledActions storage data = Storage.enabledActions();
@@ -272,11 +277,21 @@ contract RuleApplicationValidationFacet is ERC173 {
         }
     }
 
+    /**
+     * @dev Function to enable the action type for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be enabled 
+     */
     function enabledActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner {
         RuleS.EnabledActions storage data = Storage.enabledActions();
         for (uint i; i < _actions.length; ++i) data.isActionEnabled[_rule][_actions[i]] = true;
     }
 
+    /**
+     * @dev Function to disable the action type for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be disable 
+     */
     function disableActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner {
         RuleS.EnabledActions storage data = Storage.enabledActions();
         for (uint i; i < _actions.length; ++i) data.isActionEnabled[_rule][_actions[i]] = false;

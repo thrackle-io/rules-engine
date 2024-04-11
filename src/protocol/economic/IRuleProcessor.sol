@@ -36,7 +36,7 @@ interface IRuleProcessor {
     function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) external view;
 
     /**
-     * @dev Check the AccountMaxTokenBalance hald of the AccountMinMaxTokenBalance rule. This rule ensures that the to account does not
+     * @dev Check the AccountMaxTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the to account does not
      * exceed the max balance.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param balanceTo Token balance of the recipient address

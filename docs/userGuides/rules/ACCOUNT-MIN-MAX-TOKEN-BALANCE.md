@@ -89,10 +89,10 @@ The rule will be evaluated with the following logic:
     - The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
 7. For mint and buy action types: 
     - The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
-    - NOTE: This means that minting and buying actions will never violate the minimum balance as it a transfer in and not out.
+    - NOTE: This means that minting and buying actions will never violate the minimum balance as it is a transfer in and not out.
 8. For burn and sell action types: 
     - The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts.
-    - - NOTE: This means that burning and selling actions will never violate the maximum balance as it a transfer out and not in.
+    - NOTE: This means that burning and selling actions will never violate the maximum balance as it is a transfer out and not in.
 9. Step 4-8 are repeated for each of the account's tags. 
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
