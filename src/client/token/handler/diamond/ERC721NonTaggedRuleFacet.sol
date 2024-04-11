@@ -39,7 +39,7 @@ contract ERC721NonTaggedRuleFacet is
         if (action == ActionTypes.BURN || action == ActionTypes.SELL){
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
         }
-        /// _to address is checked  for Mint, Buy, Transfer actions 
+        /// _to address is checked for Mint, Buy, Transfer actions 
         if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         }

@@ -55,7 +55,7 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
             } else if (action == ActionTypes.SELL || action == ActionTypes.BURN) {
                 /// _from address and their tags are checked for Sell and Burn action types. Check only the Min Token Balance.
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
-            } else (action == ActionTypes.P2P_TRANSFER) {
+            } else if (action == ActionTypes.P2P_TRANSFER) {
                 /// check both _from and _to addresses and their tags for transfer action types. Check both Min and Max Token Balance
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
             }

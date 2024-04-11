@@ -7,7 +7,7 @@ import "script/EnabledActionPerRuleArray.sol";
 
 /**
  * @title The Post Deployment Configuration Step For The Protocol
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55, @VoR0220
  * @notice This contract sets the enabled actions per rule
  */
 
