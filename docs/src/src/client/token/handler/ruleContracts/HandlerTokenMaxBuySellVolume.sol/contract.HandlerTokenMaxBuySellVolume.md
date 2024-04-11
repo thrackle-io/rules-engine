@@ -1,8 +1,8 @@
 # HandlerTokenMaxBuySellVolume
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol)
 
 **Inherits:**
-[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
+[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -39,7 +39,7 @@ function getTokenMaxBuySellVolumeId(ActionTypes _actions) external view returns 
 
 that setting a rule will automatically activate it.
 
-*Set the TokenMaxBuyVolume. Restricted to rule administrators only.*
+*Set the TokenMaxBuySellVolume. Restricted to rule administrators only.*
 
 
 ```solidity

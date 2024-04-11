@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -196,6 +196,16 @@ Fee Rules ****************
 struct AMMFeeRuleS {
     mapping(uint32 => IFeeRules.AMMFeeRule) ammFeeRules;
     uint32 ammFeeRuleIndex;
+}
+```
+
+### EnabledActions
+******** Storage of RuleApplicationValidationFacet ********
+
+
+```solidity
+struct EnabledActions {
+    mapping(bytes32 => mapping(ActionTypes => bool)) isActionEnabled;
 }
 ```
 

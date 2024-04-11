@@ -22,6 +22,8 @@
       - [IAppManagerUser](src/client/application/IAppManagerUser.sol/interface.IAppManagerUser.md)
       - [ProtocolApplicationHandler](src/client/application/ProtocolApplicationHandler.sol/contract.ProtocolApplicationHandler.md)
       - [ProtocolApplicationHandlerCommon](src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
+    - [❱ common](src/client/common/README.md)
+      - [ActionTypesArray](src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md)
     - [❱ pricing](src/client/pricing/README.md)
       - [ProtocolERC20Pricing](src/client/pricing/ProtocolERC20Pricing.sol/contract.ProtocolERC20Pricing.md)
       - [ProtocolERC721Pricing](src/client/pricing/ProtocolERC721Pricing.sol/contract.ProtocolERC721Pricing.md)

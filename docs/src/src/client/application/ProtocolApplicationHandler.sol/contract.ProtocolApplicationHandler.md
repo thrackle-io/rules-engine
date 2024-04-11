@@ -1,8 +1,8 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-[ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md)
+[ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -263,9 +263,34 @@ function _checkAccessLevelRules(
 |`_action`|`ActionTypes`|the current user action|
 
 
-### setNFTPricingAddress
+### _checkAccountMaxTxValueByRiskScoreFrom
 
 Exempting address(0) allows for burning.
+
+
+```solidity
+function _checkAccountMaxTxValueByRiskScoreFrom(
+    ActionTypes _action,
+    address _from,
+    uint8 _riskScoreFrom,
+    uint128 _transferValuation
+) internal;
+```
+
+### _checkAccountMaxTxValueByRiskScoreTo
+
+
+```solidity
+function _checkAccountMaxTxValueByRiskScoreTo(
+    ActionTypes _action,
+    address _to,
+    uint8 _riskScoreTo,
+    uint128 _transferValuation
+) internal;
+```
+
+### setNFTPricingAddress
+
 -------------- Pricing Module Configurations ---------------
 
 *Sets the address of the nft pricing contract and loads the contract.*

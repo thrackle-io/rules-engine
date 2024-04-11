@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -36,6 +36,48 @@ function checkAccountMinMaxTokenBalance(
 |`amount`|`uint256`|total number of tokens to be transferred|
 |`toTags`|`bytes32[]`|tags applied via App Manager to recipient address|
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
+
+
+### checkAccountMinTokenBalance
+
+*Check the AccountMinTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the from account does not
+exceed the min balance.*
+
+
+```solidity
+function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId)
+    external
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`balanceFrom`|`uint256`|Token balance of the sender address|
+|`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
+|`amount`|`uint256`|total number of tokens to be transferred|
+|`ruleId`|`uint32`|Uint value of the ruleId storage pointer for applicable rule.|
+
+
+### checkAccountMaxTokenBalance
+
+*Check the AccountMaxTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the to account does not
+exceed the max balance.*
+
+
+```solidity
+function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId)
+    external
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`balanceTo`|`uint256`|Token balance of the recipient address|
+|`toTags`|`bytes32[]`|tags applied via App Manager to recipient address|
+|`amount`|`uint256`|total number of tokens to be transferred|
+|`ruleId`|`uint32`|Uint value of the ruleId storage pointer for applicable rule.|
 
 
 ### checkTokenMinTxSize
@@ -508,6 +550,7 @@ function validateAMMFee(ActionTypes[] memory _actions, uint32 _ruleId) external 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -523,6 +566,7 @@ function validateTransactionLimitByRiskScore(ActionTypes[] memory _actions, uint
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -538,6 +582,7 @@ function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -553,6 +598,7 @@ function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _rule
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -568,6 +614,7 @@ function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -577,12 +624,13 @@ function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32
 
 
 ```solidity
-function validateAccountMaxTradeSize(uint32 _ruleId) external view;
+function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -598,6 +646,7 @@ function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _rul
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -613,6 +662,7 @@ function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) e
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -628,6 +678,7 @@ function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -637,12 +688,13 @@ function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 
 
 
 ```solidity
-function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
+function validateTokenMaxBuySellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -658,6 +710,7 @@ function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ru
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -673,6 +726,7 @@ function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -688,6 +742,7 @@ function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint3
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -703,6 +758,7 @@ function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uin
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -712,12 +768,13 @@ function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uin
 
 
 ```solidity
-function validatePause(ActionTypes[] memory _actions, uint32 _ruleId, address _dataServer) external view;
+function validatePause(uint8[] memory _actions, uint32 _ruleId, address _dataServer) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`uint8[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 |`_dataServer`|`address`|address of the appManager contract|
 
@@ -734,6 +791,7 @@ function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uin
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -749,6 +807,7 @@ function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 

@@ -1,5 +1,8 @@
 # RuleApplicationValidationFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
+
+**Inherits:**
+ERC173
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -22,6 +25,7 @@ function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -37,6 +41,7 @@ function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -67,6 +72,7 @@ function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _rule
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -85,9 +91,25 @@ function getTotalTokenMaxDailyTradesRules() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
+### validateAccountMaxTradeSize
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`||
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
 ### getTotalAccountMaxTradeSize
 
-*Function to get total account max Trade size rules*
+*Function to get total account max trade size rules*
 
 
 ```solidity
@@ -98,21 +120,6 @@ function getTotalAccountMaxTradeSize() internal view returns (uint32);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
-
-
-### validateAccountMaxTradeSize
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateAccountMaxTradeSize(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
 
 
 ### validateAdminMinTokenBalance
@@ -127,6 +134,7 @@ function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _rul
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -157,6 +165,7 @@ function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) e
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -187,6 +196,7 @@ function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -211,12 +221,13 @@ function getTotalAccountApproveDenyOracle() internal view returns (uint32);
 
 
 ```solidity
-function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
+function validateTokenMaxBuySellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -247,6 +258,7 @@ function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ru
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -277,6 +289,7 @@ function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -307,6 +320,7 @@ function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint3
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -337,6 +351,7 @@ function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uin
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -355,22 +370,6 @@ function getTotalAccountMaxTxValueByRiskScore() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validatePause
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validatePause(ActionTypes[] memory _actions, uint32 _ruleId, address _dataServer) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-|`_dataServer`|`address`|address of the appManager contract|
-
-
 ### validateAccountMaxValueByAccessLevel
 
 *Validate the existence of the rule*
@@ -383,6 +382,7 @@ function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uin
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -413,6 +413,7 @@ function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, 
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`||
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
@@ -429,5 +430,53 @@ function getTotalAccountMaxValueOutByAccessLevel() internal view returns (uint32
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|Total number of access level withdrawal rules|
+
+
+### areActionsEnabledInRule
+
+*Function to check if the action type is enabled for the rule*
+
+
+```solidity
+function areActionsEnabledInRule(bytes32 _rule, ActionTypes[] memory _actions) public view returns (bool allEnabled);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_rule`|`bytes32`|the bytes32 rule code pointer in storage|
+|`_actions`|`ActionTypes[]`|ActionTypes array to be checked if type is enabled|
+
+
+### enabledActionsInRule
+
+*Function to enable the action type for the rule*
+
+
+```solidity
+function enabledActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_rule`|`bytes32`|the bytes32 rule code pointer in storage|
+|`_actions`|`ActionTypes[]`|ActionTypes array to be enabled|
+
+
+### disableActionsInRule
+
+*Function to disable the action type for the rule*
+
+
+```solidity
+function disableActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_rule`|`bytes32`|the bytes32 rule code pointer in storage|
+|`_actions`|`ActionTypes[]`|ActionTypes array to be disable|
 
 

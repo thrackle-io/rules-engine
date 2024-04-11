@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/f0e9b435619e8bdc38f4e9105781dfc663d9f089/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -308,7 +308,7 @@ function getAccountMaxTradeSize(uint32 _index, bytes32 _accountType)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.AccountMaxTradeSize`|AccountMaxBuySize rule at index position|
+|`<none>`|`TaggedRules.AccountMaxTradeSize`|AccountMaxTradeSize rule at index position|
 
 
 ### getAccountMaxTradeSizeStart
