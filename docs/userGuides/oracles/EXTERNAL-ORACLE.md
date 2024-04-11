@@ -7,12 +7,12 @@ External oracles may be used in the protocol. They must conform to the [IOracle]
 
 ### Denial Oracle
 ```c
-    function isDenied(address _address) external view returns (bool);
+function isDenied(address _address) external view returns (bool);
 ```
 
 ### Approval Oracle
 ```c
-    function isApproved(address _address) external view returns (bool);
+function isApproved(address _address) external view returns (bool);
 ```
 
 NOTE: It is not necessary to implement the [IOracle](../../../src/common/IOracle.sol) interface in the external oracle. The correct function needs only to exist within it.

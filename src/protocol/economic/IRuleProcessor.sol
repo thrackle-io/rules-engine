@@ -10,6 +10,7 @@ pragma solidity ^0.8.24;
  */
 
 import {Rule} from "src/client/token/handler/common/DataStructures.sol";
+import "src/common/ActionEnum.sol";
 
 interface IRuleProcessor {
     /**
@@ -23,6 +24,27 @@ interface IRuleProcessor {
      * @param fromTags tags applied via App Manager to sender address
      */
     function checkAccountMinMaxTokenBalance(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] calldata toTags, bytes32[] calldata fromTags) external view;
+
+    /**
+     * @dev Check the AccountMinTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the from account does not
+     * exceed the min balance.
+     * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
+     * @param balanceFrom Token balance of the sender address
+     * @param amount total number of tokens to be transferred
+     * @param fromTags tags applied via App Manager to sender address
+     */
+    function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) external view;
+
+    /**
+     * @dev Check the AccountMaxTokenBalance half of the AccountMinMaxTokenBalance rule. This rule ensures that the to account does not
+     * exceed the max balance.
+     * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
+     * @param balanceTo Token balance of the recipient address
+     * @param amount total number of tokens to be transferred
+     * @param toTags tags applied via App Manager to recipient address
+     */
+    function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) external view;
+
 
     /**
      * @dev Check the TokenMinTxSize rule. This rule ensures accounts cannot transfer less than
@@ -66,8 +88,8 @@ interface IRuleProcessor {
      * @param toTags Account tags applied to sender via App Manager
      * @param lastTransactionTime block.timestamp of most recent transaction transaction from sender for action type.
      * @return cumulativeTotal total amount of tokens bought or sold within Trade period.
-     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
-     * tags and check for specific application. This was done in a minimal way to allow for  
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through
+     * tags and check for specific application. This was done in a minimal way to allow for
      * modifications later while not duplicating rule check logic.
      */
     function checkAccountMaxTradeSize(uint32 ruleId, uint256 transactedInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastTransactionTime) external view returns (uint256);
@@ -231,102 +253,102 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAMMFee(uint32 _ruleId) external view;
+    function validateAMMFee(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
+    function validateTransactionLimitByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
+    function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
+    function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
+    function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxTradeSize(uint32 _ruleId) external view;
+    function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAdminMinTokenBalance(uint32 _ruleId) external view;
+    function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMinTxSize(uint32 _ruleId) external view;
+    function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
+    function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
+    function validateTokenMaxBuySellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxTradingVolume(uint32 _ruleId) external view;
+    function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view;
+    function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
+    function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view;
+    function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      * @param _dataServer address of the appManager contract
      */
-    function validatePause(uint32 _ruleId, address _dataServer) external view;
+    function validatePause(uint8[] memory _actions, uint32 _ruleId, address _dataServer) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view;
+    function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view;
+    function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 }

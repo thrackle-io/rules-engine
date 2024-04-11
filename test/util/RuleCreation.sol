@@ -61,6 +61,11 @@ abstract contract RuleCreation is TestCommonFoundry {
         applicationHandler.activateAccountDenyForNoAccessLevelRule(createActionTypeArrayAll(), true);
     }
 
+    function createAccountDenyForNoAccessLevelRuleFull(ActionTypes[] memory actions) public endWithStopPrank {
+        switchToRuleAdmin();
+        applicationHandler.activateAccountDenyForNoAccessLevelRule(actions, true);
+    }
+
     function createAccountMaxTradeSizeRule(bytes32 tagForRule, uint240 maxSize, uint16 _period) public returns (uint32) {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array(tagForRule);
@@ -120,7 +125,6 @@ abstract contract RuleCreation is TestCommonFoundry {
         switchToRuleAdmin();
         uint48[] memory withdrawalLimits = createUint48Array(withdrawalLimits1, withdrawalLimits2, withdrawalLimits3, withdrawalLimits4, withdrawalLimits5);
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueOutByAccessLevel(address(applicationAppManager), withdrawalLimits);
-        applicationHandler.setAccountMaxValueOutByAccessLevelId(createActionTypeArrayAll(), ruleId);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueOutByAccessLevel(ruleId, 2);
         assertEq(balance, withdrawalLimits3);
         vm.stopPrank();

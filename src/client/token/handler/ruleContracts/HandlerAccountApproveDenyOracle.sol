@@ -13,7 +13,7 @@ uint8 constant MAX_ORACLE_RULES = 10;
  * facet to easily support the rule.
  */
 
-contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
 
     /**
@@ -23,7 +23,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      * @param _ruleId Rule Id to set
      */
     function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
@@ -41,6 +41,8 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
@@ -64,7 +66,6 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      */
     // slither-disable-next-line calls-loop
     function setAccountApproveDenyOracleIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(_ruleId);
         AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
         if (data.accountApproveDenyOracle[_action].length >= MAX_ORACLE_RULES) {
             revert AccountApproveDenyOraclesPerAssetLimitReached();

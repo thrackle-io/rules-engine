@@ -14,7 +14,7 @@ import {IInputErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
+contract HandlerAdminMinTokenBalance is ActionTypesArray, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable, IInputErrors {
     /// Rule Setters and Getters
     /**
      * @dev Set the AdminMinTokenBalance. Restricted to rule administrators only.
@@ -23,7 +23,7 @@ contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppM
      * @param _ruleId Rule Id to set
      */
     function setAdminMinTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(_actions, _ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (isAdminMinTokenBalanceActiveForAnyAction()) {
             if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
@@ -46,6 +46,8 @@ contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppM
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAdminMinTokenBalance();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAdminMinTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(ADMIN_MIN_TOKEN_BALANCE, _actions, _ruleIds);
@@ -69,7 +71,7 @@ contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppM
      */
     // slither-disable-next-line calls-loop
     function setAdminMinTokenBalanceIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(createActionTypesArray(_action), _ruleId);
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();
         data.adminMinTokenBalance[_action].ruleId = _ruleId;
         data.adminMinTokenBalance[_action].active = true;

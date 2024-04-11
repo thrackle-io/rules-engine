@@ -84,9 +84,16 @@ The rule will be evaluated with the following logic:
 3. The processor receives these tags along with the ID of the account-min-max-token-balance rule set in the token handler. 
 4. The processor tries to retrieve the sub-rule associated with each tag.
 5. The processor evaluates whether each sub-rule's period is still active (if the current time is within `period` from the `starting timestamp`). If not, processing of the rule for the selected tag does not proceed.
-6. The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts.
-7. The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
-8. Step 4-7 are repeated for each of the account's tags. 
+6. For transfer action types: 
+    - The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts. 
+    - The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
+7. For mint and buy action types: 
+    - The processor evaluates if the final balance of the receiver account would be greater than the `max` in the case of the transaction succeeding. If yes, the transaction reverts.
+    - NOTE: This means that minting and buying actions will never violate the minimum balance as it is a transfer in and not out.
+8. For burn and sell action types: 
+    - The processor evaluates if the final balance of the sender account would be less than the`min` in the case of the transaction succeeding. If yes, the transaction reverts.
+    - NOTE: This means that burning and selling actions will never violate the maximum balance as it is a transfer out and not in.
+9. Step 4-8 are repeated for each of the account's tags. 
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

@@ -11,7 +11,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
 
     /**
@@ -21,7 +21,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      * @param _ruleId Rule Id to set
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMinTxSizeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
@@ -39,6 +39,8 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMinTxSize();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMinTxSizeIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MIN_TX_SIZE, _actions, _ruleIds);
@@ -62,7 +64,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      */
     // slither-disable-next-line calls-loop
     function setTokenMinTxSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_action), _ruleId);
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
         data.tokenMinTxSize[_action].ruleId = _ruleId;
         data.tokenMinTxSize[_action].active = true;

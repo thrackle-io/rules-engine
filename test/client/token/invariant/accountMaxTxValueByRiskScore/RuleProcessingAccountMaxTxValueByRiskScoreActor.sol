@@ -12,9 +12,11 @@ import "test/util/TestCommonFoundry.sol";
  */
 contract RuleProcessingAccountMaxTxValueByRiskScoreActor is TestCommonFoundry, RuleProcessingInvariantActorCommon {
     uint256 public totalTransactedInPeriod;
+    address public recipient;
 
-    constructor(RuleProcessorDiamond _processor) {
+    constructor(RuleProcessorDiamond _processor, address _recipient) {
         processor = _processor;
+        recipient = _recipient;
         testStartsAtTime = block.timestamp;
     }
 
@@ -22,7 +24,7 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreActor is TestCommonFoundry, R
      * @dev test the rule
      */
     function checkAccountMaxTxValueByRiskScore(uint256 _amount, address _token) public {
-        IERC20(_token).transfer(address(0xABBA), _amount);
+        IERC20(_token).transfer(recipient, _amount);
         totalTransactedInPeriod += _amount;
     }
 }

@@ -23,8 +23,15 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
 
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active)
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
-
-        IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        /// The action type determines if the _to or _from is checked by the oracle
+        /// _from address is checked for Burn and Sell action types
+        if (action == ActionTypes.BURN || action == ActionTypes.SELL){
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+        } 
+        /// _to address is checked  for Mint, Buy, Transfer actions 
+        if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        }  
 
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();

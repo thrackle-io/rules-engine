@@ -56,11 +56,9 @@ contract RuleProcessingTokenMaxSupplyVolatilityMultiTest is RuleProcessingInvari
             actors.push(tempActors);
             RuleProcessingTokenMaxSupplyVolatilityActorManager actorManager = new RuleProcessingTokenMaxSupplyVolatilityActorManager(tempActors, address(testCoin));
             switchToRuleAdmin();
-            ActionTypes[] memory actions = new ActionTypes[](4);
+            ActionTypes[] memory actions = new ActionTypes[](2);
             actions[0] = ActionTypes.BURN;
             actions[1] = ActionTypes.MINT;
-            actions[2] = ActionTypes.BUY;
-            actions[3] = ActionTypes.SELL;
             HandlerTokenMaxSupplyVolatility(address(testCoinHandler)).setTokenMaxSupplyVolatilityId(actions, j % 2 == 0 ? index0 : index1);
             targetContract(address(actorManager));
             actorManagers.push(actorManager);

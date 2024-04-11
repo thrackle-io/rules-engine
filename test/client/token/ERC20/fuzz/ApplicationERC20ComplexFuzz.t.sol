@@ -24,7 +24,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(_user3);
         oracleDenied.addToDeniedList(badBoys);
@@ -44,7 +44,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         switchToRuleAdmin();
         ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         // add an approved address
         goodBoys.push(_user4);
         oracleApproved.addToApprovedList(goodBoys);

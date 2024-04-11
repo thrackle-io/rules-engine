@@ -9,5 +9,6 @@ import "../../../../protocol/economic/IRuleProcessor.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "../diamond/RuleStorage.sol";
+import "src/client/common/ActionTypesArray.sol";
 
-abstract contract HandlerRuleContractsCommonImports{}
+abstract contract HandlerRuleContractsCommonImports {}

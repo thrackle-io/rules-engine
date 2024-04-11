@@ -26,12 +26,7 @@ Next we'll want to define the storage structure for our rule. For our example we
 Finally we'll want to add a function to retrieve the storage for our rule to RuleStoragePositionLib.sol. For our example we would add the following function:
 
 ```c
-    function tokenMinTxSizePosition() internal pure returns (IRuleStorage.TokenMinTxSizeS storage ds) {
-        bytes32 position = TOKEN_MIN_TX_SIZE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
+    function tokenMinTxSizePosition() internal pure returns (IRuleStorage.TokenMinTxSizeS storage ds);
 ```
 
 ### Facet Updates
@@ -39,17 +34,7 @@ Finally we'll want to add a function to retrieve the storage for our rule to Rul
 The next step is to update the [RuleDataFacet](../../../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol) contract to include a function that can be used to create an instance of our new rule and register it with the diamond. For our example we would add the following function:
 
 ```c
-    function addTokenMinTxSize(address _appManagerAddr, uint256 _minSize) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_minSize == 0) revert ZeroValueNotPermited();
-        RuleS.TokenMinTxSizeS storage data = Storage.tokenMinTxSizePosition();
-        NonTaggedRules.TokenMinTxSize memory rule = NonTaggedRules.TokenMinTxSize(_minSize);
-        uint32 ruleId = data.tokenMinTxSizeIndex;
-        data.tokenMinTxSizeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MIN_TX_SIZE, ruleId, new bytes32[](0));
-        ++data.tokenMinTxSizeIndex;
-        return ruleId;
-    }
+    function addTokenMinTxSize(address _appManagerAddr, uint256 _minSize) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
 ### Upgrading Existing Diamonds

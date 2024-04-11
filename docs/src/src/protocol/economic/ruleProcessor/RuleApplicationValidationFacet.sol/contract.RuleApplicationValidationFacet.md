@@ -16,7 +16,7 @@ Check that a rule in fact exists.
 
 
 ```solidity
-function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -31,7 +31,7 @@ function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
 
 
 ```solidity
-function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -61,7 +61,7 @@ function getTotalAccountMinMaxTokenBalance() internal view returns (uint32);
 
 
 ```solidity
-function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
+function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -121,7 +121,7 @@ function validateAccountMaxTradeSize(uint32 _ruleId) external view;
 
 
 ```solidity
-function validateAdminMinTokenBalance(uint32 _ruleId) external view;
+function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -151,7 +151,7 @@ function getTotalAdminMinTokenBalance() internal view returns (uint32);
 
 
 ```solidity
-function validateTokenMinTxSize(uint32 _ruleId) external view;
+function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -181,7 +181,7 @@ function getTotalTokenMinTxSize() internal view returns (uint32);
 
 
 ```solidity
-function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
+function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -241,7 +241,7 @@ function getTotalTokenMaxBuySellVolume() internal view returns (uint32);
 
 
 ```solidity
-function validateTokenMaxTradingVolume(uint32 _ruleId) external view;
+function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -271,7 +271,7 @@ function getTotalTokenMaxTradingVolume() internal view returns (uint32);
 
 
 ```solidity
-function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view;
+function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -301,7 +301,7 @@ function getTotalTokenMaxSupplyVolatility() internal view returns (uint32);
 
 
 ```solidity
-function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
+function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -331,7 +331,7 @@ function getTotalAccountMaxValueByRiskScore() internal view returns (uint32);
 
 
 ```solidity
-function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view;
+function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -361,7 +361,7 @@ function getTotalAccountMaxTxValueByRiskScore() internal view returns (uint32);
 
 
 ```solidity
-function validatePause(uint32 _ruleId, address _dataServer) external view;
+function validatePause(ActionTypes[] memory _actions, uint32 _ruleId, address _dataServer) external view;
 ```
 **Parameters**
 
@@ -377,7 +377,7 @@ function validatePause(uint32 _ruleId, address _dataServer) external view;
 
 
 ```solidity
-function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view;
+function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -407,7 +407,7 @@ function getTotalAccountMaxValueByAccessLevel() internal view returns (uint32);
 
 
 ```solidity
-function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view;
+function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 

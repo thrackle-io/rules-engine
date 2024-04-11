@@ -9,31 +9,31 @@ import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "./RuleDataFacet.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 
-
 /**
  * @title Rule Application Validation Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Facet in charge of the logic to check rule existence
  * @notice Check that a rule in fact exists.
  */
-contract RuleApplicationValidationFacet {
+contract RuleApplicationValidationFacet is ERC173 {
     using RuleProcessorCommonLib for uint32;
-
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view {
+    function validateAccountMinMaxTokenBalanceERC721(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
+        require(areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view {
+    function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
+        require(areActionsEnabledInRule(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -49,9 +49,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxDailyTrades(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
+    function validateTokenMaxDailyTrades(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxDailyTradesRules());
+        require(areActionsEnabledInRule(TOKEN_MAX_DAILY_TRADES, _actions), "Action Validation Failed");
     }
 
     /**
@@ -62,9 +62,18 @@ contract RuleApplicationValidationFacet {
         RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
         return data.tokenMaxDailyTradesIndex;
     }
-    
+
     /**
-     * @dev Function to get total account max Trade size rules
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view {
+        _ruleId.checkRuleExistence(getTotalAccountMaxTradeSize());
+        require(areActionsEnabledInRule(ACCOUNT_MAX_TRADE_SIZE, _actions), "Action Validation Failed");
+    }
+
+    /**
+     * @dev Function to get total account max trade size rules
      * @return Total length of array
      */
     function getTotalAccountMaxTradeSize() internal view returns (uint32) {
@@ -76,17 +85,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxTradeSize(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getTotalAccountMaxTradeSize());
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAdminMinTokenBalance(uint32 _ruleId) external view {
+    function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAdminMinTokenBalance());
+        require(areActionsEnabledInRule(ADMIN_MIN_TOKEN_BALANCE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -102,8 +103,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMinTxSize(uint32 _ruleId) external view {
+    function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMinTxSize());
+        require(areActionsEnabledInRule(TOKEN_MIN_TX_SIZE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -119,8 +121,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountApproveDenyOracle(uint32 _ruleId) external view {
+    function validateAccountApproveDenyOracle(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountApproveDenyOracle());
+        require(areActionsEnabledInRule(ACCOUNT_APPROVE_DENY_ORACLE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -136,8 +139,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxBuySellVolume(uint32 _ruleId) external view {
+    function validateTokenMaxBuySellVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxBuySellVolume());
+        require(areActionsEnabledInRule(TOKEN_MAX_BUY_SELL_VOLUME, _actions), "Action Validation Failed");
     }
 
     /**
@@ -153,8 +157,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxTradingVolume(uint32 _ruleId) external view {
+    function validateTokenMaxTradingVolume(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxTradingVolume());
+        require(areActionsEnabledInRule(TOKEN_MAX_TRADING_VOLUME, _actions), "Action Validation Failed");
     }
 
     /**
@@ -170,9 +175,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
+    function validateTokenMaxSupplyVolatility(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMaxSupplyVolatility());
+        require(areActionsEnabledInRule(TOKEN_MAX_SUPPLY_VOLATILITY, _actions), "Action Validation Failed");
     }
 
     /**
@@ -188,8 +193,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view {
+    function validateAccountMaxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_BY_RISK_SCORE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -205,8 +211,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view {
+    function validateAccountMaxTxValueByRiskScore(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxTxValueByRiskScore());
+        require(areActionsEnabledInRule(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions), "Action Validation Failed");
     }
 
     /**
@@ -221,19 +228,10 @@ contract RuleApplicationValidationFacet {
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
-     * @param _dataServer address of the appManager contract
      */
-    function validatePause(uint32 _ruleId, address _dataServer) external view {
-        PauseRule[] memory pauseRules = IAppManager(_dataServer).getPauseRules();
-        _ruleId.checkRuleExistence(uint32(pauseRules.length));
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view {
+    function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByAccessLevel());
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions), "Action Validation Failed");
     }
 
     /**
@@ -249,8 +247,9 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view {
+    function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueOutByAccessLevel());
+        require(areActionsEnabledInRule(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions), "Action Validation Failed");
     }
 
     /**
@@ -260,5 +259,41 @@ contract RuleApplicationValidationFacet {
     function getTotalAccountMaxValueOutByAccessLevel() internal view returns (uint32) {
         RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
         return data.accountMaxValueOutByAccessLevelIndex;
+    }
+
+    /**
+     * @dev Function to check if the action type is enabled for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be checked if type is enabled 
+     */
+    function areActionsEnabledInRule(bytes32 _rule, ActionTypes[] memory _actions) public view returns (bool allEnabled) {
+        allEnabled = true;
+        RuleS.EnabledActions storage data = Storage.enabledActions();
+        for (uint i; i < _actions.length; ++i) {
+            if (!data.isActionEnabled[_rule][_actions[i]]) {
+                allEnabled = false;
+                break;
+            }
+        }
+    }
+
+    /**
+     * @dev Function to enable the action type for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be enabled 
+     */
+    function enabledActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner {
+        RuleS.EnabledActions storage data = Storage.enabledActions();
+        for (uint i; i < _actions.length; ++i) data.isActionEnabled[_rule][_actions[i]] = true;
+    }
+
+    /**
+     * @dev Function to disable the action type for the rule 
+     * @param _rule the bytes32 rule code pointer in storage 
+     * @param _actions ActionTypes array to be disable 
+     */
+    function disableActionsInRule(bytes32 _rule, ActionTypes[] memory _actions) external onlyOwner {
+        RuleS.EnabledActions storage data = Storage.enabledActions();
+        for (uint i; i < _actions.length; ++i) data.isActionEnabled[_rule][_actions[i]] = false;
     }
 }

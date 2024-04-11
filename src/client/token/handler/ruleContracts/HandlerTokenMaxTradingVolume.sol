@@ -11,7 +11,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     /// Rule Setters and Getters
     /**
      * @dev Retrieve the token max trading volume rule id
@@ -29,7 +29,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
      * @param _ruleId Rule Id to set
      */
     function setTokenMaxTradingVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxTradingVolumeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);
@@ -47,6 +47,8 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxTradingVolume();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxTradingVolumeIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);
@@ -70,7 +72,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
      */
     // slither-disable-next-line calls-loop
     function setTokenMaxTradingVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(createActionTypesArray(_action), _ruleId);
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
         data.tokenMaxTradingVolume[_action].ruleId = _ruleId;
         data.tokenMaxTradingVolume[_action].active = true;

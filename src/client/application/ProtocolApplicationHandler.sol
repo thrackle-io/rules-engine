@@ -15,6 +15,8 @@ import "src/client/token/ITokenInterface.sol";
 import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IAppHandlerErrors} from "src/common/IErrors.sol";
 import "src/client/application/ProtocolApplicationHandlerCommon.sol";
+// import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
+import "src/client/common/ActionTypesArray.sol";
 
 /**
  * @title Protocol Application Handler Contract
@@ -23,13 +25,15 @@ import "src/client/application/ProtocolApplicationHandlerCommon.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is
-    ProtocolApplicationHandlerCommon,
+    ActionTypesArray,
     Ownable,
     RuleAdministratorOnly,
     IApplicationHandlerEvents,
     ICommonApplicationHandlerEvents,
+    IInputErrors,
     IZeroAddressError,
-    IAppHandlerErrors
+    IAppHandlerErrors,
+    ProtocolApplicationHandlerCommon
 {
     string private constant VERSION = "1.1.0";
     AppManager immutable appManager;
@@ -145,23 +149,15 @@ contract ProtocolApplicationHandler is
             ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
         if (accountMaxTxValueByRiskScore[_action].active) {
-            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-                accountMaxTxValueByRiskScore[_action].ruleId,
-                usdValueTransactedInRiskPeriod[_from],
-                _transferValuation,
-                lastTxDateRiskRule[_from],
-                riskScoreFrom
-            );
-            if (_to != address(0)) {
-                lastTxDateRiskRule[_from] = uint64(block.timestamp);
-                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-                    accountMaxTxValueByRiskScore[_action].ruleId,
-                    usdValueTransactedInRiskPeriod[_to],
-                    _transferValuation,
-                    lastTxDateRiskRule[_to],
-                    riskScoreTo
-                );
-                lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            if (_action == ActionTypes.P2P_TRANSFER) {
+                _checkAccountMaxTxValueByRiskScoreFrom(_action, _from, riskScoreFrom, _transferValuation);
+                _checkAccountMaxTxValueByRiskScoreTo(_action, _to, riskScoreTo, _transferValuation);
+            }
+            if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) {
+                _checkAccountMaxTxValueByRiskScoreTo(_action, _to, riskScoreTo, _transferValuation); 
+            }
+            if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) {
+                _checkAccountMaxTxValueByRiskScoreFrom(_action, _from, riskScoreFrom, _transferValuation); 
             }
         }
     }
@@ -176,12 +172,13 @@ contract ProtocolApplicationHandler is
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+        // Exempting address(0) allows for minting.
+        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)  && _from != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         /// Exempting address(0) allows for burning.
         if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
-        if (accountMaxValueOutByAccessLevel[_action].active) {
+        if (accountMaxValueOutByAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
                 accountMaxValueOutByAccessLevel[_action].ruleId,
                 fromScore,
@@ -190,6 +187,29 @@ contract ProtocolApplicationHandler is
             );
         }
     }
+
+    function _checkAccountMaxTxValueByRiskScoreFrom(ActionTypes _action, address _from, uint8 _riskScoreFrom, uint128 _transferValuation) internal {
+        usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                accountMaxTxValueByRiskScore[_action].ruleId,
+                usdValueTransactedInRiskPeriod[_from],
+                _transferValuation,
+                lastTxDateRiskRule[_from],
+                _riskScoreFrom
+            );
+            lastTxDateRiskRule[_from] = uint64(block.timestamp);
+    }
+
+    function _checkAccountMaxTxValueByRiskScoreTo(ActionTypes _action, address _to, uint8 _riskScoreTo, uint128 _transferValuation) internal {
+        usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+            accountMaxTxValueByRiskScore[_action].ruleId,
+            usdValueTransactedInRiskPeriod[_to],
+            _transferValuation,
+            lastTxDateRiskRule[_to],
+            _riskScoreTo
+        );
+        lastTxDateRiskRule[_to] = uint64(block.timestamp);
+    }
+
 
     /// -------------- Pricing Module Configurations ---------------
     /**
@@ -310,6 +330,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByRiskScore(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
@@ -326,6 +347,8 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            ruleProcessor.validateAccountMaxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
@@ -348,9 +371,10 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(_ruleId);
+        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(createActionTypesArray(_action), _ruleId);
         accountMaxValueByRiskScore[_action].ruleId = _ruleId;
         accountMaxValueByRiskScore[_action].active = true;
+        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_RISK_SCORE, _ruleId);
     }
 
     /**
@@ -393,6 +417,7 @@ contract ProtocolApplicationHandler is
      * @param _actions action types in which to apply the rules
      */
     function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByAccessLevel(_actions, 0);
         for (uint i; i < _actions.length; ++i) {
             setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);
             emit AD1467_ApplicationRuleApplied(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions[i], 0);
@@ -463,6 +488,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByAccessLevel(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions[i], _ruleId);
@@ -479,6 +505,8 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            ruleProcessor.validateAccountMaxValueByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
@@ -501,7 +529,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueByAccessLevel(_ruleId);
         accountMaxValueByAccessLevel[_action].ruleId = _ruleId;
         accountMaxValueByAccessLevel[_action].active = true;
     }
@@ -547,6 +574,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions[i], _ruleId);
@@ -563,6 +591,8 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueOutByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions, _ruleIds);
@@ -585,7 +615,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValueOutByAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueOutByAccessLevel(_ruleId);
         accountMaxValueOutByAccessLevel[_action].ruleId = _ruleId;
         accountMaxValueOutByAccessLevel[_action].active = true;
     }
@@ -631,6 +660,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxTxValueByRiskScore(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
@@ -647,6 +677,8 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxTxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
+            ruleProcessor.validateAccountMaxTxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
@@ -669,7 +701,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxTxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxTxValueByRiskScore(_ruleId);
         accountMaxTxValueByRiskScore[_action].ruleId = _ruleId;
         accountMaxTxValueByRiskScore[_action].active = true;
     }

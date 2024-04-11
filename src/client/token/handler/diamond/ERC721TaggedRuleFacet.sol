@@ -49,8 +49,21 @@ contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
             toTags = new bytes32[](0);
             fromTags = new bytes32[](0);
         }
-        if (accountMinMaxTokenBalance[action].active) 
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+
+        if (accountMinMaxTokenBalance[action].active) {
+            /// The action type determines if the _to or _from is checked by the rule
+            /// _to address and their tags are checked for Buy and Mint action types. Check only the Max Token Balance. 
+            if (action == ActionTypes.BUY || action == ActionTypes.MINT) {
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[action].ruleId);
+            }else if (action == ActionTypes.SELL || action == ActionTypes.BURN) {
+                /// _from address and their tags are checked for Sell and Burn action types. Check only the Min Token Balance.
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
+            } else if (action == ActionTypes.P2P_TRANSFER || action == ActionTypes.BURN) {
+                /// check both _from and _to addresses and their tags for transfer action types. Check both Min and Max Token Balance
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            }
+        }
+        
         if(mustCheckBuyRules || mustCheckSellRules)
             callAnotherFacet(
                 0xd874686f, 

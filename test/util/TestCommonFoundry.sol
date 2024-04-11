@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "test/util/TestCommon.sol";
 import "test/util/EndWithStopPrank.sol";
+import "script/EnabledActionPerRuleArray.sol";
 
 /**
  * @title Test Common Foundry
@@ -12,7 +13,7 @@ import "test/util/EndWithStopPrank.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
+abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActionPerRuleArray {
     modifier ifDeploymentTestsEnabled() {
         if (testDeployments) {
             _;
@@ -40,9 +41,17 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         /// Build the diamond
         vm.expectEmit(false, false, false, false);
         emit AD1467_RuleProcessorDiamondDeployed();
-        RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
         // Deploy the diamond.
+        RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
+        /// setup enabled actions
+        _setEnabledActionsPerRule(address(ruleProcessorInternal));
         return ruleProcessorInternal;
+    }
+
+    function _setEnabledActionsPerRule(address ruleProcessorAddress) internal {
+        for (uint i; i < enabledActionPerRuleArray.length; ++i) {
+            RuleApplicationValidationFacet(ruleProcessorAddress).enabledActionsInRule(enabledActionPerRuleArray[i].ruleName, enabledActionPerRuleArray[i].enabledActions);
+        }
     }
 
     function _addNativeFacetsToFacetCut() public {
@@ -494,7 +503,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
         applicationAppManager.registerTreasury(feeTreasury);
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
     }
@@ -528,7 +537,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
@@ -598,7 +607,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
-        switchToSuperAdmin();
+        switchToAppAdministrator();
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();

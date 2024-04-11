@@ -5,7 +5,7 @@ import "test/util/TestCommonFoundry.sol";
 import "test/util/RuleCreation.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
 
-abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
+abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util {
     function testApplication_ApplicationCommonTests_IsSuperAdmin() public view ifDeploymentTestsEnabled {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);
@@ -600,153 +600,119 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));
     }
 
- /*********************** Atomic Rule Setting Tests ************************************/
+    /*********************** Atomic Rule Setting Tests ************************************/
     /* These tests ensure that the atomic setting/application of rules is functioning properly */
     /* AccountMaxValueByAccessLevel */
     function testApplication_ApplicationCommonTests_AccountMaxValueByAccessLevelAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](3);
         // Set up rule
         ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 300);
         ruleIds[1] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 400);
         ruleIds[2] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 500);
-        ruleIds[3] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 600);
-        ruleIds[4] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 700);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxValueByAccessLevelRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.BURN), ruleIds[4]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(actions[i]), ruleIds[i]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes(i)));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(actions[i]));
     }
 
     function testApplication_ApplicationCommonTests_AccountMaxValueByAccessLevelAtomicFullReSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](3);
         // Set up rule
         ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 300);
         ruleIds[1] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 400);
         ruleIds[2] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 500);
-        ruleIds[3] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 600);
-        ruleIds[4] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 700);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxValueByAccessLevelRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
         ruleIds = new uint32[](2);
         ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 800);
         ruleIds[1] = createAccountMaxValueByAccessLevelRule(0, 10, 50, 100, 900);
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY);
         // Apply the new set of rules
         setAccountMaxValueByAccessLevelRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.BUY), ruleIds[1]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(actions[i]), ruleIds[i]);
         // Verify that the old ones were cleared
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.P2P_TRANSFER), 0);
         assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.MINT), 0);
-        assertEq(applicationHandler.getAccountMaxValueByAccessLevelId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
-        assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.SELL));
-        assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.BUY));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(actions[i]));
         // Verify that the old rules are not activated
-        assertFalse(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.P2P_TRANSFER));
         assertFalse(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.MINT));
-        assertFalse(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.BURN));
     }
 
     /* AccountMaxValueByRiskScore */
     function testApplication_ApplicationCommonTests_AccountMaxValueByRiskScoreAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](3);
         uint8[] memory riskScores = createUint8Array(10, 25, 50, 75, 90);
         // Set up rule
         ruleIds[0] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
         ruleIds[1] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(20_000_000, 100_000, 1_000, 500, 10));
         ruleIds[2] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(30_000_000, 100_000, 1_000, 500, 10));
-        ruleIds[3] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(40_000_000, 100_000, 1_000, 500, 10));
-        ruleIds[4] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(50_000_000, 100_000, 1_000, 500, 10));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxValueByRiskRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BURN), ruleIds[4]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(actions[i]), ruleIds[i]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes(i)));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(actions[i]));
     }
 
     function testApplication_ApplicationCommonTests_AccountMaxValueByRiskScoreAtomicFullReSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](3);
         uint8[] memory riskScores = createUint8Array(10, 25, 50, 75, 90);
         // Set up rule
         ruleIds[0] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
         ruleIds[1] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(20_000_000, 100_000, 1_000, 500, 10));
         ruleIds[2] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(30_000_000, 100_000, 1_000, 500, 10));
-        ruleIds[3] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(40_000_000, 100_000, 1_000, 500, 10));
-        ruleIds[4] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(50_000_000, 100_000, 1_000, 500, 10));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxValueByRiskRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
         ruleIds = new uint32[](2);
         ruleIds[0] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(60_000_000, 100_000, 1_000, 500, 10));
         ruleIds[1] = createAccountMaxValueByRiskRule(riskScores, createUint48Array(70_000_000, 100_000, 1_000, 500, 10));
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY);
         // Apply the new set of rules
         setAccountMaxValueByRiskRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BUY), ruleIds[1]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(actions[i]), ruleIds[i]);
         // Verify that the old ones were cleared
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.P2P_TRANSFER), 0);
         assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.MINT), 0);
-        assertEq(applicationHandler.getAccountMaxValueByRiskScoreId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
-        assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.SELL));
-        assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.BUY));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueByRiskScoreActive(actions[i]));
         // Verify that the old rules are not activated
-        assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.P2P_TRANSFER));
         assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.MINT));
-        assertFalse(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.BURN));
     }
 
-/* AccountMaxTxValueByRiskScore */
+    /* AccountMaxTxValueByRiskScore */
     function testApplication_ApplicationCommonTests_AccountMaxTxValueByRiskScoreAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](4);
         // Set up rule
         ruleIds[0] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 99), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[1] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 98), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[2] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 97), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[3] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 96), createUint48Array(70, 50, 40, 30, 20));
-        ruleIds[4] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 95), createUint48Array(70, 50, 40, 30, 20));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxTxValueByRiskRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(ActionTypes.BURN), ruleIds[4]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxTxValueByRiskScoreId(actions[i]), ruleIds[i]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes(i)));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxTxValueByRiskScoreActive(actions[i]));
     }
 
     function testApplication_ApplicationCommonTests_AccountMaxTxValueByRiskScoreAtomicFullReSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](4);
         // Set up rule
         ruleIds[0] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 99), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[1] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 98), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[2] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 97), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[3] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 96), createUint48Array(70, 50, 40, 30, 20));
-        ruleIds[4] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 95), createUint48Array(70, 50, 40, 30, 20));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
         // Apply the rules to all actions
         setAccountMaxTxValueByRiskRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
@@ -772,60 +738,44 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
         assertFalse(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes.BURN));
     }
 
-    /* AccountMaxValueOutByAccessLevel */   
+    /* AccountMaxValueOutByAccessLevel */
     function testApplication_ApplicationCommonTests_AccountMaxValueOutByAccessLevelAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](2);
         // Set up rule
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 350);
-        ruleIds[2] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 450);
-        ruleIds[3] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 550);
-        ruleIds[4] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 650);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL);
         // Apply the rules to all actions
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.MINT), ruleIds[3]);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.BURN), ruleIds[4]);
+        for (uint i; i < actions.length; i++) assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(actions[i]), ruleIds[i]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes(i)));
+        for (uint i; i < actions.length; i++) assertTrue(applicationHandler.isAccountMaxValueOutByAccessLevelActive(actions[i]));
     }
 
     function testApplication_ApplicationCommonTests_AccountMaxValueOutByAccessLevelAtomicFullReSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
+        uint32[] memory ruleIds = new uint32[](2);
         // Set up rule
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 350);
-        ruleIds[2] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 450);
-        ruleIds[3] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 550);
-        ruleIds[4] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 650);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL);
+        console.log("here!");
         // Apply the rules to all actions
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](2);
+        ruleIds = new uint32[](1);
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 750);
-        ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 850);
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        actions = createActionTypeArray(ActionTypes.SELL);
         // Apply the new set of rules
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Verify that all the rule id's were set correctly
         assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.BUY), ruleIds[1]);
         // Verify that the old ones were cleared
         assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.MINT), 0);
-        assertEq(applicationHandler.getAccountMaxValueOutByAccessLevelId(ActionTypes.BURN), 0);
         // Verify that the new rules were activated
         assertTrue(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes.SELL));
-        assertTrue(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes.BUY));
         // Verify that the old rules are not activated
         assertFalse(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes.MINT));
-        assertFalse(applicationHandler.isAccountMaxValueOutByAccessLevelActive(ActionTypes.BURN));
     }
 
     /* AccountDenyForNoAccessLevel */
@@ -859,6 +809,4 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
         assertFalse(applicationHandler.isAccountDenyForNoAccessLevelActive(ActionTypes.MINT));
         assertFalse(applicationHandler.isAccountDenyForNoAccessLevelActive(ActionTypes.BURN));
     }
-
-
 }

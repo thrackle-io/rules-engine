@@ -16,8 +16,8 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
     RuleProcessingAccountMaxTxValueByRiskScoreActorManager[] actorManagers;
     RuleProcessingAccountMaxTxValueByRiskScoreActor[][] actors;
     HandlerDiamond[] appHandlers;
-    uint8 constant AMOUNT_ACTORS = 10;
-    uint8 constant AMOUNT_MANAGERS = 4;
+    uint8 constant AMOUNT_ACTORS = 8;
+    uint8 constant AMOUNT_MANAGERS = 1;//must only be one manager with no more than 8 addresses. TODO: increase actor capability
 
     function setUp() public {
         prepRuleProcessingInvariant();
@@ -37,12 +37,12 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
             RuleProcessingAccountMaxTxValueByRiskScoreActor[] memory tempActors = new RuleProcessingAccountMaxTxValueByRiskScoreActor[](AMOUNT_ACTORS);
             // Load actors
             for (uint i; i < AMOUNT_ACTORS; i++) {
-                RuleProcessingAccountMaxTxValueByRiskScoreActor actor = new RuleProcessingAccountMaxTxValueByRiskScoreActor(ruleProcessor);
+                RuleProcessingAccountMaxTxValueByRiskScoreActor actor = new RuleProcessingAccountMaxTxValueByRiskScoreActor(ruleProcessor, ADDRESSES[i]);
                 tempActors[i] = actor;
                 switchToAppAdministrator();
                 testCoin.mint(address(actor), 2_000 * ATTO);
                 switchToRiskAdmin();
-                applicationAppManager.addRiskScore(address(actor), uint8(i * 10));
+                applicationAppManager.addRiskScore(ADDRESSES[i], uint8(i * 10));
             }
             actors.push(tempActors);
             RuleProcessingAccountMaxTxValueByRiskScoreActorManager actorManager = new RuleProcessingAccountMaxTxValueByRiskScoreActorManager(tempActors, address(testCoin));
@@ -51,7 +51,7 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
             testCoinHandler;
         }
         switchToRuleAdmin();
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), index);
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL, ActionTypes.P2P_TRANSFER), index);
     }
 
     /**
@@ -62,10 +62,18 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
         for (uint j; j < actors.length; j++) {
             for (uint i; i < actors[j].length; i++) {
                 uint256 totalTransactedInPeriodWeis = actors[j][i].totalTransactedInPeriod();
-                if (i < 1) console.log("no limit", totalTransactedInPeriodWeis / (ATTO));
-                else if (i < 6) assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[0]);
-                else if (i < 8) assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[1]);
-                else assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[2]);
+                if (i < 1) {
+                    console.log("no limit", totalTransactedInPeriodWeis / (ATTO));
+                } else if (i < 6) {
+                    console.log("1st limit", totalTransactedInPeriodWeis / (ATTO));
+                    assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[0]);
+                } else if (i < 8) {
+                    console.log("2nd limit", totalTransactedInPeriodWeis / (ATTO));
+                    assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[1]);
+                } else {
+                    console.log("3rd limit", totalTransactedInPeriodWeis / (ATTO));
+                    assertLe(totalTransactedInPeriodWeis / (ATTO), accountMaxTxValueByRiskScoreA.maxValue[2]);
+                }
             }
         }
     }
