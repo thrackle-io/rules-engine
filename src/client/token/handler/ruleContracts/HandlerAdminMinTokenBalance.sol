@@ -46,6 +46,7 @@ contract HandlerAdminMinTokenBalance is ActionTypesArray, IAppManagerErrors, ITo
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAdminMinTokenBalance();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAdminMinTokenBalanceIdUpdate(_actions[i], _ruleIds[i]);
         }

@@ -46,6 +46,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxSupplyVolatility();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxSupplyVolatilityIdUpdate(_actions[i], _ruleIds[i]);
         }

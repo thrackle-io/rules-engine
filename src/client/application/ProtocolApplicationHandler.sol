@@ -347,6 +347,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             ruleProcessor.validateAccountMaxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
@@ -504,6 +505,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             ruleProcessor.validateAccountMaxValueByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
@@ -589,6 +591,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueOutByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
@@ -674,6 +677,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxTxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             ruleProcessor.validateAccountMaxTxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }

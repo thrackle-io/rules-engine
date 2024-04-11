@@ -39,6 +39,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMinTxSize();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMinTxSizeIdUpdate(_actions[i], _ruleIds[i]);
         }

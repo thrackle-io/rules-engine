@@ -41,6 +41,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ActionTypesAr
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
         }

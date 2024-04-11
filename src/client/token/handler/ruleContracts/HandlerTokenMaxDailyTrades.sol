@@ -39,6 +39,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMaxDailyTrades();
         for (uint i; i < _actions.length; ++i) {
+            // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setTokenMaxDailyTradesIdUpdate(_actions[i], _ruleIds[i]);
         }
