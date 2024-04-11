@@ -1,5 +1,7 @@
 # ApplicationProtocolHandler Invariants
 
+### Note: Not implemented yet
+
 - Upon creation of the contract the App Manager address passed in to the constructor will be the contracts owner.
 - If checkApplicationRules is called by an account that is not the registered AppManager the transaction will be reverted.
 

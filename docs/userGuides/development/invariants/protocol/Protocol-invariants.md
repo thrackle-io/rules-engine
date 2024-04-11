@@ -20,15 +20,15 @@ All invariants have links to their invariant test files unless specified otherwi
 
 ### [All Rules - Processing and Application](/test/client/token/invariant/)
 
-- Rules can be shared by multiple applications and/or assets.
 - Deactivating a rule in one token, AMM or Application does not affect its application in others.
-- Rules at the application level apply to all registered tokens.
+- Rules can be shared by multiple applications and/or assets. # note not implemented
+- Rules at the application level apply to all registered tokens. # note not implemented
   
 ## [Rule Invariants - With State Variables](/test/client/token/invariant/)
 
 ### [Account Max Value Out By Access Level](/test/client/token/invariant/accountMaxValueOutByAccessLevel/RuleProcessingAccountMaxValueOutByAccessLevelMulti.t.i.sol)
 
-- When this rule is applied, An account's cumulative total of funds withdrawn from the protocol in USD terms must not exceed the maximum for that account's access level defined in the Account-Max-Value-Out-By-Access-Level rule applied for the application counting from the activation of the rule. This is a lifetime cumulative total which can't be ever reset.
+- When this rule is applied, An account's cumulative total of funds withdrawn from the protocol in USD terms must not exceed the maximum for that account's access level defined in the Account-Max-Value-Out-By-Access-Level rule applied for the application counting from the activation of the rule. 
 
 ### [Account Max Transaction Value By Risk](/test/client/token/invariant/accountMaxTxValueByRiskScore/RuleProcessingAccountMaxTxValueByRiskScoreMulti.t.i.sol)
 
@@ -66,7 +66,7 @@ All invariants have links to their invariant test files unless specified otherwi
 
 - When this rule is applied, an NFT can never be transferred before the hold-time period has passed counting from the last trade date.
 
-## Rule Invariants - Withour Stat Variables
+## Rule Invariants - Without Stat Variables
 
 ### Balance By Access Level *
 

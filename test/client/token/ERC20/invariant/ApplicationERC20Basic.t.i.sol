@@ -40,7 +40,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(balance, applicationCoin.balanceOf((msgSender)));
     }
 
-    // Transfers to zero address should not be allowed
+    // transferFroms to zero address should not be allowed
     function invariant_ERC20external_transferFromToZeroAddress() public {
         if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
@@ -65,7 +65,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(balance_sender, applicationCoin.balanceOf(msg.sender));
     }
 
-    // Self transfers should not break accounting
+    // Self transferFroms should not break accounting
     function invariant_ERC20external_selfTransfer() public {
         if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
@@ -90,7 +90,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(applicationCoin.balanceOf(target), balance_receiver);
     }
 
-    // Transfers for more than available balance should not be allowed
+    // TransferFroms for more than available balance should not be allowed
     function invariant_ERC20external_transferMoreThanBalance() public {
         if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
@@ -116,7 +116,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(applicationCoin.balanceOf(target), balance_receiver);
     }
 
-    // Zero amount transfers should not break accounting
+    // Zero amount transferFroms should not break accounting
     function invariant_ERC20external_transferFromZeroAmount() public {
         if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
@@ -145,7 +145,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(applicationCoin.balanceOf(target), balance_receiver + transfer_value);
     }
 
-    // Transfers should update accounting correctly
+    // TransferFroms should update accounting correctly
     function invariant_ERC20external_transferFrom() public {
         if (!(target != address(this))) return;
         if (!(target != msg.sender)) return;
@@ -169,7 +169,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         assertEq(applicationCoin.allowance(address(this), target), amount);
     }
 
-    // Approve should set correct allowances
+    // Allowances should be updated correctly when approve is called twice.
     function invariant_ERC20external_setAllowanceTwice() public {
         if (applicationCoin.paused()) return;
         bool r = applicationCoin.approve(target, amount);

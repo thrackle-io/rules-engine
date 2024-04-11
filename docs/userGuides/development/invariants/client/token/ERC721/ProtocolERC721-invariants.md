@@ -1,5 +1,34 @@
 # ProtocolERC721 Invariants
 
+
+
+## [Base ERC721 Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721Base.t.i.sol)
+- Calling balanceOf for the zero address should revert.
+- Calling ownerOf for an invalid token should revert.
+- approve() should revert on invalid token.
+- transferFrom() should revert if caller is not approved.
+- transferFrom() should reset approvals.
+- transferFrom() should update the token owner.
+- transferFrom() should revert if from is the zero address.
+- transferFrom() should revert if to is the zero address.
+- transferFrom() to self should not break accounting.
+- transferFrom() to self should reset approvals.
+  
+
+## [Burnable ERC721 Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721MintBurn.t.i.sol)
+- The burn function should destroy tokens and reduce the total supply
+- A burned token should not be transferrable
+- approve() should revert if the token is burned
+- getApproved() should revert if the token is burned
+- ownerOf() should revert if the token has been burned.
+
+## [Mintable ERC721 Invariants]((../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721MintBurn.t.i.sol))
+- Mint increases the total supply
+- Mint creates a fresh applicationNFT
+
+
+# Not Implemented
+
 ## Protocol Related Invariants
 
 - Version will never be blank
@@ -18,30 +47,14 @@
 - When paused, transferFrom reverts with "Pausable: paused"
 - When paused, connectHandlerToToken still works
 
-## Base ERC721 Invariants
-- Calling balanceOf for the zero address should revert.
-- Calling ownerOf for an invalid token should revert.
-- approve() should revert on invalid token.
-- transferFrom() should revert if caller is not operator.
-- transferFrom() should reset approvals.
-- transferFrom() should update the token owner.
-- transferFrom() should revert if from is the zero address.
-- transferFrom() should revert if to is the zero address.
-- transferFrom() to self should not break accounting.
-- transferFrom() to self should reset approvals.
+## Base
 - safeTransferFrom() should revert if receiver is a contract that does not implement onERC721Received()
-  
 
-## Burnable ERC721 Invariants
-- User balance and total supply should be updated correctly when burn is called.
-- A token that has been burned cannot be transferred.
-- A token that has been burned cannot be transferred.
+## Minting
+- Minting tokens should update user's balance
+
+## Burning
 - A burned token should have its approvals reset.
-- getApproved() should revert if the token is burned.
-- ownerOf() should revert if the token has been burned.
-
-## Mintable ERC721 Invariants
-- User balance and total supply should be updated correctly after minting.
 
 ## ProtocolTokenCommon Invariants
 

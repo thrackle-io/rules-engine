@@ -12,7 +12,7 @@
 - When addRuleAdministrator is called by an account other other than an App Admin the transaction will be reverted.
 - When addRuleAdministrator is called with an address of 0 the transaction will be reverted.
 - If addRuleAdministrator is not reverted the RuleAdmin event will be emitted.
-- When renounceRuleAdministrator is called the RuleAdmin event will be emitted.
+- When renounceRuleAdministrator is called the RuleAdministrator event will be emitted.
 - When addRiskAdmin is called by an account other than an App Admin the transaction will be reverted.
 - When addRiskAdmin is called with an address of 0 the transaction will be reverted.
 - If addRiskAdmin is not reverted the RiskAdmin event will be emitted.
@@ -74,15 +74,20 @@
 - If deregisterToken is not reverted the RemoveFromRegistry event will be emitted.
 - If registerAMM is called with an address of 0 the transaction will be reverted. 
 
+## [AMM Registration](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If registerAMM is called by an account that is not an App Admin the transaction will be reverted. 
 - If registerAMM is not reverted the AMMRegistered event will be emitted.
 - If deregisterAMM is called by an account that is not an App Admin the transaction will be reverted.
 - If deregisterAMM is called with the address of a token that is not registered, the transaction will be reverted. 
 - If registerTreasury is called with an address of 0 the transaction will be reverted.
+
+## [Treasury Registration](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If registerTreasury is called by an account that is not an App Admin the transaction will be reverted.
 - If registerTreasury is not reverted the TreasuryRegistered event will be emitted.
 - If deregisterTreasury is called by an account that is not an App Admin the transaction will be reverted. 
 - If deregisterTreasury is called with an address that is not registered, the transaction will be reverted.
+
+## [Trading Rule Allow List](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If approveAddressToTradingRuleAllowlist is called by an account that is not an App Admin the transaction will be reverted.
 - If an address that has not been previously added is passed in along with a false for isApproved the transaction will be reverted.
 - If an address that is already approved is passed in along with a true for isApproved the transaction will be reverted. 
@@ -94,13 +99,18 @@
 - If proposeDataContractMigration is called by an account that is not an App Admin the transaction will be reverted. 
 - If proposeDataContractMigation is not reverted the AppManagerDataUpgradeProposed event is emitted.
 
+## [New Data Provider](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - When confirmNewDataProvider is called with a provider type of TAG and is not reverted, the TagProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of RISK_SCORE and is not reverted, the RiskProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of ACCESS_LEVEL and is not reverted, the AccessLevelProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of ACCOUNT and is not reverted, the AccountProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of PAUSE_RULE and is not reverted, the PauseRuleProviderSet event will be emitted.
+
+## [Data Migration](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If confirmDataContractMigration is called by an account that is not an App Admin the transaction will be reverted.
 - If confirmDataContractMigration is not reverted the DataContractsMigrated event is emitted.
+
+## [App Manager Upgrade](../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If confirmAppManager is called by an account that is not an App Admin the transaction will be reverted. 
 
 

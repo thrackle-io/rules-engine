@@ -14,6 +14,7 @@
 
 
 ## ERC721-Pricing Invariants
+##### Note: Not implemented yet
 
 - Version will never be blank
 - Version will never change.
