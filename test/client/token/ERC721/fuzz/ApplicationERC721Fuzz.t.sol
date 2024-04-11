@@ -857,7 +857,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], risk);
     }
 
-    function _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuySell(
+    function _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuy(
         uint8 _addressIndex,
         uint8 _risk,
         ActionTypes action
@@ -1067,7 +1067,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
     /**  TX VALUE BY RISK SCORE : Buy  */
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Buy(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
-        (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuySell(_addressIndex, _risk, ActionTypes.BUY);
+        (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuy(_addressIndex, _risk, ActionTypes.BUY);
         _risk = _parameterizeRisk(_risk);
         
         vm.startPrank(_user1);

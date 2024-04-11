@@ -36,8 +36,7 @@ contract ERC721NonTaggedRuleFacet is
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         if (action == ActionTypes.BURN || action == ActionTypes.SELL){
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
-        } 
-        if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
+        } else {
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         }
 

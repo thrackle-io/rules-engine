@@ -228,16 +228,6 @@ contract RuleApplicationValidationFacet is ERC173 {
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
-     * @param _dataServer address of the appManager contract
-     */
-    // function validatePause(ActionTypes[] memory _actions, uint32 _ruleId, address _dataServer) external view {
-    //     PauseRule[] memory pauseRules = IAppManager(_dataServer).getPauseRules();
-    //     _ruleId.checkRuleExistence(uint32(pauseRules.length));
-    // }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
      */
     function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByAccessLevel());
