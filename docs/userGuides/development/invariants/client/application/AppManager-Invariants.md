@@ -57,8 +57,6 @@
 - If proposeRiskScoresProvider is called by an account that is not an App Admin the transaction will be reverted.
 - If proposeTagsProvider is called with an address of 0 the transaction will be reverted.
 - If proposeTagsProvider is called by an account that is not an App Admin the transaction will be reverted.
-- If proposeAccountsProvider is called with an address of 0 the transaction will be reverted.
-- If proposeAccountsProvider is called by an account that is not an App Admin the transaction will be reverted.
 - If proposePauseRulesProvider is called with an address of 0 the transaction will be reverted.
 - If proposePauseRulesProvider is called by an account that is not an App Admin the transaction will be reverted.
 - If proposeAccessLevelsProvider is called with an address of 0 the transaction will be reverted.
@@ -102,7 +100,6 @@
 - When confirmNewDataProvider is called with a provider type of TAG and is not reverted, the TagProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of RISK_SCORE and is not reverted, the RiskProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of ACCESS_LEVEL and is not reverted, the AccessLevelProviderSet event will be emitted.
-- When confirmNewDataProvider is called with a provider type of ACCOUNT and is not reverted, the AccountProviderSet event will be emitted.
 - When confirmNewDataProvider is called with a provider type of PAUSE_RULE and is not reverted, the PauseRuleProviderSet event will be emitted.
 
 ## [Data Migration](../../../../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
