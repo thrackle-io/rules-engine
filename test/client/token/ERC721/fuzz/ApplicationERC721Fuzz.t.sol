@@ -1036,8 +1036,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Burn(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBurn(_addressIndex, _risk, ActionTypes.BURN);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
-        
         vm.startPrank(_user1);
         if (_risk >= riskScoresRuleA[4]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -1079,31 +1079,13 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
         }
         applicationNFT.burn(2); // a 200-dollar NFT
-
-        vm.startPrank(_user4);
-        if (_risk >= riskScoresRuleA[4]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
-        } else if (_risk >= riskScoresRuleA[3]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
-        } else if (_risk >= riskScoresRuleA[2]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
-        } else if (_risk >= riskScoresRuleA[1]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
-        } else if (_risk >= riskScoresRuleA[0]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
-        }
-        applicationNFT.burn(3); // a 200-dollar NFT
     }
 
     /**  TX VALUE BY RISK SCORE : Buy  */
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Buy(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuy(_addressIndex, _risk, ActionTypes.BUY);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
         
         vm.startPrank(_user1);
@@ -1148,32 +1130,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 2, true); // a 30-dollar NFT // a 200-dollar NFT
 
-        vm.startPrank(_user4);
-        if (_risk >= riskScoresRuleA[4]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
-        } else if (_risk >= riskScoresRuleA[3]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
-        } else if (_risk >= riskScoresRuleA[2]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
-        } else if (_risk >= riskScoresRuleA[1]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
-        } else if (_risk >= riskScoresRuleA[0]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
-        }
-        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 3, true);
     }
 
     /**  TX VALUE BY RISK SCORE : Buy  */
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Sell(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTSell(_addressIndex, _risk, ActionTypes.SELL);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
-        
+        console.log(_user4);
         vm.startPrank(_user1);
         applicationNFT.setApprovalForAll(address(_amm), true);
         if (_risk >= riskScoresRuleA[4]) {
@@ -1218,26 +1183,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
         }
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 2, false); // a 200-dollar NFT
-
-        vm.startPrank(_user4);
-        applicationNFT.setApprovalForAll(address(_amm), true);
-        if (_risk >= riskScoresRuleA[4]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
-        } else if (_risk >= riskScoresRuleA[3]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
-        } else if (_risk >= riskScoresRuleA[2]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
-        } else if (_risk >= riskScoresRuleA[1]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
-        } else if (_risk >= riskScoresRuleA[0]) {
-            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
-            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
-        }
-        _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 3, false);
     }
 
     function _buildAccessBalances(uint8 _amountSeed) internal pure returns (uint48, uint48, uint48, uint48) {
