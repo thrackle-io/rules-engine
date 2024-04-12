@@ -74,8 +74,10 @@ forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi -
 sh script/ParseApplicationDeploy.sh 1
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 sh script/ParseApplicationDeploy.sh 2
+forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 sh script/ParseApplicationDeploy.sh 3
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 sh script/ParseApplicationDeploy.sh 4
 forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
