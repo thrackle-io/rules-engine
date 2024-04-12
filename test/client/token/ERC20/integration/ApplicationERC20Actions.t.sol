@@ -21,7 +21,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         setUpProcotolAndCreateERC20AndDiamondHandler();
     }
    
-    function testERC20_ApplicationERC20Actions_DetermineTransferAction() public {
+    function testERC20_ERC20_ApplicationERC20Actions_DetermineTransferAction() public {
         address from;
         address to;
         address sender;
@@ -60,7 +60,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when calling determineTransfer directly */
-    function testSmartContractWallet() public {
+    function testERC20_ERC20_testSmartContractWallet() public {
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
@@ -89,7 +89,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testSmartContractWalletWithProtocolSupportedAssets_Mint() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
         SBAWallet wallet = new SBAWallet();
         
         vm.startPrank(address(wallet));        
@@ -101,7 +101,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testSmartContractWalletWithProtocolSupportedAssets_Burn() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Burn() public {
         SBAWallet wallet = new SBAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         
@@ -113,7 +113,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testSmartContractWalletWithProtocolSupportedAssets_Transfer() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer() public {
         SBAWallet wallet = new SBAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
@@ -132,7 +132,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testSmartContractWalletWithProtocolSupportedAssets_Sell() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Sell() public {
         SBAWallet wallet = new SBAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
@@ -153,7 +153,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testSmartContractWalletWithProtocolSupportedAssets_Buy() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Buy() public {
         SBAWallet wallet = new SBAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
@@ -176,7 +176,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     /** Test that actions are properly determined when using protocol supported assets. This discrepancy will be remedied in V2
      *  TODO: Fix the determine transfer action function to work with staking
      */
-    function testEOAWithProtocolSupportedAssets_Staking() public {
+    function testERC20_EOAWithProtocolSupportedAssets_Staking() public {
         vm.skip(true);
         switchToAppAdministrator();
         applicationCoin.mint(user1, 10 * ATTO);
@@ -196,7 +196,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     /** Test that actions are properly determined when using protocol supported assets. This discrepancy will be remedied in V2
      *  TODO: Fix the determine transfer action function to work with staking
      */
-    function testSmartContractWalletWithProtocolSupportedAssets_Staking() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssets_Staking() public {
         vm.skip(true);
         switchToAppAdministrator();
         // Set up amm for buy and sell tests
@@ -217,7 +217,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         This test demonstrates current shortcomings with the protocol's detection of actions when a SCA is used. These issues will be addressed in v2.
         TODO: Fix the determine transfer action function to work with SCA
      */
-    function testSmartContractWalletBroken() public {
+    function testERC20_SmartContractWalletBroken() public {
         vm.skip(true);
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
@@ -236,7 +236,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         This test demonstrates current shortcomings with the protocol's detection of actions when a SCA is used. These issues will be addressed in v2.
         TODO: Fix the determine transfer action function to work with SCA
      */
-    function testSmartContractWalletWithProtocolSupportedAssetsBroken() public {
+    function testERC20_SmartContractWalletWithProtocolSupportedAssetsBroken() public {
         vm.skip(true);
         SBAWallet wallet = new SBAWallet();
         SBAWallet wallet2 = new SBAWallet();
