@@ -21,7 +21,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         setUpProcotolAndCreateERC20AndDiamondHandler();
     }
    
-    function testERC20_ERC20_ApplicationERC20Actions_DetermineTransferAction() public {
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction() public {
         address from;
         address to;
         address sender;
@@ -60,7 +60,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when calling determineTransfer directly */
-    function testERC20_ERC20_testSmartContractWallet() public {
+    function testERC20_testSmartContractWallet() public {
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
