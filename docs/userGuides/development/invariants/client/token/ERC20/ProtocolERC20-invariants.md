@@ -18,7 +18,7 @@
 - Allowances should be updated correctly when approve is called twice.
 - TransferFrom should decrease allowance
 
-## [Burnable ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERCMintBurn.t.i.sol)
+## [Burnable ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20MintBurn.t.i.sol)
 - Burn should update user balance and total supply
 - Burn should update user balance and total supply when burnFrom is called twice
 - burnFrom should update allowance

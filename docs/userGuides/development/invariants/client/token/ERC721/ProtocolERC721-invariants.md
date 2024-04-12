@@ -22,7 +22,7 @@
 - getApproved() should revert if the token is burned
 - ownerOf() should revert if the token has been burned.
 
-## [Mintable ERC721 Invariants]((../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721MintBurn.t.i.sol))
+## [Mintable ERC721 Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721MintBurn.t.i.sol)
 - Mint increases the total supply
 - Mint creates a fresh applicationNFT
 

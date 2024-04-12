@@ -66,7 +66,7 @@ All invariants have links to their invariant test files unless specified otherwi
 
 - When this rule is applied, an NFT can never be transferred before the hold-time period has passed counting from the last trade date.
 
-## Rule Invariants - Without Stat Variables
+## Rule Invariants - Without State Variables
 
 ### Balance By Access Level *
 
