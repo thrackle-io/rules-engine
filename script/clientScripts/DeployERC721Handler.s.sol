@@ -14,7 +14,7 @@ contract DeployERC721Handler is Script, DeployBase {
     uint256 privateKey;
     address ownerAddress;
     string name;
-    HandlerDiamond applicationCoinHandlerDiamond;
+    HandlerDiamond applicationNFTHandlerDiamond;
 
     function run() external {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
@@ -22,7 +22,8 @@ contract DeployERC721Handler is Script, DeployBase {
         name = vm.envString("HANDLER_DIAMOND_TO_DEPLOY"); // name of the token
         vm.startBroadcast(privateKey);
 
-        applicationCoinHandlerDiamond = createERC721HandlerDiamond(name);
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1(name);
+        createERC721HandlerDiamondPt2(name, address(applicationNFTHandlerDiamond));
         setENVVariable("HANDLER_DIAMOND_TO_DEPLOY", ""); // we clear the env for safe future deployments
 
         vm.stopBroadcast();

@@ -2,20 +2,15 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
-import "src/example/ERC20/ApplicationERC20.sol";
-import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
+import "src/example/application/ApplicationHandler.sol";
+import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
-import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
-import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
-import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
-import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
-import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 import "./DeployBase.s.sol";
+
 /**
- * @title Application Deploy 02 Application Fungible Token 1 Script
- * @dev This script will deploy an ERC20 fungible token and Handler.
- * @notice Deploys an application ERC20 and Handler.
+ * @title Application Deploy 04 Application Non-Fungible Token  Script
+ * @dev This script will deploy an ERC721 non-fungible token and Handler.
+ * @notice Deploys an application ERC721 non-fungible token and Handler..
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script example/script/Application_Deploy_01_AppManager.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -29,8 +24,8 @@ import "./DeployBase.s.sol";
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployFT1Script is Script, DeployBase {
-    HandlerDiamond applicationCoinHandlerDiamond;
+contract ApplicationDeployNFTScript is Script, DeployBase {
+    HandlerDiamond applicationNFTHandlerDiamond;
     uint256 privateKey;
     address ownerAddress;
     uint256 appAdminKey;
@@ -44,10 +39,19 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         vm.startBroadcast(privateKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
+        ApplicationERC721AdminOrOwnerMint nft1 = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
+        applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721_HANDLER")));
+        /// Create NFT
+        createERC721HandlerDiamondPt2("Clyde", address(applicationNFTHandlerDiamond));
+        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.stopBroadcast();
+        vm.startBroadcast(appAdminKey);
+        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
-        /// Create ERC20 token 1
-        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandlerDiamond = createERC20HandlerDiamondPt1("Frankenstein Coin");
+        /// Register the tokens with the application's app manager
+        applicationAppManager.registerToken("Clyde", address(nft1));
 
         vm.stopBroadcast();
     }

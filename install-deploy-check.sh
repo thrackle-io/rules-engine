@@ -24,8 +24,10 @@ if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
   source script/ParseApplicationDeploy.sh 1
   forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast 
   source script/ParseApplicationDeploy.sh 2
+  forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast 
   forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
   source script/ParseApplicationDeploy.sh 3
+  forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast 
   forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast 
   source script/ParseApplicationDeploy.sh 4
   forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast

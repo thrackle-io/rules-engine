@@ -182,3 +182,29 @@ if [[ $NUMBER == 5 ]]; then
   fi
 fi
 
+if [[ $NUMBER == 6 ]]; then
+  # Retrieve the ERC 20
+  APPLICATION_ERC20_ADDRESS_2=$(parseContractAddress "ApplicationERC20" $CHAIN_ID 0 "Application_Deploy_03_ApplicationFT2.s.sol")
+  echo APPLICATION_ERC20_ADDRESS_2=$APPLICATION_ERC20_ADDRESS_2
+  echo
+
+  os=$(uname -a)
+  if [[ $os == *"Darwin"* ]]; then
+    sed -i '' 's/APPLICATION_ERC20_ADDRESS_2=.*/APPLICATION_ERC20_ADDRESS_2='$APPLICATION_ERC20_ADDRESS_2'/g' $ENV_FILE
+  else
+    sed -i 's/APPLICATION_ERC20_ADDRESS_2=.*/APPLICATION_ERC20_ADDRESS_2='$APPLICATION_ERC20_ADDRESS_2'/g' $ENV_FILE
+  fi
+
+  # Retrieve the ERC 20 Handler
+  APPLICATION_ERC20_HANDLER_ADDRESS_2=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 0 "Application_Deploy_03_ApplicationFT2.s.sol")
+  echo APPLICATION_ERC20_HANDLER_ADDRESS_2=$APPLICATION_ERC20_HANDLER_ADDRESS_2
+  echo
+
+  os=$(uname -a)
+  if [[ $os == *"Darwin"* ]]; then
+    sed -i '' 's/APPLICATION_ERC20_HANDLER_ADDRESS_2=.*/APPLICATION_ERC20_HANDLER_ADDRESS_2='$APPLICATION_ERC20_HANDLER_ADDRESS_2'/g' $ENV_FILE
+  else
+    sed -i 's/APPLICATION_ERC20_HANDLER_ADDRESS_2=.*/APPLICATION_ERC20_HANDLER_ADDRESS_2='$APPLICATION_ERC20_HANDLER_ADDRESS_2'/g' $ENV_FILE 
+  fi
+fi
+

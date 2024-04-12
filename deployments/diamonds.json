@@ -123,6 +123,19 @@
                 "TradingRuleFacet": "0xEc17D4BC6d95bD91BAb609c56fFBaBf6CF750d1B",
                 "diamond": "0xac51E0D398e2D0C2Dec993f3fcaD2b08fC784410"
             }
+        },
+        "Dracula_CoinHandlerDiamond": {
+            "2024-04-12": {
+                "VersionFacet": "0x5C57e32ba89E68938e8bf224DcA480d0d0be9Eed",
+                "ProtocolNativeFacet": "0xb64697901146b0617AA5Ee2b76CB6406aA7acFFd",
+                "ProtocolRawFacet": "0xbC9aF6bce6A0F0b6Ee74C778308a17750C801021",
+                "ERC20HandlerMainFacet": "0xa718d4dfb89FF08B6566591b0E98eC05f71A41ae",
+                "diamond": "0x0929D4EAA10788D81B5e3c7F3A456A487cd519e8",
+                "ERC20TaggedRuleFacet": "0xE53Df7b962649423EdA42095768Ffd095fA9fBa9",
+                "ERC20NonTaggedRuleFacet": "0xd6564f729e3906E6AdB2226e651B3749a1d8b006",
+                "TradingRuleFacet": "0x4a7F575a2a6d54E254f77ff296D8715bf971111a",
+                "FeesFacet": "0x4a458a11C32FFf1e5d919a6a7E7f368b5C1e7AC1"
+            }
         }
     }
 }
