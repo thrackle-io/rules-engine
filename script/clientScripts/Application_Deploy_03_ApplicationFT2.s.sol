@@ -42,7 +42,7 @@ contract ApplicationDeployFT2Script is Script, DeployBase {
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
 
         /// Create ERC20 token 2
-        ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
+        new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
         applicationCoinHandlerDiamond2 = createERC20HandlerDiamondPt1("Dracula Coin");
 
         vm.stopBroadcast();
