@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import {ActionTypes} from "src/common/ActionEnum.sol";
 
 contract HandlerUtils{
+    event Action(uint8 _type);
 
     /**
     * @dev determines if a transfer is:
@@ -18,15 +19,21 @@ contract HandlerUtils{
     * @param _sender the address triggering the transaction
     * @return action intended in the transfer
     */
-    function determineTransferAction(address _from, address _to, address _sender) internal view returns (ActionTypes action){
+    function determineTransferAction(address _from, address _to, address _sender) internal returns (ActionTypes action){
         if(_from == address(0)){
             action = ActionTypes.MINT;
+            emit Action(uint8(ActionTypes.MINT));
         } else if(_to == address(0)){
             action = ActionTypes.BURN;
+            emit Action(uint8(ActionTypes.BURN));
         } else if(!(_sender == _from)){ 
             action = ActionTypes.SELL;
+            emit Action(uint8(ActionTypes.SELL));
         } else if(isContract(_from)) {
             action = ActionTypes.BUY;
+            emit Action(uint8(ActionTypes.BUY));
+        } else {
+            emit Action(uint8(ActionTypes.P2P_TRANSFER));
         }
     } 
 

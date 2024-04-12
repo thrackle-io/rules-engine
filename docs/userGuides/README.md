@@ -26,20 +26,20 @@ And you are done!
 
 | Document | Description |
 |----------|-------------|
-|[Deployment Guides][deploymentGuide-url] | This section contains documents on how to deploy the protocol, pricing modules, and create application rules in order to quickly get started.|
-|[Rule Guide][ruleGuide-url] | This section can be thought of as a reference to the available rules that come pre packaged within the protocol and their various perks and quirks. It will also contain guides on how to create custom rules.|
-|[Application Handler Guide][handlerGuide-url] | This teaches you about the application handler and how it works within the context of the main protocol. This is critical to understand if you're going to go about creating your own custom rules.|
-|[Fungible Token Handlers Guide][fungibleTokenHandlerGuide-url] | This teaches you about the fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding ERC20s, you'll want to take a look at this quickly just to understand how it all works together.|
-|[NonFungible Token Handlers Guide][nonfungibleTokenHandlerGuide-url] | This teaches you about the non fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding NFTs, you'll want to take a look at this quickly just to understand how it all works together.|
-|[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules protocol. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
 |[Access Level Guide][accessLevel-url]| This section contains documents on access levels, a feature that allows you to enable and block access according to broadly defined conditions, useful for game onboarding and compliance processes.|
 |[Admin Roles][adminRoles-url]| This section contains documentation on what admin roles are available and gives you the information you need on to configure how your application will be governed and administered.|
-|[Integration of Oracles][oracles-url]| This section contains documentation on how oracles integrate into the rules protocol and the process of integrating them.|
-|[Risk Score][riskScore-url]| This section contains documentation on how to integrate rules that involve using risk score methodology and the integration process of them.|
-|[Pricing Contracts][pricing-url]| This section contains documentation on how to create and deploy pricing contracts so that your assets can be properly valuated in order to adhere to desirable rules.|
-|[Fees][fees-url]| This section shows you how to write how fees can be generated in your application and how fees are generated at the protocol level.|
-|[Glossary][glossary-url]| For any terminology that might be unclear, please check here.|
+|[Application Handler Guide][handlerGuide-url] | This teaches you about the application handler and how it works within the context of the main protocol. This is critical to understand if you're going to go about creating your own custom rules.|
 |[Architecture Overview][archOverview-url]| For pretty diagrams that show the process of the protocol and the overall architecture, look here.|
+|[Deployment Guides][deploymentGuide-url] | This section contains documents on how to deploy the protocol, pricing modules, and create application rules in order to quickly get started.|
+|[Fees][fees-url]| This section shows you how to write how fees can be generated in your application and how fees are generated at the protocol level.|
+|[Fungible Token Handlers Guide][fungibleTokenHandlerGuide-url] | This teaches you about the fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding ERC20s, you'll want to take a look at this quickly just to understand how it all works together.|
+|[Glossary][glossary-url]| For any terminology that might be unclear, please check here.|
+|[Integration of Oracles][oracles-url]| This section contains documentation on how oracles integrate into the rules protocol and the process of integrating them.|
+|[NonFungible Token Handlers Guide][nonfungibleTokenHandlerGuide-url] | This teaches you about the non fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding NFTs, you'll want to take a look at this quickly just to understand how it all works together.|
+|[Pricing Contracts][pricing-url]| This section contains documentation on how to create and deploy pricing contracts so that your assets can be properly valuated in order to adhere to desirable rules.|
+|[Risk Score][riskScore-url]| This section contains documentation on how to integrate rules that involve using risk score methodology and the integration process of them.|
+|[Rule Guide][ruleGuide-url] | This section can be thought of as a reference to the available rules that come pre packaged within the protocol and their various perks and quirks. It will also contain guides on how to create custom rules.|
+|[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules protocol. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
 
 ## API 
 API documentation for the smart contract suite can be found [here](src/src/README.md).
@@ -218,7 +218,7 @@ Formatting at the commandline:
 <!-- These are the body links -->
 [deploymentGuide-url]: ./deployment/README.md
 [archOverview-url]: ./ARCHITECTURE-OVERVIEW.md
-[ruleGuide-url]: ./rules/RULE-GUIDE.md
+[ruleGuide-url]: ./rules/README.md
 [tag-url]: ./tags/README.md
 [accessLevel-url]: ./accessLevels/README.md
 [adminRoles-url]: ./permissions/ADMIN-ROLES.md
@@ -227,9 +227,9 @@ Formatting at the commandline:
 [fees-url]: ./fees/README.md
 [riskScore-url]: ./riskScore/README.md
 [glossary-url]: ./GLOSSARY.md
-[handlerGuide-url]: ./Architecture/Client/Application/APPLICATION-HANDLER.md
-[fungibleTokenHandlerGuide-url]: ./Architecture/Client/AssetHandler/FUNGIBLE-TOKEN-HANDLER.md
-[nonfungibleTokenHandlerGuide-url]: ./Architecture/Client/AssetHandler/NON-FUNGIBLE-TOKEN-HANDLER.md
+[handlerGuide-url]: ./architecture/client/application/APPLICATION-HANDLER.md
+[fungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md
+[nonfungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

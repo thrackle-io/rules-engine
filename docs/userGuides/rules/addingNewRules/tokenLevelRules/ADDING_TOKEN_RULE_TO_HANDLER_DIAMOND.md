@@ -78,4 +78,4 @@ Then a check needs to be added to the `checkNonTaggedRules` function:
 
 ### Upgrading Existing Diamonds
 
-Once the above changes have been made to add the new rule, in order to make the rule available we will need to upgrade the existing diamond instance. Step by step instructions on this upgrade are provided in [PROTOCOL-ASSET-HANDLER-DIAMOND-UPGRADE.md](../../../Architecture/Client/AssetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND-UPGRADE.md) 
+Once the above changes have been made to add the new rule, in order to make the rule available we will need to upgrade the existing diamond instance. Step by step instructions on this upgrade are provided in [PROTOCOL-ASSET-HANDLER-DIAMOND-UPGRADE.md](../../../architecture/client/assetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND-UPGRADE.md) 

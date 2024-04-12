@@ -88,7 +88,7 @@ The implementations for each of the above functions can be found in the [OracleD
 
 ## Upgrading: 
 
-To upgrade to a new oracle address first create a new `AccountApproveOrDenyOracle` [rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) with the new oracle type and address. This requires the new oracle address to be deployed and conform to the [IOracle](../../../src/common/IOracle.sol) interface. Add the new rule with the [Rule Processor Diamond](../Architecture/Protocol/RULE-PROCESSOR-DIAMOND.md) and use the protocol generated `ruleId` to set the new oracle rule within the [asset handler](../Architecture/Client/AssetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND.md) to be upgraded. 
+To upgrade to a new oracle address first create a new `AccountApproveOrDenyOracle` [rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) with the new oracle type and address. This requires the new oracle address to be deployed and conform to the [IOracle](../../../src/common/IOracle.sol) interface. Add the new rule with the [Rule Processor Diamond](../architecture/protocol/RULE-PROCESSOR-DIAMOND.md) and use the protocol generated `ruleId` to set the new oracle rule within the [asset handler](../architecture/client/assetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND.md) to be upgraded. 
 
 ## Process for switching to an external access level provider
 
