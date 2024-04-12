@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IAccounts.sol";
 import "src/client/application/data/IAccessLevels.sol";
 import "src/client/application/data/AccessLevels.sol";
@@ -41,7 +40,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
-    IAccounts accounts;
     IAccessLevels accessLevels;
     IRiskScores riskScores;
     ITags tags;
@@ -49,7 +47,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /// Data provider proposed addresses
     address newAccessLevelsProviderAddress;
-    address newAccountsProviderAddress;
     address newTagsProviderAddress;
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
@@ -657,23 +654,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     }
 
     /**
-     * @dev  First part of the 2 step process to set a new account provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
-     * @param _newProvider Address of the new provider
-     */
-    function proposeAccountsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
-        if (_newProvider == address(0)) revert ZeroAddress();
-        newAccountsProviderAddress = _newProvider;
-    }
-
-    /**
-     * @dev Get the address of the account provider
-     * @return provider Address of the provider
-     */
-    function getAccountProvider() external view returns (address) {
-        return address(accounts);
-    }
-
-    /**
      * @dev  First part of the 2 step process to set a new pause rule provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
@@ -930,14 +910,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     }
 
     /**
-     * @dev Getter for the Account data contract address
-     * @return accountDataAddress
-     */
-    function getAccountDataAddress() external view returns (address) {
-        return address(accounts);
-    }
-
-    /**
      * @dev Getter for the risk data contract address
      * @return riskDataAddress
      */
@@ -1019,7 +991,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
      */
     function deployDataContracts() private {
-        accounts = new Accounts(address(this));
         accessLevels = new AccessLevels(address(this));
         riskScores = new RiskScores(address(this));
         tags = new Tags(address(this));
@@ -1031,7 +1002,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _newOwner address of the new AppManager
      */
     function proposeDataContractMigration(address _newOwner) external nonReentrant onlyRole(APP_ADMIN_ROLE) {
-        accounts.proposeOwner(_newOwner);
         accessLevels.proposeOwner(_newOwner);
         riskScores.proposeOwner(_newOwner);
         tags.proposeOwner(_newOwner);
@@ -1047,12 +1017,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      */
     function confirmDataContractMigration(address _oldAppManagerAddress) external nonReentrant onlyRole(APP_ADMIN_ROLE) {
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
-        accounts = Accounts(oldAppManager.getAccountDataAddress());
         accessLevels = IAccessLevels(oldAppManager.getAccessLevelDataAddress());
         riskScores = RiskScores(oldAppManager.getRiskDataAddress());
         tags = Tags(oldAppManager.getTagsDataAddress());
         pauseRules = PauseRules(oldAppManager.getPauseRulesDataAddress());
-        accounts.confirmOwner();
         accessLevels.confirmOwner();
         riskScores.confirmOwner();
         tags.confirmOwner();
@@ -1086,12 +1054,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
             accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
             emit AD1467_AccessLevelProviderSet(newAccessLevelsProviderAddress);
             delete newAccessLevelsProviderAddress;
-        } else if (_providerType == IDataModule.ProviderType.ACCOUNT) {
-            if (newAccountsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (_msgSender() != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
-            accounts = IAccounts(newAccountsProviderAddress);
-            emit AD1467_AccountProviderSet(newAccountsProviderAddress);
-            delete newAccountsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
             if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();

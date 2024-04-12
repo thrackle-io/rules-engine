@@ -392,20 +392,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         applicationAppManager.proposeAccessLevelsProvider(address(0xD0D));
     }
 
-    function testApplication_ApplicationCommonTests_SetNewAccountProvider() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToAppAdministrator();
-        Accounts dataMod = new Accounts(address(applicationAppManager));
-        applicationAppManager.proposeAccountsProvider(address(dataMod));
-        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCOUNT);
-        assertEq(address(dataMod), applicationAppManager.getAccountProvider());
-    }
-
-    function testApplication_ApplicationCommonTests_SetNewAccountProvider_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToUser();
-        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-        applicationAppManager.proposeAccountsProvider(address(0xD0D));
-    }
-
     function testApplication_ApplicationCommonTests_SetNewRiskScoreProvider() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         RiskScores dataMod = new RiskScores(address(applicationAppManager));

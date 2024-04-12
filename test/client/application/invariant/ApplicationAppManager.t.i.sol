@@ -275,15 +275,6 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         emit AD1467_AccessLevelProviderSet(address(data)); 
         data.confirmDataProvider(IDataModule.ProviderType.ACCESS_LEVEL);
     }
-    // When confirmNewDataProvider is called with a provider type of ACCOUNT and is not reverted, the AccountProviderSet event will be emitted.
-    function invariant_ConfirmNewDataProviderEmitsEventAccount() public {
-        switchToAppAdministrator();
-        Accounts data = new Accounts(address(applicationAppManager));
-        applicationAppManager.proposeAccountsProvider(address(data));
-        vm.expectEmit(address(applicationAppManager));
-        emit AD1467_AccountProviderSet(address(data)); 
-        data.confirmDataProvider(IDataModule.ProviderType.ACCOUNT);
-    }
     // When confirmNewDataProvider is called with a provider type of PAUSE_RULE and is not reverted, the PauseRuleProviderSet event will be emitted.
     function invariant_ConfirmNewDataProviderEmitsEventPauseRule() public {
         switchToAppAdministrator();
