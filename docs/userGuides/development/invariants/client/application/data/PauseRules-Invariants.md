@@ -1,6 +1,6 @@
 # Pause Rules Invariants
 
-##### Note: Not implemented, todo
+###### Note: Invariants not implemented yet but properly fuzz tested
 - Upon creation ownership of the contract will be transfered to the App Manager address passed in to the constructor.
 - If addPauseRule is called with a pauseStop that is less than pauseStart the transaction will be reverted. 
 - If addPauseRule is called with a pauseStart is less than the current block timestamp the transaction will be reverted.

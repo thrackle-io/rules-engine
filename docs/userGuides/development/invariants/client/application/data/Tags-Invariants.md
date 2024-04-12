@@ -1,6 +1,6 @@
 # Tags Invariants
 
-###### Note: Not implemented, todo
+###### Note: Invariants not implemented yet but properly fuzz tested
 
 - Upon creation ownership of the contract will be transfered to the App Manager address passed in to the constructor.
 - If addTag is called with an empty string for the tag the transaction will be reverted.
