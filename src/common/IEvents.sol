@@ -164,7 +164,7 @@ interface IApplicationEvents is IAppManagerAddressSet{
     event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
     ///ProtocolERC20
     event AD1467_NewTokenDeployed(address indexed appManagerAddress);
-    ///ProtocolERC721 & ERC721A
+    ///ProtocolERC721
     event AD1467_NewNFTDeployed(address indexed appManagerAddress);
     ///ERC20Pricing
     event AD1467_TokenPrice(address indexed token, uint256 indexed price);

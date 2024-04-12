@@ -45,7 +45,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
     }
 
     /**
-     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @dev Set the setTokenMinHoldTimeRule suite. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions actions to have the rule applied to
      * @param _minHoldTimeHours min hold time in hours corresponding to the actions

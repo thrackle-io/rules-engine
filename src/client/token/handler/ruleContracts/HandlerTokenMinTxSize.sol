@@ -29,7 +29,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
     }
 
     /**
-     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @dev Set the setTokenMinTxSizeRule suite. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions
@@ -88,7 +88,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
     }
 
     /**
-     * @dev Retrieve the tokenMinTransactionRuleId
+     * @dev Retrieve the tokenMinTxSizeRuleId
      * @param _action the action type
      * @return tokenMinTransactionRuleId
      */

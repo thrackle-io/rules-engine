@@ -51,7 +51,7 @@ contract ProtocolERC721U is
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @notice This function should be called in an "atomic" deploy script when deploying an ERC721Upgradeable contract. 
      * "Front Running" is possible if this function is called individually after the ERC721Upgradeable proxy is deployed. 
-     * It is critical to ensure your deploy process mitigates this risk.
+     * It is critical to ensure your deploy process mitigates this risk. 
      * @param _nameProto Name of NFT
      * @param _symbolProto Symbol for the NFT
      * @param _appManagerAddress Address of App Manager

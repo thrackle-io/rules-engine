@@ -37,7 +37,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
     }
 
     /**
-     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @dev Set the setTokenMaxTradingVolumeRule suite. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions

@@ -56,7 +56,7 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ActionTypesA
     }
 
     /**
-     * @dev Set the AccountMaxSellSizeRuleId.
+     * @dev Set the AccountMaxMinMaxTokenBalanceRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set

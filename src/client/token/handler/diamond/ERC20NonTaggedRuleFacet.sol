@@ -11,7 +11,7 @@ import "../ruleContracts/HandlerTokenMinTxSize.sol";
 
 contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
     /**
-     * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
+     * @dev This function uses the protocol's ruleProcessorto perform the actual rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
