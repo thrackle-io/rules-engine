@@ -22,7 +22,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
     function testApplication_ApplicationCommonTests_ProposeNewSuperAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToRiskAdmin();
         /// check that a non superAdmin cannot propose a newSuperAdmin
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ccc is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(riskAdmin), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
     }
 
@@ -82,7 +82,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddAppAdministratorAppManager_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
-        vm.expectRevert("AccessControl: account 0x000000000000000000000000000000000000dead is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(appAdministrator), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(address(77));
         assertFalse(applicationAppManager.isAppAdministrator(address(77)));
     }
@@ -100,7 +100,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RevokeAppAdministrator_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, address(77)); // try to revoke other app administrator
     }
 
@@ -124,7 +124,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddRiskAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addRiskAdmin(address(88)); //add risk admin
     }
 
@@ -146,7 +146,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RevokeRiskAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser(); //interact as a user
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.revokeRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
@@ -158,7 +158,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddaccessLevelAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addAccessLevelAdmin(address(88)); //add AccessLevel admin
     }
 
@@ -177,7 +177,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RevokeAccessLevelAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.revokeRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
@@ -190,7 +190,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddAccessLevel_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser(); // create a user and make it the sender.
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335"));
         applicationAppManager.addAccessLevel(user, 4);
     }
 
@@ -212,7 +212,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddRiskScore_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f"));
         applicationAppManager.addRiskScore(user, 44);
     }
 
@@ -240,7 +240,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_UpdateRiskScore_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f"));
         applicationAppManager.addRiskScore(user, 75);
         assertEq(0, applicationAppManager.getRiskScore(user));
     }
@@ -259,7 +259,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_AddTagAsUser_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addTag(user, ""); //add blank tag
     }
 
@@ -284,7 +284,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "TAG1");
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(user, "Tag1"); //add blank tag
     }
 
@@ -374,7 +374,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_SetNewTagProvider_Nagative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.proposeTagsProvider(address(0xD0D));
     }
 
@@ -388,7 +388,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_SetNewAccessLevelProvider_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.proposeAccessLevelsProvider(address(0xD0D));
     }
 
@@ -402,7 +402,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_SetNewAccountProvider_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.proposeAccountsProvider(address(0xD0D));
     }
 
@@ -424,7 +424,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_SetNewPauseRulesProvider_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToUser();
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(user), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.proposePauseRulesProvider(address(0xD0D));
     }
 

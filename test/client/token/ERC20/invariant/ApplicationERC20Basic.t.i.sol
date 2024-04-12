@@ -32,7 +32,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
     // Transfers to zero address should not be allowed
     function invariant_ERC20external_transferToZeroAddress() public {
         (, msgSender, ) = vm.readCallers();
-        uint256 balance = applicationCoin.balanceOf(address(this));
+        uint256 balance = applicationCoin.balanceOf(address(msgSender));
         if (balance > 0) {
             vm.expectRevert("ERC20: transfer to the zero address");
             applicationCoin.transfer(address(0), balance);
