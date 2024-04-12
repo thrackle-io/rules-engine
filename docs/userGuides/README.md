@@ -7,13 +7,20 @@
 This guide is intended to be a user-friendly introduction to the rules protocol. It will provide a walkthrough of how to get started with the protocol, as well as provide a reference for the available rules and how to create custom rules.
 
 ## Installation and Tooling
-##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:
+##### This is designed to be tested and deployed with Foundry. All that should be required is to install Python, Homebrew, and then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
 
-`forge build` in the project directory to install the submodules.
+`foundryup` 
 
-`pip install eth-abi`
+`pip3 install -r requirements.txt`
 
-`foundryup`
+` brew install jq`
+
+Now that you have the dependencies installed, you are ready to build the project. Do:
+
+`forge build` in the project directory to install the submodules and create the artifacts.
+
+And you are done!
+
 
 ## Index
 
@@ -46,6 +53,42 @@ For local deployments, use Anvil's local blockchain in combination with the depl
 ```
 forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
 ```
+
+To test the scripts for local deployments, open a dedicated terminal to run an Anvil local blochain:
+
+```bash
+export FOUNDRY_PROFILE=local
+anvil
+```
+
+Then, in another terminal tab, deploy the whole protocol and a full application to the local blockchain:
+
+```bash
+sh script/SetupProtocolDeploy.sh
+forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseProtocolDeploy.sh
+forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseApplicationDeploy.sh 1
+forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseApplicationDeploy.sh 2
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseApplicationDeploy.sh 3
+forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseApplicationDeploy.sh 4
+forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+sh script/ParseApplicationDeploy.sh 5
+forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+```
+
+Make sure that all the srcipts ran successfully, and then:
+
+```bash 
+forge test --ffi --rpc-url http://127.0.0.1:8545 
+```
+
 
 ##### Note: an ETH_RPC_URL can be found in the .env file.
 
@@ -83,6 +126,12 @@ All tests are located inside the `test/` directory. To run a test, simply run in
 
 ```
 forge test --ffi --match-path <TEST_FILE_LOCATION> -vvvv
+```
+
+To run all the test:
+
+```
+forge test --ffi
 ```
 ---
 ## Deployment Test Scripts
