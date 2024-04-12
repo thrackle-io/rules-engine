@@ -34,20 +34,22 @@ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
 ## Usage
 
 ### User Guides
+
 For complete usage information and documentation, please visit our [User Guide][userGuide-url].
 
 ### A Simple Example
+
 To use the package simply import the files you are interested in. Here is an example on how to create a Rules-Protocol compatible ERC20:
 
 ```c
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
+import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
 
 /**
  * @title Example ERC20 ApplicationERC20
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett @mpetersoCode55
  * @notice This is an example implementation that App Devs should use.
  * @dev During deployment _tokenName _tokenSymbol _appManagerAddress _handlerAddress are set in constructor
  */
@@ -70,14 +72,14 @@ contract ApplicationERC20 is ProtocolERC20 {
 As you can see, everything is already encapsulated inside the:
 
 ```c
-import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
+import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
 ```
 
 All you need to do is to inherit the right contract and implement any necessary function. In this case, the `mint` function.
 
 ## Contributing
 
-Please visit our [Contributor Guide][contributorGuide-url]. 
+Please visit our [Contributor Guide][contributorGuide-url].
 
 ## Licensing
 
