@@ -190,7 +190,7 @@ contract ProtocolApplicationHandler is
 
     /**
      * @dev This function consolidates the MaxTXValueByRiskScore rule checks for the from address.
-     * @param _from address of the to account
+     * @param _from address of the from account
      * @param _riskScoreFrom sender address risk score
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      * @param _action the current user action

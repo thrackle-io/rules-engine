@@ -92,7 +92,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             action = _action;
         }
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
-        /// standard tagged and non-tagged rules do not apply when either to or from is a bypass account
+        /// standard tagged and non-tagged rules do not apply when either to or from is a rule bypass account
         if (!isFromBypassAccount && !isToBypassAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             callAnotherFacet(

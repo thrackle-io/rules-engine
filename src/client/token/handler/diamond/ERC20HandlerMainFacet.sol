@@ -87,7 +87,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         }
         // All transfers to treasury account are allowed
         if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
-            /// standard rules do not apply when either to or from is a bypass account
+            /// standard rules do not apply when either to or from is a rule bypass account
             if (!isFromBypassAccount && !isToBypassAccount) {
                 IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
                 callAnotherFacet(
