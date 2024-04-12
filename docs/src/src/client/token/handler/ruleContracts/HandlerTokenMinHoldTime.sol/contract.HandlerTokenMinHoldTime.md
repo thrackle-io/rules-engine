@@ -1,5 +1,5 @@
 # HandlerTokenMinHoldTime
-[Git Source](https://github.com/thrackle-io/tron/blob/edf3093a9fed22d64a8edbc89ae73bfbadfe2a42/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/898ac13e9c0d669d38da44f8bf60a26e9528ba9b/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)

@@ -1,5 +1,5 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/tron/blob/edf3093a9fed22d64a8edbc89ae73bfbadfe2a42/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/898ac13e9c0d669d38da44f8bf60a26e9528ba9b/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
 
 **Inherits:**
 Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable, ReentrancyGuard
@@ -59,6 +59,10 @@ constructor();
 ```
 
 ### initialize
+
+This function should be called in an "atomic" deploy script when deploying an ERC721Upgradeable contract.
+"Front Running" is possible if this function is called individually after the ERC721Upgradeable proxy is deployed.
+It is critical to ensure your deploy process mitigates this risk.
 
 *Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address*
 

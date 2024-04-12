@@ -1,5 +1,5 @@
 # RiskScores
-[Git Source](https://github.com/thrackle-io/tron/blob/edf3093a9fed22d64a8edbc89ae73bfbadfe2a42/src/client/application/data/RiskScores.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/898ac13e9c0d669d38da44f8bf60a26e9528ba9b/src/client/application/data/RiskScores.sol)
 
 **Inherits:**
 [IRiskScores](/src/client/application/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)

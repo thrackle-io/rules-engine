@@ -1,5 +1,5 @@
 # AppAdministratorOrOwnerOnly
-[Git Source](https://github.com/thrackle-io/tron/blob/edf3093a9fed22d64a8edbc89ae73bfbadfe2a42/src/protocol/economic/AppAdministratorOrOwnerOnly.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/898ac13e9c0d669d38da44f8bf60a26e9528ba9b/src/protocol/economic/AppAdministratorOrOwnerOnly.sol)
 
 **Inherits:**
 Ownable, [RBACModifiersCommonImports](/src/client/token/handler/common/RBACModifiersCommonImports.sol/abstract.RBACModifiersCommonImports.md)
