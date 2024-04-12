@@ -101,12 +101,10 @@ contract DeployBase is Script, DiamondScriptUtil {
         return handlerInternal;
     }
 
-    function createERC20HandlerDiamondPt2(string memory name, address handlerAddress) public returns (HandlerDiamond diamond) {
+    function createERC20HandlerDiamondPt2(string memory name, address handlerAddress) public {
                 validateName(name);
         bool recordAllChains;
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
-        // Start by deploying the DiamonInit contract.
-        DiamondInit diamondInit = new DiamondInit();
         FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](4);
 
         // Register all facets.
@@ -214,12 +212,10 @@ contract DeployBase is Script, DiamondScriptUtil {
         return handlerInternal;
     }
 
-        function createERC721HandlerDiamondPt2(string memory name, address handlerAddress) public returns (HandlerDiamond diamond) {
+        function createERC721HandlerDiamondPt2(string memory name, address handlerAddress) public {
                 validateName(name);
         bool recordAllChains;
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
-        // Start by deploying the DiamonInit contract.
-        DiamondInit diamondInit = new DiamondInit();
         FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](3);
 
         // Register all facets.

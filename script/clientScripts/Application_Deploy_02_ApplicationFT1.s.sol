@@ -46,7 +46,7 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
 
         /// Create ERC20 token 1
-        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
         applicationCoinHandlerDiamond = createERC20HandlerDiamondPt1("Frankenstein Coin");
 
         vm.stopBroadcast();

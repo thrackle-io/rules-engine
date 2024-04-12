@@ -188,6 +188,13 @@ contract ProtocolApplicationHandler is
         }
     }
 
+    /**
+     * @dev This function consolidates the MaxTXValueByRiskScore rule checks for the from address.
+     * @param _from address of the from account
+     * @param _riskScoreFrom sender address risk score
+     * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _action the current user action
+     */
     function _checkAccountMaxTxValueByRiskScoreFrom(ActionTypes _action, address _from, uint8 _riskScoreFrom, uint128 _transferValuation) internal {
         usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
                 accountMaxTxValueByRiskScore[_action].ruleId,
@@ -199,6 +206,13 @@ contract ProtocolApplicationHandler is
             lastTxDateRiskRule[_from] = uint64(block.timestamp);
     }
 
+    /**
+     * @dev This function consolidates the MaxTXValueByRiskScore rule checks for the to address.
+     * @param _to address of the to account
+     * @param _riskScoreTo recipient address risk score
+     * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _action the current user action
+     */
     function _checkAccountMaxTxValueByRiskScoreTo(ActionTypes _action, address _to, uint8 _riskScoreTo, uint128 _transferValuation) internal {
         usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
             accountMaxTxValueByRiskScore[_action].ruleId,
@@ -364,7 +378,7 @@ contract ProtocolApplicationHandler is
     }
 
     /**
-     * @dev Set the AccountMaxValuebyAccessLevelRuleId.
+     * @dev Set the AccountMaxValuebyRiskSCoreRuleId.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set

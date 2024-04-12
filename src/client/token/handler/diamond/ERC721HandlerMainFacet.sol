@@ -39,6 +39,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.
+     * @notice This function is called without passing in an action type. 
      * @param balanceFrom token balance of sender address
      * @param balanceTo token balance of recipient address
      * @param _from sender address
@@ -91,7 +92,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             action = _action;
         }
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
-        /// standard tagged and non-tagged rules do not apply when either to or from is an admin
+        /// standard tagged and non-tagged rules do not apply when either to or from is a rule bypass account
         if (!isFromBypassAccount && !isToBypassAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             callAnotherFacet(

@@ -34,6 +34,7 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         (, msgSender, ) = vm.readCallers();
         uint256 balance = applicationCoin.balanceOf(address(msgSender));
         if (balance > 0) {
+            vm.startPrank(msgSender);
             vm.expectRevert("ERC20: transfer to the zero address");
             applicationCoin.transfer(address(0), balance);
         }

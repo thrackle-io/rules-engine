@@ -850,7 +850,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         ///Create rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScoresRuleA, maxBalancesRiskRule);
-        setAccountMaxTxValueByRiskRule(ruleId);
+        setAccountMaxTxValueByRiskRuleSingleAction(action, ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         address[4] memory tempAddresses = [_user1, _user2, _user3, _user4];
@@ -878,7 +878,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         ///Create rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScoresRuleA, maxBalancesRiskRule);
-        setAccountMaxTxValueByRiskRule(ruleId);
+        setAccountMaxTxValueByRiskRuleSingleAction(action, ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         address[4] memory tempAddresses = [_user1, _user2, _user3, _user4];
@@ -907,7 +907,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         ///Create rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScoresRuleA, maxBalancesRiskRule);
-        setAccountMaxTxValueByRiskRule(ruleId);
+        setAccountMaxTxValueByRiskRuleSingleAction(action, ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         address[4] memory tempAddresses = [_user1, _user2, _user3, _user4];
@@ -1013,14 +1013,31 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
         }
         applicationNFT.safeMint(_user3); // a 200-dollar NFT
+        if (_risk >= riskScoresRuleA[4]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
+        } else if (_risk >= riskScoresRuleA[3]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
+        } else if (_risk >= riskScoresRuleA[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
+        } else if (_risk >= riskScoresRuleA[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
+        } else if (_risk >= riskScoresRuleA[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
+        }
+        applicationNFT.safeMint(_user4);
     }
 
     /**  TX VALUE BY RISK SCORE : Burn  */
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Burn(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBurn(_addressIndex, _risk, ActionTypes.BURN);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
-        
         vm.startPrank(_user1);
         if (_risk >= riskScoresRuleA[4]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -1068,6 +1085,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Buy(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTBuy(_addressIndex, _risk, ActionTypes.BUY);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
         
         vm.startPrank(_user1);
@@ -1111,14 +1129,16 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
         }
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 2, true); // a 30-dollar NFT // a 200-dollar NFT
+
     }
 
     /**  TX VALUE BY RISK SCORE : Buy  */
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScoreRuleNFT1_Sell(uint8 _addressIndex, uint8 _risk) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4, DummyNFTAMM _amm) = _buildAccountMaxTransactionValueByRiskScoreRuleNFTSell(_addressIndex, _risk, ActionTypes.SELL);
+        console.log(_user4);
         _risk = _parameterizeRisk(_risk);
-        
+        console.log(_user4);
         vm.startPrank(_user1);
         applicationNFT.setApprovalForAll(address(_amm), true);
         if (_risk >= riskScoresRuleA[4]) {
@@ -1260,7 +1280,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         switchToAppAdministrator();
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, (accessBalance3 - 10) * ATTO); 
         applicationNFT.safeMint(_user3);
-        (accessBalance1, accessBalance2, accessBalance4, _user2, _user4);
+        (accessBalance1, accessBalance2, accessBalance4, _user1, _user2, _user4);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel_Mint_Negative(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
@@ -1270,7 +1290,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 210 * ATTO); 
         if (accessBalance3 < 210) vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         applicationNFT.safeMint(_user3);
-        (accessBalance1, accessBalance2, accessBalance4, _user2, _user4);
+        (accessBalance1, accessBalance2, accessBalance4, _user1, _user2, _user4);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel_Buy_Positive(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
@@ -1283,7 +1303,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, (accessBalance3 - 10) * ATTO); 
         vm.startPrank(_user3);
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, true);
-        (accessBalance1, accessBalance2, accessBalance4, _user2, _user4);
+        (accessBalance1, accessBalance2, accessBalance4, _user1, _user2, _user4);
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel_Buy_Negative(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
@@ -1297,7 +1317,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         if (accessBalance3 < 210) vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         vm.startPrank(_user3);
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, true);
-        (accessBalance1, accessBalance2, accessBalance4, _user2, _user4);
+        (accessBalance1, accessBalance2, accessBalance4, _user1, _user2, _user4);
     }
 
     function _buildAccountMaxValueByAccessLevelWithERC20(uint8 _addressIndex, uint8 _amountSeed) internal endWithStopPrank returns (address _user1, address _user2, address _user3, address _user4) {
@@ -1514,11 +1534,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         switchToAppAdministrator();
         for (uint i; i < 3; i++) applicationNFT.safeMint(_user2);
         vm.startPrank(_user2);
-        applicationNFT.burn(2); 
+        applicationNFT.burn(2);
+        console.log(_user3);
+        console.log(_user4); 
     }
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Burn_Negative(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.BURN);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         applicationNFT.safeMint(_user1);
         vm.startPrank(_user1);
@@ -1533,6 +1557,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Buy_Positive(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.BUY);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         DummyNFTAMM _amm = new DummyNFTAMM();
         for (uint i; i < 3; i++) applicationNFT.safeMint(_user1);
@@ -1550,6 +1576,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Buy_Negative(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.BUY);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         DummyNFTAMM _amm = new DummyNFTAMM();
         for (uint i; i < 4; i++) applicationNFT.safeMint(_user1);
@@ -1568,6 +1596,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Sell_Positive(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.SELL);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         DummyNFTAMM _amm = new DummyNFTAMM();
         for (uint i; i < 2; i++)  applicationNFT.safeMint(_user1);
@@ -1583,6 +1613,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Sell_Negative(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.SELL);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         DummyNFTAMM _amm = new DummyNFTAMM();
         applicationNFT.safeMint(_user1);
@@ -1600,6 +1632,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Mint_Positive(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.MINT);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         for (uint i; i < 3; i++) applicationNFT.safeMint(_user1);
         applicationNFT.safeMint(_user1); 
@@ -1609,6 +1643,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMinMaxTokenBalance_ByDate_Mint_Negative(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMinMaxTokenBalanceAction(_addressIndex, tag1, tag2, tag3, ActionTypes.MINT);
+        console.log(_user3);
+        console.log(_user4);
         switchToAppAdministrator();
         for (uint i; i < 4; i++) applicationNFT.safeMint(_user1);
         vm.expectRevert(abi.encodeWithSignature("TxnInFreezeWindow()"));
@@ -1903,6 +1939,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScore_Mint(uint8 _risk, uint8 _period) public endWithStopPrank {
         (address _user1, address _user2, uint8 risk, uint8 period) = _buildAccountMaxTransactionValueByRiskScoreWithPeriodAction(_risk, _period, ActionTypes.MINT);
+        console.log(_user2);
         _risk = _parameterizeRisk(_risk);
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours));
@@ -1975,7 +2012,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, priceA);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, priceB);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, priceC);
-        address _user1 = address(0xff11);
         address _user2 = address(0xaa22);
         if (priceA >= uint112(maxValueForUser2) * ATTO) vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
         applicationNFT.safeMint(_user2);
@@ -2000,7 +2036,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeMint(address(_amm));
         applicationNFT.safeMint(address(_amm));
         applicationNFT.setApprovalForAll(address(_amm), true);
-        address _user1 = address(0xff11);
         address _user2 = address(0xaa22);
         vm.startPrank(_user2);
         if (priceA >= uint112(maxValueForUser2) * ATTO) vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
@@ -2063,6 +2098,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueOutByAccessLevel_Transfer(uint8 _addressIndex, uint8 _accessLevel) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _accountMaxValueOutByAccessLevelSetup(_addressIndex, _accessLevel, ActionTypes.P2P_TRANSFER);
+        console.log(_user2);
         ///perform transfers
         vm.startPrank(_user1);
         if (_accessLevel < 1) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
@@ -2079,7 +2115,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueOutByAccessLevel_Sell(uint8 _addressIndex, uint8 _accessLevel) public endWithStopPrank {
         (address _user1, address _user2, address _user3, address _user4) = _accountMaxValueOutByAccessLevelSetup(_addressIndex, _accessLevel, ActionTypes.SELL);
-        
+        console.log(_user2);
         DummyNFTAMM _amm = new DummyNFTAMM();
 
         vm.startPrank(_user1);
@@ -2348,7 +2384,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Burn(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
         (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.BURN);
-
+        console.log(_user1);
         /// determine the maximum transfer amount 
         uint256 maxSize = uint256(_updatedPercent) / 1000;
         console.log(maxSize);
@@ -2378,7 +2414,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Mint(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
         (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.MINT);
-
+        console.log(_rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_updatedPercent) / 1000;
         console.log(maxSize);
@@ -2407,6 +2443,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Buy(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
         (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.BUY);
+        console.log(_rich_user);
         switchToAppAdministrator();
         DummyNFTAMM _amm = new DummyNFTAMM();
         for (uint i = 0; i < 10; i++) applicationNFT.safeMint(address(_amm));
@@ -2439,6 +2476,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_TokenMaxTradingVolumeFuzz_Sell(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public endWithStopPrank {
         (address _rich_user, address _user1, uint16 _updatedPercent) = tokenMaxTradingVolumeFuzzNFTSetup(_addressIndex, _period, _maxPercent, ActionTypes.SELL);
+        console.log(_user1);
         DummyNFTAMM _amm = new DummyNFTAMM();
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_updatedPercent) / 1000;
@@ -2511,6 +2549,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Sell(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
         (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.SELL);
+        console.log(_user1);
+        console.log(_user2);
         if (_hours > 0 && _hours < 43830) {
             DummyNFTAMM _amm = new DummyNFTAMM();
             vm.startPrank(_user1);
@@ -2527,6 +2567,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Burn(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
         (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.BURN);
+        console.log(_user1);
+        console.log(_user2);
         if (_hours > 0 && _hours < 43830) {
             DummyNFTAMM _amm = new DummyNFTAMM();
             vm.startPrank(_user1);
