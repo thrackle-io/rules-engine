@@ -34,7 +34,7 @@ contract ApplicationERC20MintBurnInvariantTest is ApplicationERC20Common {
         );
     }
 
-    // Burn should update user balance and total supply
+    // Burn should update user balance and total supply when burnFrom is called twice
     function invariant_ERC20external_burnFrom() public {
         if (applicationCoin.paused())return;
         uint256 balance_sender = applicationCoin.balanceOf(USER1);

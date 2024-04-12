@@ -1,5 +1,6 @@
 # ProtocolERC20Handler Invariants
 
+##### Note: not implemented, todo
 This document covers all the facets for the ERC20 handler, its rules, and the inherited contracts it uses.
 
 ## ERC20HandlerMainFacet Invariants

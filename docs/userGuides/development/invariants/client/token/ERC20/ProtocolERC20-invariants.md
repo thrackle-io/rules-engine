@@ -1,7 +1,36 @@
 # ProtocolERC20 Invariants
 
-## Protocol Related Invariants
+## [Base ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20Basic.t.i.sol)
+- User balance must not exceed total supply
+- Sum of users balance must not exceed total supply
+- Address zero should have zero balance
+- Transfers to zero address should not be allowed.
+- transferFroms to zero address should not be allowed.
+- Self transfers should not break accounting.
+- Self transferFroms should not break accounting.
+- Transfers for more than available balance should not be allowed
+- TransferFroms for more than available balance should not be allowed
+- Zero amount transfers should not break accounting
+- Zero amount transferFroms should not break accounting
+- Transfers should update accounting correctly
+- TransferFroms should update accounting correctly
+- Approve should set correct allowances
+- Allowances should be updated correctly when approve is called twice.
+- TransferFrom should decrease allowance
 
+## [Burnable ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20MintBurn.t.i.sol)
+- Burn should update user balance and total supply
+- Burn should update user balance and total supply when burnFrom is called twice
+- burnFrom should update allowance
+
+## [Pausable ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20Pause.t.i.sol)
+- Transfers should not be possible during paused state
+- TransferFroms should not be possible during paused state
+
+# Unimplemented
+
+## Protocol Related Invariants
+##### note: Not implemented fully
 - Version will never be blank
 - Version will never change.
 - Any user can get the contract's version
@@ -22,35 +51,12 @@
 - If a cumulative positive fees exist, the treasury address balance will increase with a transfer
 - If a cumulative negative fees exist, the treasury address balance will remain the same with a transfer
 
-## Base ERC20 Invariants
-- Total supply should be constant for non-mintable and non-burnable tokens.
-- No user balance should be greater than the token's total supply.
-- The sum of all user balances should equal the token's total supply.
-- Token balance for address zero should be zero.
-- transfers to zero address should not be allowed.
-- transferFroms to zero address should not be allowed.
-- Self transfers should not break accounting.
-- Self transferFroms should not break accounting.
-- transfers for more than account balance should not be allowed.
-- transferFroms for more than account balance should not be allowed.
-- transfers for zero amount should not break accounting.
-- transferFroms for zero amount should not break accounting.
-- Valid transfers should update accounting correctly.
-- Valid transferFroms should update accounting correctly.
-- Allowances should be set correctly when approve is called.
-- Allowances should be updated correctly when approve is called twice.
-- After transferFrom, allowances should be updated correctly.
-
-## Burnable ERC20 Invariants
-- User balance and total supply should be updated correctly when burn is called.
-- User balance and total supply should be updated correctly when burnFrom is called.
-- Allowances should be updated correctly when burnFrom is called.
 
 ## Mintable ERC20 Invariants
 - User balance and total supply should be updated correctly after minting.
 
-## ProtocolTokenCommon Invariants
 
+## ProtocolTokenCommon Invariants
 - Only an App Admin can propose a new AppManager
 - Proposed AppManagerAddress can not be set to zero address
 - Any type of address may confirm the proposed AppManager as long as it is the proposed AppManager.

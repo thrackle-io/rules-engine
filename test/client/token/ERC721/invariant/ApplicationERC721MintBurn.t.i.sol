@@ -43,6 +43,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         applicationNFT.transferFrom(USER1, target, tokenId2);
     }
 
+    // approve() should revert if the token is burned
     function invariant_ERC721_external_burnRevertOnApprove() public virtual {
         if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
@@ -55,6 +56,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         applicationNFT.approve(USER1, tokenId2);
     }
 
+    // getApproved() should revert if the token is burned.
     function invariant_ERC721_external_burnRevertOnGetApproved() public virtual {
         if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
@@ -67,6 +69,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         applicationNFT.getApproved(tokenId2);
     }
 
+    // ownerOf() should revert if the token has been burned.
     function invariant_ERC721_external_burnRevertOnOwnerOf() public virtual {
         if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
@@ -80,7 +83,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
     }
 
 /** MINT */
-    // mint increases the total supply.
+    // Mint increases the total supply.
     function invariant_ERC721_external_mintIncreasesSupply() public virtual {
         if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
@@ -94,7 +97,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         }
     }
 
-    // mint creates a fresh applicationNFT.
+    // Mint creates a fresh applicationNFT.
     function invariant_ERC721_external_mintCreatesFreshToken() public virtual {
         if (applicationNFT.paused())return;
         switchToAppAdministrator();

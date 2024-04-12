@@ -15,25 +15,25 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
     }
 
 
-    // Querying the balance of address(0) should throw
+    // Calling balanceOf for the zero address should revert.
     function invariant_ERC721_external_balanceOfZeroAddressMustRevert() public virtual {
         vm.expectRevert("ERC721: address zero is not a valid owner");
         applicationNFT.balanceOf(address(0));
     }
 
-    // Querying the owner of an invalid token should throw
+    // Calling ownerOf for an invalid token should revert.
     function invariant_ERC721_external_ownerOfInvalidTokenMustRevert() public {
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.ownerOf(type(uint256).max);
     }
 
-    // Approving an invalid token should throw
+    // approve() should revert on invalid token.
     function invariant_ERC721_external_approvingInvalidTokenMustRevert() public {
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.approve(address(0), type(uint256).max);
     }
 
-    // transferFrom a token that the caller is not approved for should revert
+    // transferFrom() should revert if caller is not approved.
     function invariant_ERC721_external_transferFromNotApproved() public {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;        
@@ -46,7 +46,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         applicationNFT.transferFrom(USER1, target, tokenId2);
     }
 
-    // transferFrom should reset approval for that token
+    // transferFrom() should reset approval for that token
     function invariant_ERC721_external_transferFromResetApproval() public virtual {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0)) return;  
@@ -64,7 +64,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         assertTrue(approved == address(0));
     }
 
-    // transferFrom correctly updates owner
+    // transferFrom() should update the token owner.
     function invariant_ERC721_external_transferFromUpdatesOwner() public virtual {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;  
@@ -81,7 +81,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         }
     }
 
-    // transfer from zero address should revert
+    // transferFrom() should revert if from is the zero address.
     function invariant_ERC721_external_transferFromZeroAddress() public virtual {
         try applicationNFT.ownerOf(tokenId) {
             vm.expectRevert("ERC721: caller is not token owner or approved");
@@ -92,7 +92,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         }
     }
 
-    // Transfers to the zero address should revert
+    // transferFrom() should revert if to is the zero address.
     function invariant_ERC721_external_transferToZeroAddress() public virtual {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
@@ -104,7 +104,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
 
     }
 
-    // Transfers to self should not break accounting
+    // transferFrom() to self should not break accounting
     function invariant_ERC721_external_transferFromSelf() public virtual {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
@@ -120,7 +120,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
 
     }
 
-    // Transfer to self reset approval
+    // transferFrom() to self should reset approval
     function invariant_ERC721_external_transferFromSelfResetsApproval() public virtual {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 

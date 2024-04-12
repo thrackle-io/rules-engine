@@ -13,7 +13,7 @@ contract ApplicationERC20PauseInvariantTest is ApplicationERC20Common {
         prepERC20AndEnvironment();
     }
 
-// Transfers should not be possible during paused state
+    // Transfers should not be possible during paused state
     function invariant_ERC20external_pausedTransfer() public {
         (, msgSender, ) = vm.readCallers();
         uint256 balance_sender = applicationCoin.balanceOf(USER1);
@@ -39,7 +39,7 @@ contract ApplicationERC20PauseInvariantTest is ApplicationERC20Common {
         applicationCoin.unpause();
     }
 
-    // Transfers should not be possible during paused state
+    // TransferFroms should not be possible during paused state
     function invariant_ERC20external_pausedTransferFrom() public {
         uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 balance_receiver = applicationCoin.balanceOf(target);

@@ -1,5 +1,7 @@
 # ProtocolERC721U Invariants
 
+##### Note: See ERC721-Invariants page one level up which has most up to date information on what has been invarianted for ERC721, nothing has been implemented for the upgradeable ERC721s. 
+
 ## Protocol Related Invariants
 
 - Version will never be blank

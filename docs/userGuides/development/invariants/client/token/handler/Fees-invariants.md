@@ -1,5 +1,5 @@
 # Fees Invariants
-
+###### Note: Not implemented, todo
 ## FeesFacet Invariants
 
 - Only a ruleAdmin can activate a set fee activation
