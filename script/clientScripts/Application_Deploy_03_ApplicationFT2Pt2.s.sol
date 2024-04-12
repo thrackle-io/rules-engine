@@ -3,17 +3,13 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
+import "./Application_Deploy_02_ApplicationFT1.s.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
-import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
-import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
-import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
-import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
-import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 import "./DeployBase.s.sol";
+
 /**
- * @title Application Deploy 02 Application Fungible Token 1 Script
+ * @title Application Deploy 03 Application Fungible Token 2 Script
  * @dev This script will deploy an ERC20 fungible token and Handler.
  * @notice Deploys an application ERC20 and Handler.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
@@ -29,8 +25,8 @@ import "./DeployBase.s.sol";
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployFT1Script is Script, DeployBase {
-    HandlerDiamond applicationCoinHandlerDiamond;
+contract ApplicationDeployFT2ScriptPt2 is Script, DeployBase {
+    HandlerDiamond applicationCoinHandlerDiamond2;
     uint256 privateKey;
     address ownerAddress;
     uint256 appAdminKey;
@@ -42,12 +38,21 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
+        applicationCoinHandlerDiamond2 = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2")));
+        ApplicationERC20 coin2 = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"));
 
-        /// Create ERC20 token 1
-        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandlerDiamond = createERC20HandlerDiamondPt1("Frankenstein Coin");
+        /// Create ERC20 token 2
+        createERC20HandlerDiamondPt2("Dracula Coin", address(applicationCoinHandlerDiamond2));
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.stopBroadcast();
+        vm.startBroadcast(appAdminKey);
+        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
+
+        /// Register the tokens with the application's app manager
+        applicationAppManager.registerToken("Dracula Coin", address(coin2));
 
         vm.stopBroadcast();
     }

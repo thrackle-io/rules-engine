@@ -12,6 +12,8 @@ import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 import {DiamondScriptUtil} from "../DiamondScriptUtil.sol";
+import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
+
 /**
  * @title Application Deploy 02 Application Fungible Token 1 Script
  * @dev This script will deploy an ERC20 fungible token and Handler.
@@ -31,22 +33,20 @@ import {DiamondScriptUtil} from "../DiamondScriptUtil.sol";
 
 contract DeployBase is Script, DiamondScriptUtil {
 
-    
-
     /**
      * @dev Deploy and set up the ERC20 Handler Diamond
      * @return diamond fully configured ERC20 Handler diamond
      */
-    function createERC20HandlerDiamond(string memory name) public returns (HandlerDiamond diamond) {
+    function createERC20HandlerDiamondPt1(string memory name) public returns (HandlerDiamond diamond) {
         validateName(name);
         bool recordAllChains;
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
-        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](8);
+        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](4);
 
         // Register all facets.
-        string[8] memory facets = [
+        string[4] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -55,11 +55,7 @@ contract DeployBase is Script, DiamondScriptUtil {
             "ProtocolRawFacet",
             // Protocol facets.
             //rule processor facets
-            "ERC20HandlerMainFacet",
-            "ERC20TaggedRuleFacet",
-            "ERC20NonTaggedRuleFacet",
-            "TradingRuleFacet",
-            "FeesFacet"
+            "ERC20HandlerMainFacet"
         ];
 
         name = replace(name, " ", "_");
@@ -105,20 +101,66 @@ contract DeployBase is Script, DiamondScriptUtil {
         return handlerInternal;
     }
 
-        /**
-     * @dev Deploy and set up the Rules Processor Diamond
-     * @return diamond fully configured rules processor diamond
+    function createERC20HandlerDiamondPt2(string memory name, address handlerAddress) public returns (HandlerDiamond diamond) {
+                validateName(name);
+        bool recordAllChains;
+        recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](4);
+
+        // Register all facets.
+        string[4] memory facets = [
+            "ERC20TaggedRuleFacet",
+            "ERC20NonTaggedRuleFacet",
+            "TradingRuleFacet",
+            "FeesFacet"
+        ];
+
+        name = replace(name, " ", "_");
+        string[] memory getSelectorsInput = new string[](3);
+        getSelectorsInput[0] = "python3";
+        getSelectorsInput[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+            
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+            recordFacet(string.concat(name, "HandlerDiamond"), facet, facetAddress, recordAllChains);
+
+            // Get the facet selectors.
+            getSelectorsInput[2] = facet;
+            bytes memory res = vm.ffi(getSelectorsInput);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+        }
+
+        IDiamondCut(handlerAddress).diamondCut(_erc20HandlerFacetCuts, address(0x0), "");
+
+    }
+
+    /**
+     * @dev Deploy and set up the ERC721 Handler Diamond
+     * @return diamond fully configured ERC721 Handler diamond
      */
-    function createERC721HandlerDiamond(string memory name) public returns (HandlerDiamond diamond) {
+    function createERC721HandlerDiamondPt1(string memory name) public returns (HandlerDiamond diamond) {
         validateName(name);
         bool recordAllChains;
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
-        FacetCut[] memory _erc721HandlerFacetCuts = new FacetCut[](7);
+        FacetCut[] memory _erc721HandlerFacetCuts = new FacetCut[](4);
 
         // Register all facets.
-        string[7] memory facets = [
+        string[4] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -127,10 +169,7 @@ contract DeployBase is Script, DiamondScriptUtil {
             "ProtocolRawFacet",
             // Protocol facets.
             //rule processor facets
-            "ERC721HandlerMainFacet",
-            "ERC721TaggedRuleFacet",
-            "ERC721NonTaggedRuleFacet",
-            "TradingRuleFacet"
+            "ERC721HandlerMainFacet"
         ];
 
         name = replace(name, " ", "_");
@@ -173,6 +212,51 @@ contract DeployBase is Script, DiamondScriptUtil {
         setENVVariable("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS", "false");
         // Deploy the diamond.
         return handlerInternal;
+    }
+
+        function createERC721HandlerDiamondPt2(string memory name, address handlerAddress) public returns (HandlerDiamond diamond) {
+                validateName(name);
+        bool recordAllChains;
+        recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](3);
+
+        // Register all facets.
+        string[3] memory facets = [
+            "ERC721TaggedRuleFacet",
+            "ERC721NonTaggedRuleFacet",
+            "TradingRuleFacet"
+        ];
+
+        name = replace(name, " ", "_");
+        string[] memory getSelectorsInput = new string[](3);
+        getSelectorsInput[0] = "python3";
+        getSelectorsInput[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+            
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+            recordFacet(string.concat(name, "HandlerDiamond"), facet, facetAddress, recordAllChains);
+
+            // Get the facet selectors.
+            getSelectorsInput[2] = facet;
+            bytes memory res = vm.ffi(getSelectorsInput);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+        }
+
+        IDiamondCut(handlerAddress).diamondCut(_erc20HandlerFacetCuts, address(0x0), "");
+
     }
 
     function validateName(string memory name) internal pure {
