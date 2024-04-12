@@ -14,7 +14,7 @@ address payable public owner;
 
 //The one ho calls the contract for the first time is the owner 
 constructor()
-{owner = payable(msg.sender);}
+    {owner = payable(msg.sender);}
 
 //Payable function returns nothing (setter function only takes ethers as an argument and stores ethers inside the smart contract)
 //Since we need ethers to store inside of our wallet (smart contract) 
@@ -30,18 +30,25 @@ modifier verifyOwner{
 
 //Transfer the amount from caller's account to this wallet (smart contract)
 function withdraw(uint _amount) external verifyOwner{
-payable(msg.sender).transfer(_amount);
+    payable(msg.sender).transfer(_amount);
 }
 
 //To know the wallet balance
 function getWalletBalance() external view returns (uint){
-return address(this).balance;
+    return address(this).balance;
 }
 
 //To know the owner balance
 function getOwnerBalance() external view returns (uint){
-return address(owner).balance;
+    return address(owner).balance;
 }
 
+function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external pure returns (bytes4) {
+        _operator;
+        _from;
+        _tokenId;
+        _data;
+        return this.onERC721Received.selector;
+    }
 
 }
