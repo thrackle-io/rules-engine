@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "test/util/TestCommonFoundry.sol";
-import "../../TestTokenCommon.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
-contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util, DummyAMM {
+contract ApplicationERC20FuzzTest is ERC20Util {
     // event Log(string eventString, uint256 number);
     ApplicationERC20 draculaCoin;
 
