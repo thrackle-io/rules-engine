@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/cbc87814d6bed0b3e71e8ab959486c532d05c771/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/54f7f9441857e3c2c8f186b9d669a05f288b8209/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
@@ -267,6 +267,8 @@ function _checkAccessLevelRules(
 
 Exempting address(0) allows for burning.
 
+*This function consolidates the MaxTXValueByRiskScore rule checks for the from address.*
+
 
 ```solidity
 function _checkAccountMaxTxValueByRiskScoreFrom(
@@ -276,8 +278,19 @@ function _checkAccountMaxTxValueByRiskScoreFrom(
     uint128 _transferValuation
 ) internal;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the current user action|
+|`_from`|`address`|address of the from account|
+|`_riskScoreFrom`|`uint8`|sender address risk score|
+|`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+
 
 ### _checkAccountMaxTxValueByRiskScoreTo
+
+*This function consolidates the MaxTXValueByRiskScore rule checks for the to address.*
 
 
 ```solidity
@@ -288,6 +301,15 @@ function _checkAccountMaxTxValueByRiskScoreTo(
     uint128 _transferValuation
 ) internal;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the current user action|
+|`_to`|`address`|address of the to account|
+|`_riskScoreTo`|`uint8`|recipient address risk score|
+|`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+
 
 ### setNFTPricingAddress
 
@@ -483,7 +505,7 @@ function clearAccountMaxValueByRiskScore() internal;
 
 that setting a rule will automatically activate it.
 
-*Set the AccountMaxValuebyAccessLevelRuleId.*
+*Set the AccountMaxValuebyRiskSCoreRuleId.*
 
 
 ```solidity

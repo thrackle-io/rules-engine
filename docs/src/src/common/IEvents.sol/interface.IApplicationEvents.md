@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/cbc87814d6bed0b3e71e8ab959486c532d05c771/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/54f7f9441857e3c2c8f186b9d669a05f288b8209/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -27,7 +27,7 @@ event AD1467_NewTokenDeployed(address indexed appManagerAddress);
 ```
 
 ### AD1467_NewNFTDeployed
-ProtocolERC721 & ERC721A
+ProtocolERC721
 
 
 ```solidity

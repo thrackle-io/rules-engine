@@ -1,5 +1,5 @@
 # ERC20HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/cbc87814d6bed0b3e71e8ab959486c532d05c771/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/54f7f9441857e3c2c8f186b9d669a05f288b8209/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerAdminMinTokenBalance](/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md), ERC173
@@ -26,6 +26,8 @@ function initialize(address _ruleProcessorProxyAddress, address _appManagerAddre
 
 
 ### checkAllRules
+
+This function is called without passing in an action type.
 
 *This function is the one called from the contract that implements this handler. It's the entry point.*
 
@@ -130,7 +132,7 @@ function _checkAllRules(
 
 ### getAppManagerAddress
 
-standard rules do not apply when either to or from is an admin
+standard rules do not apply when either to or from is a rule bypass account
 
 *This function returns the configured application manager's address.*
 
