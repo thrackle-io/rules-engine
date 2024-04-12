@@ -1,5 +1,5 @@
 # HandlerTokenMaxDailyTrades
-[Git Source](https://github.com/thrackle-io/tron/blob/22d59d8913fec75ff35111960d6c2b98915a9f8b/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/edf3093a9fed22d64a8edbc89ae73bfbadfe2a42/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
