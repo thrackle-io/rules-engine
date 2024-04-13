@@ -112,7 +112,7 @@ function getNFTValuationLimit() external view returns (uint256);
 
 ### Upgrading: 
 
-To upgrade the pricing contract, ensure your new pricing contract is deployed to the same network your [Application Handler](../Architecture/Client/Application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the function `setNFTPricing` from the Application Handler contract. 
+To upgrade the pricing contract, ensure your new pricing contract is deployed to the same network your [Application Handler](../architecture/client/application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the function `setNFTPricing` from the Application Handler contract. 
 
 ```c
 function setNFTPricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress)

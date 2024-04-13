@@ -263,17 +263,6 @@ contract ApplicationAppManagerDataInvariantTest is TestCommonFoundry {
         vm.expectRevert();
         applicationAppManager.proposeTagsProvider(user);
     }
-    // If proposeAccountsProvider is called with an address of 0 the transaction will be reverted.
-    function invariant_ProposeAccountsProviderNoZeroAddress() public {
-        switchToAppAdministrator();
-        vm.expectRevert();
-        applicationAppManager.proposeAccountsProvider(address(0));
-    }
-    // If proposeAccountsProvider is called by an account that is not an App Admin the transaction will be reverted.
-    function invariant_ProposeAccountsProviderNotAppAdmin() public {
-        vm.expectRevert();
-        applicationAppManager.proposeAccountsProvider(user);
-    }
     // If proposePauseRulesProvider is called with an address of 0 the transaction will be reverted.
     function invariant_ProposePauseRulesProviderNoZeroAddress() public {
         switchToAppAdministrator();

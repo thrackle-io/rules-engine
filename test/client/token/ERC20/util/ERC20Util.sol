@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "test/client/token/TokenUtils.sol";
+import "test/client/token/TestTokenCommon.sol";
 
 /**
  * @title Rule Creation Functions
@@ -10,7 +11,7 @@ import "test/client/token/TokenUtils.sol";
  * This contract holds the functions for adding a protocol rule for tests.
  */
 
-abstract contract ERC20Util is TokenUtils {
+abstract contract ERC20Util is TokenUtils, DummyAMM {
     function setAccountApproveDenyOracleRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN);
@@ -113,4 +114,26 @@ abstract contract ERC20Util is TokenUtils {
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeIdFull(actions, ruleIds);
     }
 
+    function initializeERC20AMM(address token1, address token2) public endWithStopPrank returns (DummyAMM amm) {
+        amm = new DummyAMM();
+        switchToAppAdministrator();
+        ApplicationERC20(token1).mint(appAdministrator, 1_000_000_000_000 * ATTO);
+        ApplicationERC20(token2).mint(appAdministrator, 1_000_000_000_000 * ATTO);
+        /// Transfer the tokens into the AMM
+        ApplicationERC20(token1).transfer(address(amm), 1_000_000 * ATTO);
+        ApplicationERC20(token2).transfer(address(amm), 1_000_000 * ATTO);
+        /// Make sure the tokens made it
+        assertEq(ApplicationERC20(token1).balanceOf(address(amm)), 1_000_000 * ATTO);
+        assertEq(ApplicationERC20(token2).balanceOf(address(amm)), 1_000_000 * ATTO);        
+    }
+
+    function initializeERC20Stake(address token1) public endWithStopPrank returns (DummyStaking staking) {
+        staking = new DummyStaking();
+        switchToAppAdministrator();
+        ApplicationERC20(token1).mint(appAdministrator, 1_000_000_000_000 * ATTO);
+        /// Transfer the tokens into the AMM
+        ApplicationERC20(token1).transfer(address(staking), 1_000_000 * ATTO);
+        /// Make sure the tokens made it
+        assertEq(ApplicationERC20(token1).balanceOf(address(staking)), 1_000_000 * ATTO);
+    }
 }

@@ -68,7 +68,7 @@ Notice that only accounts with the appAdministrator role can invoke this functio
 
 ### Upgrading: 
 
-To upgrade the pricing contracts, ensure your new pricing contract is deployed to the same network your [Application Handler](../Architecture/Client/Application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the appropriate function `setERC20Pricing` or `setNFTPricing` from the Application Handler contract. 
+To upgrade the pricing contracts, ensure your new pricing contract is deployed to the same network your [Application Handler](../architecture/client/application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the appropriate function `setERC20Pricing` or `setNFTPricing` from the Application Handler contract. 
 
 
 ```c

@@ -34,10 +34,6 @@ interface IAppLevelEvents {
     event AD1467_AMMRegistered(address indexed _address);
     event AD1467_TreasuryRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
-    ///Accounts
-    event AD1467_AccountProviderSet(address indexed _address);
-    event AD1467_AccountAdded(address indexed account);
-    event AD1467_AccountRemoved(address indexed account);
     ///Tags
     event AD1467_TagProviderSet(address indexed _address);
     event AD1467_Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);

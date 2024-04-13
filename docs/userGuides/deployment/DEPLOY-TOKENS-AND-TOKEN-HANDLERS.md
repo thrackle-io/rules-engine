@@ -47,7 +47,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
         ````
         bash script/ParseApplicationDeploy.sh 3
         ````
-5. This script deploys the NFT token, Asset Handler Diamond, Initializes the diamond, connects the token to the handler and registers the token with the [Application Manager](../../Architecture/Client/Application/APPLICATION-MANAGER.md).
+5. This script deploys the NFT token, Asset Handler Diamond, Initializes the diamond, connects the token to the handler and registers the token with the [Application Manager](../../architecture/client/application/APPLICATION-MANAGER.md).
 
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721

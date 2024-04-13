@@ -72,4 +72,4 @@ The next step is to update the appropriate function in `ProtocolApplicationHandl
 
 ### Upgrading Existing Diamonds
 
-Once the above changes have been made to add the new rule, in order to make the rule available we will need to upgrade the existing diamond instance. Step by step instructions on this upgrade are provided in [RULE-PROCESSOR-DIAMOND-UPGRADE.md](../../../Architecture/Protocol/RULE-PROCESSOR-DIAMOND-UPGRADE.md) 
+Once the above changes have been made to add the new rule, in order to make the rule available we will need to upgrade the existing diamond instance. Step by step instructions on this upgrade are provided in [RULE-PROCESSOR-DIAMOND-UPGRADE.md](../../../architecture/protocol/RULE-PROCESSOR-DIAMOND-UPGRADE.md) 
