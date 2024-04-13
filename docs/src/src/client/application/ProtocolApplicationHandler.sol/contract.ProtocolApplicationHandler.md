@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/9665732f3266b703cc028112f97a9a18c551bb91/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/3af53b224777c5c1f4e2e734b7757bd798236667/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)

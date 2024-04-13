@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/9665732f3266b703cc028112f97a9a18c551bb91/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/3af53b224777c5c1f4e2e734b7757bd798236667/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -118,26 +118,6 @@ event AD1467_TreasuryRegistered(address indexed _address);
 
 ```solidity
 event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
-```
-
-### AD1467_AccountProviderSet
-Accounts
-
-
-```solidity
-event AD1467_AccountProviderSet(address indexed _address);
-```
-
-### AD1467_AccountAdded
-
-```solidity
-event AD1467_AccountAdded(address indexed account);
-```
-
-### AD1467_AccountRemoved
-
-```solidity
-event AD1467_AccountRemoved(address indexed account);
 ```
 
 ### AD1467_TagProviderSet

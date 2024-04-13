@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/9665732f3266b703cc028112f97a9a18c551bb91/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/3af53b224777c5c1f4e2e734b7757bd798236667/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -69,16 +69,9 @@ bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROL
 ```
 
 
-### accounts
+### accessLevels
 Data contracts
 
-
-```solidity
-IAccounts accounts;
-```
-
-
-### accessLevels
 
 ```solidity
 IAccessLevels accessLevels;
@@ -112,13 +105,6 @@ Data provider proposed addresses
 
 ```solidity
 address newAccessLevelsProviderAddress;
-```
-
-
-### newAccountsProviderAddress
-
-```solidity
-address newAccountsProviderAddress;
 ```
 
 
@@ -1190,36 +1176,6 @@ function getTagProvider() external view returns (address);
 |`<none>`|`address`|provider Address of the provider|
 
 
-### proposeAccountsProvider
-
-*First part of the 2 step process to set a new account provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.*
-
-
-```solidity
-function proposeAccountsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_newProvider`|`address`|Address of the new provider|
-
-
-### getAccountProvider
-
-*Get the address of the account provider*
-
-
-```solidity
-function getAccountProvider() external view returns (address);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|provider Address of the provider|
-
-
 ### proposePauseRulesProvider
 
 *First part of the 2 step process to set a new pause rule provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.*
@@ -1611,21 +1567,6 @@ function getAccessLevelDataAddress() external view returns (address);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`address`|AccessLevelDataAddress|
-
-
-### getAccountDataAddress
-
-*Getter for the Account data contract address*
-
-
-```solidity
-function getAccountDataAddress() external view returns (address);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|accountDataAddress|
 
 
 ### getRiskDataAddress

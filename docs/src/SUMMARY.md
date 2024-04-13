@@ -5,7 +5,6 @@
     - [❱ application](src/client/application/README.md)
       - [❱ data](src/client/application/data/README.md)
         - [AccessLevels](src/client/application/data/AccessLevels.sol/contract.AccessLevels.md)
-        - [Accounts](src/client/application/data/Accounts.sol/contract.Accounts.md)
         - [DataModule](src/client/application/data/DataModule.sol/abstract.DataModule.md)
         - [IAccessLevels](src/client/application/data/IAccessLevels.sol/interface.IAccessLevels.md)
         - [IAccounts](src/client/application/data/IAccounts.sol/interface.IAccounts.md)

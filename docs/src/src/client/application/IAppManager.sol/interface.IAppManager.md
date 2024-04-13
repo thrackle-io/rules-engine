@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/9665732f3266b703cc028112f97a9a18c551bb91/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/3af53b224777c5c1f4e2e734b7757bd798236667/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)

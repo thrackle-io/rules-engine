@@ -2,7 +2,6 @@
 
 # Contents
 - [AccessLevels](AccessLevels.sol/contract.AccessLevels.md)
-- [Accounts](Accounts.sol/contract.Accounts.md)
 - [DataModule](DataModule.sol/abstract.DataModule.md)
 - [IAccessLevels](IAccessLevels.sol/interface.IAccessLevels.md)
 - [IAccounts](IAccounts.sol/interface.IAccounts.md)
