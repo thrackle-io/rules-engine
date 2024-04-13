@@ -19,6 +19,7 @@ if [ $SCRIPT_MODE = "--with-deploy" ]; then
 	source script/ParseProtocolDeploy.sh
 	forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
 	forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast
+  	forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast
 	forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast
 	source script/ParseApplicationDeploy.sh 1
 	forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast 
