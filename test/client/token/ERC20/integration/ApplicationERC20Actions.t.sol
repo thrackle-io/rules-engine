@@ -21,38 +21,68 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         setUpProcotolAndCreateERC20AndDiamondHandler();
     }
    
-    function testERC20_ApplicationERC20Actions_DetermineTransferAction() public {
+
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction_Mint() public {
         address from;
         address to;
         address sender;
         address user1 = address(1);
-        address user2 = address(2);
 
         // mint
         sender = user1;
         to = user1;
         from = address(0);
         assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction(from, to, sender)));
+    }
+
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction_Burn() public {
+        address from;
+        address to;
+        address sender;
+        address user1 = address(1);
 
         // burn
         sender = user1;
         to = address(0);
         from = user1;
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction(from, to, sender)));
+    }
+
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction_Transfer() public {
+        address from;
+        address to;
+        address sender;
+        address user1 = address(1);
+        address user2 = address(2);
 
         // p2p transfer
         sender = user2;
         to = user1;
         from = user2;
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction(from, to, sender)));
+    }
 
-        // purchase
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction_Buy() public {
+        address from;
+        address to;
+        address sender;
+        address user1 = address(1);
+
+        // buy
         sender = address(this);
         to = user1;
         from = address(this);
         assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction(from, to, sender)));
+    }
 
-        // sale
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction_Sell() public {
+        address from;
+        address to;
+        address sender;
+        address user1 = address(1);
+        address user2 = address(2);
+
+        // sell
         sender = user2;
         to = user1;
         from = user1;
