@@ -25,6 +25,7 @@ jobs:
         run: |
           git config user.email "cloudops@thrackle.io"
           git config user.name "CloudOps Thrackle"
+          rm -rf docs/src/src
           forge doc
           git add .
           git commit -m "Generate documentation"
