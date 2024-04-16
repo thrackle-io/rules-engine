@@ -1,0 +1,58 @@
+What has already been done:
+
+1. Anvil started
+2. Protocol Deployed
+3. AppManager Deployed and configured
+4. FrankensteinCoin Deployed and configured
+5. Minted 1B coins
+6. Assign APP_ADMIN_1 Rule Bypass role
+6. Create Account Approve/Deny Oracle 
+7. Add GEORGE to approved list in the oracle
+8. Add BOB to approved list in the oracle
+8. Created and applied Account Approve/Deny Oracle rule
+
+
+LIVE DEMO
+1. Brief overview of Architecture
+2. Explain Action Based Rules
+3. Discuss setup steps for the demo
+
+## Additional useful info:
+1. Command to run the demo setup script
+    sh script/demo/DemoSetup.sh
+2. Commands to stop the server:
+    ps aux | grep anvil
+    kill ????
+3. Users and permissions:
+    APP_ADMIN_1=Application Administrator, Rule Bypass Admin
+    BOB=On the approved list
+    ALICE=standard user
+    CAROL=standard user
+
+
+## Transfer from Dev(Rule Bypass Admin) to ALICE. ALICE has no extra permissions. This user may not transfer the token anywhere except to a Dev account
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $ALICE 10 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+
+## check ALICE's Token Balance
+cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $ALICE --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 
+
+## Attempt to Transfer from ALICE to BOB, a privileged user. This will fail
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $CAROL 1 --private-key $ALICE_KEY --from $ALICE
+
+## check ALICE's Token Balance
+cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $ALICE --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 
+
+## Add ALICE to the privileged list
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $ALICE --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+
+## Now ALICE is allowed to Transfer to BOB, another approved user.
+cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $BOB 1 --private-key $ALICE_KEY --from $ALICE
+
+## check ALICE's Token Balance
+cast call $APPLICATION_ERC20_1 "balanceOf(address)(uint256)" $ALICE --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 
+
+
+
+
+
+

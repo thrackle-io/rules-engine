@@ -56,13 +56,29 @@ if [ "$LOCAL" = "y" ]; then
     IFS=' ' read -r -a array <<< "$ARRAY"
     echo $ARRAY
     echo
-    USER_1="${array[1]//\"}"
+    ALICE_KEY="${array[5]}"
+    ALICE="${array[1]//\"}"
 
     ARRAY=$(cat anvil_output.txt | grep \(2\) | tr '\n' ' ')
     echo $ARRAY
     echo
     IFS=' ' read -r -a array <<< "$ARRAY"
-    USER_2="${array[1]//\"}"
+    BOB_KEY="${array[5]}"
+    BOB="${array[1]//\"}"
+
+    ARRAY=$(cat anvil_output.txt | grep \(3\) | tr '\n' ' ')
+    echo $ARRAY
+    echo
+    IFS=' ' read -r -a array <<< "$ARRAY"
+    CAROL_KEY="${array[5]}"
+    CAROL="${array[1]//\"}"
+
+    ARRAY=$(cat anvil_output.txt | grep \(4\) | tr '\n' ' ')
+    echo $ARRAY
+    echo
+    IFS=' ' read -r -a array <<< "$ARRAY"
+    GEORGE_KEY="${array[5]}"
+    GEORGE="${array[1]//\"}"
 
 
     export ETH_RPC_URL=http://127.0.0.1:8545
@@ -311,13 +327,22 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN_1 -
 cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
-echo  Add to allowed list
+echo  Set APP_ADMIN_1 as the Rule Bypass
+echo "################################################################"
+echo
+
+cast send $APPLICATION_APP_MANAGER "addRuleBypassAccount(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+
+echo "################################################################"
+echo  Add addresses to allowed list
 echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
 
 cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $BOB --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $GEORGE --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule
@@ -338,11 +363,36 @@ echo "################################################################"
 echo
 
 echo "################################################################"
-echo  Set the Rule on the Handler
+echo  Create Account Approve/Deny Oracle Rule
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $RULE_PROCESSOR_DIAMOND "addAccountApproveDenyOracle(address,uint8,address)" $APPLICATION_APP_MANAGER 1 $ORACLE_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
+
+OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
+
+PARSED_RULE_ID=$(echo $OUTPUT_JSON | jq '.[0].topics[2]' | tr -d '"')
+RULE_ID="${PARSED_RULE_ID: -1}"
+
+echo "################################################################"
+echo PARSED_RULE_ID=$PARSED_RULE_ID
+echo  export Rule_ID=$RULE_ID | tee -a $OUTPUTFILE
+echo "################################################################"
+echo
+
+echo "################################################################"
+echo  Apply the Account Min/Max Rule to Transfers on the Handler
+echo "################################################################"
+echo
+
+# cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+
+echo "################################################################"
+echo  Apply the Account Approve/Deny Oracle Rule to Transfers on the Handler
+echo "################################################################"
+echo
+
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountApproveDenyOracleId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt
@@ -352,8 +402,15 @@ ECHO "export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND"
 ECHO "export APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER"
 ECHO "export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY"
 ECHO "export APP_ADMIN_1=$APP_ADMIN_1"
-ECHO "export USER_1=$USER_1"
-ECHO "export USER_2=$USER_2"
+ECHO "export ALICE=$ALICE"
+ECHO "export ALICE_KEY=$ALICE_KEY"
+ECHO "export BOB=$BOB"
+ECHO "export BOB_KEY=$BOB_KEY"
+ECHO "export CAROL=$CAROL"
+ECHO "export CAROL_KEY=$CAROL_KEY"
+ECHO "export GEORGE=$GEORGE"
+ECHO "export GEORGE_KEY=$GEORGE_KEY"
 ECHO "export APPLICATION_ERC20_1=$APPLICATION_ERC20_1"
 ECHO "export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER"
+ECHO "export ORACLE_1_HANDLER=$ORACLE_1_HANDLER"
 rm ./transaction_output.txt
