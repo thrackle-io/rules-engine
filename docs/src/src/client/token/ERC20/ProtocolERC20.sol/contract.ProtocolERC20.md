@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/c8d7d0c68b3a2cdcb9e6e4cb41159f2dda90a8b6/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2c06fb72526db5cd6662cbeec5fef5842b764c6f/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -83,7 +83,7 @@ function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 
 Rule Processor Module Check
 
-*See [IERC165-supportsInterface](/src/client/token/ERC721/ProtocolERC721.sol/contract.ProtocolERC721.md#supportsinterface).*
+*See [IERC165-supportsInterface](/lib/openzeppelin-contracts-upgradeable/lib/forge-std/src/interfaces/IERC165.sol/interface.IERC165.md#supportsinterface).*
 
 
 ```solidity
