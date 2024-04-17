@@ -79,8 +79,9 @@ This document provides steps all developers must follow prior to submission of a
 1. Push code changes to GitHub
 2. Create PR via JIRA. 
    1. Add yourself as the assignee in GitHub.
-3. Create a message in #engineering-prs and tag desired reviewer(s)
-4. If the change creates known issues for DOOM or any other projects, create a message in #engineering-breaking-changes within Slack
+3. Change the status of the ticket to `READY FOR REVIEW`
+4. Create a message in #engineering-prs that contains a link to the Jira issue and tag desired reviewer(s)
+5. If the change creates known issues for DOOM or any other projects, create a message in #engineering-breaking-changes within Slack
    1. If the change breaks DOOM specifically, create a ticket for the change, notify Johnathon Bailey and Robert Kotz, and create a message in #engineering-breaking-changes within Slack.
 
 ## Protocol Deployment Scripts
