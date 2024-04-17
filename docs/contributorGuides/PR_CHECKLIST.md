@@ -37,7 +37,7 @@ This document provides steps all developers must follow prior to submission of a
 4. Avoid abbreviations.
 5. Avoid code duplication. But not fanatically. Minimal amounts of duplication are acceptable if it aids readability.
 6. Do not leave dead or commented-out code behind. You can still see old code in history. If you really have a good reason to do it, always leave a comment explaining what it is and why it is there.
-7. Mark hacks as such. If you have to leave behind a temporary workaround, make sure to include a comment that explains why and in what circumstances it can be removed. Preferably link to an issue you reported upstream. Add a TODO in the comment for how to address it in the future.
+7. Mark hacks as such. If you have to leave behind a temporary workaround, make sure to include a comment that explains why and in what circumstances it can be removed. Preferably link to an issue you reported upstream. Add a `TODO` in the comment for how to address it in the future.
 8. Avoid obvious comments.
 9. Do include comments when the reader may need extra context to understand the code.
 10. More important comments should utilize /// comments
@@ -65,6 +65,7 @@ This document provides steps all developers must follow prior to submission of a
 
 1. Change Ticket status to Ready For Review
 2. Post PR notification in #engineering-prs in Slack and tag relevant reviewer(s)
+3. All tasking comes from the Software Engineering Jira Board and should be documented such that a co-worker may replicate the work. This may be as simple as a “follow the README instructions to start the application” or as complex as a new document outlining how to launch an application and access it. Each ticket should contain or reference this information in the Developer Functional Test field prior to being marked for peer review. Verbose details are preferred over sparse details.
 
 ## Build and Test
 
