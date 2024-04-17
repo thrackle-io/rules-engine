@@ -6,7 +6,7 @@ This document provides steps all developers must follow prior to submission of a
 
 ## Code Quality
 1. Format the code with "prettier"
-2. Insure that all touched functions include [nat spec](https://docs.soliditylang.org/en/develop/natspec-format.html) comments with the following sections:
+2. Ensure that all touched functions include [nat spec](https://docs.soliditylang.org/en/develop/natspec-format.html) comments with the following sections:
 	1. @dev
 	2. @param
 	3. @return
@@ -21,27 +21,29 @@ This document provides steps all developers must follow prior to submission of a
 	1. positive results
 	2. negative results
 	3. fuzzing
-	4. invariants
+      	1. boundary testing(edge cases) to ensure variables can handle all possible thresholds
+	4. invariants 
 4. Verify the change does not introduce Slither or Necessist issues
  
 ## Security Related
 
 1. Make sure external function calls are properly gated. This is particularly true for functions that modify state.
-2. Insure that only the proper roles may modify the data
+2. Ensure that only the proper roles may modify the data
 
 ## Readability
 
 1. Choose good names.
-2. Is the name straightforward to understand? Do you feel the need to jump back to the definition and remind yourself what it was whenever you see it?
-3. Is the name unambiguous in the context where it is used?
-4. Avoid abbreviations.
-5. Avoid code duplication. But not fanatically. Minimal amounts of duplication are acceptable if it aids readability.
-6. Do not leave dead or commented-out code behind. You can still see old code in history. If you really have a good reason to do it, always leave a comment explaining what it is and why it is there.
-7. Mark hacks as such. If you have to leave behind a temporary workaround, make sure to include a comment that explains why and in what circumstances it can be removed. Preferably link to an issue you reported upstream. Add a `TODO` in the comment for how to address it in the future.
-8. Avoid obvious comments.
-9. Do include comments when the reader may need extra context to understand the code.
-10. More important comments should utilize /// comments
-11. Every line of assembly, if utilized, should be commented on and documented as to what it does.
+   1. Is the name straightforward to understand? Do you feel the need to jump back to the definition and remind yourself what it was whenever you see it?
+   2. Is the name unambiguous in the context where it is used?
+2. Avoid abbreviations.
+   1. For example, don't use "tkn" instead of token.
+3. Avoid code duplication. But not fanatically. Minimal amounts of duplication are acceptable if it aids readability. It is always best to consider how a dev unfamiliar with the project would view it.
+4. Do not leave dead or commented-out code behind. You can still see old code in history. If you really have a good reason to do it, always leave a comment explaining what it is and why it is there. Log statements are a good example of commented-out code that may need to remain.
+5. Mark hacks as such. If you have to leave behind a temporary workaround, make sure to include a comment that explains why and in what circumstances it can be removed. Preferably link to an issue you reported upstream. Add a `TODO` in the comment for how to address it in the future.
+6. Avoid obvious comments.
+7. Do include comments when the reader may need extra context to understand the code.
+8.  More important comments should utilize /// comments
+9.  Every line of assembly, if utilized, should be commented on and documented as to what it does.
 
 ## Issue Related
 
@@ -75,6 +77,11 @@ This document provides steps all developers must follow prior to submission of a
 4. Verify the DemoSetup.sh script completes successfully
 5. Point your local DOOM docker compose setup to your Tron branch, spin up DOOM and verify that the contents of the branch do not break basic functionality 
 	1. If functionality is broken or the change is known to break DOOM, create a ticket for the change, notify Johnathon Bailey, and create a message in #engineering-breaking-changes within Slack.
+
+## Documentation
+
+1. Update any related documentation taking special care to keep documentation references in sync with function signatures and parameters.
+2. If inner workings of rules were changed, change the rule specific documentation and any script documentation as well.
 	
 ## PR Creation Steps
 1. Push code changes to GitHub
@@ -86,8 +93,6 @@ This document provides steps all developers must follow prior to submission of a
    1. If the change breaks DOOM specifically, create a ticket for the change, notify Johnathon Bailey and Robert Kotz, and create a message in #engineering-breaking-changes within Slack.
 
 ## Protocol Deployment Scripts
-
-DeployAllModules.s.sol (all in one script)
 
 DeployAllModules.s.sol (Pt1, Pt2, Pt3, and Pt4)
 
