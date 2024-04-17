@@ -29,10 +29,23 @@ This document seeks to inform onboarding developers and project managers as to h
 
     g. Submit your PR for peer review.
 
-3. Follow the steps in the [PR CHECKLIST](./PR_CHECKLIST.md)
-    
+3. Transitioning to Ready for Review
 
-4. The first peer reviewer should begin their review by updating the ticket status to PR In Progress. All peer reviewers verify:
+    a. When development is completed for the branch, create/submit a pull request in GitHub for another team member to peer review. 
+
+    b. The developer must add the desired PR Devs to the following fields:
+
+        i. Peer Review Developer(s) field on the Jira ticket
+
+        ii. Reviewers field on the PR in Github
+
+        iii. Tag them in the #software-prs channel for the ticket
+
+    c. All tasking comes from the Software Engineering Jira Board and should be documented such that a co-worker may replicate the work. This may be as simple as a “follow the README instructions to start the application” or as complex as a new document outlining how to launch an application and access it. Each ticket should contain or reference this information in the Developer Functional Test field prior to being marked for peer review. Verbose details are preferred over sparse details.
+
+    d. Change the ticket status from the In Progress to the Ready For Review. Notify the #software-prs channel in slack.
+
+ 4. The first peer reviewer should begin their review by updating the ticket status to PR In Progress. All peer reviewers verify:
 
     a. The feature meets the requirements specified.
 
