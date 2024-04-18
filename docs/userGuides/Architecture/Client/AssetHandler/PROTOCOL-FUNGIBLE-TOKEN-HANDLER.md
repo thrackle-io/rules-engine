@@ -46,14 +46,14 @@ This function is the entry point for the token to facilitate checks to all rules
 This facet contains the function to check all tag based and trading rules that are set to active for the token. 
 
 ```c
-function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external
+function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external onlyOwner
 ```
 
 #### ERC20NonTaggedRuleFacet
 This facet contains the function to check all tag based rules that are set to active for the token.
 
 ```c
-function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external
+function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external onlyOwner
 ```
 
 #### FeesFacet

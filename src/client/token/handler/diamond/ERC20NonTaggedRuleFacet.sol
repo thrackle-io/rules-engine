@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./FacetsCommonImports.sol";
+import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 import "./RuleStorage.sol";
 import "../../ITokenInterface.sol";
 import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
@@ -9,7 +10,7 @@ import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "../ruleContracts/HandlerTokenMinTxSize.sol";
 
-contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
+contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual rule checks.
      * @param _from address of the from account
@@ -17,45 +18,87 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
+    function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external onlyOwner {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
+        address handlerBase = handlerBaseStorage.ruleProcessor; 
+        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) {
+            _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+        }
+        _checkAccountApproveDenyOraclesRule(_from, _to, action, handlerBase);
+        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
+            _checkTokenMaxTradingVolumeRule(_amount, action, handlerBase);
+        }
+        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
+            _checkTokenMaxSupplyVolatilityRule(_to, _amount, action, handlerBase);
+        }
+    }
 
-        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active)
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
+    /**
+     * @dev Internal function to check the Token Min Transaction Size rule 
+     * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
+     * @param handlerBase address of the handler proxy
+     */
+    function _checkTokenMinTxSizeRule(uint256 _amount, ActionTypes action, address handlerBase) internal view {
+        IRuleProcessor(handlerBase).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
+    }
+
+    /**
+     * @dev Internal function to check the Account Approve Deny Oracle Rules 
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param action if selling or buying (of ActionTypes type)
+     * @param handlerBase address of the handler proxy
+     */
+    function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionTypes action, address handlerBase) internal view {
+        mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         /// The action type determines if the _to or _from is checked by the oracle
         /// _from address is checked for Burn and Sell action types
         if (action == ActionTypes.BURN || action == ActionTypes.SELL){
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+            IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
         } 
         /// _to address is checked  for Mint, Buy, Transfer actions 
         if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
-        }  
+            IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        }
+    }
 
-        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
-            TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
-            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(
-                maxTradingVolume.tokenMaxTradingVolume[action].ruleId,
-                maxTradingVolume.transferVolume,
-                IToken(msg.sender).totalSupply(),
-                _amount,
-                maxTradingVolume.lastTransferTime
-            );
-            maxTradingVolume.lastTransferTime = uint64(block.timestamp);
-        }
+    /**
+     * @dev Internal function to check the Token Max Trading Volume rule 
+     * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
+     * @param handlerBase address of the handler proxy
+     */
+    function _checkTokenMaxTradingVolumeRule(uint256 _amount, ActionTypes action, address handlerBase) internal {
+        TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
+        maxTradingVolume.transferVolume = IRuleProcessor(handlerBase).checkTokenMaxTradingVolume(
+            maxTradingVolume.tokenMaxTradingVolume[action].ruleId,
+            maxTradingVolume.transferVolume,
+            IToken(msg.sender).totalSupply(),
+            _amount,
+            maxTradingVolume.lastTransferTime
+        );
+        maxTradingVolume.lastTransferTime = uint64(block.timestamp);
+    }
+
+    /**
+     * @dev Internal function to check the Token Max Supply Volatility rule 
+     * @param _to address of the to account
+     * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
+     * @param handlerBase address of the handler proxy
+     */
+    function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, ActionTypes action, address handlerBase) internal {
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
-            TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();
-            (maxSupplyVolatility.volumeTotalForPeriod, maxSupplyVolatility.totalSupplyForPeriod) = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxSupplyVolatility(
-                maxSupplyVolatility.tokenMaxSupplyVolatility[action].ruleId,
-                maxSupplyVolatility.volumeTotalForPeriod,
-                maxSupplyVolatility.totalSupplyForPeriod,
-                IToken(msg.sender).totalSupply(),
-                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
-                maxSupplyVolatility.lastSupplyUpdateTime
-            );
-            maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);
-        }
+        TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();
+        (maxSupplyVolatility.volumeTotalForPeriod, maxSupplyVolatility.totalSupplyForPeriod) = IRuleProcessor(handlerBase).checkTokenMaxSupplyVolatility(
+            maxSupplyVolatility.tokenMaxSupplyVolatility[action].ruleId,
+            maxSupplyVolatility.volumeTotalForPeriod,
+            maxSupplyVolatility.totalSupplyForPeriod,
+            IToken(msg.sender).totalSupply(),
+            _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+            maxSupplyVolatility.lastSupplyUpdateTime
+        );
+        maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);
     }
 }

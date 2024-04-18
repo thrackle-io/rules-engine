@@ -2529,4 +2529,37 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(address(69), 1000 * ATTO);
         applicationCoin2.transfer(address(69), 1000 * ATTO);
     }
+
+    function testERC20_ERC20CommonTests_FacetOwnershipModifiers_ERC20NonTaggedRules_Negative() public {
+        /// create facet and test that onlyOwner modifer prevents calls from non owners 
+        ERC20NonTaggedRuleFacet erc20NonTaggedTestFacet = new ERC20NonTaggedRuleFacet(); 
+        switchToUser();
+        vm.expectRevert("UNAUTHORIZED");
+        erc20NonTaggedTestFacet.checkNonTaggedRules(user1, user, 10, ActionTypes.P2P_TRANSFER);
+        /// test that users cannot call the facets directly through the proxy address 
+        vm.expectRevert("UNAUTHORIZED");
+        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).checkNonTaggedRules(user1, user, 10, ActionTypes.P2P_TRANSFER);
+    }
+
+    function testERC20_ERC20CommonTests_FacetOwnershipModifiers_ERC20TaggedRulesFacet_Negative() public {
+        /// create facet and test that onlyOwner modifer prevents calls from non owners 
+        ERC20TaggedRuleFacet erc20TaggedTestFacet = new ERC20TaggedRuleFacet(); 
+        switchToUser();
+        vm.expectRevert("UNAUTHORIZED");
+        erc20TaggedTestFacet.checkTaggedAndTradingRules(10, 10, user1, user, 10, ActionTypes.P2P_TRANSFER);
+        /// test that users cannot call the facets directly through the proxy address 
+        vm.expectRevert("UNAUTHORIZED");
+        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).checkNonTaggedRules(user1, user, 10, ActionTypes.P2P_TRANSFER);
+    }
+
+    function testERC20_ERC20CommonTests_FacetOwnershipModifiers_TradingRules_Negative() public {
+        /// create facet and test that onlyOwner modifer prevents calls from non owners 
+        TradingRuleFacet tradeRuleTestFacet = new TradingRuleFacet();
+        switchToUser();
+        vm.expectRevert("UNAUTHORIZED");
+        tradeRuleTestFacet.checkTradingRules(user1, user, createBytes32Array("Oscar"), createBytes32Array("Shane"), 10, ActionTypes.P2P_TRANSFER);
+        /// test that users cannot call the facets directly through the proxy address 
+        vm.expectRevert("UNAUTHORIZED");
+        TradingRuleFacet(address(applicationCoinHandler)).checkTradingRules(user1, user, createBytes32Array("Tayler"), createBytes32Array("Michael"), 10, ActionTypes.P2P_TRANSFER);
+    }
 }

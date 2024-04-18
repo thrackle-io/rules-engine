@@ -6,12 +6,12 @@ import "../ruleContracts/HandlerBase.sol";
 import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "./ERC20TaggedRuleFacet.sol";
 import "./ERC20NonTaggedRuleFacet.sol";
+import "./TradingRuleFacet.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
-import "diamond-std/implementations/ERC173/ERC173.sol";
 
-contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors, ERC173 {
+contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors {
 
     /**
      * @dev Initializer params
@@ -20,8 +20,8 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
      * @param _assetAddress address of the controlling asset.
      */
     function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner {
-        InitializedS storage ini = lib.initializedStorage();
-        if(ini.initialized) revert AlreadyInitialized();
+        InitializedS storage init = lib.initializedStorage();
+        if(init.initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
@@ -30,7 +30,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         data.assetAddress = _assetAddress;
         data.lastPossibleAction = 4;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
-        ini.initialized = true;
+        init.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
 

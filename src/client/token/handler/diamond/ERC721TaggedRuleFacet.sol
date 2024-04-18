@@ -3,14 +3,14 @@ pragma solidity ^0.8.24;
 
 import {StorageLib as lib} from "../diamond/StorageLib.sol";
 import "../../../../protocol/economic/IRuleProcessor.sol";
+import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import "../common/FacetUtils.sol";
 import "../../../application/IAppManager.sol";
 import "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
 import "./TradingRuleFacet.sol";
 
-contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
+contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, AppAdministratorOrOwnerOnlyDiamondVersion{
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
@@ -21,7 +21,7 @@ contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external {
+    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external onlyOwner {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
     }
 
