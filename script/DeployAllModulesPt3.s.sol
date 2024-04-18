@@ -56,6 +56,13 @@ contract DeployAllModulesPt3Script is Script, DiamondScriptUtil {
             "AppRuleDataFacet"
         ];
 
+        string[4] memory directories = [
+            "./out/RuleApplicationValidationFacet.sol/",
+            "./out/RuleDataFacet.sol/",
+            "./out/TaggedRuleDataFacet.sol/",
+            "./out/AppRuleDataFacet.sol/"
+        ];
+
         string[] memory getSelectorsInput = new string[](3);
         getSelectorsInput[0] = "python3";
         getSelectorsInput[1] = "script/python/get_selectors.py";
@@ -63,9 +70,10 @@ contract DeployAllModulesPt3Script is Script, DiamondScriptUtil {
         /// Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
             string memory facet = facets[facetIndex];
+            string memory directory = directories[facetIndex];
 
             /// Deploy the facet.
-            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            bytes memory bytecode = vm.getCode(string.concat(directory, string.concat(facet, ".json")));
             address facetAddress;
             assembly {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
