@@ -1,8 +1,8 @@
 # ERC20NonTaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/2c06fb72526db5cd6662cbeec5fef5842b764c6f/src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4370cba4c6c86564c45ea5da17298f68b13753b5/src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol)
 
 **Inherits:**
-[HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md)
+[AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md)
 
 
 ## Functions
@@ -12,7 +12,7 @@
 
 
 ```solidity
-function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external;
+function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external onlyOwner;
 ```
 **Parameters**
 
@@ -22,5 +22,82 @@ function checkNonTaggedRules(address _from, address _to, uint256 _amount, Action
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|number of tokens transferred|
 |`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
+
+
+### _checkTokenMinTxSizeRule
+
+*Internal function to check the Token Min Transaction Size rule*
+
+
+```solidity
+function _checkTokenMinTxSizeRule(uint256 _amount, ActionTypes action, address handlerBase) internal view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_amount`|`uint256`|number of tokens transferred|
+|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
+|`handlerBase`|`address`|address of the handler proxy|
+
+
+### _checkAccountApproveDenyOraclesRule
+
+*Internal function to check the Account Approve Deny Oracle Rules*
+
+
+```solidity
+function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionTypes action, address handlerBase)
+    internal
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|address of the from account|
+|`_to`|`address`|address of the to account|
+|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
+|`handlerBase`|`address`|address of the handler proxy|
+
+
+### _checkTokenMaxTradingVolumeRule
+
+The action type determines if the _to or _from is checked by the oracle
+_from address is checked for Burn and Sell action types
+_to address is checked  for Mint, Buy, Transfer actions
+
+*Internal function to check the Token Max Trading Volume rule*
+
+
+```solidity
+function _checkTokenMaxTradingVolumeRule(uint256 _amount, ActionTypes action, address handlerBase) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_amount`|`uint256`|number of tokens transferred|
+|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
+|`handlerBase`|`address`|address of the handler proxy|
+
+
+### _checkTokenMaxSupplyVolatilityRule
+
+*Internal function to check the Token Max Supply Volatility rule*
+
+
+```solidity
+function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, ActionTypes action, address handlerBase)
+    internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_to`|`address`|address of the to account|
+|`_amount`|`uint256`|number of tokens transferred|
+|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
+|`handlerBase`|`address`|address of the handler proxy|
 
 
