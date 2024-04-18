@@ -6,9 +6,9 @@ What has already been done:
 4. FrankensteinCoin Deployed and configured
 5. Minted 1B coins
 6. Assign APP_ADMIN_1 Rule Bypass role
-6. Create Account Approve/Deny Oracle 
-7. Add BOB to approved list in the oracle
-8. Created and applied Account Approve/Deny Oracle rule
+7. Create Account Approve/Deny Oracle 
+8. Add BOB to approved list in the oracle
+9. Created and applied Account Approve/Deny Oracle rule
 
 
 LIVE DEMO
