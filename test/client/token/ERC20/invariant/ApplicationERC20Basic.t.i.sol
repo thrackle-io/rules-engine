@@ -98,8 +98,8 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         if (!(balance_sender > 0)) return;
 
-        bool r = applicationCoin.transfer(target, balance_sender + 1);
-        assertFalse(r);
+        vm.expectRevert("ERC20: transfer amount exceeds balance");
+        applicationCoin.transfer(target, balance_sender + 1);
         assertEq(applicationCoin.balanceOf(address(this)), balance_sender);
         assertEq(applicationCoin.balanceOf(target), balance_receiver);
     }
