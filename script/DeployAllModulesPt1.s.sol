@@ -108,7 +108,7 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
             initCalldata: abi.encode(type(IDiamondInit).interfaceId)
         });
 
-        // /// Deploy the diamond.
+        /// Deploy the diamond.
         RuleProcessorDiamond ruleProcessorDiamondDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
 
         /// record the diamond address

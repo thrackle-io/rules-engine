@@ -203,7 +203,7 @@ contract DeployBase is Script, DiamondScriptUtil {
             string memory facet = facets[facetIndex];
             string memory directory = directories[facetIndex];
 
-            /// Deploy the facet.
+            // Deploy the facet.
             bytes memory bytecode = vm.getCode(string.concat(directory, string.concat(facet, ".json")));
             address facetAddress;
             assembly {
