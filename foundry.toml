@@ -2,18 +2,23 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+fs_permissions = [{ access = "read", path = "./out"}]
 
 [profile.local]
 eth-rpc-url = 'http://localhost:8545'
+fs_permissions = [{ access = "read", path = "./out"}]
 
 [profile.docker]
 eth-rpc-url = 'http://anvil:8545'
+fs_permissions = [{ access = "read", path = "./out"}]
 
 [profile.deployment-check]
 eth-rpc-url = 'http://anvil-deploy-check:8545'
+fs_permissions = [{ access = "read", path = "./out"}]
 
 [profile.polygon]
 eth-rpc-url = 'http://172.20.0.2:10002'
+fs_permissions = [{ access = "read", path = "./out"}]
 
 remappings = ["forge-std/=lib/forge-std/src/",
     "ds-test/=lib/forge-std/lib/ds-test/src/",
