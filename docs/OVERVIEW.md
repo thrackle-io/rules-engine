@@ -16,11 +16,12 @@ The diamond pattern allows the handler to upgrade, add new features and improvem
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. |
 | ApplicationHandler        | Connection to Rules Protocol for the AppManager. Assesses and reads the rules that are activated for an application |
-| TokenHandler              | Deployed by Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules.          |
+| TokenHandler              | Allows for applying, activating, and deactivating token specific rules.          |
 | Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution.                                    |
-| Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721.                                                                                                |
-| Access-Level Provider      | An external provider that rates or segments users based on external criteria for access level solutions.                                     |
-| Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, and Risk Admin.                                                                            |
+| Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721 or the protocol hook.                                                                                                |
+| Protocol Supported ERC20  | An ERC20 token that implements the protocol ProtocolERC20 or the protocol hook.                                                                                                |
+| Access-Level Provider     | An external provider that rates or segments users based on external criteria for access level solutions. Default access level mechanisms allow developers to set user access levels.        |
+| Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, Risk Admin, Rule Admin, and Rule Bypass Admin.                                                                            |
 | Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcessorDiamond and applied in the application's AppManager.        |
 | Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleProcessorDiamond and applied in the token's Handler.        |
 | Tag | Bytes32 strings that can be attached to accounts via AppManager. Think of it as labels or badges that accounts can have. |
@@ -268,7 +269,7 @@ The Protocol ERC 721 inherits from multiple contracts (internal and external), o
 - ERC721Burnable (external to the protocol)
 - ERC721URIStorage (external to the protocol)
 - ERC721Enumerable (external to the protocol)
-- Pauable (external to the protocol)
+- Pausable (external to the protocol)
 - ProtocolTokenCommon (internal to the protocol)
 - AppAdministratorOrOwnerOnly (internal to the protocol)
 
@@ -313,7 +314,7 @@ Protocol supported tokens will always assess all fees asigned to the account exe
 ### Applies To:
 
 - [x] ERC20
-- [x] ERC721
+- [ ] ERC721
 
 ### Scope
 
@@ -325,7 +326,7 @@ Token Fees work at the token level. Fees must be activated and configured for ea
 #### Token Evaluation: 
 The token determines if the handler has fees active. 
 The token retrieves all applicable fees for the account transferring tokens (msg.sender).
-The token loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon complettion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
+The token loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon completion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
 
 
 ###### *see [ProtocolERC20](../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
