@@ -8,8 +8,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
+if [ $SCRIPT_MODE = "--with-build" ]; then
+  forge build   
+fi
+
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
-  forge build
   source script/SetupProtocolDeploy.sh
   forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
   source script/ParseProtocolDeploy.sh
