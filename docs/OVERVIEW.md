@@ -1,6 +1,49 @@
 # High Level Overview: Rules Protocol
 [![Project Version][version-image]][version-url]
 
+## Table of Contents
+
+- [Glossary](#glossary)
+- [Diamond Pattern](#diamond-pattern)
+- [Architecture Overview](#architecture-overview)
+- [Rules](#how-rules-work)
+    - [How Rules Work](#how-rules-work)
+    - [Rule Applicability](#rule-applicability)
+    - [Rule Applicability Controls](#rule-applicibility-controls)
+        - [Protocol Tags Structure](#protocol-tags-structure)
+        - [Access Level Structure](#access-level-structure)
+        - [Risk Scores](#risk-scores)
+- [Application Handler](#application-handler)
+    - [Application Level Rules](#application-level-rules)
+    - [Rule Functions](#rule-functions)
+- [Application Manager](#application-manager)
+    - [Admin Roles](#admin-roles)
+    - [Access Levels, Risk Scores and Tags](#access-levels-risk-scores-and-tags)
+    - [Associated Contracts](#associated-contracts)
+- [Protocol Asset Handler Diamond Structure](#protocol-asset-handler-diamond-structure)
+    - [Common Contracts](#common-contracts)
+    - [Protocol ERC 20](#protocol-erc-20)
+    - [Protocol ERC 721](#protocol-erc-721)
+- [Protocol Rule Processor Diamond](#protocol-rule-processor-diamond)
+    - [Protocol Rule Processor Diamond Facets](#protocol-rule-processor-diamond-facets)
+    - [Protocol Rule Processor Diamond Libraries](#protocol-rule-processor-diamond-libraries)
+- [Protocol Fee Structure](#protocol-fee-structure)
+    - [Fees Evaluation](#fees-evaluation)
+    - [Transfer Fee](#transfer-fee)
+- [Oracle Configuration](#oracle-configuration)
+    - [Approval List Oracle](#approval-list-oracle)
+    - [Denial List Oracle](#denial-list-oracle)
+    - [External Oracle](#external-oracle)
+    - [Oracle Rules](#oracle-rules)
+- [Pricing Contracts](#pricing-contracts)
+    - [Price Format](#price-format)
+        - [ERC20s](#erc20s)
+        - [ERC721s](#erc721s)
+    - [Third-Party Solutions](#third-party-solutions)
+- [Documentation maintenance](#documentation-maintenance)
+    - [Manually Generated Documentation](#manually-generated-documentation)
+    - [Auto-generated Documentation](#auto-generated-documentation)
+
 ## Purpose
 
 This document offers a high level overview of the rules protocol - what it does and how it works. Read this to gain an initial understanding of the tron repo and the structure of the rules protocol.
@@ -9,10 +52,10 @@ This document offers a high level overview of the rules protocol - what it does 
 
 | Term                      | Definition                                                                                                                                                  |
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, and user account metadata. Can be utilized for both updating and checking an account's role in relation to the application.|
-| ApplicationHandler        | Connection to Rules Protocol for the AppManager. Assesses and reads the rules that are activated for an application |
-| TokenHandler              | Allows for applying, activating, and deactivating token specific rules.          |
-| Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution.                                    |
+| AppManager                | An appliction-associated smart contract acting as a central hub for managing the application it is associated with. Allows for creation/maintenance of permission roles, application rules, pause windows, and user account metadata. Can be utilized for both updating and checking an account's role in relation to the application.|
+| ApplicationHandler        | An application-associated smart contract supporting the AppManager contract by storing the application level rules data and functions. This is the connection to the Rules Protocol for the AppManager, assessesing and reading the rules that are activated for an application. |
+| AssetHandler | The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status, and connects the token to the AppManager for role based access control.        |
+| Pricing Module            | Application-associated smart contract(s) serving as token-price data sources for ecosystem applications. The pricing module can be found in 2 different categories: ERC20 and ERC721. Any custom-made pricing contract that intends to be protocol compliant must implement the IProtocolERC20Pricing and/or IProtocolERC721Pricing interface(s).                            |
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721 or the protocol hook.                                                                                                |
 | Protocol Supported ERC20  | An ERC20 token that implements the protocol ProtocolERC20 or the protocol hook.                                                                                                |
 | Access-Level Provider     | An external provider that rates or segments users based on external criteria for access level solutions. Default access level mechanisms allow developers to set user access levels.        |
