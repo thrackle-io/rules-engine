@@ -11,6 +11,7 @@ import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
+import {DeployABIUtil} from "./DeployABIUtil.sol";
 
 /**
  * @title The second deployment script for the Protocol. It deploys the next set of facets.
@@ -19,7 +20,7 @@ import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt2Script is Script, DiamondScriptUtil {
+contract DeployAllModulesPt2Script is Script, DiamondScriptUtil, DeployABIUtil {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -28,11 +29,13 @@ contract DeployAllModulesPt2Script is Script, DiamondScriptUtil {
     uint256 privateKey;
     address ownerAddress;
     bool recordAllChains;
+    uint256 timestamp;
 
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
      */
     function run() external {
+        timestamp = vm.envUint("DEPLOYMENT_TIMESTAMP");
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
@@ -80,7 +83,7 @@ contract DeployAllModulesPt2Script is Script, DiamondScriptUtil {
             assembly {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
-
+            recordABI(facet, recordAllChains, timestamp);
             /// Get the facet selectors.
             getSelectorsInput[2] = facet;
             bytes memory res = vm.ffi(getSelectorsInput);
@@ -88,7 +91,7 @@ contract DeployAllModulesPt2Script is Script, DiamondScriptUtil {
 
             /// Create the FacetCut struct for this facet.
             _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
-            recordFacet("ProtocolProcessorDiamond", facet, facetAddress, recordAllChains);
+            recordFacet("ProtocolProcessorDiamond", facet, facetAddress, recordAllChains, timestamp);
         }
 
         address ruleProcessorAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");

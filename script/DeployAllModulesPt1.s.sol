@@ -11,6 +11,8 @@ import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
+import {DeployABIUtil} from "./DeployABIUtil.sol";
+
 
 /**
  * @title The initial deployment script for the Protocol. It deploys the rule processor diamond and the initial set of facets.
@@ -19,7 +21,7 @@ import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
+contract DeployAllModulesPt1Script is Script, DiamondScriptUtil, DeployABIUtil {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -30,18 +32,22 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
     bool recordAllChains;
 
     RuleProcessorDiamond ruleProcessorDiamond;
+    uint256 timestamp;
 
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
      */
     function run() external {
+        timestamp = block.timestamp;
+        // This is necessary to give the update a chance to set prior to writing outfiles
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
         vm.startBroadcast(privateKey);
-
+        // set the timestamp that the deployment started
         ruleProcessorDiamond = deployRuleProcessorDiamond();
 
+        setENVVariable("DEPLOYMENT_TIMESTAMP", vm.toString(timestamp));
         vm.stopBroadcast();
     }
 
@@ -90,7 +96,7 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
             assembly {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
-
+            recordABI(facet, recordAllChains, timestamp);
             /// Get the facet selectors.
             getSelectorsInput[2] = facet;
             bytes memory res = vm.ffi(getSelectorsInput);
@@ -98,7 +104,7 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
 
             /// Create the FacetCut struct for this facet.
             _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
-            recordFacet("ProtocolProcessorDiamond", facet, facetAddress, recordAllChains);
+            recordFacet("ProtocolProcessorDiamond", facet, facetAddress, recordAllChains, timestamp);
         }
 
         /// Build the DiamondArgs.
@@ -110,9 +116,10 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
 
         /// Deploy the diamond.
         RuleProcessorDiamond ruleProcessorDiamondDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
-
+        recordABI("RuleProcessorDiamond", recordAllChains, timestamp);
+        
         /// record the diamond address
-        recordFacet("ProtocolProcessorDiamond", "diamond", address(ruleProcessorDiamondDiamond), recordAllChains);
+        // recordFacet("ProtocolProcessorDiamond", "diamond", address(ruleProcessorDiamondDiamond), recordAllChains);
 
         /// we update the value of the RULE_PROCESSOR_DIAMOND in the env file
         setENVVariable("RULE_PROCESSOR_DIAMOND", vm.toString(address(ruleProcessorDiamondDiamond)));

@@ -34,6 +34,10 @@ contract DiamondScriptUtil is Script {
     }
 
     function recordFacet(string memory diamondName, string memory facetName, address facetAddress, bool recordAllChains) internal {
+        recordFacet(diamondName, facetName, facetAddress, recordAllChains, block.timestamp);
+    }
+
+    function recordFacet(string memory diamondName, string memory facetName, address facetAddress, bool recordAllChains, uint256 timestamp) internal {
         string[] memory recordFacetInput = new string[](8);
         recordFacetInput[0] = "python3";
         recordFacetInput[1] = "script/python/record_facets.py";
@@ -41,7 +45,7 @@ contract DiamondScriptUtil is Script {
         recordFacetInput[3] = facetName;
         recordFacetInput[4] = vm.toString(facetAddress);
         recordFacetInput[5] = vm.toString(block.chainid);
-        recordFacetInput[6] = vm.toString(block.timestamp);
+        recordFacetInput[6] = vm.toString(timestamp);
         recordFacetInput[7] = recordAllChains ? "--allchains" : "--no-allchains";
         vm.ffi(recordFacetInput);
         if(block.chainid != 31337 || recordAllChains )
