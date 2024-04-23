@@ -279,7 +279,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletBroken_SCA_to_EOA() public {
         address eoa = address(1);
-        vm.startPark(eoa);
+        vm.startPrank(eoa);
         SBAWallet wallet = new SBAWallet();
 
         vm.startPrank(address(wallet));
@@ -294,7 +294,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletBroken_SCA_SCA() public {
         address eoa = address(1);
-        vm.startPark(eoa);
+        vm.startPrank(eoa);
         SBAWallet wallet = new SBAWallet();
 
         vm.startPrank(address(wallet));
@@ -309,7 +309,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletWithProtocolSupportedAssetsBroken_SCA_to_EOA() public {
         address eoa = address(1);
-        vm.startPark(eoa);
+        vm.startPrank(eoa);
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
@@ -330,10 +330,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletWithProtocolSupportedAssetsBroken_SCA_to_SCA() public {
         address eoa = address(1);
-        vm.startPark(eoa);
+        vm.startPrank(eoa);
         SBAWallet wallet = new SBAWallet();
-        address eoa = address(2);
-        vm.startPark(eoa);
+        address eoa2 = address(2);
+        vm.startPrank(eoa2);
         SBAWallet wallet2 = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);

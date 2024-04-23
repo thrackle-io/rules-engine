@@ -7,67 +7,18 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-struct UserOperation {
-    address sender;
-    uint256 nonce;
-    bytes initCode;
-    bytes callData;
-    bytes32 accountGasLimits;
-    uint256 preVerificationGas;
-    bytes32 gasFees;
-    bytes paymasterAndData;
-    bytes signature;
-}
-
-//API struct used by getStakeInfo and simulateValidation
-struct StakeInfo {
-    uint256 stake;
-    uint256 unstakeDelaySec;
-}
+import {UserOperation} from "src/common/ISmartContractAccount4337.sol";
 
 interface IEntryPoint {
     /**
-     * gas and return values during simulation
-     * @param preOpGas the gas used for validation (including preValidationGas)
-     * @param prefund the required prefund for this operation
-     * @param sigFailed validateUserOp's (or paymaster's) signature check failed
-     * @param validAfter - first timestamp this UserOp is valid (merging account and paymaster time-range)
-     * @param validUntil - last timestamp this UserOp is valid (merging account and paymaster time-range)
-     * @param paymasterContext returned by validatePaymasterUserOp (to be passed into postOp)
+     * Execute a batch of UserOperations.
+     * no signature aggregator is used.
+     * if any account requires an aggregator (that is, it returned an aggregator when
+     * performing simulateValidation), then handleAggregatedOps() must be used instead.
+     * @param ops the operations to execute
+     * @param beneficiary the address to receive the fees
      */
-    struct ReturnInfo {
-        uint256 preOpGas;
-        uint256 prefund;
-        bool sigFailed;
-        uint48 validAfter;
-        uint48 validUntil;
-        bytes paymasterContext;
-    }
-
-    /**
-     * returned aggregated signature info.
-     * the aggregator returned by the account, and its current stake.
-     */
-    struct AggregatorStakeInfo {
-        address aggregator;
-        StakeInfo stakeInfo;
-    }
-
-
-    /**
-     * simulate full execution of a UserOperation (including both validation and target execution)
-     * this method will always revert with "ExecutionResult".
-     * it performs full validation of the UserOperation, but ignores signature error.
-     * an optional target address is called after the userop succeeds, and its value is returned
-     * (before the entire call is reverted)
-     * Note that in order to collect the the success/failure of the target call, it must be executed
-     * with trace enabled to track the emitted events.
-     * @param op the UserOperation to simulate
-     * @param target if nonzero, a target address to call after userop simulation. If called, the targetSuccess and targetResult
-     *        are set to the return from that call.
-     * @param targetCallData callData to pass to target address
-     */
-    function simulateHandleOp(UserOperation calldata op, address target, bytes calldata targetCallData) external;
+    function handleOps(UserOperation[] calldata ops, address payable beneficiary) external;
 }
 
 contract SBAWallet{
@@ -89,7 +40,7 @@ contract SBAWallet{
         return _entrypoint;
     }
 
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256 validationData) {
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external pure returns (uint256 validationData) {
         userOp;
         userOpHash;
         missingAccountFunds;
