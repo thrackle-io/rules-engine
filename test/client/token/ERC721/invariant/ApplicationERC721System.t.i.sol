@@ -211,17 +211,14 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
 
     // When AppManagerAddress is confirmed, AppManagerAddressSet event is always emitted
     function invariant_ERC721_external_ProposeAppManager_ConfirmAppManager_EventEmission() public {
-        // switchToSuperAdmin();
-        // newAppManagerAddress.addAppAdministrator(appAdministrator);
-        // ApplicationAppManager newAppManagerAddress;
-        // bytes4[] memory selectors = new bytes4[](1);
-        // selectors[0] = newAppManagerAddress.confirmAppManager.selector;
-        // targetSelector(FuzzSelector({addr: address(newAppManagerAddress), selectors: selectors}));
-        // switchToAppAdministrator();
-        // applicationNFT.proposeAppManagerAddress(address(newAppManagerAddress)); 
-        // vm.expectEmit(true, false, false, false);
-        // emit AD1467_AppManagerAddressSet(address(newAppManagerAddress));
-        // newAppManagerAddress.confirmAppManager(address(applicationNFT)); 
+        switchToSuperAdmin();
+        ApplicationAppManager newAppManagerAddress = new ApplicationAppManager(superAdmin, "Frankenvania", false);
+        newAppManagerAddress.addAppAdministrator(appAdministrator);
+        switchToAppAdministrator();
+        applicationNFT.proposeAppManagerAddress(address(newAppManagerAddress)); 
+        vm.expectEmit(true, false, false, false);
+        emit AD1467_AppManagerAddressSet(address(newAppManagerAddress));
+        newAppManagerAddress.confirmAppManager(address(applicationNFT)); 
     }
 
 }
