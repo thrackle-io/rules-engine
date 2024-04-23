@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "src/client/application/IAppManagerUser.sol";
 
 contract DummyAMM{
     function dummyTrade(address tokenA, address tokenB, uint256 amountIn, uint256 amountOut, bool isTokenAIn) public {
@@ -43,4 +44,11 @@ contract DummyStaking{
     function dummyUnStake(address erc20, uint256 erc20Amount) public {
         IERC20(erc20).transfer(msg.sender, erc20Amount);
     }
+}
+
+contract DummyAcceptor {
+    function acceptAppManagerProposal(address token) public {
+        IAppManagerUser(token).confirmAppManagerAddress();
+    }
+
 }

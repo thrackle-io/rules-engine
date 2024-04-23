@@ -27,13 +27,14 @@ abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvent
     }
 
     /**
-     * @dev This function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external {
         if (newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();
         if (msg.sender != newAppManagerAddress) revert ConfirmerDoesNotMatchProposedAddress();
         appManagerAddress = newAppManagerAddress;
         appManager = IAppManager(appManagerAddress);
+        emit AD1467_AppManagerAddressSet(newAppManagerAddress);
         delete newAppManagerAddress;
     }
 
