@@ -101,7 +101,9 @@ if [ $RPC_URL == "local" ]; then
 else
   HANDLER_ERC20=$(cast call $HANDLER 'owner()(address)' --rpc-url $RPC_URL) 
 fi
-if [ "$HANDLER_ERC20" != "$APPLICATION_ERC20_ADDRESS" ]; then
+COMP_HANDLER_ERC20=$(echo "$HANDLER_ERC20" | tr '[:lower:]' '[:upper:]')
+COMP_APPLICATION_ERC20_ADDRESS=$(echo "$APPLICATION_ERC20_ADDRESS" | tr '[:lower:]' '[:upper:]')
+if [ "$COMP_HANDLER_ERC20" != "$COMP_APPLICATION_ERC20_ADDRESS" ]; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct ERC20. Create a new handler and connect it to ERC20: ""$APPLICATION_ERC20_ADDRESS"
     echo -e $TEXT
@@ -120,6 +122,7 @@ else
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)
   HANDLER_PRICER=$(cast call $APP_HANDLER 'erc20PricingAddress()(address)' --rpc-url $RPC_URL) 
 fi
+
 if test -z "$HANDLER_PRICER"; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC20Pricing module set. Set it in ERC20: ""$APPLICATION_ERC20_ADDRESS"" with function, setERC20PricingAddress(address)"
