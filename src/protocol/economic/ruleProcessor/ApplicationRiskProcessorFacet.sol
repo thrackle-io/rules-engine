@@ -54,7 +54,6 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     function getAccountMaxValueByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountMaxValueByRiskScore memory) {
         RuleS.AccountMaxValueByRiskScoreS storage data = Storage.accountMaxValueByRiskScoreStorage();
         _index.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
-        if (_index >= data.accountMaxValueByRiskScoreIndex) revert IndexOutOfRange();
         return data.accountMaxValueByRiskScoreRules[_index];
     }
 
