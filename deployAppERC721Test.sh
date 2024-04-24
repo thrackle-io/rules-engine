@@ -96,13 +96,19 @@ else
   echo -e "$YELLOW                PASS $NC"
 fi
 
+
+
 echo "...Checking to make sure the handler is connected to the ERC721..."
 if [ $RPC_URL == "local" ]; then
   HANDLER_ERC721=$(cast call $HANDLER 'owner()(address)')  
 else
   HANDLER_ERC721=$(cast call $HANDLER 'owner()(address)' --rpc-url $RPC_URL) 
 fi
-if [ "$HANDLER_ERC721" != "$APPLICATION_ERC721_ADDRESS_1" ]; then
+
+COMP_HANDLER_ERC721=$(echo "$HANDLER_ERC721" | tr '[:lower:]' '[:upper:]')
+COMP_APPLICATION_ERC721_ADDRESS_1=$(echo "$APPLICATION_ERC721_ADDRESS_1" | tr '[:lower:]' '[:upper:]')
+
+if [ "$COMP_HANDLER_ERC721" != "$COMP_APPLICATION_ERC721_ADDRESS_1" ]; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct ERC721. Create a new handler and connect it to ERC721: ""$APPLICATION_ERC721_ADDRESS_1"
     echo -e $TEXT
