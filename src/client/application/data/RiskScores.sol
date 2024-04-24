@@ -54,6 +54,7 @@ contract RiskScores is IRiskScores, DataModule {
     function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external virtual onlyOwner {
         if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         for (uint256 i; i < _accounts.length; ++i) {
+            if (_accounts[i] == address(0)) revert ZeroAddress();
             scores[_accounts[i]] = _score;
             emit AD1467_RiskScoreAdded(_accounts[i], _score);
         }

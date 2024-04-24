@@ -53,6 +53,7 @@ contract AccessLevels is IAccessLevels, DataModule {
     function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         for (uint256 i; i < _accounts.length; ++i) {
+            if (_accounts[i] == address(0)) revert ZeroAddress();
             levels[_accounts[i]] = _level;
             emit AD1467_AccessLevelAdded(_accounts[i], _level);
         }
