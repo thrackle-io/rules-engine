@@ -217,7 +217,7 @@ Formatting at the commandline:
 
 <!-- These are the body links -->
 [deploymentGuide-url]: ./deployment/README.md
-[archOverview-url]: ./ARCHITECTURE-OVERVIEW.md
+[archOverview-url]: ../OVERVIEW.md#Architecture-Overview
 [ruleGuide-url]: ./rules/README.md
 [tag-url]: ./tags/README.md
 [accessLevel-url]: ./accessLevels/README.md
