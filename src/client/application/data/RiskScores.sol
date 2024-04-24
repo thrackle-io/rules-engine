@@ -55,8 +55,7 @@ contract RiskScores is IRiskScores, DataModule {
         if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         for (uint256 i; i < _accounts.length; ++i) {
             if (_accounts[i] == address(0)) revert ZeroAddress();
-            scores[_accounts[i]] = _score;
-            emit AD1467_RiskScoreAdded(_accounts[i], _score);
+            addScore(_accounts[i], _score);
         }
     }
 
