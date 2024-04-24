@@ -5,12 +5,15 @@ from pathlib import Path
 from dotenv import dotenv_values 
 
 _dir  = dotenv_values(".env")
-dir = Path(_dir["DIAMOND_DEPLOYMENT_OUT_DIR"])
-file = Path(_dir["DIAMOND_DEPLOYMENT_OUT_DIR"] + _dir["DIAMOND_DEPLOYMENT_OUT_FILE"])
 
 def record_facets(args):
     date  = datetime.fromtimestamp(int(args.timestamp)).isoformat()[:10]
     record = {}
+    # Create the directory with the timestamp included
+    date2  = datetime.fromtimestamp(int(args.timestamp)).isoformat()
+    filePath = _dir["DEPLOYMENT_OUT_DIR"] + args.chain_id + "/" + date2 + "/diamond"
+    dir = Path(filePath)
+    file = Path(filePath + "/" + _dir["DIAMOND_DEPLOYMENT_OUT_FILE"])
 
     dir.mkdir(parents=True, exist_ok=True)
     file.touch(exist_ok= True)
