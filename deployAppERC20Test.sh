@@ -17,10 +17,10 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-# make sure that foundry is installed. If it is, update it. If not, install it.
+# make sure that foundry is installed. If it is, update it to the specific version. If not, install it.
 if installed forge; then
   echo "...Updating Foundry..."
-  COMMAND="$(foundryup)"
+  COMMAND="$(foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2)"
 else
   echo "...Installing Foundry..."
   $(curl -L https://foundry.paradigm.xyz)
