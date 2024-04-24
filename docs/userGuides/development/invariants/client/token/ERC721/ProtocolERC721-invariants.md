@@ -21,18 +21,18 @@
 - approve() should revert if the token is burned
 - getApproved() should revert if the token is burned
 - ownerOf() should revert if the token has been burned.
+- A burned token should have its approvals reset.
 
 ## [Mintable ERC721 Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721MintBurn.t.i.sol)
 - Mint increases the total supply
 - Mint creates a fresh applicationNFT
+- Minting tokens should update user's balance
 
 
 # Not Implemented
 
-## Protocol Related Invariants
+## [Protocol Related Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721System.t.i.sol)
 
-- Version will never be blank
-- Version will never change.
 - Any user can get the contract's version
 - Only app admins may connect a handler
 - A non-appAdmin can never pause the contract
@@ -50,13 +50,9 @@
 ## Base
 - safeTransferFrom() should revert if receiver is a contract that does not implement onERC721Received()
 
-## Minting
-- Minting tokens should update user's balance
 
-## Burning
-- A burned token should have its approvals reset.
 
-## ProtocolTokenCommon Invariants
+## [ProtocolTokenCommon Invariants]((../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721System.t.i.sol))
 
 - Only an App Admin can propose a new AppManager
 - Proposed AppManagerAddress can not be set to zero address

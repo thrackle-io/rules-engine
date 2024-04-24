@@ -75,6 +75,7 @@ import "src/example/OracleDenied.sol";
 import "src/example/OracleApproved.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "./CommonAddresses.sol";
+import {DummyAcceptor} from "test/client/token/TestTokenCommon.sol";
 
 /**
  * @title Test Common
@@ -152,6 +153,8 @@ abstract contract TestCommon is
 
     ApplicationERC721Pricing public openOcean;
     ApplicationERC20Pricing public uniBase;
+
+    DummyAcceptor public testAppManager; 
 
     bool public testDeployments = true;
 
