@@ -26,6 +26,13 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
     }
 
+    function testApplication_ApplicationCommonTests_ProposeNewSuperAdmin_CannotBeCurrentSuperAdmin_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToSuperAdmin();
+        /// check that the current super admin cannot propose their own address
+        vm.expectRevert(abi.encodeWithSignature("ProposedAddressCannotBeSuperAdmin()"));
+        applicationAppManager.proposeNewSuperAdmin(superAdmin);
+    }
+
     function testApplication_ApplicationCommonTests_ProposeSuperAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
         /// propose superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin();

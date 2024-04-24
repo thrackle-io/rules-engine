@@ -57,7 +57,7 @@ function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROL
 ├── when the caller is not a super administrator
 │ └── it should revert
 └── when the caller is a super administrator
-    └── if the account proposed for new super admin is not zero address 
+    └── if the account proposed for new super admin is not zero address and not current super admin
         ├── if number of proposed super admins is greater than 0 
         │ └── it should set the account as the proposed super admin role   
         │    └── it should grant only the account as the proposed super admin 
