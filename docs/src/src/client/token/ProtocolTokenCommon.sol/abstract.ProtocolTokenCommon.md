@@ -1,5 +1,5 @@
 # ProtocolTokenCommon
-[Git Source](https://github.com/thrackle-io/tron/blob/4370cba4c6c86564c45ea5da17298f68b13753b5/src/client/token/ProtocolTokenCommon.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/826eee0e9167e4ceebe5bb3df2058b377df8b6bc/src/client/token/ProtocolTokenCommon.sol)
 
 **Inherits:**
 [AppAdministratorOnly](/src/protocol/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -57,7 +57,7 @@ function proposeAppManagerAddress(address _newAppManagerAddress) external appAdm
 
 ### confirmAppManagerAddress
 
-*This function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address*
+*This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address*
 
 
 ```solidity
