@@ -61,73 +61,73 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
         SBAWallet wallet = new SBAWallet();
         
-        vm.startPrank(address(wallet));        
+        switchToAppAdministrator();      
         // test Mints
         vm.expectEmit();
         emit Action(uint8(ActionTypes.MINT));
-        applicationCoin.mint(address(wallet), 1);
+        applicationNFTv2.safeMint(address(wallet));
         
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Burn() public {
         SBAWallet wallet = new SBAWallet();
-        applicationCoin.mint(address(wallet), 10 * ATTO);
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
         
         vm.startPrank(address(wallet));
         // test Burns 
         vm.expectEmit();
         emit Action(uint8(ActionTypes.BURN));
-        applicationCoin.burn(1);
+        applicationNFTv2.burn(0);
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
-    function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer() public {
+    function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_SCA_to_EOA() public {
         SBAWallet wallet = new SBAWallet();
-        applicationCoin.mint(address(wallet), 10 * ATTO);
-        applicationCoin.mint(user1, 10 * ATTO);
-        applicationCoin2.mint(user1, 10 * ATTO);
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
+        applicationNFTv2.safeMint(user1);
+        applicationNFTv2.safeMint(user1);
         
         // test transfers 
-        vm.startPrank(user1);
-        // from EOA to SCA
+        vm.startPrank(address(wallet));
+        // from SCA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(address(wallet),1);
-        // from EOA to EOA
-        vm.expectEmit();
-        emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(user2,1);
+        applicationNFTv2.safeTransferFrom(address(wallet), user1, 0);
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_EOA() public {
         SBAWallet wallet = new SBAWallet();
-        applicationCoin.mint(address(wallet), 10 * ATTO);
-        applicationCoin.mint(user1, 10 * ATTO);
-        applicationCoin2.mint(user1, 10 * ATTO);
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
+        applicationNFTv2.safeMint(user1);
+        applicationNFTv2.safeMint(user1);
         
         // test transfers 
         vm.startPrank(user1);
         // from EOA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(user2,1);
+        applicationNFTv2.transferFrom(user1,user2,1);
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_SCA() public {
         SBAWallet wallet = new SBAWallet();
-        applicationCoin.mint(address(wallet), 10 * ATTO);
-        applicationCoin.mint(user1, 10 * ATTO);
-        applicationCoin2.mint(user1, 10 * ATTO);
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
+        applicationNFTv2.safeMint(user1);
+        applicationNFTv2.safeMint(user1);
         
         // test transfers 
         vm.startPrank(user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(address(wallet),1);
+        applicationNFTv2.transferFrom(user1,address(wallet),1);
     }
 
     /** Test that actions are properly determined when using protocol supported assets */
@@ -169,46 +169,6 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         amm.dummyTrade(address(applicationCoin), address(applicationNFTv2), 1 * ATTO, 0, true);
     }
 
-    // /** Test that actions are properly determined when using protocol supported assets. This discrepancy will be remedied in V2
-    //  *  TODO: Fix the determine transfer action function to work with staking
-    //  */
-    // function testERC721_EOAWithProtocolSupportedAssets_Staking() public {
-    //     vm.skip(true);
-    //     switchToAppAdministrator();
-    //     applicationCoin.mint(user1, 10 * ATTO);
-    //     // Set up amm for buy and sell tests
-    //     DummyStaking staking = initializeERC721Stake(address(applicationCoin));
-    //     // first test standard EOA stake
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(staking), 50000);
-    //     vm.expectEmit();
-    //     emit Action(uint8(ActionTypes.SELL));
-    //     staking.dummyStake(address(applicationCoin), 1);
-    //     vm.expectEmit();
-    //     emit Action(uint8(ActionTypes.BUY));
-    //     staking.dummyUnStake(address(applicationCoin), 1);
-    // }
-
-    // /** Test that actions are properly determined when using protocol supported assets. This discrepancy will be remedied in V2
-    //  *  TODO: Fix the determine transfer action function to work with staking
-    //  */
-    // function testERC721_SmartContractWalletWithProtocolSupportedAssets_Staking() public {
-    //     vm.skip(true);
-    //     switchToAppAdministrator();
-    //     // Set up amm for buy and sell tests
-    //     DummyStaking staking = initializeERC721Stake(address(applicationCoin));
-    //     SBAWallet wallet = new SBAWallet();
-    //     applicationCoin.mint(address(wallet), 10 * ATTO);
-    //     vm.startPrank(address(wallet));
-    //     applicationCoin.approve(address(staking), 50000);
-    //     vm.expectEmit();
-    //     emit Action(uint8(ActionTypes.SELL));
-    //     staking.dummyStake(address(applicationCoin), 1);
-    //     vm.expectEmit();
-    //     emit Action(uint8(ActionTypes.SELL));
-    //     staking.dummyStake(address(applicationCoin), 1);
-    // }
-
     /**
         This test demonstrates current shortcomings with the protocol's detection of actions when a SCA is used. These issues will be addressed in v2.
      */
@@ -246,8 +206,9 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
-        applicationCoin.mint(address(wallet), 10 * ATTO);
-        applicationCoin.mint(user1, 10 * ATTO);
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
+        applicationNFTv2.safeMint(user1);
         
         vm.stopPrank();
         vm.startPrank(address(wallet));
@@ -255,7 +216,7 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         // from SCA to EOA(comes back as BUY)
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(user1,1);
+        applicationNFTv2.transferFrom(address(wallet), user1, 0);
     }
 
      /**
@@ -270,15 +231,15 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         SBAWallet wallet2 = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
-        applicationCoin.mint(address(wallet), 10 * ATTO);
-        applicationCoin.mint(user1, 10 * ATTO);
-        
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(address(wallet));
+        vm.stopPrank();
         vm.prank(address(wallet));
         // test transfers 
-        // from SCA to SCA(comes back as BUY)
+        // from SCA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
-        applicationCoin.transfer(address(wallet2),1);
+        applicationNFTv2.transferFrom(address(wallet), address(wallet2), 0);
     }
     
 
