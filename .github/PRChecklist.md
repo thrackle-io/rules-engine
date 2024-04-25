@@ -32,7 +32,7 @@
 
    1. Make sure you update foundry every time or it won't work well:
 
-      `foundryup`
+      `foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2`
 
    2. Generate the docs:
 

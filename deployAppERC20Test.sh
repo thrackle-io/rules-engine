@@ -17,10 +17,10 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-# make sure that foundry is installed. If it is, update it. If not, install it.
+# make sure that foundry is installed. If it is, update it to the specific version. If not, install it.
 if installed forge; then
   echo "...Updating Foundry..."
-  COMMAND="$(foundryup)"
+  COMMAND="$(foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2)"
 else
   echo "...Installing Foundry..."
   $(curl -L https://foundry.paradigm.xyz)
@@ -101,7 +101,9 @@ if [ $RPC_URL == "local" ]; then
 else
   HANDLER_ERC20=$(cast call $HANDLER 'owner()(address)' --rpc-url $RPC_URL) 
 fi
-if [ "$HANDLER_ERC20" != "$APPLICATION_ERC20_ADDRESS" ]; then
+COMP_HANDLER_ERC20=$(echo "$HANDLER_ERC20" | tr '[:lower:]' '[:upper:]')
+COMP_APPLICATION_ERC20_ADDRESS=$(echo "$APPLICATION_ERC20_ADDRESS" | tr '[:lower:]' '[:upper:]')
+if [ "$COMP_HANDLER_ERC20" != "$COMP_APPLICATION_ERC20_ADDRESS" ]; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct ERC20. Create a new handler and connect it to ERC20: ""$APPLICATION_ERC20_ADDRESS"
     echo -e $TEXT
@@ -120,6 +122,7 @@ else
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)
   HANDLER_PRICER=$(cast call $APP_HANDLER 'erc20PricingAddress()(address)' --rpc-url $RPC_URL) 
 fi
+
 if test -z "$HANDLER_PRICER"; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC20Pricing module set. Set it in ERC20: ""$APPLICATION_ERC20_ADDRESS"" with function, setERC20PricingAddress(address)"
