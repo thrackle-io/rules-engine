@@ -42,6 +42,8 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         // from EOA to SCA
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
 
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
         // Set up amm for buys and sells
         // switchToAppAdministrator();
         // applicationNFT.safeMint(address(wallet));
@@ -49,10 +51,10 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
 
         // test Buys
-        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
 
     }
 

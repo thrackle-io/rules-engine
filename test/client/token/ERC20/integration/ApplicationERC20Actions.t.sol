@@ -106,6 +106,8 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // from EOA to SCA
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
 
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
         // Set up amm for buys and sells
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
@@ -134,6 +136,8 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // from EOA to SCA
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
 
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
         // Set up amm for buys and sells
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
@@ -161,6 +165,9 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // test transfers 
         // from EOA to SCA
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
 
         // Set up amm for buys and sells
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));

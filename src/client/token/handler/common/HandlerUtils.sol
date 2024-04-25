@@ -89,7 +89,7 @@ contract HandlerUtils{
             signature: ""
         });
         // we expect this to fail but we want it to fail a custom error or require string reasoning to determine if it has validateUserOp
-        try ISmartContractAccount4337(account).validateUserOp(userOp, keccak256(abi.encode(userOp)), 0) returns (uint256) {
+        try ISmartContractAccount4337(account).validateUserOp(userOp, 0x0, 0) returns (uint256) {
             // should not reach here
             revert();
         } catch Error(string memory) {

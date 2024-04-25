@@ -40,12 +40,11 @@ contract SBAWallet{
         return _entrypoint;
     }
 
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external view verifyOwner returns (uint256 validationData) {
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external view verifyOwner returns (uint256) {
         userOp;
         userOpHash;
         missingAccountFunds;
-        // assume true
-        return 0;
+        return 0; // for testing purposes we're going to assume this reverts
     }
 
     // function to call another contract, this is purely for testing purposes
@@ -105,6 +104,19 @@ contract SBAWalletZeroDevStyle {
         return address(this).balance;
     }
 
+        //Verify Owner or Not
+    modifier verifyOwner() {
+        require(msg.sender==owner || msg.sender == address(entrypoint),"Only restricted to Wallet Owner or entrypoint");
+        _;
+    }
+
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external view verifyOwner returns (uint256) {
+        userOp;
+        userOpHash;
+        missingAccountFunds;
+        return 0; // for testing purposes we're going to assume this reverts
+    }
+
     //The one ho calls the contract for the first time is the owner 
     constructor() {
         owner = payable(msg.sender);
@@ -121,6 +133,19 @@ contract SBAWalletSafeStyle {
 
     function getWalletBalance() external view returns (uint){
         return address(this).balance;
+    }
+
+        //Verify Owner or Not
+    modifier verifyOwner() {
+        require(msg.sender==owner || msg.sender == address(SUPPORTED_ENTRYPOINT),"Only restricted to Wallet Owner or entrypoint");
+        _;
+    }
+
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external view verifyOwner returns (uint256) {
+        userOp;
+        userOpHash;
+        missingAccountFunds;
+        return 0; // for testing purposes we're going to assume this reverts
     }
 
     //The one ho calls the contract for the first time is the owner 
