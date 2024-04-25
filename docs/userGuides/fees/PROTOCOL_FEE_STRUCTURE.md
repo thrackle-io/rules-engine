@@ -132,24 +132,6 @@ The following validation will be carried out by the create function in order to 
         function confirmOwner() external;
         ```
 
-- In [Asset Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md):
-    -  Function to deploy a new data contract:
-        ```c
-        function deployDataContract() private;
-        ```
-    - Function to retrieve fees data contract address:
-        ```c
-        function getFeesDataAddress() external view returns (address);
-        ```
-    - Function to propose data contract migration to new handler:
-        ```c
-        function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress);
-        ```
-    - Function to confirm migration of data contracts to new handler:
-        ```c
-        function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress);
-        ```
-
 ## Return Data
 
 When assessing fees the function getApplicableFees() returns: 
