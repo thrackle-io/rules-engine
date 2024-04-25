@@ -36,7 +36,6 @@ import "../ruleContracts/Fees.sol";
         if (data.newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();
         if (msg.sender != data.newAppManagerAddress) revert ConfirmerDoesNotMatchProposedAddress();
         data.appManager = data.newAppManagerAddress;
-        data.appManager = lib.handlerBaseStorage().appManager;
         delete data.newAppManagerAddress;
         emit AD1467_AppManagerAddressSet(lib.handlerBaseStorage().appManager);
     }
