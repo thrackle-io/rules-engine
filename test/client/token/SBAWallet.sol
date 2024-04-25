@@ -101,6 +101,10 @@ contract SBAWalletZeroDevStyle {
     //Define owner as state variable
     address payable public owner;
 
+    function getWalletBalance() external view returns (uint){
+        return address(this).balance;
+    }
+
     //The one ho calls the contract for the first time is the owner 
     constructor() {
         owner = payable(msg.sender);
@@ -114,6 +118,10 @@ contract SBAWalletSafeStyle {
     address public immutable SUPPORTED_ENTRYPOINT;
     //Define owner as state variable
     address payable public owner;
+
+    function getWalletBalance() external view returns (uint){
+        return address(this).balance;
+    }
 
     //The one ho calls the contract for the first time is the owner 
     constructor() {

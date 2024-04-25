@@ -117,6 +117,61 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     }
 
+        /** Test that actions are properly determined when calling determineTransfer directly for Gnosis SAFE variant */
+    function testERC20_testSmartContractWalletSAFEImpl() public {
+        SBAWalletSafeStyle wallet = new SBAWalletSafeStyle();
+        // make sure that wallet can hold ETH
+        vm.deal(address(wallet), 10 ether);
+        assertEq(10 * ATTO, wallet.getWalletBalance());
+
+        vm.startPrank(address(wallet));
+        // test Burns 
+        assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
+        // test Mints 
+        assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction({_from: address(0), _to: address(wallet), _sender: address(wallet)})));
+        
+        // test transfers 
+        // from EOA to SCA
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // Set up amm for buys and sells
+        DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
+
+        // test Sells 
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+
+        // test Buys
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+
+    }
+
+    /** Test that actions are properly determined when calling determineTransfer directly for Zerodev variant */
+    function testERC20_testSmartContractWalletZerodevImpl() public {
+        SBAWalletZeroDevStyle wallet = new SBAWalletZeroDevStyle();
+        // make sure that wallet can hold ETH
+        vm.deal(address(wallet), 10 ether);
+        assertEq(10 * ATTO, wallet.getWalletBalance());
+
+        vm.startPrank(address(wallet));
+        // test Burns 
+        assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
+        // test Mints 
+        assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction({_from: address(0), _to: address(wallet), _sender: address(wallet)})));
+        
+        // test transfers 
+        // from EOA to SCA
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // Set up amm for buys and sells
+        DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
+
+        // test Sells 
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+
+        // test Buys
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+
+    }
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
