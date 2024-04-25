@@ -1,5 +1,5 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/tron/blob/8f8cd9f0e8cf797290e5a764c49efd646c572381/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/759037970009f24ec0ac5995bf26019f0b6997be/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
 
 **Inherits:**
 Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable, ReentrancyGuard
