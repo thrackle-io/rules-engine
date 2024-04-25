@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/fd00dd3f701afe5991226ded04be9da490ad380d/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/81b80009ad5682c206d626e3be15fff689d615e0/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -387,7 +387,7 @@ function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROL
 
 |Name|Type|Description|
 |----|----|-----------|
-|`account`|`address`|address to be added|
+|`account`|`address`|address to be added (Cannot be zero address and cannot be current super admin)|
 
 
 ### updateProposedRole

@@ -1,5 +1,5 @@
 # IAdminMinTokenBalanceCapable
-[Git Source](https://github.com/thrackle-io/tron/blob/fd00dd3f701afe5991226ded04be9da490ad380d/src/client/token/IAdminMinTokenBalanceCapable.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/81b80009ad5682c206d626e3be15fff689d615e0/src/client/token/IAdminMinTokenBalanceCapable.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
