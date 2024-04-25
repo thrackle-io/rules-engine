@@ -162,10 +162,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     /**
      * @dev Propose a new super admin. Restricted to super admins.
      * @notice We should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
-     * @param account address to be added
+     * @param account address to be added (Cannot be zero address and cannot be current super admin)
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
+        if (isSuperAdmin(account) == true) revert ProposedAddressCannotBeSuperAdmin();
         if (getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0) {
             updateProposedRole(account);
         } else {

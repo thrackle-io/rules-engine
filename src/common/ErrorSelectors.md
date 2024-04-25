@@ -134,3 +134,4 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x7f8e121f | BelowMinAdminThreshold()                                         |
 | 0x6bb35a99 | TagListMustBeSingleBlankOrValueList()                            |
 | 0xad3a8b9e | NotEnoughBalance()                                               |
+| 0x7c6d8d3b | ProposedAddressCannotBeSuperAdmin()                              |

@@ -119,6 +119,7 @@ interface IAppManagerErrors is INoAddressToRemove{
     error AddressAlreadyRegistered();
     error AdminMinTokenBalanceisActive();
     error NotRegisteredHandler(address);
+    error ProposedAddressCannotBeSuperAdmin();
 }
 
 interface AMMCalculatorErrors {
