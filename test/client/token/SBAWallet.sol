@@ -40,11 +40,10 @@ contract SBAWallet{
         return _entrypoint;
     }
 
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external pure returns (uint256 validationData) {
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external view verifyOwner returns (uint256 validationData) {
         userOp;
         userOpHash;
         missingAccountFunds;
-
         // assume true
         return 0;
     }
@@ -66,7 +65,7 @@ contract SBAWallet{
     //receive() payable external{}
 
     //Verify Owner or Not
-    modifier verifyOwner{
+    modifier verifyOwner() {
         require(msg.sender==owner || msg.sender == address(entryPoint()),"Only restricted to Wallet Owner or entrypoint");
         _;
     }

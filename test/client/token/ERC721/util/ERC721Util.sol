@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "test/client/token/TokenUtils.sol";
 import {DummyNFTAMM} from "test/client/token/TestTokenCommon.sol";
+import {ApplicationERC721AdminOrOwnerMint as ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 
 /**
  * @title Rule Creation Functions
@@ -11,7 +12,7 @@ import {DummyNFTAMM} from "test/client/token/TestTokenCommon.sol";
  * This contract holds the functions for adding a protocol rule for tests.
  */
 
-abstract contract ERC721Util is TokenUtils {
+abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
     function setAccountApproveDenyOracleRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN);
@@ -139,5 +140,16 @@ abstract contract ERC721Util is TokenUtils {
     function setTokenMinHoldTimeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory periods) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMinHoldTimeFull(actions, periods);
+    }
+
+    function initializeERC721AMM(address fungibleToken, address nonFungibleToken) public endWithStopPrank returns (DummyNFTAMM amm) {
+        amm = new DummyNFTAMM();
+        switchToAppAdministrator();
+        
+        ApplicationERC20(fungibleToken).mint(address(amm), 1_000_000_000_000 * ATTO);
+        ApplicationERC721(nonFungibleToken).safeMint(address(amm));
+
+        assertEq(ApplicationERC20(fungibleToken).balanceOf(address(amm)), 1_000_000_000_000 * ATTO);
+        assertEq(ApplicationERC721(nonFungibleToken).balanceOf(address(amm)), 1);    
     }
 }
