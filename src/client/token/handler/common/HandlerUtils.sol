@@ -52,11 +52,27 @@ contract HandlerUtils{
 
     // effectively a view but due to the compiler and _hasUserOpValidation technically being able to modify state we need to mark as state changing
     function _isSmartContractAccount(address account) internal returns (bool) {
+        // try majority way
         try ISmartContractAccount4337(account).entryPoint() returns (address entryPoint) {
-            return entryPoint == address(0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789) && _hasUserOpValidation(account);
+            return correctEntryPointAndHasUserOpValidation(entryPoint, account);
         } catch {
-            return false;
+            // try Gnosis way
+            try ISmartContractAccount4337(account).SUPPORTED_ENTRYPOINT() returns (address entryPoint) {
+                return correctEntryPointAndHasUserOpValidation(entryPoint, account);
+            } catch {
+                // try zerodev way
+                try ISmartContractAccount4337(account).entrypoint() returns (address entryPoint) {
+                    return correctEntryPointAndHasUserOpValidation(entryPoint, account);
+                } catch {
+                    // return false if it doesn't have any of the entrypoints
+                    return false;
+                }
+            }
         }
+    }
+
+    function correctEntryPointAndHasUserOpValidation(address entryPoint, address account) private returns (bool) {
+        return entryPoint == address(0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789) && _isSmartContractAccount(account);
     }
 
     function _hasUserOpValidation(address account) private returns (bool) {
