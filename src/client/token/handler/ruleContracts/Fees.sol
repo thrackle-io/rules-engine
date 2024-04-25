@@ -60,7 +60,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
     }
 
     /**
-     * @dev returns the full mapping of fees
+     * @dev returns the fee struct for the given tag
      * @param _tag meta data tag for fee
      * @return fee struct containing fee data
      */
@@ -69,7 +69,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
     }
 
     /**
-     * @dev returns the full mapping of fees
+     * @dev returns the total number of fees
      * @return feeTotal total number of fees
      */
     function getFeeTotal() external view returns (uint256) {
