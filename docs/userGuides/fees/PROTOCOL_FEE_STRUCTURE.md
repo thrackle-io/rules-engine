@@ -4,7 +4,7 @@
 
 This document outlines the overall fee structure of the protocol, how fees are applied and at what level the fees are applied. Each fee type has its own documentation associated to the specifics of that Fee type and are stored in the [fee guide](./README.md).
 
-A Fee data contract is deployed at the same time as the token handler. All supporting fee data is stored in this contract and owned by the handler. Data contracts can be migrated to a new handler in the event of an upgrade so that fee data is not lost. Only the previous handler owner or [app administrators](../deployment/ADMIN-ROLES.md) can migrate the data contracts. Migrations to a new handler are completed through a two step migration process.
+A Fee data contract is deployed at the same time as the token handler. All supporting fee data is stored in this contract and owned by the handler. Data contracts can be migrated to a new handler in the event of an upgrade so that fee data is not lost. Only the previous handler owner or [app administrators](../../userGuides/permissions/ADMIN-ROLES.md) can migrate the data contracts. Migrations to a new handler are completed through a two step migration process.
 
 Fees are applied to accounts via general tags in the [AppMananger](../../../src/client/application/AppManager.sol). Each Fee applied via tags to an account can be additive (increase the fee amount owed) or subtractive (reduce the fee amount owed) and are expressed in basis points.
 
@@ -43,7 +43,7 @@ Each Fee struct is stored in a mapping by the bytes32 tag associated to that fee
 mapping(bytes32 => Fee) feesByTag;
 ```
 
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
+###### *see [Fees](../../../src/client/token/handler/ruleContracts/Fees.sol)*
 
 ## Configuration and Enabling/Disabling
 - Fees can only be configured in the asset handler by a **rule administrator**.
@@ -81,7 +81,7 @@ Adding a fee is done through the function:
 ```c
 function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)   external ruleAdministratorOnly(appManagerAddress); 
 ```
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
+###### *see [Fees](../../../src/client/token/handler/ruleContracts/Fees.sol)*
 
 ### Parameters:
 
@@ -132,7 +132,7 @@ The following validation will be carried out by the create function in order to 
         function confirmOwner() external;
         ```
 
-- In [Asset Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol):
+- In [Asset Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md):
     -  Function to deploy a new data contract:
         ```c
         function deployDataContract() private;

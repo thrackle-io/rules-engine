@@ -51,7 +51,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.AccountMinMaxTokenBalance)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a account-min-max-token-balance rule.
 
@@ -64,7 +64,7 @@ struct AccountMinMaxTokenBalanceS {
     uint32 accountMinMaxTokenBalanceIndex; /// increments every time someone adds a rule
 }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 A account-min-max-token-balance rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -133,7 +133,7 @@ function addAccountMinMaxTokenBalance(
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -171,7 +171,7 @@ The following validation will be carried out by the create function in order to 
 - `min`is not greater than `max`
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 

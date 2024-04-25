@@ -185,7 +185,7 @@ int256 private volumeTotalForPeriod;
 uint256 private totalSupplyForPeriod;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Data Recorded
 
@@ -201,7 +201,7 @@ int256 private volumeTotalForPeriod;
 uint256 private totalSupplyForPeriod;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Events
 

@@ -227,7 +227,7 @@ Formatting at the commandline:
 [fees-url]: ./fees/README.md
 [riskScore-url]: ./riskScore/README.md
 [glossary-url]: ./GLOSSARY.md
-[handlerGuide-url]: ./architecture/client/application/APPLICATION-HANDLER.md
+[handlerGuide-url]: ./Architecture/Client/Application/APPLICATION-HANDLER.md
 [fungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md
 [nonfungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md
 

@@ -13,7 +13,7 @@ Developers may choose to adapt their preferred third-party solution for token pr
 
 Configured pricing modules are required for the following rules:
 
-- [Account Max Value by Risk](../rules/ACCOUNT-MAX-VALUE-BY-RISK-SCORE.md).
+- [Account Max Value by Risk](../rules/ACCOUNT-MAX-VALUE-BY-RISK.md).
 - [Account Max Value by Access Level](../rules/ACCOUNT-MAX-VALUE-BY-ACCESS-LEVEL.md).
 - [Account Max Transaction Value by Risk Score](../rules/ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE.md).
 

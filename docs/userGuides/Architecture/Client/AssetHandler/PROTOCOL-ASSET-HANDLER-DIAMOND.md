@@ -4,7 +4,7 @@
 
 The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status', and connects the token to the App Manager for role based access control. 
 
-Asset level rules are set by [Rule administrators](../permissions/ADMIN-ROLES.md). When setting a rule status in the Handler the protocol supplied rule id for each [Rule](../../../rules/README.md) and the [action type](../../../rules/ACTION-TYPES.md) are required for the `set-rule function`. The Handler Diamond stores each action type and rule together within the [Rule Storage Facet](./PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
+Asset level rules are set by [Rule administrators](../../../permissions/ADMIN-ROLES.md). When setting a rule status in the Handler the protocol supplied rule id for each [Rule](../../../rules/README.md) and the [action type](../../../rules/ACTION-TYPES.md) are required for the `set-rule function`. The Handler Diamond stores each action type and rule together within the [Rule Storage Facet](./PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
 
 Each Protocol supported asset type (ERC20, ERC721, etc) will need one handler diamond deployed and connected to the asset. The Handler diamond architecture will remain the same for each asset type. The asset handler diamond will consist of a proxy contract, libraries, storage facets and unique facets for that type. The unique facets for the asset type are found here:
 - [Protocol Fungible Handler](./PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 

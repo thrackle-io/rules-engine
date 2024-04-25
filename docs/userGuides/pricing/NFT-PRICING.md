@@ -34,7 +34,7 @@
 TODO: Add when we have one
 
 <!-- These are the body links -->
-[environment-url]: ../SET-ENVIRONMENT.md
+[environment-url]: ../deployment/SET-ENVIRONMENT.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

@@ -79,7 +79,7 @@ Removing a risk score from an address is done through the function:
 function removeRiskScore(address _account) external onlyRole(RISK_ADMIN_ROLE); 
 ```
 
-###### *see [App Manager](../../../client/application/AppManager.sol)*
+###### *see [App Manager](../../../src/client/application/AppManager.sol)*
 
 ### Parameters:
 

@@ -113,11 +113,11 @@ The following validation will be carried out by the create function in order to 
 - `_minSize` is greater than 0.
 
 
-###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getTokenMinTxSize(

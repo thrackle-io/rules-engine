@@ -113,7 +113,7 @@ function addAccountApproveDenyOracle(
     address _oracleAddress
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 

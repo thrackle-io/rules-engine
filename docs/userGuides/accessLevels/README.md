@@ -9,7 +9,7 @@ The purpose of access levels is to provide a tiered approach to user verificatio
 
 Access levels are used with the following rules:
 
-- [Maximum Account Balance By Access Level Rule](../rules/ACCOUNT-MAX-BALANCE-BY-ACCESS-LEVEL.md).
+- [Maximum Account Value By Access Level Rule](../rules/ACCOUNT-MAX-VALUE-BY-ACCESS-LEVEL.md).
 - [Withdrawal Limit By Access Level](../rules/ACCOUNT-MAX-VALUE-OUT-BY-ACCESS-LEVEL.md).
 - [Account Deny For No Access Level](../rules/ACCOUNT-DENY-FOR-NO-ACCESS-LEVEL.md).
 

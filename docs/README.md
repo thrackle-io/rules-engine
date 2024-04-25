@@ -17,10 +17,6 @@ forge doc
 ```
 
 <!-- These are the body links -->
-[archOverview-url]: ./userGuides/ARCHITECTURE-OVERVIEW.md
-[deploymentGuide-url]: ./userGuides/deployment/NFT-DEPLOYMENT.md
-[glossary-url]: ./userGuides/GLOSSARY.md
-[ruleGuide-url]: ./userGuides/rules/RULE-GUIDE.md
 [userGuide-url]: ./userGuides/README.md
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

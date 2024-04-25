@@ -77,7 +77,7 @@ The rule will be evaluated with the following logic:
     - If yes, then the transaction reverts. 
     - If no, the processor returns the `_volume` value for the current `period` to the handler.
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenMaxTradingVolume*
 
@@ -194,7 +194,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Data Recorded
 
@@ -208,7 +208,7 @@ uint64 private lastTransferTime;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Events
 

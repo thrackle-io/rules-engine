@@ -8,13 +8,13 @@ There are several updates that need to take place in order to add a new token le
 
 ### Updating Diamond Storage
 
-The first step is to update the diamond storage to account for the new rule. We'll need to update [StorageLib](../../../../../src/client/token/handler/StorageLib.sol). For our example we would first add the following constant to the top of the contract to define the storage position for our Token Minimum Transaction Size rule:
+The first step is to update the diamond storage to account for the new rule. We'll need to update [StorageLib](../../../../../src/client/token/handler/diamond/StorageLib.sol). For our example we would first add the following constant to the top of the contract to define the storage position for our Token Minimum Transaction Size rule:
 
 ```c
 bytes32 constant TOKEN_MIN_TX_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-tx-size-position")) - 1);
 ```
 
-Next we'll want to define the storage structure for our rule. For our example we would add the following struct to [RuleStorage](../../../../../src/client/token/handler/ruleContracts/RuleStorage.sol):
+Next we'll want to define the storage structure for our rule. For our example we would add the following struct to [RuleStorage](../../../../../src/client/token/handler/diamond/RuleStorage.sol):
 
 ```c
 struct TokenMinTxSizeS{
@@ -56,7 +56,7 @@ The following function is used to check whether the rule is currently active for
     function isTokenMinTxSizeActive(ActionTypes _action) external view returns (bool);
 ```
 
-The next step is to update the appropriate Rule Facet to include a check for our new rule. For our example we'll be updating the [ERC20NonTaggedRuleFacet](../../../../../src/client/token/handler/ERC20NonTaggedRuleFacet.sol). 
+The next step is to update the appropriate Rule Facet to include a check for our new rule. For our example we'll be updating the [ERC20NonTaggedRuleFacet](../../../../../src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol). 
 
 The facet must first be updated to implement the contract we just created:
 
