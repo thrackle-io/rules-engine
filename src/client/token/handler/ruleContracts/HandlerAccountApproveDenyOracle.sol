@@ -53,8 +53,11 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ActionTypesAr
      */
     function clearAccountApproveDenyOracle() internal {
         AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.accountApproveDenyOracle[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

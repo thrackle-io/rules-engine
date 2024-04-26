@@ -58,8 +58,11 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
      */
     function clearTokenMaxSupplyVolatility() internal {
         TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMaxSupplyVolatility[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

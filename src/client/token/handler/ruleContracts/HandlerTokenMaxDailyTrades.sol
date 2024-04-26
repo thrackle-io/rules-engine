@@ -51,8 +51,11 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     function clearTokenMaxDailyTrades() internal {
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMaxDailyTrades[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 
