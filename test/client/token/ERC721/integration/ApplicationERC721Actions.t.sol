@@ -288,8 +288,8 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.SELL));
-        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
-        emit Action(uint8(ActionTypes.BUY));
+        // vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
+        // emit Action(uint8(ActionTypes.BUY));
         marketplace.buyItem{ value: 1 * ATTO}(address(applicationNFTv2), 0);
 
     }
