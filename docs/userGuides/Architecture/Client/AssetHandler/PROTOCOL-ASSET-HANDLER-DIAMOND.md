@@ -48,7 +48,7 @@ The Admin Min Token Balance contract contains functions to set the [Admin Min To
 
 
 #### Handler Utils 
-This contract holds utility functions for the handler diamond. The first is to determine the action type of the transaction. The second is to determine if an address in the transaction is a contract or externally owned account. 
+This contract holds utility functions for the handler diamond. The first is to determine the action type of the transaction. The second is to determine if an address in the transaction is a contract or externally owned account. The third is to determine if the address is a ERC 4337 compliant smart contract account along with supplemental checks for the correct entry point and user operation validation. It should be noted that the more complicated nature of the checks is due to the fact that the ERC 4337 standard does not provide a standard method for the contract to determine the entry point address. Consequently, we have 3 different function signature checks for the entrypoint to account for differences with the Gnosis SAFE implementation as well as the Zerodev implementation. 
 
 ##### Functions
 
@@ -57,7 +57,11 @@ function determineTransferAction(address _from, address _to, address _sender) in
 ```
 
 ```c
-function isContract(address account) internal view returns (bool)
+function _isContract(address account) internal view returns (bool)
+```
+
+```c
+function _isSmartContractAccount(address account) internal returns (bool)
 ```
 
 #### Handler Diamond Lib 

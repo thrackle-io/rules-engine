@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import "src/client/token/handler/common/HandlerUtils.sol";
 import "test/client/token/SBAWallet.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
+import "test/client/token/ERC721/util/NftMarketplace.sol";
 
 
 /**
@@ -242,6 +243,55 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
         applicationNFTv2.transferFrom(address(wallet), address(wallet2), 0);
+    }
+
+    function testERC721_SmartContractWalletWithNftMarketplace_Transfer_SCA_Sell() public {
+        SBAWallet wallet = new SBAWallet();
+        NftMarketplace marketplace = new NftMarketplace();
+
+        switchToAppAdministrator();
+        vm.expectEmit();
+        emit Action(uint8(ActionTypes.MINT));
+        applicationNFTv2.safeMint(address(wallet));
+        vm.stopPrank();
+
+        vm.startPrank(address(wallet));
+        applicationNFTv2.approve(address(marketplace), 0);
+
+        marketplace.listItem(address(applicationNFTv2), 0, 1 * ATTO);
+
+        vm.stopPrank();
+        vm.deal(user1, 10 ether);
+        vm.prank(address(user1));
+
+        vm.expectEmit();
+        emit Action(uint8(ActionTypes.SELL));
+        // vm.expectEmit();
+        // emit Action(uint8(ActionTypes.BUY));
+        marketplace.buyItem{ value: 1 * ATTO}(address(applicationNFTv2), 0);
+    }
+
+    function testERC721_EOA_to_NftMarketPlace_Sell() public {
+        NftMarketplace marketplace = new NftMarketplace();
+
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(user1);
+        vm.stopPrank();
+        
+        vm.startPrank(user1);
+        applicationNFTv2.approve(address(marketplace), 0);
+        marketplace.listItem(address(applicationNFTv2), 0, 1 * ATTO);
+
+        vm.stopPrank();
+        vm.deal(user2, 10 ether);
+        vm.prank(user2);
+
+        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
+        emit Action(uint8(ActionTypes.SELL));
+        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
+        emit Action(uint8(ActionTypes.BUY));
+        marketplace.buyItem{ value: 1 * ATTO}(address(applicationNFTv2), 0);
+
     }
     
 

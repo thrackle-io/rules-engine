@@ -112,10 +112,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
 
         // test Buys
-        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
 
     }
 
@@ -142,10 +142,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
 
         // test Buys
-        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
 
     }
 
@@ -173,10 +173,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
 
         // test Buys
-        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
 
     }
 
@@ -340,10 +340,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWallet_SCA_to_EOA() public {
         address eoa = address(1);
-        vm.startPrank(eoa);
+        vm.prank(eoa);
         SBAWallet wallet = new SBAWallet();
-        vm.stopPrank();
-        vm.startPrank(address(wallet));
+
+        vm.prank(address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
@@ -354,10 +354,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWallet_SCA_SCA() public {
         address eoa = address(1);
-        vm.startPrank(eoa);
+        vm.prank(eoa);
         SBAWallet wallet = new SBAWallet();
-        vm.stopPrank();
-        vm.startPrank(address(wallet));
+
+        vm.prank(address(wallet));
         // test transfers 
         // from SCA to SCA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: address(wallet), _sender: address(wallet)})));
@@ -368,15 +368,14 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_SCA_to_EOA() public {
         address eoa = address(1);
-        vm.startPrank(eoa);
+        vm.prank(eoa);
         SBAWallet wallet = new SBAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         
-        vm.stopPrank();
-        vm.startPrank(address(wallet));
+        vm.prank(address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         vm.expectEmit();
