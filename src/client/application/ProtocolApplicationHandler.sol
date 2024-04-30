@@ -149,14 +149,14 @@ contract ProtocolApplicationHandler is
         }
         if (accountMaxTxValueByRiskScore[_action].active) {
             if (_action == ActionTypes.P2P_TRANSFER) {
-                _checkAccountMaxTxValueByRiskScoreFrom(_action, _from, riskScoreFrom, _transferValuation);
-                _checkAccountMaxTxValueByRiskScoreTo(_action, _to, riskScoreTo, _transferValuation);
+                _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
+                _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
             }
             if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) {
-                _checkAccountMaxTxValueByRiskScoreTo(_action, _to, riskScoreTo, _transferValuation); 
+                _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
             }
             if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) {
-                _checkAccountMaxTxValueByRiskScoreFrom(_action, _from, riskScoreFrom, _transferValuation); 
+                _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
             }
         }
     }
@@ -189,40 +189,21 @@ contract ProtocolApplicationHandler is
 
     /**
      * @dev This function consolidates the MaxTXValueByRiskScore rule checks for the from address.
-     * @param _from address of the from account
+     * @param _address address of the account
      * @param _riskScoreFrom sender address risk score
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      * @param _action the current user action
      */
-    function _checkAccountMaxTxValueByRiskScoreFrom(ActionTypes _action, address _from, uint8 _riskScoreFrom, uint128 _transferValuation) internal {
-        usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+    function _checkAccountMaxTxValueByRiskScore(ActionTypes _action, address _address, uint8 _riskScoreFrom, uint128 _transferValuation) internal {
+        usdValueTransactedInRiskPeriod[_address] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
                 accountMaxTxValueByRiskScore[_action].ruleId,
-                usdValueTransactedInRiskPeriod[_from],
+                usdValueTransactedInRiskPeriod[_address],
                 _transferValuation,
-                lastTxDateRiskRule[_from],
+                lastTxDateRiskRule[_address],
                 _riskScoreFrom
             );
-            lastTxDateRiskRule[_from] = uint64(block.timestamp);
+            lastTxDateRiskRule[_address] = uint64(block.timestamp);
     }
-
-    /**
-     * @dev This function consolidates the MaxTXValueByRiskScore rule checks for the to address.
-     * @param _to address of the to account
-     * @param _riskScoreTo recipient address risk score
-     * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
-     * @param _action the current user action
-     */
-    function _checkAccountMaxTxValueByRiskScoreTo(ActionTypes _action, address _to, uint8 _riskScoreTo, uint128 _transferValuation) internal {
-        usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
-            accountMaxTxValueByRiskScore[_action].ruleId,
-            usdValueTransactedInRiskPeriod[_to],
-            _transferValuation,
-            lastTxDateRiskRule[_to],
-            _riskScoreTo
-        );
-        lastTxDateRiskRule[_to] = uint64(block.timestamp);
-    }
-
 
     /// -------------- Pricing Module Configurations ---------------
     /**
