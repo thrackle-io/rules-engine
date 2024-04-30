@@ -1,5 +1,5 @@
 # RuleAdministratorOnly
-[Git Source](https://github.com/thrackle-io/tron/blob/759037970009f24ec0ac5995bf26019f0b6997be/src/protocol/economic/RuleAdministratorOnly.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fa1f71d854feb4f93c1bbe77dbe731527e9e3d00/src/protocol/economic/RuleAdministratorOnly.sol)
 
 **Inherits:**
 [RBACModifiersCommonImports](/src/client/token/handler/common/RBACModifiersCommonImports.sol/abstract.RBACModifiersCommonImports.md)
