@@ -107,7 +107,7 @@ The following validation will be carried out by the create function in order to 
 - `pauseStart` timestamp is greater than current timestamp.
 
 
-###### *see [PauseRules](../../../src/data/PauseRules.sol)*
+###### *see [PauseRule](../../../src/client/application/data/PauseRule.sol)*
 
 It is worth noting that this rule is special in the sense that it is not stored in the protocol but in the AppManager data contracts. Therefore, this rule doesn't have an ID like the other rules. This fact also makes this rule unreachable by other applications.
 

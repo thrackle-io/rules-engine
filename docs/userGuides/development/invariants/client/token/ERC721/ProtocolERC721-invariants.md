@@ -52,7 +52,7 @@
 
 
 
-## [ProtocolTokenCommon Invariants]((../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721System.t.i.sol))
+## [ProtocolTokenCommon Invariants](../../../../../../../test/client/token/ERC721/invariant/ApplicationERC721System.t.i.sol)
 
 - Only an App Admin can propose a new AppManager
 - Proposed AppManagerAddress can not be set to zero address

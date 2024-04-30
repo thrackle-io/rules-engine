@@ -71,7 +71,7 @@ Adding multiple tags to multiple addresses is done through the function:
 function addMultipleTagToMultipleAccounts(address[] _accounts, bytes32 _tags) external onlyRole(APP_ADMIN_ROLE); 
 ```
 
-###### *see [Tags](../../../client/application/data/Tags.sol)*
+###### *see [Tags](../../../src/client/application/data/Tags.sol)*
 
 ## Remove Function
 
@@ -80,7 +80,7 @@ Removing a tag is done through the function:
 ```c
 function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
 ```
-###### *see [Tags](../../../client/application/data/Tags.sol)*
+###### *see [Tags](../../../src/client/application/data/Tags.sol)*
 
 ### Parameters:
 
@@ -103,11 +103,11 @@ The following validation will be carried out by the addTag function in order to 
 - `_tag` is not blank.
 - `_account` has the tag. When adding tags this is used to avoid duplication. When removing tags this is used to ensure account has the tag to be removed.   
 
-###### *see [Tags](../../../client/application/data/Tags.sol)*
+###### *see [Tags](../../../src/client/application/data/Tags.sol)*
 
 ## Other Functions:
 
-- In [App Manager](../../../client/application/AppManager.sol):
+- In [App Manager](../../../src/client/application/AppManager.sol):
     -  Function to check if an account or address has a tag:
         ```c
         function hasTag(address _address, bytes32 _tag) public view returns (bool);

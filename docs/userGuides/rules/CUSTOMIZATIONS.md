@@ -53,7 +53,7 @@ Sometimes no matter what, there are just modifications that you would like to ma
 <!-- These are the body links -->
 [createAppRules-url]: ./CREATE-APP-RULES.md
 [createNftRules-url]: ../deployment/CREATE-NFT-RULES.md
-[appRuleDirectory-url]: ../../rules/APP-RULE-DIRECTORY.md
+[appRuleDirectory-url]: ../Architecture/Client/Application/APPLICATION-RULES-LIST.md
 [tokenSpecificRuleDirectory-url]: ./README.md
 [addingNewApplicationRules-url]: ./addingNewRules/applicationLevelRules/ADDING_APP_RULE_TO_PROTOCOL_RULE_DIAMOND.md
 [addingRuleToHandlerDiamond-url]: ./addingNewRules/tokenLevelRules/ADDING_TOKEN_RULE_TO_HANDLER_DIAMOND.md

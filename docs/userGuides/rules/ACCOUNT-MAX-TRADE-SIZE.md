@@ -72,7 +72,7 @@ struct AccountMaxTradeSizeS {
 }
 ```
 
-###### *see [IRuleProcessor](../../../src/protocol/economic/ruleProcessor/IRuleProcessor.sol)*
+###### *see [IRuleProcessor](../../../src/protocol/economic/IRuleProcessor.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.

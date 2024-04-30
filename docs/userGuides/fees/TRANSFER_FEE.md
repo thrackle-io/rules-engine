@@ -9,7 +9,7 @@ The purpose of the Transfer Fee is to assess fees when protocol supported tokens
 
 Transfer fees are assessed in the transfer function of the token. The fees are additive. If a user has multiple applicable fees, the sum of all their fees will be assessed. 
 
-#### *See [Protocol Fee Structure](./PROTOCOL-FEE-STRUCTURE.md)*
+#### *See [Protocol Fee Structure](./PROTOCOL_FEE_STRUCTURE.md)*
 
 ## Dependencies
 

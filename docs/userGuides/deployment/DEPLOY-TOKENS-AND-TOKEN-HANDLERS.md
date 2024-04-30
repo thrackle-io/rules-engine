@@ -51,7 +51,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
-[environment-url]: ../SET-ENVIRONMENT.md
+[environment-url]: ./SET-ENVIRONMENT.md
 [customizations-url]: ../rules/CUSTOMIZATIONS.md
 
 <!-- These are the header links -->

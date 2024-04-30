@@ -172,7 +172,7 @@ The following validation will be carried out by the create function in order to 
             view 
             returns (uint256);
         ```
-- in [ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol), [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol):
+- in [ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md), [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md):
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
         function setTokenMaxBuySellVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);

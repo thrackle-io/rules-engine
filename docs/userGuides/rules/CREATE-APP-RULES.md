@@ -35,12 +35,12 @@
 
 
 <!-- These are the body links -->
-[deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
+[deploymentDirectory-url]: ../deployment/DEPLOYMENT-DIRECTORY.md
 [appRuleDirectory-url]: ./README.md
-[environment-url]: ./SET-ENVIRONMENT.md
+[environment-url]: ../deployment/SET-ENVIRONMENT.md
 
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
-[admin-config]: ./ADMIN-ROLES.md#rule-admin
+[admin-config]: ../permissions/ADMIN-ROLES.md#rule-admin
