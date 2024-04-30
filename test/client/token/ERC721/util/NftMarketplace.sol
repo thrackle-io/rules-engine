@@ -4,7 +4,9 @@ pragma solidity ^0.8.24;
 /// note: this is a simple NFT marketplace contract ripped from https://github.com/PatrickAlphaC/hardhat-nft-marketplace-fcc/blob/main/contracts/NftMarketplace.sol
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "forge-std/console.sol";
 
 // Check out https://github.com/Fantom-foundation/Artion-Contracts/blob/5c90d2bc0401af6fb5abf35b860b762b31dfee02/contracts/FantomMarketplace.sol
 // For a full decentralized nft marketplace
@@ -24,6 +26,7 @@ error PriceMustBeAboveZero();
 contract NftMarketplace is ReentrancyGuard {
     struct Listing {
         uint256 price;
+        address erc20Address;
         address seller;
     }
 
@@ -110,6 +113,7 @@ contract NftMarketplace is ReentrancyGuard {
     function listItem(
         address nftAddress,
         uint256 tokenId,
+        address erc20Address,
         uint256 price
     )
         external
@@ -123,7 +127,7 @@ contract NftMarketplace is ReentrancyGuard {
         if (nft.getApproved(tokenId) != address(this)) {
             revert NotApprovedForMarketplace();
         }
-        s_listings[nftAddress][tokenId] = Listing(price, msg.sender);
+        s_listings[nftAddress][tokenId] = Listing(price, erc20Address, msg.sender);
         emit ItemListed(msg.sender, nftAddress, tokenId, price);
     }
 
@@ -161,13 +165,15 @@ contract NftMarketplace is ReentrancyGuard {
         // 2. Be able to set prices in other currencies?
         // 3. Tweet me @PatrickAlphaC if you come up with a solution!
         Listing memory listedItem = s_listings[nftAddress][tokenId];
-        if (msg.value < listedItem.price) {
+        IERC20 fungibleToken = IERC20(listedItem.erc20Address);
+
+        if (fungibleToken.balanceOf(msg.sender) < listedItem.price) {
             revert PriceNotMet(nftAddress, tokenId, listedItem.price);
         }
-        s_proceeds[listedItem.seller] += msg.value;
         // Could just send the money...
         // https://fravoll.github.io/solidity-patterns/pull_over_push.html
         delete (s_listings[nftAddress][tokenId]);
+        IERC20(listedItem.erc20Address).transferFrom(msg.sender, listedItem.seller, listedItem.price);
         IERC721(nftAddress).safeTransferFrom(listedItem.seller, msg.sender, tokenId);
         emit ItemBought(msg.sender, nftAddress, tokenId, listedItem.price);
     }

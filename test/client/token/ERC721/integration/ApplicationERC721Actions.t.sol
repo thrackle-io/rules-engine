@@ -245,52 +245,75 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         applicationNFTv2.transferFrom(address(wallet), address(wallet2), 0);
     }
 
-    function testERC721_SmartContractWalletWithNftMarketplace_Transfer_SCA_Sell() public {
+    function testERC721_SmartContractWalletWithNftMarketplace_SCA_Sell() public {
         SBAWallet wallet = new SBAWallet();
         NftMarketplace marketplace = new NftMarketplace();
 
         switchToAppAdministrator();
-        vm.expectEmit();
-        emit Action(uint8(ActionTypes.MINT));
         applicationNFTv2.safeMint(address(wallet));
+        applicationCoin.mint(user1, 10 * ATTO);
         vm.stopPrank();
 
         vm.startPrank(address(wallet));
         applicationNFTv2.approve(address(marketplace), 0);
-
-        marketplace.listItem(address(applicationNFTv2), 0, 1 * ATTO);
-
+        marketplace.listItem(address(applicationNFTv2), 0, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
-        vm.deal(user1, 10 ether);
-        vm.prank(address(user1));
 
-        vm.expectEmit();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(marketplace), 1 * ATTO);
+        vm.expectEmit(true,false,false,false,applicationCoin.getHandlerAddress());
+        emit Action(uint8(ActionTypes.BUY));
+        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.SELL));
-        // vm.expectEmit();
-        // emit Action(uint8(ActionTypes.BUY));
-        marketplace.buyItem{ value: 1 * ATTO}(address(applicationNFTv2), 0);
+        marketplace.buyItem(address(applicationNFTv2), 0);
+        vm.stopPrank();
     }
 
-    function testERC721_EOA_to_NftMarketPlace_Sell() public {
+    function testERC721_SmartContractWalletWithNftMarketplace_SCA_Buy() public {
+        SBAWallet wallet = new SBAWallet();
         NftMarketplace marketplace = new NftMarketplace();
 
         switchToAppAdministrator();
         applicationNFTv2.safeMint(user1);
+        applicationCoin.mint(address(wallet), 10 * ATTO);
+        vm.stopPrank();
+
+        vm.startPrank(user1);
+        applicationNFTv2.approve(address(marketplace), 0);
+        marketplace.listItem(address(applicationNFTv2), 0, address(applicationCoin), 1 * ATTO);
+        vm.stopPrank();
+
+        vm.startPrank(address(wallet));
+        applicationCoin.approve(address(marketplace), 1 * ATTO);
+        vm.expectEmit(true,false,false,false,applicationCoin.getHandlerAddress());
+        emit Action(uint8(ActionTypes.BUY));
+        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
+        emit Action(uint8(ActionTypes.SELL));
+        marketplace.buyItem(address(applicationNFTv2), 0);
+        vm.stopPrank();
+    }
+
+    function testERC721_NftMarketPlace_EOA_Trade() public {
+        NftMarketplace marketplace = new NftMarketplace();
+
+        switchToAppAdministrator();
+        applicationNFTv2.safeMint(user1);
+        applicationCoin.mint(user2, 10 * ATTO);
         vm.stopPrank();
         
         vm.startPrank(user1);
         applicationNFTv2.approve(address(marketplace), 0);
-        marketplace.listItem(address(applicationNFTv2), 0, 1 * ATTO);
-
+        marketplace.listItem(address(applicationNFTv2), 0, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
-        vm.deal(user2, 10 ether);
-        vm.prank(user2);
 
+        vm.startPrank(user2);
+        applicationCoin.approve(address(marketplace), 1 * ATTO);
+        vm.expectEmit(true,false,false,false,applicationCoin.getHandlerAddress());
+        emit Action(uint8(ActionTypes.BUY));
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.SELL));
-        // vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
-        // emit Action(uint8(ActionTypes.BUY));
-        marketplace.buyItem{ value: 1 * ATTO}(address(applicationNFTv2), 0);
+        marketplace.buyItem(address(applicationNFTv2), 0);
+        vm.stopPrank();
 
     }
     
