@@ -5,7 +5,7 @@ import "./HandlerRuleContractsCommonImports.sol";
 import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 /**
- * @title Handler Account Max Sell Size
+ * @title Handler Account Max Trade Size
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.

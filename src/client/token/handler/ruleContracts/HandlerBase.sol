@@ -29,7 +29,7 @@ import "../ruleContracts/Fees.sol";
     }
 
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev this function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external {
         HandlerBaseS storage data = lib.handlerBaseStorage();
