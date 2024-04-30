@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/fa1f71d854feb4f93c1bbe77dbe731527e9e3d00/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/f405cfa7d52aca0d1bdf3d82da9748579a0bb635/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
@@ -263,7 +263,7 @@ function _checkAccessLevelRules(
 |`_action`|`ActionTypes`|the current user action|
 
 
-### _checkAccountMaxTxValueByRiskScoreFrom
+### _checkAccountMaxTxValueByRiskScore
 
 Exempting address(0) allows for burning.
 
@@ -271,9 +271,9 @@ Exempting address(0) allows for burning.
 
 
 ```solidity
-function _checkAccountMaxTxValueByRiskScoreFrom(
+function _checkAccountMaxTxValueByRiskScore(
     ActionTypes _action,
-    address _from,
+    address _address,
     uint8 _riskScoreFrom,
     uint128 _transferValuation
 ) internal;
@@ -283,31 +283,8 @@ function _checkAccountMaxTxValueByRiskScoreFrom(
 |Name|Type|Description|
 |----|----|-----------|
 |`_action`|`ActionTypes`|the current user action|
-|`_from`|`address`|address of the from account|
+|`_address`|`address`|address of the account|
 |`_riskScoreFrom`|`uint8`|sender address risk score|
-|`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
-
-
-### _checkAccountMaxTxValueByRiskScoreTo
-
-*This function consolidates the MaxTXValueByRiskScore rule checks for the to address.*
-
-
-```solidity
-function _checkAccountMaxTxValueByRiskScoreTo(
-    ActionTypes _action,
-    address _to,
-    uint8 _riskScoreTo,
-    uint128 _transferValuation
-) internal;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_action`|`ActionTypes`|the current user action|
-|`_to`|`address`|address of the to account|
-|`_riskScoreTo`|`uint8`|recipient address risk score|
 |`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 
 
