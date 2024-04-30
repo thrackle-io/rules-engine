@@ -58,8 +58,11 @@ contract HandlerAdminMinTokenBalance is ActionTypesArray, IAppManagerErrors, ITo
      */
     function clearAdminMinTokenBalance() internal {
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.adminMinTokenBalance[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

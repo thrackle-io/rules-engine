@@ -51,8 +51,11 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
      */
     function clearTokenMinTxSize() internal {
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMinTxSize[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

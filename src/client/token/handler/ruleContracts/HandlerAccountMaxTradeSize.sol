@@ -57,8 +57,11 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
      */
     function clearAccountMaxTradeSize() internal {
         AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.accountMaxTradeSize[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

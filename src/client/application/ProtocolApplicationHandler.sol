@@ -371,8 +371,11 @@ contract ProtocolApplicationHandler is
      * @dev Clear the rule data structure
      */
     function clearAccountMaxValueByRiskScore() internal {
-        for (uint i; i <= lastPossibleAction; ++i) {
+        for (uint i; i <= lastPossibleAction;) {
             delete accountMaxValueByRiskScore[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 

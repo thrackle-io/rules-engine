@@ -50,8 +50,11 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ActionTypesA
      */
     function clearMinMaxTokenBalance() internal {
         AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.accountMinMaxTokenBalance[ActionTypes(i)];
+            unchecked {
+                ++i;
+            }
         }
     }
 
