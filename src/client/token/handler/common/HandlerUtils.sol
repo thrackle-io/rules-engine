@@ -30,7 +30,7 @@ contract HandlerUtils{
         } else if(!(_sender == _from)){ 
             action = ActionTypes.SELL;
             emit Action(uint8(ActionTypes.SELL));
-        } else if(_isContract(_from) && !_isSmartContractAccount(_from)) {
+        } else if(_isContract(_from) && (tx.origin == _to || !_isSmartContractAccount(_from))) {
             action = ActionTypes.BUY;
             emit Action(uint8(ActionTypes.BUY));
         } else {

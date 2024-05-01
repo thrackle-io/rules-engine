@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "src/client/token/handler/common/HandlerUtils.sol";
-import "test/client/token/SBAWallet.sol";
+import "test/client/token/SCAWallet.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
 import "test/client/token/ERC721/util/NftMarketplace.sol";
 
@@ -28,7 +28,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when calling determineTransfer directly */
     function testERC721_testSmartContractWallet() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
@@ -62,7 +62,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         
         switchToAppAdministrator();      
         // test Mints
@@ -74,7 +74,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Burn() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
         
@@ -87,7 +87,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_SCA_to_EOA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
         applicationNFTv2.safeMint(user1);
@@ -103,7 +103,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_EOA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
         applicationNFTv2.safeMint(user1);
@@ -119,7 +119,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_SCA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
         applicationNFTv2.safeMint(user1);
@@ -135,7 +135,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Sell() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
@@ -156,7 +156,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Buy() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         // Set up amm for buy and sell tests
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));
@@ -178,7 +178,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     function testERC721_SmartContractWallet_SCA_to_EOA() public {
         address eoa = address(1);
         vm.startPrank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         vm.stopPrank();
         vm.startPrank(address(wallet));
         // test transfers 
@@ -192,7 +192,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     function testERC721_SmartContractWallet_SCA_SCA() public {
         address eoa = address(1);
         vm.startPrank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         vm.stopPrank();
         vm.startPrank(address(wallet));
         // test transfers 
@@ -206,7 +206,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_SCA_to_EOA() public {
         address eoa = address(1);
         vm.startPrank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         switchToAppAdministrator();
@@ -228,10 +228,10 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_SCA_to_SCA() public {
         address eoa = address(1);
         vm.prank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         address eoa2 = address(2);
         vm.prank(eoa2);
-        SBAWallet wallet2 = new SBAWallet();
+        SCAWallet wallet2 = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         switchToAppAdministrator();
@@ -246,7 +246,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     }
 
     function testERC721_SmartContractWalletWithNftMarketplace_SCA_Sell() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         NftMarketplace marketplace = new NftMarketplace();
 
         switchToAppAdministrator();
@@ -270,7 +270,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     }
 
     function testERC721_SmartContractWalletWithNftMarketplace_SCA_Buy() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         NftMarketplace marketplace = new NftMarketplace();
 
         switchToAppAdministrator();
@@ -308,7 +308,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
         vm.startPrank(user2);
         applicationCoin.approve(address(marketplace), 1 * ATTO);
-        vm.expectEmit(true,false,false,false,applicationCoin.getHandlerAddress());
+        vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.BUY));
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.SELL));

@@ -21,7 +21,7 @@ interface IEntryPoint {
     function handleOps(UserOperation[] calldata ops, address payable beneficiary) external;
 }
 
-contract SBAWallet{
+contract SCAWallet{
 
 
     //Define owner as state variable

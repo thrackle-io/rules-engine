@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "src/client/token/handler/common/HandlerUtils.sol";
-import "test/client/token/SBAWallet.sol";
+import "test/client/token/SCAWallet.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
 /**
@@ -91,7 +91,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when calling determineTransfer directly */
     function testERC20_testSmartContractWallet() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
@@ -121,7 +121,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
         /** Test that actions are properly determined when calling determineTransfer directly for Gnosis SAFE variant */
     function testERC20_testSmartContractWalletSAFEImpl() public {
-        SBAWalletSafeStyle wallet = new SBAWalletSafeStyle();
+        SCAWalletSafeStyle wallet = new SCAWalletSafeStyle();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
@@ -151,7 +151,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when calling determineTransfer directly for Zerodev variant */
     function testERC20_testSmartContractWalletZerodevImpl() public {
-        SBAWalletZeroDevStyle wallet = new SBAWalletZeroDevStyle();
+        SCAWalletZeroDevStyle wallet = new SCAWalletZeroDevStyle();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
@@ -182,7 +182,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         
         vm.startPrank(address(wallet));        
         // test Mints
@@ -194,7 +194,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Burn() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         
         vm.startPrank(address(wallet));
@@ -206,7 +206,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -225,7 +225,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_EOA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -240,7 +240,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_SCA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -255,7 +255,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Sell() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
         
@@ -276,7 +276,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Buy() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
         
@@ -323,7 +323,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         switchToAppAdministrator();
         // Set up amm for buy and sell tests
         DummyStaking staking = initializeERC20Stake(address(applicationCoin));
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         vm.startPrank(address(wallet));
         applicationCoin.approve(address(staking), 50000);
@@ -341,7 +341,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     function testERC20_SmartContractWallet_SCA_to_EOA() public {
         address eoa = address(1);
         vm.prank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
 
         vm.prank(address(wallet));
         // test transfers 
@@ -355,7 +355,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     function testERC20_SmartContractWallet_SCA_SCA() public {
         address eoa = address(1);
         vm.prank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
 
         vm.prank(address(wallet));
         // test transfers 
@@ -369,7 +369,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_SCA_to_EOA() public {
         address eoa = address(1);
         vm.prank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         applicationCoin.mint(address(wallet), 10 * ATTO);
@@ -389,10 +389,10 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_SCA_to_SCA() public {
         address eoa = address(1);
         vm.prank(eoa);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         address eoa2 = address(2);
         vm.prank(eoa2);
-        SBAWallet wallet2 = new SBAWallet();
+        SCAWallet wallet2 = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         applicationCoin.mint(address(wallet), 10 * ATTO);
