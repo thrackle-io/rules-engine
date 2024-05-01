@@ -22,7 +22,7 @@ function determineTransferAction(address _from, address _to, address _sender) in
 ├── if _sender address is equal to _from address
 │ ├── it will determine the action is a Sell
 │ └── it will emit Action event with sell action type
-├── if _from address is a contract address
+├── if _from address is a contract address and is not a smart contract account
 │ ├── it will determine the action is a Buy
 │ └── it will emit Action event with buy action type
 └── when the action has been determined 
@@ -31,6 +31,6 @@ function determineTransferAction(address _from, address _to, address _sender) in
 
 ## Situational Determinations 
 
-The determine transfer action function will assess if the `_from` address is a contract or an externally owned account. When it is determined that _from is a contract the action type is a Buy action. This can determine certain transfers from individuals that could be realistically assessed as a P2P Transfer action as a Buy action. Transfers from Smart Contract Accounts or Smart Contract Wallets will be determined as a buy. 
+The determine transfer action function will assess if the `_from` address is a contract or an externally owned account. When it is determined that _from is a contract the action type is a Buy action. This can determine certain transfers from individuals that could be realistically assessed as a P2P Transfer action as a Buy action.
 
 Additionally, if tokens are transfered during the construction of a contract, this transfer will be determined as a P2P Transfer and not a Buy action. This is because the contract at construction has no code and would be considered an externally owned account until the contract is deployed. 
