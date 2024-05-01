@@ -94,7 +94,7 @@ contract SCAWallet{
 
 }
 
-contract SBAWalletZeroDevStyle {
+contract SCAWalletZeroDevStyle {
 
     address public entrypoint;
     //Define owner as state variable
@@ -125,7 +125,7 @@ contract SBAWalletZeroDevStyle {
     
 }
 
-contract SBAWalletSafeStyle {
+contract SCAWalletSafeStyle {
 
     address public immutable SUPPORTED_ENTRYPOINT;
     //Define owner as state variable
