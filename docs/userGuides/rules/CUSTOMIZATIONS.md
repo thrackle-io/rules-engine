@@ -42,7 +42,7 @@ To activate a deactivated rule, invoke the activation function and send it a par
          ````
 
 ### NFT Functionality
-Protocol supported NFT's implement OpenZeppelin ERC721Burnable, ERC721URIStorage, ERC721Enumerable, and Pausable. These interfaces may be utilized in application NFT's. 
+Protocol supported NFT's implement OpenZeppelin ERC721Burnable, ERC721URIStorage, and ERC721Enumerable. These interfaces may be utilized in application NFT's. 
 
 Additional logic may be added to the constructor, but it MUST still invoke the ProtocolERC721 constructor
 
