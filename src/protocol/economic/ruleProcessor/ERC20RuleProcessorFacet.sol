@@ -125,8 +125,10 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
-            if ((_volume * _BASIS_POINT) / _supply >= uint(rule.max)) {
-                revert OverMaxTradingVolume();
+            if (_supply > 0){
+                if ((_volume * _BASIS_POINT) / _supply >= uint(rule.max)) {
+                    revert OverMaxTradingVolume();
+                }
             }
         }
         return _volume;
@@ -233,7 +235,10 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         NonTaggedRules.TokenMaxBuySellVolume memory rule = getTokenMaxBuySellVolume(ruleId);
         totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ? amountToTransfer + totalWithinPeriod : amountToTransfer;
         uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply : rule.totalSupply;
-        uint16 percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
+        uint16 percentOfTotalSupply;
+        if (totalSupply > 0){
+            percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
+        }
         if (percentOfTotalSupply >= rule.tokenPercentage) revert OverMaxVolume();
         return totalForPeriod;
     }

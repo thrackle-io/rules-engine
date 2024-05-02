@@ -130,8 +130,12 @@ library RuleProcessorCommonLib {
      * @param _volumeTotalForPeriod total volume within the period
      * @param _volumeMultiplier volume muliplier
      * @param _totalSupply token total supply
+     * @return _volatility calculated volatility
      */
-    function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultiplier, uint256 _totalSupply) internal pure returns (int256) {
-        return ((_volumeTotalForPeriod * int(_volumeMultiplier)) / int(_totalSupply));
+    function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultiplier, uint256 _totalSupply) internal pure returns (int256 _volatility) {
+        if (_totalSupply > 0){
+            _volatility = ((_volumeTotalForPeriod * int(_volumeMultiplier)) / int(_totalSupply));
+        }
+        return _volatility;
     }
 }

@@ -1325,6 +1325,26 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.expectRevert(0x5f98112f);
         testCaseNFT.safeTransferFrom(user2, user1, 0);
     }
+    /**
+     * This test makes sure that the initial date is set correctly when the transfer from is a RuleBypass Account.
+     */
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_FromRuleBypassOrigin() public endWithStopPrank {
+        /// set the rule for 24 hours
+        switchToRuleAdmin();
+        setTokenMinHoldTimeRule(24);
+        switchToAppAdministrator();
+        // mint 1 nft to rule bypass
+        ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
+        // move forward in time 2 day and transfer to regular users
+        Blocktime = Blocktime + 2 days;
+        vm.warp(Blocktime);
+        switchToRuleBypassAccount();
+        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
+        // Should not be able to transfer because the period started correctly.
+        vm.startPrank(user1);
+        vm.expectRevert(0x5f98112f);
+        testCaseNFT.safeTransferFrom(user1, user2, 0);        
+    }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_UpdatedRule() public endWithStopPrank {
         // now change the rule hold hours to 2 and it should pass
