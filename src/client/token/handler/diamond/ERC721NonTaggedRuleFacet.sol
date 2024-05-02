@@ -43,7 +43,7 @@ contract ERC721NonTaggedRuleFacet is
         _checkAccountApproveDenyOraclesRule(_from, _to, action, handlerBase);
 
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
-            _checkTokenMaxTradingVolumeRule(_amount, action, handlerBase);
+            _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
         }
 
         if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
@@ -89,10 +89,9 @@ contract ERC721NonTaggedRuleFacet is
     /**
      * @dev Internal function to check the Token Max Trading Volume rule 
      * @param _amount number of tokens transferred
-     * @param action if selling or buying (of ActionTypes type)
      * @param handlerBase address of the handler proxy
      */
-    function _checkTokenMaxTradingVolumeRule(uint256 _amount, ActionTypes action, address handlerBase) internal {
+    function _checkTokenMaxTradingVolumeRule(uint256 _amount, address handlerBase) internal {
         TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
         maxTradingVolume.transferVolume = IRuleProcessor(handlerBase).checkTokenMaxTradingVolume(
             maxTradingVolume.ruleId,
