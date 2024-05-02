@@ -42,12 +42,12 @@ contract ERC721NonTaggedRuleFacet is
 
         _checkAccountApproveDenyOraclesRule(_from, _to, action, handlerBase);
 
-        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
+        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
             _checkTokenMaxTradingVolumeRule(_amount, action, handlerBase);
         }
 
-        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
-            _checkTokenMaxSupplyVolatilityRule(_to, _amount, action, handlerBase);
+        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
+            _checkTokenMaxSupplyVolatilityRule(_to, _amount, handlerBase);
         }
 
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
@@ -95,7 +95,7 @@ contract ERC721NonTaggedRuleFacet is
     function _checkTokenMaxTradingVolumeRule(uint256 _amount, ActionTypes action, address handlerBase) internal {
         TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
         maxTradingVolume.transferVolume = IRuleProcessor(handlerBase).checkTokenMaxTradingVolume(
-            maxTradingVolume.tokenMaxTradingVolume[action].ruleId,
+            maxTradingVolume.ruleId,
             maxTradingVolume.transferVolume,
             IToken(msg.sender).totalSupply(),
             _amount,
@@ -108,14 +108,13 @@ contract ERC721NonTaggedRuleFacet is
      * @dev Internal function to check the Token Max Supply Volatility rule 
      * @param _to address of the to account
      * @param _amount number of tokens transferred
-     * @param action if selling or buying (of ActionTypes type)
      * @param handlerBase address of the handler proxy
      */
-    function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, ActionTypes action, address handlerBase) internal {
+    function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, address handlerBase) internal {
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();
         (maxSupplyVolatility.volumeTotalForPeriod, maxSupplyVolatility.totalSupplyForPeriod) = IRuleProcessor(handlerBase).checkTokenMaxSupplyVolatility(
-            maxSupplyVolatility.tokenMaxSupplyVolatility[action].ruleId,
+            maxSupplyVolatility.ruleId,
             maxSupplyVolatility.volumeTotalForPeriod,
             maxSupplyVolatility.totalSupplyForPeriod,
             IToken(msg.sender).totalSupply(),
@@ -135,13 +134,14 @@ contract ERC721NonTaggedRuleFacet is
         // get all the tags for this NFT
         bytes32[] memory tags = IAppManager(handlerBaseStorage.appManager).getAllTags(handlerBaseStorage.assetAddress);
         TokenMaxDailyTradesS storage maxDailyTrades = lib.tokenMaxDailyTradesStorage();
-        maxDailyTrades.tradesInPeriod[_tokenId] = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxDailyTrades(
+        // in order to prevent cross contamination of action specific rules, the data is further broken down by action
+        maxDailyTrades.tradesInPeriod[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxDailyTrades(
             maxDailyTrades.tokenMaxDailyTrades[action].ruleId,
-            maxDailyTrades.tradesInPeriod[_tokenId],
+            maxDailyTrades.tradesInPeriod[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId],
             tags,
-            maxDailyTrades.lastTxDate[_tokenId]
+            maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId]
         );
-        maxDailyTrades.lastTxDate[_tokenId] = uint64(block.timestamp);
+        maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] = uint64(block.timestamp);
     }       
 
     /**

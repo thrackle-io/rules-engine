@@ -25,11 +25,11 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
             _checkTokenMinTxSizeRule(_amount, action, handlerBase);
         }
         _checkAccountApproveDenyOraclesRule(_from, _to, action, handlerBase);
-        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
+        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
             _checkTokenMaxTradingVolumeRule(_amount, action, handlerBase);
         }
-        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
-            _checkTokenMaxSupplyVolatilityRule(_to, _amount, action, handlerBase);
+        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
+            _checkTokenMaxSupplyVolatilityRule(_to, _amount,handlerBase);
         }
     }
 
@@ -72,7 +72,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
     function _checkTokenMaxTradingVolumeRule(uint256 _amount, ActionTypes action, address handlerBase) internal {
         TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
         maxTradingVolume.transferVolume = IRuleProcessor(handlerBase).checkTokenMaxTradingVolume(
-            maxTradingVolume.tokenMaxTradingVolume[action].ruleId,
+            maxTradingVolume.ruleId,
             maxTradingVolume.transferVolume,
             IToken(msg.sender).totalSupply(),
             _amount,
@@ -85,14 +85,13 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
      * @dev Internal function to check the Token Max Supply Volatility rule 
      * @param _to address of the to account
      * @param _amount number of tokens transferred
-     * @param action if selling or buying (of ActionTypes type)
      * @param handlerBase address of the handler proxy
      */
-    function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, ActionTypes action, address handlerBase) internal {
+    function _checkTokenMaxSupplyVolatilityRule(address _to, uint256 _amount, address handlerBase) internal {
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();
         (maxSupplyVolatility.volumeTotalForPeriod, maxSupplyVolatility.totalSupplyForPeriod) = IRuleProcessor(handlerBase).checkTokenMaxSupplyVolatility(
-            maxSupplyVolatility.tokenMaxSupplyVolatility[action].ruleId,
+            maxSupplyVolatility.ruleId,
             maxSupplyVolatility.volumeTotalForPeriod,
             maxSupplyVolatility.totalSupplyForPeriod,
             IToken(msg.sender).totalSupply(),
