@@ -125,7 +125,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
-            if ((_volume * _VOLUME_MULTIPLIER) / _supply >= uint(rule.max) * _BASIS_POINT) {
+            if ((_volume * _BASIS_POINT) / _supply >= uint(rule.max)) {
                 revert OverMaxTradingVolume();
             }
         }
