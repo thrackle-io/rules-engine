@@ -33,10 +33,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         RuleS.AccountMaxValueByAccessLevelS storage data = Storage.accountMaxValueByAccessLevelStorage();
         uint32 index = data.accountMaxValueByAccessLevelIndex;
         if (_maxValues.length != MAX_ACCESSLEVELS) revert BalanceAmountsShouldHave5Levels(uint8(_maxValues.length));
-        for (uint i = 1; i < _maxValues.length; ++i) {
+        uint256 length = _maxValues.length;
+        for (uint256 i = 1; i < length; ++i) {
             if (_maxValues[i] < _maxValues[i - 1]) revert WrongArrayOrder();
         }
-        for (uint8 i; i < _maxValues.length; ++i) {
+        for (uint8 i; i < length; ++i) {
             data.accountMaxValueByAccessLevelRules[index][i] = _maxValues[i];
         }
         ++data.accountMaxValueByAccessLevelIndex;
@@ -57,10 +58,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
         uint32 index = data.accountMaxValueOutByAccessLevelIndex;
         if (_withdrawalAmounts.length != MAX_ACCESSLEVELS) revert WithdrawalAmountsShouldHave5Levels(uint8(_withdrawalAmounts.length));
-        for (uint i = 1; i < _withdrawalAmounts.length; ++i) {
+        uint256 length = _withdrawalAmounts.length;
+        for (uint256 i = 1; i < length; ++i) {
             if (_withdrawalAmounts[i] < _withdrawalAmounts[i - 1]) revert WrongArrayOrder();
         }
-        for (uint8 i; i < _withdrawalAmounts.length; ++i) {
+        for (uint8 i; i < length; ++i) {
             data.accountMaxValueOutByAccessLevelRules[index][i] = _withdrawalAmounts[i];
         }
         ++data.accountMaxValueOutByAccessLevelIndex;
@@ -105,10 +107,9 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxValue.length == 0) revert InvalidRuleInput();
         if (_riskScore[_riskScore.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
-        for (uint256 i = 1; i < _riskScore.length; ++i) {
+        uint256 length = _maxValue.length;
+        for (uint256 i = 1; i < length; ++i) {
             if (_riskScore[i] <= _riskScore[i - 1]) revert WrongArrayOrder();
-        }
-        for (uint256 i = 1; i < _maxValue.length; ++i) {
             if (_maxValue[i] > _maxValue[i - 1]) revert WrongArrayOrder();
         }
         _startTime.validateTimestamp();
@@ -127,7 +128,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @param _appManagerAddr Address of App Manager
      * @param _riskScores User Risk Score Array
      * @param _maxValue Account Max Value Limit in whole USD for each score range. It corresponds to the _riskScores
-     * array and is +1 longer than _riskScores. A value of 1000 in this arrays will be interpreted as $1000.00 USD.
+     * array. A value of 1000 in this arrays will be interpreted as $1000.00 USD.
      * @return position of new rule in array
      * @notice _maxValue size must be equal to _riskScore.
      * The positioning of the arrays is ascendant in terms of risk score,
@@ -145,10 +146,9 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         if (_maxValue.length != _riskScores.length) revert InputArraysSizesNotValid();
         if (_maxValue.length == 0) revert InvalidRuleInput();
         if (_riskScores[_riskScores.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
-        for (uint i = 1; i < _riskScores.length; ++i) {
+        uint256 length = _maxValue.length;
+        for (uint256 i = 1; i < length; ++i) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
-        }
-        for (uint i = 1; i < _maxValue.length; ++i) {
             if (_maxValue[i] > _maxValue[i - 1]) revert WrongArrayOrder();
         }
         return _addAccountMaxValueByRiskScore(_riskScores, _maxValue);
