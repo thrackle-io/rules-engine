@@ -1,5 +1,5 @@
 # ITags
-[Git Source](https://github.com/thrackle-io/tron/blob/f405cfa7d52aca0d1bdf3d82da9748579a0bb635/src/client/application/data/ITags.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/client/application/data/ITags.sol)
 
 **Inherits:**
 [IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)

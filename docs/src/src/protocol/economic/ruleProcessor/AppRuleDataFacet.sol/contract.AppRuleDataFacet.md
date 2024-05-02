@@ -1,5 +1,5 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/f405cfa7d52aca0d1bdf3d82da9748579a0bb635/src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/common/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md)
@@ -165,7 +165,7 @@ function addAccountMaxValueByRiskScore(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_riskScores`|`uint8[]`|User Risk Score Array|
-|`_maxValue`|`uint48[]`|Account Max Value Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores. A value of 1000 in this arrays will be interpreted as $1000.00 USD.|
+|`_maxValue`|`uint48[]`|Account Max Value Limit in whole USD for each score range. It corresponds to the _riskScores array. A value of 1000 in this arrays will be interpreted as $1000.00 USD.|
 
 **Returns**
 

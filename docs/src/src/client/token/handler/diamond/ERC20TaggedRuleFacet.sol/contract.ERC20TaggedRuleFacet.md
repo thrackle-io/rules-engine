@@ -1,5 +1,5 @@
 # ERC20TaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/f405cfa7d52aca0d1bdf3d82da9748579a0bb635/src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol)
 
 **Inherits:**
 [HandlerAccountMinMaxTokenBalance](/src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol/contract.HandlerAccountMinMaxTokenBalance.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md)
