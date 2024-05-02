@@ -4,12 +4,12 @@ pragma solidity ^0.8.24;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "src/client/token/handler/common/HandlerUtils.sol";
-import "test/client/token/ERC20/util/SBAWallet.sol";
+import "test/client/token/SCAWallet.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
 /**
  * @title Application Token Handler Test
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @VoR0220
  * @dev this contract tests the ApplicationERC20 Handler. This handler is deployed specifically for its implementation
  *      contains all the rule checks for the particular ERC20.
  * @notice It simulates the input from a token contract
@@ -90,8 +90,8 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     }
 
     /** Test that actions are properly determined when calling determineTransfer directly */
-    function testERC20_testSmartContractWallet() public {
-        SBAWallet wallet = new SBAWallet();
+    function testERC20_EOA_Integration_Sanitycheck() public {
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
@@ -117,10 +117,108 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     }
 
+    /** Test that actions are properly determined when calling determineTransfer directly 
+        TODO: Fix the determine transfer action function to work with SCA
+    */
+    function testERC20_testSmartContractWallet() public {
+        vm.skip(true);
+        SCAWallet wallet = new SCAWallet();
+        // make sure that wallet can hold ETH
+        vm.deal(address(wallet), 10 ether);
+        assertEq(10 * ATTO, wallet.getWalletBalance());
+
+        vm.startPrank(address(wallet));
+        // test Burns 
+        assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
+        // test Mints 
+        assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction({_from: address(0), _to: address(wallet), _sender: address(wallet)})));
+        
+        // test transfers 
+        // from EOA to SCA
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // Set up amm for buys and sells
+        DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
+
+        // test Sells 
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
+
+        // test Buys
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
+
+    }
+
+    /** 
+        Test that actions are properly determined when calling determineTransfer directly for Gnosis SAFE variant 
+        TODO: Fix the determine transfer action function to work with SCA 
+    **/
+    function testERC20_testSmartContractWalletSAFEImpl() public {
+        vm.skip(true);
+        SCAWalletSafeStyle wallet = new SCAWalletSafeStyle();
+        // make sure that wallet can hold ETH
+        vm.deal(address(wallet), 10 ether);
+        assertEq(10 * ATTO, wallet.getWalletBalance());
+
+        vm.startPrank(address(wallet));
+        // test Burns 
+        assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
+        // test Mints 
+        assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction({_from: address(0), _to: address(wallet), _sender: address(wallet)})));
+
+        // test transfers 
+        // from EOA to SCA
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
+        // Set up amm for buys and sells
+        DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
+
+        // test Sells 
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
+
+        // test Buys
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
+    }
+
+    /** 
+        Test that actions are properly determined when calling determineTransfer directly for Zerodev variant 
+        TODO: Fix the determine transfer action function to work with SCA 
+    **/
+    function testERC20_testSmartContractWalletZerodevImpl() public {
+        vm.skip(true);
+        SCAWalletZeroDevStyle wallet = new SCAWalletZeroDevStyle();
+        // make sure that wallet can hold ETH
+        vm.deal(address(wallet), 10 ether);
+        assertEq(10 * ATTO, wallet.getWalletBalance());
+
+        vm.startPrank(address(wallet));
+        // test Burns 
+        assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
+        // test Mints 
+        assertEq(uint8(ActionTypes.MINT), uint8(determineTransferAction({_from: address(0), _to: address(wallet), _sender: address(wallet)})));
+
+        // test transfers 
+        // from EOA to SCA
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: user1, _to: address(wallet), _sender: user1})));
+
+        // SCA to EOA        
+        assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
+
+        // Set up amm for buys and sells
+        DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
+
+        // test Sells 
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: address(wallet), _to: address(amm), _sender: address(amm)})));
+
+        // test Buys
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: address(wallet), _sender: address(amm)})));
+
+    }
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         
         vm.startPrank(address(wallet));        
         // test Mints
@@ -132,7 +230,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Burn() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         
         vm.startPrank(address(wallet));
@@ -144,7 +242,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -163,7 +261,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_EOA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -178,7 +276,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_SCA() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         applicationCoin2.mint(user1, 10 * ATTO);
@@ -193,7 +291,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Sell() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
         
@@ -214,7 +312,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Buy() public {
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin2.mint(address(wallet), 10 * ATTO);
         
@@ -261,7 +359,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         switchToAppAdministrator();
         // Set up amm for buy and sell tests
         DummyStaking staking = initializeERC20Stake(address(applicationCoin));
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         vm.startPrank(address(wallet));
         applicationCoin.approve(address(staking), 50000);
@@ -279,7 +377,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletBroken_SCA_to_EOA() public {
         vm.skip(true);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
 
         vm.startPrank(address(wallet));
         // test transfers 
@@ -293,7 +391,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletBroken_SCA_SCA() public {
         vm.skip(true);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
 
         vm.startPrank(address(wallet));
         // test transfers 
@@ -307,7 +405,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletWithProtocolSupportedAssetsBroken_SCA_to_EOA() public {
         vm.skip(true);
-        SBAWallet wallet = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         applicationCoin.mint(address(wallet), 10 * ATTO);
@@ -327,8 +425,8 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
      */
     function testERC20_SmartContractWalletWithProtocolSupportedAssetsBroken_SCA_to_SCA() public {
         vm.skip(true);
-        SBAWallet wallet = new SBAWallet();
-        SBAWallet wallet2 = new SBAWallet();
+        SCAWallet wallet = new SCAWallet();
+        SCAWallet wallet2 = new SCAWallet();
         // make sure that wallet can hold ETH
         vm.deal(address(wallet), 10 ether);
         applicationCoin.mint(address(wallet), 10 * ATTO);
