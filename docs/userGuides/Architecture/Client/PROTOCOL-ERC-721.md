@@ -10,41 +10,23 @@ The Protocol ERC 721 inherits from multiple contracts (internal and external), o
 - ERC721Burnable (external to the protocol)
 - ERC721URIStorage (external to the protocol)
 - ERC721Enumerable (external to the protocol)
-- Pauable (external to the protocol)
 - ProtocolTokenCommon (internal to the protocol)
 - AppAdministratorOrOwnerOnly (internal to the protocol)
 
 ### Function Overrides 
 
 The following functions are overridden from the inherited versions to add protocol specific logic:
-- pause: overridden to apply additional caller constraints (can only be called by an App Admin).
+
+- safeMint: overridden to increment the internal tokenIdCounter, and to apply additional caller constraints (can only be called by an App Admin).
 
 ```c
-function pause() public virtual appAdministratorOnly(appManagerAddress)
-```
-
-- unpause: overridden to apply additional caller constraints (can only be called by an App Admin).
-
-```c
-function unpause() public virtual appAdministratorOnly(appManagerAddress)
-```
-
-- safeMint: overridden to increment the internal tokenIdCounter, only allow when not paused and to apply additional caller constraints (can only be called by an App Admin).
-
-```c
-function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress)
+function safeMint(address to) public payable virtual appAdministratorOrOwnerOnly(appManagerAddress)
 ```
 
 - _beforeTokenTransfer: overridden to allow protocol rule check hook.
 
 ```c
-function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused
-```
-
-- _burn: overridden to only allow when not paused.
-
-```c
-function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) whenNotPaused
+function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable)s
 ```
 
 - withdraw: overridden to apply additional caller constraints (can only be called by an App Admin).

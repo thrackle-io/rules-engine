@@ -11,29 +11,17 @@ The Protocol ERC 20 inherits from multiple contracts (internal and external), ov
 - ERC165 (external to the protocol)
 - EC20Burnable (external to the protocol)
 - ERC20FlashMint (external to the protocol)
-- Pausable (external to the protocol)
 - ProtocolTokenCommon (internal to the protocol)
 - IProtocolERX20Errors (internal to the protocol)
 
 ### Function Overrides 
 
 The following functions are overridden from the inherited versions to add protocol specific logic:
-- pause: overridden to apply additional caller constraints (can only be called by an App Admin).
-
-```c
-function pause() public virtual appAdministratorOnly(appManagerAddress)
-```
-
-- unpause: overridden to apply additional caller constraints (can only be called by an App Admin).
-
-```c
-function unpause() public virtual appAdministratorOnly(appManagerAddress) 
-```
 
 - _beforeTokenTransfer: overridden to allow protocol rule check hook.
 
 ```c
-function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused
+function _beforeTokenTransfer(address from, address to, uint256 amount) internal override
 ```
 
 - supportsInterface: overridden to explicitly add IERC20 to the supported list.

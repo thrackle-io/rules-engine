@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
@@ -26,8 +25,7 @@ contract ProtocolERC721UExtra is
     ERC721BurnableUpgradeable,
     OwnableUpgradeable,
     UUPSUpgradeable,
-    ProtocolTokenCommonU,
-    PausableUpgradeable
+    ProtocolTokenCommonU
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     address public handlerAddress;
@@ -54,7 +52,6 @@ contract ProtocolERC721UExtra is
         __ERC721URIStorage_init();
         __Ownable_init();
         __UUPSUpgradeable_init();
-        __Pausable_init();
         _initializeProtocol(_appManagerAddress);
     }
 

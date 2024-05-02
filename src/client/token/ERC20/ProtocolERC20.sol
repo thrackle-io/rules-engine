@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
@@ -21,7 +20,7 @@ import "../handler/diamond/ERC20HandlerMainFacet.sol";
  * @notice This is the base contract for all protocol ERC20s
  * @dev The only thing to recognize is that flash minting is added but not yet allowed.
  */
-contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
+contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
     /// Max supply should only be set once. Zero means infinite supply.
     // slither-disable-next-line constable-states
     uint256 MAX_SUPPLY;
@@ -42,29 +41,13 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev Pauses the contract. Only whenPaused modified functions will work once called.
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function pause() public virtual appAdministratorOnly(appManagerAddress) {
-        _pause();
-    }
-
-    /**
-     * @dev Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function unpause() public virtual appAdministratorOnly(appManagerAddress) {
-        _unpause();
-    }
-
-    /**
      * @dev Function called before any token transfers to confirm transfer is within rules of the protocol
      * @param from sender address
      * @param to recipient address
      * @param amount number of tokens to be transferred
      */
     // slither-disable-next-line calls-loop
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
         require(ERC20HandlerMainFacet(handlerAddress).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);

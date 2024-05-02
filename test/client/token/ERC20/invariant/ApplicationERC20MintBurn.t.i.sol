@@ -16,7 +16,6 @@ contract ApplicationERC20MintBurnInvariantTest is ApplicationERC20Common {
 
     // Burn should update user balance and total supply
     function invariant_ERC20external_burn() public {
-        if (applicationCoin.paused())return;
         uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 supply = applicationCoin.totalSupply();
         if(!(balance_sender > 0))return;
@@ -36,7 +35,6 @@ contract ApplicationERC20MintBurnInvariantTest is ApplicationERC20Common {
 
     // Burn should update user balance and total supply when burnFrom is called twice
     function invariant_ERC20external_burnFrom() public {
-        if (applicationCoin.paused())return;
         uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 allowance = applicationCoin.allowance(USER1, USER2);
         if(!(balance_sender > 0 && allowance > balance_sender))return;
@@ -56,7 +54,6 @@ contract ApplicationERC20MintBurnInvariantTest is ApplicationERC20Common {
 
     // burnFrom should update allowance
     function invariant_ERC20external_burnFromUpdateAllowance() public {
-        if (applicationCoin.paused())return;
         uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 current_allowance = applicationCoin.allowance(USER1, address(this));
         if(!(balance_sender > 0 && current_allowance > balance_sender))return;

@@ -43,7 +43,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // transferFroms to zero address should not be allowed
     function invariant_ERC20external_transferFromToZeroAddress() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
         uint256 allowance = applicationCoin.allowance(msg.sender, address(this));
         if (!(balance_sender > 0 && allowance > 0)) return;
@@ -55,7 +54,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Self transfers should not break accounting
     function invariant_ERC20external_selfTransferFrom() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
         uint256 allowance = applicationCoin.allowance(msg.sender, address(this));
         if (!(balance_sender > 0 && allowance > 0)) return;
@@ -68,7 +66,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Self transferFroms should not break accounting
     function invariant_ERC20external_selfTransfer() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
         if (!(balance_sender > 0)) return;
 
@@ -79,7 +76,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Transfers for more than available balance should not be allowed
     function invariant_ERC20external_transferFromMoreThanBalance() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         uint256 allowance = applicationCoin.allowance(msg.sender, address(this));
@@ -93,7 +89,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // TransferFroms for more than available balance should not be allowed
     function invariant_ERC20external_transferMoreThanBalance() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         if (!(balance_sender > 0)) return;
@@ -106,7 +101,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Zero amount transfers should not break accounting
     function invariant_ERC20external_transferZeroAmount() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         if (!(balance_sender > 0)) return;
@@ -119,7 +113,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Zero amount transferFroms should not break accounting
     function invariant_ERC20external_transferFromZeroAmount() public {
-        if (applicationCoin.paused()) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         uint256 allowance = applicationCoin.allowance(msg.sender, address(this));
@@ -133,7 +126,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Transfers should update accounting correctly
     function invariant_ERC20external_transfer() public {
-        if (applicationCoin.paused()) return;
         if (!(target != address(this))) return;
         uint256 balance_sender = applicationCoin.balanceOf(address(this));
         uint256 balance_receiver = applicationCoin.balanceOf(target);
@@ -164,7 +156,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Approve should set correct allowances
     function invariant_ERC20external_setAllowance() public {
-        if (applicationCoin.paused()) return;
         bool r = applicationCoin.approve(target, amount);
         assertTrue(r);
         assertEq(applicationCoin.allowance(address(this), target), amount);
@@ -172,7 +163,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // Allowances should be updated correctly when approve is called twice.
     function invariant_ERC20external_setAllowanceTwice() public {
-        if (applicationCoin.paused()) return;
         bool r = applicationCoin.approve(target, amount);
         assertTrue(r);
         assertEq(applicationCoin.allowance(address(this), target), amount);
@@ -184,7 +174,6 @@ contract ApplicationERC20BasicInvariantTest is ApplicationERC20Common {
 
     // TransferFrom should decrease allowance
     function invariant_ERC20external_spendAllowanceAfterTransfer() public {
-        if (applicationCoin.paused()) return;
         if (!(target != address(this) && target != address(0))) return;
         if (!(target != msg.sender)) return;
         uint256 balance_sender = applicationCoin.balanceOf(msg.sender);

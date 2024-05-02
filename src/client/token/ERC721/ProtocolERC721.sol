@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -18,7 +17,7 @@ import "src/client/token/handler/diamond/IHandlerDiamond.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIdCounter;
 
@@ -67,30 +66,13 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         return ERC721URIStorage.tokenURI(tokenId);
     }
 
-    /*************** END setters and getters ************/
-    /**
-     * @dev AppAdministratorOnly function takes appManagerAddress as parameter
-     * Function pauses contract and prevents functions with whenNotPaused modifier
-     */
-    function pause() public virtual appAdministratorOnly(appManagerAddress) {
-        _pause();
-    }
-
-    /**
-     * @dev Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.
-     * AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function unpause() public virtual appAdministratorOnly(appManagerAddress) {
-        _unpause();
-    }
-
     /**
      * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token.
      * @notice Add appAdministratorOnly modifier to restrict minting privilages
      * Function is payable for child contracts to override with priced mint function.
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress) {
+    function safeMint(address to) public payable virtual appAdministratorOrOwnerOnly(appManagerAddress) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -104,7 +86,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) {
         // Rule Processor Module Check
         require(IHandlerDiamond(handlerAddress).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
@@ -118,7 +100,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev Function to burn or remove token from circulation
      * @param tokenId Id of token to be burned
      */
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) whenNotPaused {
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 

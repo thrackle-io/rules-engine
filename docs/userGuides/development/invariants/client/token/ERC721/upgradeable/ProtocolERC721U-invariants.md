@@ -8,17 +8,10 @@
 - Version will never change.
 - Any user can get the contract's version
 - Only app admins may connect a handler
-- A non-appAdmin can never pause the contract
-- A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
 - Any account can retrieve handler address
 - Handler address can never be zero address
 - New deployment will always emit NewTokenDeployed event
-- When paused, mint reverts with "Pausable: paused"
-- When paused, burn reverts with "Pausable: paused"
-- When paused, transfer reverts with "Pausable: paused"
-- When paused, transferFrom reverts with "Pausable: paused"
-- When paused, connectHandlerToToken still works
 
 ## Base ERC721 Invariants
 - Calling balanceOf for the zero address should revert.
