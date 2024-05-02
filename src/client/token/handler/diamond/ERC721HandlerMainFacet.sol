@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
-import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "../ruleContracts/NFTValuationLimit.sol";
 import "./ERC721TaggedRuleFacet.sol";
 import "./ERC721NonTaggedRuleFacet.sol";
@@ -13,7 +12,7 @@ import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 import "diamond-std/implementations/ERC173/ERC173.sol";
 
-contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
+contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
 
     /**
      * @dev Initializer params

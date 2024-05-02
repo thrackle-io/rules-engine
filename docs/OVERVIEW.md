@@ -302,7 +302,6 @@ Each Protocol supported asset type (ERC20, ERC721, etc) will need one handler di
 
 Each asset handler diamond will inherit from the following contracts: 
 - [HandlerBase.sol](../src/client/token/handler/ruleContracts/HandlerBase.sol)
-- [HandlerAdminMinTokenBalance.sol](../src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol) 
 - [HandlerUtils.sol](../src/client/token/handler/common/HandlerUtils.sol)
 - [HandlerDiamondLib.sol](../src/client/token/handler/diamond/HandlerDiamondLib.sol) 
 - [RuleStorage.sol](../src/client/token/handler/diamond/RuleStorage.sol)

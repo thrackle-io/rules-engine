@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
-import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "./ERC20TaggedRuleFacet.sol";
 import "./ERC20NonTaggedRuleFacet.sol";
 import "./TradingRuleFacet.sol";
@@ -11,7 +10,7 @@ import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 
-contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors {
+contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors {
 
     /**
      * @dev Initializer params
@@ -29,7 +28,6 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
         data.lastPossibleAction = 4;
-        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
         init.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
@@ -112,11 +110,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
                         action
                     )
                 );
-            } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
-                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
-                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
             }
-            
        }
         return true;
     }
