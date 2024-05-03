@@ -54,10 +54,6 @@ struct HandlerBaseS{
    uint8 lastPossibleAction;
 }
 
-struct AdminMinTokenBalanceS{
-   mapping(ActionTypes => Rule) adminMinTokenBalance; 
-}
-
 struct TokenMaxSupplyVolatilityS{
    mapping(ActionTypes => bool) tokenMaxSupplyVolatility;
    uint32 ruleId;

@@ -117,12 +117,11 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
                     _tokenId
                 )
             );
-        } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
-                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
-                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
-            }
+        } else if (isFromBypassAccount) {
+            emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
+        }
         if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) 
-                lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
+            lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         return true;
     }
 

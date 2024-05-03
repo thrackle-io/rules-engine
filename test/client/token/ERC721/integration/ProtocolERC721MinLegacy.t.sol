@@ -790,39 +790,6 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user1, user3, 1);
     }
 
-    function testERC721Legacy_ProtocolERC721Min_AdminMinTokenBalance() public endWithStopPrank() {
-        switchToAppAdministrator();
-        /// Mint TokenId 0-6 to super admin
-        for (uint i; i < 7; i++ ) {
-            minimalNFTLegacy.safeMint(ruleBypassAccount);
-        }
-        /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        switchToRuleAdmin();
-        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        vm.expectRevert();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-        switchToRuleBypassAccount();
-        /// These transfers should pass
-        minimalNFTLegacy.safeTransferFrom(ruleBypassAccount, user1, 0);
-        minimalNFTLegacy.safeTransferFrom(ruleBypassAccount, user1, 1);
-        /// This one fails
-        vm.expectRevert();
-        minimalNFTLegacy.safeTransferFrom(ruleBypassAccount, user1, 2);
-
-        /// Move Time forward 366 days
-        vm.warp(Blocktime + 366 days);
-
-        /// Transfers and updating rules should now pass
-        minimalNFTLegacy.safeTransferFrom(ruleBypassAccount, user1, 2);
-        switchToRuleAdmin();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);     
-    }
-
     function testERC721Legacy_ProtocolERC721Min_TransferVolumeRule() public endWithStopPrank() {
         switchToAppAdministrator();
         // mint 10 nft's to non admin user

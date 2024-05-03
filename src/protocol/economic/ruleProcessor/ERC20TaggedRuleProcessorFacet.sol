@@ -170,44 +170,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Checks that an admin won't hold less tokens than promised until a certain date
-     * @param ruleId Rule identifier for rule arguments
-     * @param currentBalance of tokens held by the admin
-     * @param amount Number of tokens to be transferred
-     * @notice that the function will revert if the check finds a violation of the rule, but won't give anything
-     * back if everything checks out.
-     */
-    function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
-        TaggedRules.AdminMinTokenBalance memory rule = getAdminMinTokenBalance(ruleId);
-        if (amount > currentBalance) revert NotEnoughBalance();
-        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
-        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
-        // slither-disable-next-line timestamp
-        if ((block.timestamp < rule.endTime) && (currentBalance - amount < rule.amount)) revert UnderMinBalance();
-    }
-
-    /**
-     * @dev Function gets AdminMinTokenBalance rule at index
-     * @param _index position of rule in array
-     * @return adminMinTokenBalanceRules rule at indexed postion
-     */
-    function getAdminMinTokenBalance(uint32 _index) public view returns (TaggedRules.AdminMinTokenBalance memory) {
-        _index.checkRuleExistence(getTotalAdminMinTokenBalance());
-        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
-        if (_index >= data.adminMinTokenBalanceIndex) revert IndexOutOfRange();
-        return data.adminMinTokenBalanceRules[_index];
-    }
-
-    /**
-     * @dev Function to get total AdminMinTokenBalance rules
-     * @return adminMinTokenBalanceRules total length of array
-     */
-    function getTotalAdminMinTokenBalance() public view returns (uint32) {
-        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
-        return data.adminMinTokenBalanceIndex;
-    }
-
-    /**
      * @dev Rule checks if recipient balance + amount exceeded max amount for that action type during rule period, prevent transactions for that action for freeze period
      * @param ruleId Rule identifier for rule arguments
      * @param transactedInPeriod Number of tokens transacted during Period

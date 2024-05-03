@@ -1732,48 +1732,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
     }
 
-    /* AdminMinTokenBalance */
-    function testERC20_ERC20CommonTests_AdminMinTokenBalanceAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](3);
-        // Set up rule
-        for (uint i; i < 3; i++) ruleIds[i] = createAdminMinTokenBalanceRule(i + 1, uint64(Blocktime + ((i + 1) * 100)));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
-        // Apply the rules to all actions
-        setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN), ruleIds[2]);
-        // Verify that all the rules were activated
-        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
-        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
-    }
-
-    function testERC20_ERC20CommonTests_AdminMinTokenBalanceAtomicFullReSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
-        // Set up rule
-        for (uint i; i < 5; i++) ruleIds[i] = createAdminMinTokenBalanceRule(i + 1, uint64(Blocktime + ((i + 1) * 100)));
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
-        // Apply the rules to all actions
-        // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](1);
-        ruleIds[0] = createAdminMinTokenBalanceRule(6, Blocktime + 600);
-        actions = createActionTypeArray(ActionTypes.SELL);
-        // Apply the new set of rules
-        setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL), ruleIds[0]);
-        // Verify that the old ones were cleared
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN), 0);
-        // Verify that the new rules were activated
-        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
-        // Verify that the old rules are not activated
-        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
-    }
-
     /* AccountMaxTradeSize */
     function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullSetSell() public {
         uint32[] memory ruleIds = new uint32[](1);

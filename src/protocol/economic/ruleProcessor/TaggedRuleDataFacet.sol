@@ -125,30 +125,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /************ Admin Min Token Balance ***********/
-
-    /**
-     * @dev Function adds Admin Min Token Balance rule
-     * @param _appManagerAddr Address of App Manager
-     * @param _amount Minimum amount of token to hold to
-     * @param _endTime Date of release
-     * @return adminMinTokenBalance Rules position of new rule in array
-     */
-    function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
-        if (_amount == 0) revert ZeroValueNotPermited();
-        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
-        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
-        // slither-disable-next-line timestamp
-        if (_endTime <= block.timestamp) revert DateInThePast(_endTime);
-        uint32 index = data.adminMinTokenBalanceIndex;
-        TaggedRules.AdminMinTokenBalance memory rule = TaggedRules.AdminMinTokenBalance(_amount, _endTime);
-        data.adminMinTokenBalanceRules[index] = rule;
-        emit AD1467_ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, new bytes32[](0));
-        ++data.adminMinTokenBalanceIndex;
-        return index;
-    }
-
     /************ Token Max Daily Trades ***********/
     /**
      * @dev Function adds Token Max Daily Trades Rule

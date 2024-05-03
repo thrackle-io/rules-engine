@@ -130,16 +130,6 @@ interface IRuleProcessor {
      */
     function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) external view returns (uint256);
 
-    /**
-     * @dev Checks that an admin won't hold less tokens than promised until a certain date
-     * @param _ruleId Rule identifier for rule arguments
-     * @param _currentBalance of tokens held by the admin
-     * @param _amountToTransfer Number of tokens to be transferred
-     * @notice that the function will revert if the check finds a violation of the rule, but won't give anything
-     * back if everything checks out.
-     */
-    function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
-
     /// --------------------------- APPLICATION LEVEL --------------------------------
 
     /**
@@ -284,12 +274,6 @@ interface IRuleProcessor {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule

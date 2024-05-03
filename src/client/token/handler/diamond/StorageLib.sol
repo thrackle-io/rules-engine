@@ -104,17 +104,6 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Admin Min Token Balance rules
-     * @return ds Data Storage of Admin Min Token Balance Rule
-     */
-    function adminMinTokenBalanceStorage() internal pure returns (AdminMinTokenBalanceS storage ds) {
-        bytes32 position = ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
      * @dev Function to store Token Min Transaction Size rules
      * @return ds Data Storage of Token Min Transaction Size Rule
      */

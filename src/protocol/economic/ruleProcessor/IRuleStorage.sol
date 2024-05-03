@@ -48,13 +48,6 @@ interface IRuleStorage {
         uint32 tokenMaxTradingVolumeIndex;
     }
 
-    /// ******** Admin Min Token Balance ********
-
-    struct AdminMinTokenBalanceS {
-        mapping(uint32 => ITaggedRules.AdminMinTokenBalance) adminMinTokenBalanceRules;
-        uint32 adminMinTokenBalanceIndex;
-    }
-
     /// ******** Token Min Tx Size ********
     struct TokenMinTxSizeS {
         mapping(uint32 => INonTaggedRules.TokenMinTxSize) tokenMinTxSizeRules;

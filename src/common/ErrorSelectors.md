@@ -117,7 +117,6 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x41284967 | ConfirmerDoesNotMatchProposedAddress()                           |
 | 0x821e0eeb | NoProposalHasBeenMade()                                          |
 | 0x46b2bfeb | BatchMintBurnNotSupported()                                      |
-| 0x4ba7941c | AdminMinTokenBalanceisActive()                                   |
 | 0x6a7d5e35 | InvalidOracleType(uint8)                                         |
 | 0x57a7068b | InvalidRuleInput()                                               |
 | 0xe8ada65f | NotRegisteredHandler(address)                                    |
