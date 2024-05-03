@@ -30,9 +30,9 @@
       2. npx prettier --write .
 6. Update the documentation. This is done in 2 simple steps:
 
-   1. Make sure you update foundry every time or it won't work well:
+   1. Make sure `foundry.lock` is set to an appropriate version, then update Foundry.
 
-      `foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2`
+      `foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)`
 
    2. Generate the docs:
 
