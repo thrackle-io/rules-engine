@@ -11,6 +11,8 @@ This guide is intended to be a user-friendly introduction to the rules protocol.
 
 `foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)` 
 
+_Note: `awk` in the above command is used to ignore comments in `foundry.lock`_
+
 `pip3 install -r requirements.txt`
 
 ` brew install jq`
