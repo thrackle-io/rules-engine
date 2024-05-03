@@ -313,7 +313,7 @@ Each asset handler diamond will inherit from the following contracts:
 
 #### Purpose
 
-The Protocol ERC 20 defines the base that contracts must conform to in order to be compatible with the protocol.
+The Protocol ERC 20 defines the base that contracts must conform to in order to be compatible with the protocol. Using the protocol ERC 20 does not restrict you from inheriting from other internal or external contracts, such as other OpenZeppelin contracts or custom logic contracts specific to your application.
 
 #### Structure
 
@@ -322,7 +322,6 @@ The Protocol ERC 20 inherits from multiple contracts (internal and external), ov
 - ERC165 (external to the protocol)
 - EC20Burnable (external to the protocol)
 - ERC20FlashMint (external to the protocol)
-- Pausable (external to the protocol)
 - ProtocolTokenCommon (internal to the protocol)
 - IProtocolERX20Errors (internal to the protocol)
 
@@ -330,7 +329,7 @@ The Protocol ERC 20 inherits from multiple contracts (internal and external), ov
 
 #### Purpose
 
-The Protocol ERC 721 defines the base that contracts must conform to in order to be compatible with the protocol.
+The Protocol ERC 721 defines the base that contracts must conform to in order to be compatible with the protocol. Using the protocol ERC 721 does not restrict you from inheriting from other internal or external contracts, such as other OpenZeppelin contracts or custom logic contracts specific to your application.
 
 #### Structure
 
@@ -338,7 +337,6 @@ The Protocol ERC 721 inherits from multiple contracts (internal and external), o
 - ERC721Burnable (external to the protocol)
 - ERC721URIStorage (external to the protocol)
 - ERC721Enumerable (external to the protocol)
-- Pausable (external to the protocol)
 - ProtocolTokenCommon (internal to the protocol)
 - AppAdministratorOrOwnerOnly (internal to the protocol)
 

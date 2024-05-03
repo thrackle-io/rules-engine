@@ -23,10 +23,6 @@
 - Burn should update user balance and total supply when burnFrom is called twice
 - burnFrom should update allowance
 
-## [Pausable ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20Pause.t.i.sol)
-- Transfers should not be possible during paused state
-- TransferFroms should not be possible during paused state
-
 # Unimplemented
 
 ## Protocol Related Invariants
@@ -35,17 +31,10 @@
 - Version will never change.
 - Any user can get the contract's version
 - Only app admins may connect a handler
-- A non-appAdmin can never pause the contract
-- A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
 - Any account can retrieve handler address
 - Once set to a non zero address, a Handler address can never be set to zero address
 - New deployment will always emit NewTokenDeployed event
-- When paused, mint reverts with "Pausable: paused"
-- When paused, burn reverts with "Pausable: paused"
-- When paused, transfer reverts with "Pausable: paused"
-- When paused, transferFrom reverts with "Pausable: paused"
-- When paused, connectHandlerToToken still works
 - If a cumulative positive fees exist, the amount of tokens received by the toAddress is less than the amount transferred by the fromAddress
 - If a cumulative negative fees exist, the amount of tokens received by the toAddress is equal to the amount transferred by the fromAddress
 - If a cumulative positive fees exist, the treasury address balance will increase with a transfer

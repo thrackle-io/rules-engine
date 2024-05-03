@@ -26,7 +26,7 @@ The token must also override the _beforeTokenTransfer function and add a call to
 Example:
 
 ```c
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
         require(ERC20HandlerMainFacet(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);

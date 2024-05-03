@@ -22,14 +22,12 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
         excludeContract(address(oracleApproved));
         excludeContract(address(oracleDenied));
 
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](5);
         selectors[0] = applicationNFT.getHandlerAddress.selector;
         selectors[1] = applicationNFT.connectHandlerToToken.selector;
         selectors[2] = applicationNFT.getAppManagerAddress.selector;
         selectors[3] = applicationNFT.proposeAppManagerAddress.selector;
         selectors[4] = applicationNFT.confirmAppManagerAddress.selector;
-        selectors[5] = applicationNFT.pause.selector;
-        selectors[6] = applicationNFT.unpause.selector;
         targetSelector(FuzzSelector({addr: address(applicationNFT), selectors: selectors}));
     }
 
@@ -51,25 +49,6 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
             applicationNFT.connectHandlerToToken(address(0xAAA));
             assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         }
-    }
-
-    // A non-appAdmin can never pause the contract
-    function invariant_ERC721_external_PauseAppAdminOnly() public {
-        vm.startPrank(USER1);
-        vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        applicationNFT.pause(); 
-        assertFalse(applicationNFT.paused());
-    }
-
-    // A non-appAdmin can never unpause the contract
-    function invariant_ERC721_external_UnpauseAppAdminOnly() public {
-        switchToAppAdministrator();
-        applicationNFT.pause();
-        vm.stopPrank(); 
-        vm.startPrank(USER1);
-        vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        applicationNFT.unpause(); 
-        assertTrue(applicationNFT.paused());
     }
 
     // A non-appAdmin can never connect a handler to the contract
@@ -109,63 +88,6 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
         vm.expectEmit(true, false, false, false);
         emit AD1467_NewNFTDeployed(address(applicationAppManager));
         new ApplicationERC721("TEST", "TST", address(applicationAppManager), "https://SampleApp.io");
-    }
-
-    // When paused, mint reverts with "Pausable: paused"
-    function invariant_ERC721_external_WhenPaused_MintReversion() public {
-        if (!applicationNFT.paused()) return;
-        switchToAppAdministrator();
-        uint256 selfBalance = applicationNFT.balanceOf(USER1);
-        vm.expectRevert(abi.encodeWithSignature("Pausable: paused"));
-        applicationNFT.safeMint(USER1);
-        uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, selfBalance);
-        assertFalse(applicationNFT.ownerOf(tokenId2) == USER1);
-        assertEq(selfBalance, applicationNFT.balanceOf(USER1));
-    }
-
-    // When paused, burn reverts with "Pausable: paused"
-    function invariant_ERC721_external_WhenPaused_BurnReversion() public {
-        if (!applicationNFT.paused())return;
-        uint256 selfBalance = applicationNFT.balanceOf(USER1);
-        if(!(selfBalance > 0))return;
-        uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
-        vm.expectRevert(abi.encodeWithSignature("Pausable: paused"));
-        applicationNFT.burn(tokenId2);
-        assertEq(selfBalance, applicationNFT.balanceOf(USER1));
-    }
-
-    // When paused, safeTransferFrom reverts with "Pausable: paused"
-    function invariant_ERC721_external_WhenPaused_SafeTransferFromReversion() public {
-        if (!applicationNFT.paused())return;
-        uint256 selfBalance = applicationNFT.balanceOf(USER1);
-        if(!(selfBalance > 0))return;
-        uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
-        vm.expectRevert(abi.encodeWithSignature("Pausable: paused"));
-        applicationNFT.safeTransferFrom(USER1, USER2, tokenId2);
-        assertEq(selfBalance, applicationNFT.balanceOf(USER1));
-    }
-
-    // When paused, transferFrom reverts with "Pausable: paused"
-    function invariant_ERC721_external_WhenPaused_TransferFromReversion() public {
-        if (!applicationNFT.paused())return;
-        uint256 selfBalance = applicationNFT.balanceOf(USER1);
-        if(!(selfBalance > 0))return;
-        uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
-        vm.expectRevert(abi.encodeWithSignature("Pausable: paused"));
-        applicationNFT.transferFrom(USER1, USER2, tokenId2);
-        assertEq(selfBalance, applicationNFT.balanceOf(USER1));
-    }
-
-    // When paused, connectHandlerToToken still works
-    function invariant_ERC721_external_WhenPaused_connectHandler() public {
-        if (!applicationNFT.paused())return;
-        address newTokenHandler = address(0x5777);
-        switchToAppAdministrator();
-        applicationNFT.connectHandlerToToken(newTokenHandler);
-        assertEq(applicationNFT.getHandlerAddress(), newTokenHandler);
     }
 
     // Only an App Admin can propose a new AppManager

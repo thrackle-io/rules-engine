@@ -35,17 +35,10 @@
 
 - Any user can get the contract's version
 - Only app admins may connect a handler
-- A non-appAdmin can never pause the contract
-- A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
 - Any account can retrieve handler address
 - Once the handler address is set to a non zero address, Handler address can never be zero address
 - New deployment will always emit NewTokenDeployed event
-- When paused, mint reverts with "Pausable: paused"
-- When paused, burn reverts with "Pausable: paused"
-- When paused, transfer reverts with "Pausable: paused"
-- When paused, transferFrom reverts with "Pausable: paused"
-- When paused, connectHandlerToToken still works
 
 ## Base
 - safeTransferFrom() should revert if receiver is a contract that does not implement onERC721Received()

@@ -15,7 +15,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
 // The burn function should destroy tokens and reduce the total supply
     function invariant_ERC721_external_burnReducesTotalSupply() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if((selfBalance == 0))return;
         uint256 oldTotalSupply = applicationNFT.totalSupply();
@@ -32,7 +31,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
     // A burned token should not be transferrable
     function invariant_ERC721_external_burnRevertOnTransfer() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;
 
@@ -45,7 +43,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
     // approve() should revert if the token is burned
     function invariant_ERC721_external_burnRevertOnApprove() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;
 
@@ -58,7 +55,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
     // getApproved() should revert if the token is burned.
     function invariant_ERC721_external_burnRevertOnGetApproved() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;
 
@@ -71,7 +67,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
     // ownerOf() should revert if the token has been burned.
     function invariant_ERC721_external_burnRevertOnOwnerOf() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;
 
@@ -85,7 +80,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 /** MINT */
     // Mint increases the total supply.
     function invariant_ERC721_external_mintIncreasesSupply() public virtual {
-        if (applicationNFT.paused())return;
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         uint256 oldTotalSupply = applicationNFT.totalSupply();
         switchToAppAdministrator();
@@ -99,7 +93,6 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
 
     // Mint creates a fresh applicationNFT.
     function invariant_ERC721_external_mintCreatesFreshToken() public virtual {
-        if (applicationNFT.paused())return;
         switchToAppAdministrator();
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         try applicationNFT.safeMint(USER1) {
