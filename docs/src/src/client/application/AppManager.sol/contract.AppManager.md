@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/63fcd46f6c4c395f84afa43dab91856da44b1c42/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard

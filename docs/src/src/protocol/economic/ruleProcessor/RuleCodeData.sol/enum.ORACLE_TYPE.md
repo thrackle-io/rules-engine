@@ -1,5 +1,5 @@
 # ORACLE_TYPE
-[Git Source](https://github.com/thrackle-io/tron/blob/63fcd46f6c4c395f84afa43dab91856da44b1c42/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
 
 
 ```solidity
