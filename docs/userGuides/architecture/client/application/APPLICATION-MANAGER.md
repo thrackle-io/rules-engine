@@ -23,7 +23,7 @@ The Application Manager can be utilized for both updating and checking an accoun
 - Risk Admin
 - Access Level Admin
 - Rule Admin
-- Rule-Bypass Account
+- Treasury Account
 
 The following functions are provided for each admin type (we'll use the App Admin variant as an example here):
 
@@ -154,24 +154,23 @@ The function actually calls to the registered Application Handler to check the r
 The Application Manager also contains the functionality to register, deregister and check various related contracts, including:
 - The Application Handler
 - Protocol Compliant Tokens
-- Treasury
 
-We'll use the treasury functions to demonstrate the API:
-
-```c
-function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE)
-```
-Registers the treasury address with the Application Manager. It can only be called by the Application Admin.
+We'll use the protocol token functions to demonstrate the API:
 
 ```c
-function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE)
+function registerToken(address _tokenAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
-Deregisters the treasury address with the Application Manager. It can only be called by the App Admin.
+Registers the token address with the Application Manager. It can only be called by the Application Admin.
 
 ```c
-function isTreasury(address _treasuryAddress) public view returns (bool)
+function deRegisterToken(address _tokenAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
-Checks if the provided address is the registered treasury.
+Deregisters the token address with the Application Manager. It can only be called by the App Admin.
+
+```c
+function getTokenID(address _tokenAddress) public view returns (bool)
+```
+Return the stored tag of the registered token.
 
 ### Upgrading The Contract
 

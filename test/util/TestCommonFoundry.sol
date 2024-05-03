@@ -501,8 +501,6 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
 
         switchToAppAdministrator();
 
-        applicationAppManager.registerTreasury(feeTreasury);
-
         switchToAppAdministrator();
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
@@ -748,11 +746,11 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
     }
 
-    function switchToRuleBypassAccount() public {
+    function switchToTreasuryAccount() public {
         switchToAppAdministrator();
-        applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
+        applicationAppManager.addTreasuryAccount(treasuryAccount);
         vm.stopPrank();
-        vm.startPrank(ruleBypassAccount);
+        vm.startPrank(treasuryAccount);
     }
 
     function switchToRiskAdmin() public {

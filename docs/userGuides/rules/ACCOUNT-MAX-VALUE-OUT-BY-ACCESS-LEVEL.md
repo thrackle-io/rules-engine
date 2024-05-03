@@ -69,8 +69,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkeithdrawalLimitsByAccessLevel*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+- This rule doesn't apply when a **treasuryAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an treasury account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 
 ### Revert Message
 

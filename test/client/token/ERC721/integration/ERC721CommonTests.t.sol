@@ -896,6 +896,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _accountDenyForNoAccessLevelInNFTSetup();
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user, 1);
+        applicationAppManager.addAccessLevel(address(amm), 4);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -1246,20 +1247,20 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user1, 0);
     }
     /**
-     * This test makes sure that the initial date is set correctly when the transfer from is a RuleBypass Account.
+     * This test makes sure that the initial date is set correctly when the transfer from is a Treasury Account.
      */
-    function testERC721_ERC721CommonTests_TokenMinHoldTime_FromRuleBypassOrigin() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_FromTreasuryOrigin() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24);
         switchToAppAdministrator();
         // mint 1 nft to rule bypass
-        ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
+        ProtocolERC721(address(testCaseNFT)).safeMint(treasuryAccount);
         // move forward in time 2 day and transfer to regular users
         Blocktime = Blocktime + 2 days;
         vm.warp(Blocktime);
-        switchToRuleBypassAccount();
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
+        switchToTreasuryAccount();
+        testCaseNFT.safeTransferFrom(treasuryAccount, user1, 0);
         // Should not be able to transfer because the period started correctly.
         vm.startPrank(user1);
         vm.expectRevert(0x5f98112f);
@@ -1803,9 +1804,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testBuyNFT(1, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_AllowListPass() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeTreasuryerRule_AllowListPass() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
+        _tokenMaxBuySellVolumeTreasuryerRuleSetupSell();
         /// ALLOWLISTED USER
         switchToUser();
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -1815,9 +1816,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_NotAllowListPass() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeTreasuryerRule_NotAllowListPass() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
+        _tokenMaxBuySellVolumeTreasuryerRuleSetupSell();
         /// NOT ALLOWLISTED USER
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -1827,9 +1828,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeRuleByPasserRule_Negative() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuySellVolumeTreasuryerRule_Negative() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
-        _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell();
+        _tokenMaxBuySellVolumeTreasuryerRuleSetupSell();
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         /// we test going right below the rule percentage in the period (... - 1)
@@ -2803,7 +2804,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 1, amm);
     }
 
-    function _tokenMaxBuySellVolumeRuleByPasserRuleSetupSell() public endWithStopPrank {
+    function _tokenMaxBuySellVolumeTreasuryerRuleSetupSell() public endWithStopPrank {
         switchToAppAdministrator();
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -2876,7 +2877,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         for (uint i; i < 3; i++) {
             ProtocolERC721(address(testCaseNFT)).safeMint(user); // tokenId 10,11,12
         }
-        applicationAppManager.registerAMM(address(amm));
     }
 
     function testERC721_ERC721CommonTests_FacetOwnershipModifiers_ERC721NonTaggedRulesFacet_Negative() public {

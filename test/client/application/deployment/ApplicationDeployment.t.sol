@@ -19,7 +19,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
             appAdministrator = vm.envAddress("APP_ADMIN");
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
-            feeTreasury = vm.envAddress("ANVIL_ADDRESS_4");
+            feeSink = vm.envAddress("ANVIL_ADDRESS_4");
             applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
             assertEq(vm.envAddress("APPLICATION_APP_MANAGER"), address(applicationAppManager));
             // Verify App Handler has been deployed

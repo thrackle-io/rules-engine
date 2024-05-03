@@ -26,13 +26,12 @@ interface IAppLevelEvents {
     event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
     event AD1467_AppAdministrator(address indexed admin, bool indexed add); 
     event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
-    event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
+    event AD1467_TreasuryAccount(address indexed treasuryAccount, bool indexed add);
     event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
     event AD1467_TokenRegistered(string indexed _token, address indexed _address);
     event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
     event AD1467_AMMRegistered(address indexed _address);
-    event AD1467_TreasuryRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
     ///Tags
     event AD1467_TagProviderSet(address indexed _address);
@@ -97,8 +96,8 @@ interface ICommonApplicationHandlerEvents {
     /// Rule activated
     event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
     event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes[] actions);
-    //// Rule Bypassed Via Rule Bypass Account 
-    event AD1467_RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
+    //// Rule Bypassed Via Rule treasury Account 
+    event AD1467_RulesBypassedViaTreasuryAccount(address indexed treasuryAccount, address indexed appManager);
 }
 
 /**

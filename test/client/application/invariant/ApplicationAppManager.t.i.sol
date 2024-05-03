@@ -20,9 +20,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
         applicationAppManager.addRiskAdmin(riskAdmin);
         applicationAppManager.addRuleAdministrator(ruleAdmin);
-        applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
-        applicationAppManager.registerAMM(ammAddress);
-        applicationAppManager.registerTreasury(treasuryAddress);
+        applicationAppManager.addTreasuryAccount(treasuryAccount);
         applicationAppManager.approveAddressToTradingRuleAllowlist(tradingRuleAddress, true);
         switchToSuperAdmin();
         appManagerData = new AppManager(superAdmin, "Data", false);        
@@ -37,7 +35,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         targetSender(appAdministrator);
         targetSender(riskAdmin);
         targetSender(ruleAdmin);
-        targetSender(ruleBypassAccount);
+        targetSender(treasuryAccount);
         targetContract(address(applicationAppManager));
     }
 
@@ -91,75 +89,6 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.expectEmit();
         emit AD1467_RemoveFromRegistry(applicationNFT.name(), address(applicationNFT));
         applicationAppManager.deregisterToken(appName);
-    }
-/// AMM Registration
-    // If registerAMM is called with an address of 0 the transaction will be reverted. 
-    function invariant_RegisterAMMZeroAddressNotAllowed() public {
-        switchToAppAdministrator();
-        vm.expectRevert(abi.encodeWithSignature("ZeroAddress()"));
-        applicationAppManager.registerAMM(address(0));
-    }
-
-    // If registerAMM is called by an account that is not an App Admin the transaction will be reverted. 
-    function invariant_RegisterAMMOnlyAppAdmin() public {
-        (, msgSender, ) = vm.readCallers();
-        if (!applicationAppManager.isAppAdministrator(msgSender)){
-            vm.expectRevert();
-            applicationAppManager.registerAMM(address(33));
-        } else{
-            applicationAppManager.registerAMM(address(33));
-        }
-    }
-    // If deregisterAMM is called by an account that is not an App Admin the transaction will be reverted.
-    function invariant_DeRegisterAMMOnlyAppAdmin() public {
-        (, msgSender, ) = vm.readCallers();
-        if (!applicationAppManager.isAppAdministrator(msgSender)){
-            vm.expectRevert();
-            applicationAppManager.registerAMM(ammAddress);
-        } else{
-            applicationAppManager.registerAMM(ammAddress);
-        }
-    }
-    // If deregisterAMM is called with the address of a token that is not registered, the transaction will be reverted. 
-    function invariant_DeRegisterAMMPreviouslyRegistered() public {
-        switchToAppAdministrator();
-        vm.expectRevert(abi.encodeWithSignature("NoAddressToRemove()"));
-        applicationAppManager.deRegisterAMM(address(0xDabbaDabbaD00));
-    }
-
-// TREASURY REGISTRATION
-    // If registerTreasury is called by an account that is not an App Admin the transaction will be reverted.
-    function invariant_RegisterTreasuryOnlyAppAdmin() public {
-        (, msgSender, ) = vm.readCallers();
-        if (!applicationAppManager.isAppAdministrator(msgSender)){
-            vm.expectRevert();
-            applicationAppManager.registerTreasury(address(0xDabbaDabbaD00));
-        } else{
-            applicationAppManager.registerTreasury(address(0xDabbaDabbaD00));
-        }
-    }
-    // If registerTreasury is not reverted the TreasuryRegistered event will be emitted.
-    function invariant_RegisterTreasuryEmitsEvent() public {
-        switchToAppAdministrator();
-        vm.expectEmit();
-        emit AD1467_TreasuryRegistered(address(0xDabbaDabbaD00));
-        applicationAppManager.registerTreasury(address(0xDabbaDabbaD00));
-    }
-    // If deregisterTreasury is called by an account that is not an App Admin the transaction will be reverted. 
-    function invariant_DeRegisterTreasuryOnlyAppAdmin() public {
-        (, msgSender, ) = vm.readCallers();
-        if (!applicationAppManager.isAppAdministrator(msgSender)){
-            vm.expectRevert();
-            applicationAppManager.deRegisterTreasury(treasuryAddress);
-        } else{
-            applicationAppManager.deRegisterTreasury(treasuryAddress);
-        }
-    }
-    // If deregisterTreasury is called with an address that is not registered, the transaction will be reverted.
-    function invariant_DeRegisterTreasuryPreviouslyRegistered() public {
-        switchToAppAdministrator();
-        vm.expectRevert(abi.encodeWithSignature("NoAddressToRemove()"));
-        applicationAppManager.deRegisterTreasury(address(0xDabbaDabbaD00));
     }
 
 // TRADING RULE ALLOW LIST

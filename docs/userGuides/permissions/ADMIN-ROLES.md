@@ -12,7 +12,7 @@ The super admin account is set during the [deployment][deployAppManager-url] of 
 3. [Risk Admin](#risk-admin).
 4. [Access Level Admin](#access-level-admin).
 5. [Rule Admin](#rule-admin).
-6. [Rule-Bypass Account](#rule-bypass-account).
+6. [Treasury Account](#treasury-account).
 
 ## SUPER ADMIN
 
@@ -55,7 +55,7 @@ Keccak256: 0x16c600d7bfbb199b1bbbaaec72d225e1b669f7d0c812d7cafcf00672fb42b30d
 ## APP ADMIN
 
 ### Overview
-App admin can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access level, risk and rule admin roles as well as rule bypass accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
+App admin can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access level, risk and rule admin roles as well as treasury accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
 
 ### Add Command
 The following is an example of the command used to add an app admin:
@@ -67,7 +67,7 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --p
 * Application Administrators may add/remove Rule Administrators
 * Application Administrators may add/remove Risk Administrators.
 * Application Administrators may add/remove Access Level Administrators.
-* Application Administrators may add/remove Rule Bypass Accounts.
+* Application Administrators may add/remove Treasury Accounts.
 * Application Administrators may add/edit/remove player account metadata such as tags (not including risk/access levels).
 * Application Administrators may renounce their role.
 * Application Administrators may register/deregister asset contracts.
@@ -189,19 +189,19 @@ Keccak256: 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a
 
 ---
 
-## RULE BYPASS ACCOUNT
-Rule Bypass Account can be granted at any time by the app admin. This role is exempt from all economic rules except for the Admin Withdrawal rule. This role cannot be revoked or renounce their role while this rule is active. Functions with the modifier onlyRole(RULE_BYPASS_ACCOUNT) can only be called by this role. 
+## TREASURY ACCOUNT
+Treasury Account can be granted at any time by the app admin. This role is exempt from all economic rules except for the Admin Withdrawal rule. This role cannot be revoked or renounce their role while this rule is active. Functions with the modifier onlyRole(TREASURY_ACCOUNT) can only be called by this role. 
 
 ### Add Command
-The following is an example of the command used to add an rule bypass account:
+The following is an example of the command used to add an treasury account:
 ````
-cast send $APPLICATION_APP_MANAGER "addRuleBypassAccount(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addTreasuryAccount(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
-* Rule Bypass Accounts are exempt from all economic rules except for the Admin Withdrawal Rule.
-* Rule Bypass Accounts may not alter any rule configurations to include risk related rules.
-* Rule Bypass Accounts may not renounce their role.
+* Treasury Accounts are exempt from all economic rules except for the Admin Withdrawal Rule.
+* Treasury Accounts may not alter any rule configurations to include risk related rules.
+* Treasury Accounts may not renounce their role.
 
 ### Role Hash
 ````
@@ -210,12 +210,6 @@ Keccak256: 0x5cb9147a971eae9c63c04beb424326d7db091a71473987979b49bb1e189f3457
 
 ### Recommendations
 - It is recommended to have a dedicated account for this role that doesn't have any other roles in the application.
-- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this account as an environment variable (you might want to follow other practices in production for security reasons):
-
-    ```
-    export RULE_BYPASS_ACC_KEY=<rule bypass account privkey>
-    ```
-
 
 <!-- These are the body links -->
 [createAdminRole-url]: ./ADMIN-CONFIG.md

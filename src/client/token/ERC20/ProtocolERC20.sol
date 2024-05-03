@@ -82,7 +82,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Protocol
             (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ++i) {
                 if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
+                    // trim the fee and send it to the target feeSink account
                     _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
                     // accumulate all fees
                     fees += (amount * uint24(feePercentages[i])) / 10000;
@@ -129,7 +129,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Protocol
             (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ++i) {
                 if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
+                    // trim the fee and send it to the target fee sink account
                     uint fee = (amount * uint24(feePercentages[i])) / 10000;
                     if (fee > 0) {
                         _transfer(from, targetAccounts[i], fee);
@@ -154,8 +154,8 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Protocol
      * @param amount number of tokens to mint
      */
     function mint(address to, uint256 amount) public virtual {
-        /// Check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
-        if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
+        /// Check that the address calling mint is an authorized appAdminstrator
+        if (!appManager.isAppAdministrator(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
         if (maxSupply > 0 && totalSupply() + amount > maxSupply) {

@@ -517,11 +517,11 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         applicationAppManager.addAppAdministrator(appAdministrator);
     }
 
-    function testApplication_ApplicationCommonTests_RuleBypassAccountEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
+    function testApplication_ApplicationCommonTests_TreasuryAccountEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RuleAdmin(ruleAdmin, true);
-        applicationAppManager.addRuleAdministrator(ruleAdmin);
+        emit AD1467_TreasuryAccount(treasuryAccount, true);
+        applicationAppManager.addTreasuryAccount(treasuryAccount);
     }
 
     function testApplication_ApplicationCommonTests_AppNameEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
@@ -530,22 +530,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         vm.expectEmit(true, false, false, false);
         emit AD1467_AppNameChanged(appName);
         applicationAppManager.setAppName(appName);
-    }
-
-    function testApplication_ApplicationCommonTests_RegisterAmmEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToAppAdministrator();
-        address amm = address(0x577777);
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_AMMRegistered(amm);
-        applicationAppManager.registerAMM(amm);
-    }
-
-    function testApplication_ApplicationCommonTests_RegisterTreasuryEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToAppAdministrator();
-        address appTreasury = address(0xAAAAA);
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_TreasuryRegistered(appTreasury);
-        applicationAppManager.registerTreasury(appTreasury);
     }
 
     function testApplication_ApplicationCommonTests_TradingRulesAddressAllowListEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
@@ -576,10 +560,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public view ifDeploymentTestsEnabled {
         assertTrue(applicationAppManager.isRuleAdministrator(ruleAdmin));
-    }
-
-    function testApplication_ApplicationCommonTests_VerifyTreasury() public view ifDeploymentTestsEnabled {
-        assertTrue(applicationAppManager.isTreasury(feeTreasury));
     }
 
     function testApplication_ApplicationCommonTests_VerifyTokensRegistered() public view ifDeploymentTestsEnabled {

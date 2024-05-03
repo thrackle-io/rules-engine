@@ -35,7 +35,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     bytes32 constant ACCESS_LEVEL_ADMIN_ROLE = keccak256("ACCESS_LEVEL_ADMIN_ROLE");
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
+    bytes32 constant TREASURY_ACCOUNT = keccak256("TREASURY_ACCOUNT");
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
@@ -64,14 +64,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     address[] tokenList;
     mapping(address => uint) tokenToIndex;
     mapping(address => bool) isTokenRegistered;
-    /// AMM List (for token level rule exemptions)
-    address[] ammList;
-    mapping(address => uint) ammToIndex;
-    mapping(address => bool) isAMMRegistered;
-    /// Treasury List (for token level rule exemptions)
-    address[] treasuryList;
-    mapping(address => uint) treasuryToIndex;
-    mapping(address => bool) isTreasuryRegistered;
     /// Allowlist for trading rule exceptions
     address[] tradingRuleAllowList;
     mapping(address => bool) isTradingRuleAllowlisted;
@@ -90,7 +82,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         _setRoleAdmin(ACCESS_LEVEL_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
-        _setRoleAdmin(RULE_BYPASS_ACCOUNT, APP_ADMIN_ROLE);
+        _setRoleAdmin(TREASURY_ACCOUNT, APP_ADMIN_ROLE);
         _setRoleAdmin(SUPER_ADMIN_ROLE, PROPOSED_SUPER_ADMIN_ROLE);
         _setRoleAdmin(PROPOSED_SUPER_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         appName = _appName;
@@ -273,48 +265,48 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         emit AD1467_RuleAdmin(_msgSender(), false);
     }
 
-    /// -------------RULE BYPASS ACCOUNT ---------------
+    /// -------------TREASURY ACCOUNT ---------------
 
     /**
-     * @dev This function is where the rule bypass account role is actually checked
+     * @dev This function is where the Treasury account role is actually checked
      * @param account address to be checked
-     * @return success true if RULE_BYPASS_ACCOUNT, false if not
+     * @return success true if TREASURY_ACCOUNT, false if not
      */
-    function isRuleBypassAccount(address account) public view returns (bool) {
-        return hasRole(RULE_BYPASS_ACCOUNT, account);
+    function isTreasuryAccount(address account) public view returns (bool) {
+        return hasRole(TREASURY_ACCOUNT, account);
     }
 
     /**
-     * @dev Add an account to the rule bypass account role. Restricted to app administrators.
-     * @param account address to be added as a rule bypass account
+     * @dev Add an account to the Treasury account role. Restricted to app administrators.
+     * @param account address to be added as a Treasury account
      */
-    function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
+    function addTreasuryAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        super.grantRole(RULE_BYPASS_ACCOUNT, account);
-        emit AD1467_RuleBypassAccount(account, true);
+        super.grantRole(TREASURY_ACCOUNT, account);
+        emit AD1467_TreasuryAccount(account, true);
     }
 
     /**
-     * @dev Add a list of accounts to the rule bypass account role. Restricted to app administrators.
-     * @param _accounts addresses to be added as a rule bypass account
+     * @dev Add a list of accounts to the Treasury account role. Restricted to app administrators.
+     * @param _accounts addresses to be added as a Treasury account
      */
-    function addMultipleRuleBypassAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE) {
+    function addMultipleTreasuryAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ++i) {
-            addRuleBypassAccount(_accounts[i]);
+            addTreasuryAccount(_accounts[i]);
         }
     }
 
     /**
-     * @dev Remove oneself from the rule bypass account role.
-     * @notice This function renounces the rule bypass account. Rule Bypass Accounts cannot renounce role while rule is active.
+     * @dev Remove oneself from the Treasury account role.
+     * @notice This function renounces the Treasury Account role.
      */
-    function renounceRuleBypassAccount() external nonReentrant {
+    function renounceTreasuryAccount() external nonReentrant {
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
+        renounceRole(TREASURY_ACCOUNT, _msgSender());
         // slither-disable-next-line reentrancy-events
-        emit AD1467_RuleBypassAccount(_msgSender(), false);
+        emit AD1467_TreasuryAccount(_msgSender(), false);
     }
 
     /// -------------ACCESS LEVEL---------------
@@ -796,62 +788,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         _addressToIndex[_address] = _addressArray.length;
         _registerFlag[_address] = true;
         _addressArray.push(_address);
-    }
-
-    /**
-     * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
-     * @param _AMMAddress Address for the AMM
-     */
-    function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
-        if (_AMMAddress == address(0)) revert ZeroAddress();
-        if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
-        _addAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
-        emit AD1467_AMMRegistered(_AMMAddress);
-    }
-
-    /**
-     * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
-     * @param _AMMAddress Address for the AMM
-     */
-    function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
-        return isAMMRegistered[_AMMAddress];
-    }
-
-    /**
-     * @dev This function allows the devs to deregister an AMM contract address.
-     * @param _AMMAddress The of the AMM to be de-registered
-     */
-    function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
-        if (!isRegisteredAMM(_AMMAddress)) revert NoAddressToRemove();
-        _removeAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
-    }
-
-    /**
-     * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
-     * @param _treasuryAddress Address for the treasury
-     */
-    function isTreasury(address _treasuryAddress) public view returns (bool) {
-        return isTreasuryRegistered[_treasuryAddress];
-    }
-
-    /**
-     * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
-     * @param _treasuryAddress Address for the treasury
-     */
-    function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
-        if (_treasuryAddress == address(0)) revert ZeroAddress();
-        if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
-        _addAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
-        emit AD1467_TreasuryRegistered(_treasuryAddress);
-    }
-
-    /**
-     * @dev This function allows the devs to deregister an treasury address.
-     * @param _treasuryAddress The of the AMM to be de-registered
-     */
-    function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
-        if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
-        _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
     }
 
     /**

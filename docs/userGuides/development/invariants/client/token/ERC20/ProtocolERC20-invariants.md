@@ -37,8 +37,8 @@
 - New deployment will always emit NewTokenDeployed event
 - If a cumulative positive fees exist, the amount of tokens received by the toAddress is less than the amount transferred by the fromAddress
 - If a cumulative negative fees exist, the amount of tokens received by the toAddress is equal to the amount transferred by the fromAddress
-- If a cumulative positive fees exist, the treasury address balance will increase with a transfer
-- If a cumulative negative fees exist, the treasury address balance will remain the same with a transfer
+- If a cumulative positive fees exist, the feeSink address balance will increase with a transfer
+- If a cumulative negative fees exist, the feeSink address balance will remain the same with a transfer
 
 
 ## Mintable ERC20 Invariants

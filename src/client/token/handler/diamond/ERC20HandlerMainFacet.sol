@@ -75,44 +75,41 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
      */
     function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount, ActionTypes _action) internal returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
-        bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
+        bool isFromTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_from);
+        bool isToTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_to);
         ActionTypes action;
         if (_action == ActionTypes.NONE){
             action = determineTransferAction(_from, _to, _sender);
         } else {
             action = _action;
         }
-        // All transfers to treasury account are allowed
-        if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
-            /// standard rules do not apply when either to or from is a rule bypass account
-            if (!isFromBypassAccount && !isToBypassAccount) {
-                IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
-                callAnotherFacet(
-                    0x36bd6ea7, 
-                    abi.encodeWithSignature(
-                        "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
-                        balanceFrom, 
-                        balanceTo, 
-                        _from, 
-                        _to, 
-                        _amount, 
-                        action
-                    )
-                );
-                callAnotherFacet(
-                    0x6f43d91d, 
-                    abi.encodeWithSignature(
-                        "checkNonTaggedRules(address,address,uint256,uint8)",
-                        _from, 
-                        _to, 
-                        _amount, 
-                        action
-                    )
-                );
-            } else if (isFromBypassAccount) {
-                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager);
-            }
+        /// standard rules do not apply when either to or from is a treasury account
+        if (!isFromTreasuryAccount && !isToTreasuryAccount) {
+            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
+            callAnotherFacet(
+                0x36bd6ea7, 
+                abi.encodeWithSignature(
+                    "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
+                    balanceFrom, 
+                    balanceTo, 
+                    _from, 
+                    _to, 
+                    _amount, 
+                    action
+                )
+            );
+            callAnotherFacet(
+                0x6f43d91d, 
+                abi.encodeWithSignature(
+                    "checkNonTaggedRules(address,address,uint256,uint8)",
+                    _from, 
+                    _to, 
+                    _amount, 
+                    action
+                )
+            );
+        } else if (isFromTreasuryAccount || isToTreasuryAccount) {
+            emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
         }
         return true;
     }

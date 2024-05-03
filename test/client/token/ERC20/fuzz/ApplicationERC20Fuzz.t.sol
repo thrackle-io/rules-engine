@@ -3190,8 +3190,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
 
-        switchToRuleBypassAccount();
-        draculaCoin.mint(ruleBypassAccount, type(uint256).max);
+        switchToTreasuryAccount();
+        draculaCoin.mint(treasuryAccount, type(uint256).max);
 
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
@@ -3233,8 +3233,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRuleSingleAction(ActionTypes.P2P_TRANSFER, ruleId);
 
-        switchToRuleBypassAccount();
-        draculaCoin.mint(ruleBypassAccount, type(uint256).max);
+        switchToTreasuryAccount();
+        draculaCoin.mint(treasuryAccount, type(uint256).max);
 
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
@@ -3775,8 +3775,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
@@ -3805,8 +3805,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
@@ -3834,8 +3834,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
@@ -3861,8 +3861,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
@@ -3888,8 +3888,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
@@ -3915,8 +3915,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);

@@ -18,7 +18,7 @@ This document covers all the facets for the ERC20 handler, its rules, and the in
 - All rules - When a rule id is set, then the rule is deactivated, retrieving the id still returns the rule id
 - All rules - When a rule is NOT active, call to activate the rule always emits ApplicationHandlerActionActivated event
 - All rules - When a rule is active, subsequent calls to activate the rule do not emit ApplicationHandlerActionActivated event
-- Application rules - When any application rule is active, it is checked for all accounts except the RuleBypassAccount
+- Application rules - When any application rule is active, it is checked for all accounts except the Treasury Account
 - When upgrading the facet, all data remains pristine 
 
 ## HandlerBase Invariants
