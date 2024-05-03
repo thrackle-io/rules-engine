@@ -3,6 +3,7 @@
 SCRIPT_MODE=$1
 
 source ~/.bashrc
+# Pin foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
 foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
 python3 -m venv .venv
 source .venv/bin/activate
