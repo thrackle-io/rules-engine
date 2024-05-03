@@ -110,8 +110,10 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
                         action
                     )
                 );
+            } else if (isFromBypassAccount) {
+                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager);
             }
-       }
+        }
         return true;
     }
 

@@ -304,6 +304,19 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         }
     }
 
+    /**
+     * @dev Remove oneself from the rule bypass account role.
+     * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
+     */
+    function renounceRuleBypassAccount() external nonReentrant {
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
+        renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
+        // slither-disable-next-line reentrancy-events
+        emit AD1467_RuleBypassAccount(_msgSender(), false);
+    }
+
     /// -------------ACCESS LEVEL---------------
     /**
      * @dev This function is where the access level admin role is actually checked
