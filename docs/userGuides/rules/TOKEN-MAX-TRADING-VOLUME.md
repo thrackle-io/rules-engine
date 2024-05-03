@@ -194,7 +194,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
+*see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Data Recorded
 
@@ -208,7 +208,7 @@ uint64 private lastTransferTime;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
+*see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Events
 
