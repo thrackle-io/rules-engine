@@ -44,9 +44,6 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
         delete data.ruleId;
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxSupplyVolatility[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 

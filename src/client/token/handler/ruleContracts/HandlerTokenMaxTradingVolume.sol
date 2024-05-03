@@ -45,9 +45,6 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
         delete data.ruleId;
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxTradingVolume[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
