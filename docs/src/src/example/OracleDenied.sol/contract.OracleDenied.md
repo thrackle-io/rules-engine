@@ -1,5 +1,5 @@
 # OracleDenied
-[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/example/OracleDenied.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/95d06c720440790216a49a5a69a0411b6dfc3f0f/src/example/OracleDenied.sol)
 
 **Inherits:**
 Ownable, [IOracleEvents](/src/common/IEvents.sol/interface.IOracleEvents.md)

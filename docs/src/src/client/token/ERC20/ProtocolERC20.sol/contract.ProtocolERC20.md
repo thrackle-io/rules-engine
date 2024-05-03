@@ -1,8 +1,8 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/95d06c720440790216a49a5a69a0411b6dfc3f0f/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
-ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
+ERC20, ERC165, ERC20Burnable, ERC20FlashMint, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -40,35 +40,13 @@ constructor(string memory _name, string memory _symbol, address _appManagerAddre
 |`_appManagerAddress`|`address`|address of app manager contract|
 
 
-### pause
-
-*Pauses the contract. Only whenPaused modified functions will work once called.*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function pause() public virtual appAdministratorOnly(appManagerAddress);
-```
-
-### unpause
-
-*Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function unpause() public virtual appAdministratorOnly(appManagerAddress);
-```
-
 ### _beforeTokenTransfer
 
 *Function called before any token transfers to confirm transfer is within rules of the protocol*
 
 
 ```solidity
-function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused;
+function _beforeTokenTransfer(address from, address to, uint256 amount) internal override;
 ```
 **Parameters**
 

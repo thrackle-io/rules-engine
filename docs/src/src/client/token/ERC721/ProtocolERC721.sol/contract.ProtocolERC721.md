@@ -1,8 +1,8 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/tron/blob/502533a6ffb2af342c0e88aaf7562842e91b57b1/src/client/token/ERC721/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/95d06c720440790216a49a5a69a0411b6dfc3f0f/src/client/token/ERC721/ProtocolERC721.sol)
 
 **Inherits:**
-ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), ReentrancyGuard
+ERC721Burnable, ERC721URIStorage, ERC721Enumerable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -102,28 +102,6 @@ function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721UR
 |`<none>`|`string`|tokenURI new URI for token Id|
 
 
-### pause
-
-END setters and getters ***********
-
-*AppAdministratorOnly function takes appManagerAddress as parameter
-Function pauses contract and prevents functions with whenNotPaused modifier*
-
-
-```solidity
-function pause() public virtual appAdministratorOnly(appManagerAddress);
-```
-
-### unpause
-
-*Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.
-AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function unpause() public virtual appAdministratorOnly(appManagerAddress);
-```
-
 ### safeMint
 
 Add appAdministratorOnly modifier to restrict minting privilages
@@ -133,7 +111,7 @@ Function is payable for child contracts to override with priced mint function.
 
 
 ```solidity
-function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress);
+function safeMint(address to) public payable virtual appAdministratorOrOwnerOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -151,8 +129,7 @@ function safeMint(address to) public payable virtual whenNotPaused appAdministra
 function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
     internal
     override(ERC721, ERC721Enumerable)
-    nonReentrant
-    whenNotPaused;
+    nonReentrant;
 ```
 **Parameters**
 
@@ -172,7 +149,7 @@ The following functions are overrides required by Solidity.
 
 
 ```solidity
-function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) whenNotPaused;
+function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage);
 ```
 **Parameters**
 
