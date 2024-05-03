@@ -1,5 +1,5 @@
 # ApplicationERC721UpgAdminMint
-[Git Source](https://github.com/thrackle-io/tron/blob/cc8b8345c329b2556fa21578401d762291784e46/src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/63fcd46f6c4c395f84afa43dab91856da44b1c42/src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol)
 
 **Inherits:**
 [ProtocolERC721U](/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol/contract.ProtocolERC721U.md)

@@ -1,5 +1,5 @@
 # HandlerTokenMaxTradingVolume
-[Git Source](https://github.com/thrackle-io/tron/blob/cc8b8345c329b2556fa21578401d762291784e46/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/63fcd46f6c4c395f84afa43dab91856da44b1c42/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -26,7 +26,7 @@ function getTokenMaxTradingVolumeId(ActionTypes _action) external view returns (
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ActionTypes`|the action type|
+|`_action`|`ActionTypes`|the action type(this left in to keep signatures the same for dependent apis)|
 
 **Returns**
 
@@ -53,26 +53,6 @@ function setTokenMaxTradingVolumeId(ActionTypes[] calldata _actions, uint32 _rul
 |----|----|-----------|
 |`_actions`|`ActionTypes[]`|the action types|
 |`_ruleId`|`uint32`|Rule Id to set|
-
-
-### setTokenMaxTradingVolumeIdFull
-
-that setting a rule will automatically activate it.
-
-*Set the setTokenMaxTradingVolumeRule suite. Restricted to rule administrators only.*
-
-
-```solidity
-function setTokenMaxTradingVolumeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
-    external
-    ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
-|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
 
 
 ### clearTokenMaxTradingVolume

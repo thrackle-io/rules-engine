@@ -1,5 +1,5 @@
 # IERC20Decimals
-[Git Source](https://github.com/thrackle-io/tron/blob/cc8b8345c329b2556fa21578401d762291784e46/src/client/token/ERC20/IERC20Decimals.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/63fcd46f6c4c395f84afa43dab91856da44b1c42/src/client/token/ERC20/IERC20Decimals.sol)
 
 *Interface of the ERC20 standard as defined in the EIP.*
 
