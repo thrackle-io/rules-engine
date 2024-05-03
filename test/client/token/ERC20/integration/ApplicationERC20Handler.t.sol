@@ -15,7 +15,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     uint256 minBalance;
     uint256 maxBalance;
     int24 feePercentage;
-    address feeCollectorAccount;
     address[] targetAccounts;
     int24[] feePercentages;
 
@@ -32,12 +31,12 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = -400;
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
         Fee memory fee = Fees(address(applicationCoinHandlerSpecialOwner)).getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(fee.feeCollectorAccount, feeCollectorAccount);
+        assertEq(fee.feeSink, feeSink);
         assertEq(1, Fees(address(applicationCoinHandlerSpecialOwner)).getFeeTotal());
     }
 
@@ -49,12 +48,12 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 9000;
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
         Fee memory fee = Fees(address(applicationCoinHandlerSpecialOwner)).getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(fee.feeCollectorAccount, feeCollectorAccount);
+        assertEq(fee.feeSink, feeSink);
         assertEq(2, Fees(address(applicationCoinHandlerSpecialOwner)).getFeeTotal());
     }
 
@@ -78,14 +77,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         minBalance = 1000 * 10 ** 18;
         feePercentage = 9000;
         vm.expectRevert(0xeeb9d4f7);
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
         tag1 = "error";
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 10001;
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
     }
 
     function testERC20_ApplicationERC20Handler_GetApplicableFees_AdditionalFee() public endWithStopPrank {
@@ -227,10 +226,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 300;
-        feeCollectorAccount = appAdministrator;
+        feeSink = appAdministrator;
         // create one fee
         switchToRuleAdmin();
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
         Fee memory fee = Fees(address(applicationCoinHandlerSpecialOwner)).getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
@@ -255,10 +254,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 300;
-        feeCollectorAccount = appAdministrator;
+        feeSink = appAdministrator;
         // create one fee
         switchToRuleAdmin();
-        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeSink);
         Fee memory fee = Fees(address(applicationCoinHandlerSpecialOwner)).getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);

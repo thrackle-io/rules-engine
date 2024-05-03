@@ -10,6 +10,8 @@ Fees are applied to accounts via general tags in the [AppMananger](../../../src/
 
 Protocol supported tokens will always assess all fees asigned to the account executing the current function. If a token has fees active and an account is tagged with applicable fees or a blank tag is used to assign a default fee, those fees are assessed on token transfers (additive). Token fees are assessed and taken from the token itself, not a collateralized token, when fees are active in the token handler. 
 
+Fees are transferred to fee sink addresses when a fee is created for the token. These addresses will be subject to all active token and application level [rules](../rules/README.md). If a fee sink address is determined to be exempt from rules an [application administrator](../permissions/ADMIN-ROLES.md) can grant the role of Treasury Account to that address. 
+
 
 ## Applies To:
 
@@ -29,13 +31,13 @@ struct Fee {
         uint256 minBalance;
         uint256 maxBalance;
         int24 feePercentage;
-        address feeCollectorAccount;
+        address feeSink;
     }
 ```
 - **minBalance** (uint256): minimum balance for fee application 
 - **maxBalance** (uint256): maximum balance for fee application 
 - **feePercentage** (int24): fee percentage to assess in basis units (-10000 to 10000)
-- **feeCollectorAccount** (address): address of the fees recipient account 
+- **feeSink** (address): address of the fees recipient account 
 
 Each Fee struct is stored in a mapping by the bytes32 tag associated to that fee: 
 ```c
@@ -55,7 +57,7 @@ mapping(bytes32 => Fee) feesByTag;
 ### Token Evaluation: 
 The token determines if the handler has fees active. 
 The token retrieves all applicable fees for the account transferring tokens (msg.sender).
-The token loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon complettion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
+The token loops through each applicable fee and sends that amount from the transfer total to the `feeSink` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon complettion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
 
 
 ###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
@@ -135,7 +137,7 @@ The following validation will be carried out by the create function in order to 
 ## Return Data
 
 When assessing fees the function getApplicableFees() returns: 
-- **feeCollectorAccounts** (address[]): List of fee recipient addresses
+- **feeSinks** (address[]): List of fee recipient addresses
 - **feePercentagess** (int24[]): List of fee percentages 
 
 ## Data Recorded

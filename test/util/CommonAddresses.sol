@@ -15,7 +15,7 @@ contract CommonAddresses {
     address ruleAdmin = address(0xACDC);
     address accessLevelAdmin = address(0xBBB);
     address riskAdmin = address(0xCCC);
-    address feeSink = address(0xDDD);
+    address feeSink = address(0xDDF);
     address user = address(0xDDD);
     address bob = address(0xB0B);
     address user1 = address(11);
