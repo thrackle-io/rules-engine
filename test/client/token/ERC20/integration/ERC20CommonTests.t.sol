@@ -1562,6 +1562,46 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// check that rule does not apply to coin 0 as this would be a sell
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
+    /**
+     * In order to test the accumulator logic, set up the rule then perform a buy that puts the rule at the line of threshold. Then, attempt a sell that would put it over. If it does not go over, then the accumulator data is separated properly. 
+     */
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleBuyAction_AccumulatorCheck_Buy() public endWithStopPrank {
+        switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        /// set up rule
+        _setupTokenMaxBuySellVolumeRuleBuyAction();
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.startPrank(user1);
+        testCaseToken.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, false); /// percentage limit hit now
+        /// test swaps after we hit limit. This verifies the failure
+        vm.expectRevert(0xfa006f25);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        /// Now check that rule does not apply to coin 0 as this would be a sell
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, true);
+    }
+
+    /**
+     * In order to test the accumulator logic, set up the rule then perform a sell that puts the rule at the line of threshold. Then, attempt a buy that would put it over. If it does not go over, then the accumulator data is separated properly. 
+     */
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeRuleBuyAction_AccumulatorCheck_Sell() public endWithStopPrank {
+         switchToAppAdministrator();
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        /// set up rule
+        _setupTokenMaxBuySellVolumeRuleSellAction();
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.startPrank(user1);
+        testCaseToken.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 40_000_000, 40_000_000, true); /// percentage limit hit now
+        /// Now check that rule does not apply to coin 1 as this would be a buy
+        amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
+    }
 
     function testERC20_ERC20CommonTests_TradeRuleByPasserRule_BuySellPercentage_Allowed() public endWithStopPrank {
         switchToAppAdministrator();
@@ -1937,91 +1977,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
                 mainIndex++;
             }
         }
-    }
-
-    /* TokenMaxSupplyVolatility */
-    function testERC20_ERC20CommonTests_TokenMaxSupplyVolatilityAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](2);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (i * 1000)), uint8(i + 4), Blocktime, 0);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
-        // Apply the rules to all actions
-        setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        for (uint i; i < ruleIds.length; i++) assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(actions[i]), ruleIds[i]);
-        // Verify that all the rules were activated
-        for (uint i; i < ruleIds.length; i++) assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(actions[i]));
-    }
-
-    function testERC20_ERC20CommonTests_TokenMaxSupplyVolatilityAtomicFullReSet() public {
-        uint32[] memory ruleIds = new uint32[](2);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (i * 1000)), uint8(i + 4), Blocktime, 0);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
-        // Apply the rules to all actions
-        setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](1);
-        ruleIds[0] = createTokenMaxSupplyVolatilityRule(2011, 6, Blocktime, 0);
-        actions = createActionTypeArray(ActionTypes.MINT);
-        // Apply the new set of rules
-        setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        for (uint i; i < ruleIds.length; i++) assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(actions[i]), ruleIds[i]);
-        // Verify that the old ones were cleared
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(ActionTypes.BURN), 0);
-        // Verify that the new rules were activated
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.MINT));
-        // Verify that the old rules are not activated
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.BUY));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.SELL));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.BURN));
-    }
-
-    /* TokenMaxTradingVolume */
-    function testERC20_ERC20CommonTests_TokenMaxTradingVolumeAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](4);
-        // Set up rule
-        for (uint i; i < 4; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
-        // Apply the rules to all actions
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.P2P_TRANSFER), ruleIds[0]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.SELL), ruleIds[1]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BUY), ruleIds[2]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), ruleIds[3]);
-        // Verify that all the rules were activated
-        for (uint i; i < 4; i++) assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes(i)));
-    }
-
-    function testERC20_ERC20CommonTests_TokenMaxTradingVolumeAtomicFullReSet() public {
-        uint32[] memory ruleIds = new uint32[](4);
-        // Set up rule
-        for (uint i; i < 4; i++) ruleIds[i] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
-        // Apply the rules to all actions
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](2);
-        ruleIds[0] = createTokenMaxTradingVolumeRule(6000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[1] = createTokenMaxTradingVolumeRule(7000, 2, Blocktime, 100_000 * ATTO);
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
-        // Apply the new set of rules
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.SELL), ruleIds[0]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BUY), ruleIds[1]);
-        // Verify that the old ones were cleared
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), 0);
-        // Verify that the new rules were activated
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.SELL));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BUY));
-        // Verify that the old rules are not activated
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.MINT));
     }
 
     /* TokenMinimumTransaction */

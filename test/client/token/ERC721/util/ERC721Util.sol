@@ -98,11 +98,6 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityId(actionTypes, ruleId);
     }
 
-    function setTokenMaxSupplyVolatilityRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityIdFull(actions, ruleIds);
-    }
-
     function setTokenMaxTradingVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT, ActionTypes.BURN);
@@ -113,11 +108,6 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(_action);
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeId(actionTypes, ruleId);
-    }
-
-    function setTokenMaxTradingVolumeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeIdFull(actions, ruleIds);
     }
 
     function setTokenMinimumTransactionRule(address assetHandler, uint32 ruleId) public endWithStopPrank {

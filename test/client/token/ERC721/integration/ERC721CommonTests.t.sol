@@ -508,7 +508,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Buy() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
-        _tokenMaxDailyTradesSetupNoMints();
+        _tokenMaxDailyTradesSetupNoBurns();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -517,7 +517,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Buy_Negative() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
-        _tokenMaxDailyTradesSetupNoMints();
+        _tokenMaxDailyTradesSetupNoBurns();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -528,7 +528,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Sell() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
-        _tokenMaxDailyTradesSetupNoMints();
+        _tokenMaxDailyTradesSetupNoBurns();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -539,11 +539,81 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Sell_Negative() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
-        _tokenMaxDailyTradesSetupNoMints();
+        _tokenMaxDailyTradesSetupNoBurns();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
         amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
+    }
+    /**
+     * This tests that no cross contamination happens when separate rules are attached to actions.
+     */
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Accumulator_Positive() public endWithStopPrank { 
+        _setUpNFTAMMForRuleChecks(); // This puts 10 nfts in the AMM
+        // set up multiple rules
+        // buy = 1
+        // sell = 3        
+        // p2p transfer = 10
+        _tokenMaxDailyTradesSetupMultipleRuleIds();
+        switchToUser();
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        // single buy should pass
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 0, true);
+        
+        // 3 sells should pass
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        // sell first time
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 0, false);
+        // put the same nft back into user account
+        vm.startPrank(address(amm));
+        testCaseNFT.transferFrom(address(amm), user, 0);// this transfer will get labeled a sell because it is going from contract to eoa
+        // sell second time
+        switchToUser();
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 0, false);
+        assertEq(testCaseNFT.balanceOf(user),3);// should have the original 3 that are added by _setUpNFTAMMForRuleChecks
+    }
+
+    /**
+     * This tests that no cross contamination happens when separate rules are attached to actions.
+     */
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Accumulator_Negative() public endWithStopPrank { 
+        // mint 10 NFT's to user
+        _mintNFTsToAddress(10, user, address(testCaseNFT));
+        // set up multiple rules
+        // buy = 1
+        // sell = 3        
+        // p2p transfer = 10  
+        _tokenMaxDailyTradesSetupMultipleRuleIds();
+        // transfer the same NFT back and forth 10 times. This will take it to the limit.
+        for (uint256 i = 0; i < 10; i++) {
+            if (i%2==0){
+                vm.startPrank(user);
+                testCaseNFT.transferFrom(user, user2, 0);
+            } else {
+                vm.startPrank(user2);
+                testCaseNFT.transferFrom(user2, user, 0);
+            }
+        }
+        // one more transfer should cause an error
+        vm.startPrank(user);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        testCaseNFT.transferFrom(user, user2, 0);
+        // set up the AMM
+        _setUpNFTAMMForRuleChecks(); // This puts 10 nfts in the AMM
+        switchToUser();
+        
+        // a sell should not cause the error because it's a separate rule and accumulators
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        // sell the same NFT that was transferred back and forth.
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 0, false);
+
+        // a buy should not cause the error because it's a separate rule and accumulators
+        testCaseNFT.setApprovalForAll(address(amm), true);
+        applicationCoin.approve(address(amm), 10 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 0, 0, true);
     }
 
     /// Account Max Transaction Value By Risk Score Tests
@@ -1879,85 +1949,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.MINT));
     }
 
-    /* TokenMaxSupplyVolatility */
-    function testERC721_ERC721CommonTests_TokenMaxSupplyVolatilityAtomicFullSet() public endWithStopPrank {
-        uint32[] memory ruleIds = new uint32[](2);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (1000 * i)), uint8(4 + i), Blocktime, 0);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
-        // Apply the rules to all actions
-        setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        for (uint i; i < ruleIds.length; i++) assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(actions[i]), ruleIds[i]);
-        // Verify that all the rules were activated
-        for (uint i; i < ruleIds.length; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(actions[i]));
-    }
-
-    function testERC721_ERC721CommonTests_TokenMaxSupplyVolatilityAtomicFullReSet() public endWithStopPrank {
-        uint32[] memory ruleIds = new uint32[](2);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (1000 * i)), uint8(4 + i), Blocktime, 0);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
-        // Apply the rules to all actions
-
-        // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](1);
-        ruleIds[0] = createTokenMaxSupplyVolatilityRule(2011, 6, Blocktime, 0);
-        actions = createActionTypeArray(ActionTypes.MINT);
-        // Apply the new set of rules
-        setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(ActionTypes.MINT), ruleIds[0]);
-        // Verify that the old ones were cleared
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(ActionTypes.BURN), 0);
-        // Verify that the new rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.MINT));
-        // Verify that the old rules are not activated
-        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.BURN));
-    }
-
-    /* TokenMaxTradingVolume */
-    function testERC721_ERC721CommonTests_TokenMaxTradingVolumeAtomicFullSet() public endWithStopPrank {
-        uint32[] memory ruleIds = new uint32[](4);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[0] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
-        // Apply the rules to all actions
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        for (uint i; i < ruleIds.length; i++) assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(actions[i]), ruleIds[i]);
-        // Verify that all the rules were activated
-        for (uint i; i < ruleIds.length; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(actions[i]));
-    }
-
-    function testERC721_ERC721CommonTests_TokenMaxTradingVolumeAtomicFullReSet() public endWithStopPrank {
-        uint32[] memory ruleIds = new uint32[](4);
-        // Set up rule
-        for (uint i; i < ruleIds.length; i++) ruleIds[0] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT);
-        // Apply the rules to all actions
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Reset with a partial list of rules and insure that the changes are saved correctly
-        ruleIds = new uint32[](2);
-        ruleIds[0] = createTokenMaxTradingVolumeRule(6000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[1] = createTokenMaxTradingVolumeRule(7000, 2, Blocktime, 100_000 * ATTO);
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
-        // Apply the new set of rules
-        setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly
-        for (uint i; i < ruleIds.length; i++) assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(actions[i]), ruleIds[i]);
-        // Verify that the old ones were cleared
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), 0);
-        // Verify that the new rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BUY));
-        for (uint i; i < ruleIds.length; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(actions[i]));
-        // Verify that the old rules are not activated
-        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.MINT));
-    }
-
     /* TokenMinHoldTime */
     function testERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFullSet() public endWithStopPrank {
         uint32[] memory periods = new uint32[](5);
@@ -2517,11 +2508,23 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function _tokenMaxDailyTradesSetupNoMints() public endWithStopPrank {
+    function _tokenMaxDailyTradesSetupNoBurns() public endWithStopPrank {
         // add the rule.
         switchToRuleAdmin();
         uint32 ruleId = createTokenMaxDailyTradesRule("", 1);
         setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleId);
+        // tag the NFT collection
+        switchToAppAdministrator();
+        applicationAppManager.addTag(address(testCaseNFT), "BoredGrape"); ///add tag
+    }
+
+    function _tokenMaxDailyTradesSetupMultipleRuleIds() public endWithStopPrank {
+        // add the rule.
+        switchToRuleAdmin();
+        // setTokenMaxDailyTradesRuleSingleAction(address(applicationNFTHandler),createActionTypeArray(ActionTypes.BUY), createTokenMaxDailyTradesRule("", 1));   
+        setTokenMaxDailyTradesRuleSingleAction(address(applicationNFTHandler),createActionTypeArray(ActionTypes.SELL), createTokenMaxDailyTradesRule("", 3));
+        setTokenMaxDailyTradesRuleSingleAction(address(applicationNFTHandler),createActionTypeArray(ActionTypes.P2P_TRANSFER), createTokenMaxDailyTradesRule("", 10));
+        
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addTag(address(testCaseNFT), "BoredGrape"); ///add tag
@@ -2943,6 +2946,12 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         _testBuyNFT(0, amm);
     }
+    function _mintNFTsToAddress(uint256 _amount, address _address, address _nftAddress) internal{
+        switchToAppAdministrator();
+        for (uint i; i < _amount; i++) {
+            ProtocolERC721(_nftAddress).safeMint(_address);
+        }
+    }
 
     function _setUpNFTAMMForRuleChecks() internal {
         switchToAppAdministrator();
@@ -2956,7 +2965,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         for (uint i; i < 3; i++) {
             ProtocolERC721(address(testCaseNFT)).safeMint(user); // tokenId 10,11,12
         }
-        assertEq(testCaseNFT.balanceOf(user), 3);
         applicationAppManager.registerAMM(address(amm));
     }
 

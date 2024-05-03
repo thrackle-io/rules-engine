@@ -59,22 +59,24 @@ struct AdminMinTokenBalanceS{
 }
 
 struct TokenMaxSupplyVolatilityS{
-   mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
+   mapping(ActionTypes => bool) tokenMaxSupplyVolatility;
+   uint32 ruleId;
    uint64 lastSupplyUpdateTime;
    int256 volumeTotalForPeriod;
    uint256 totalSupplyForPeriod;
 }
 
 struct TokenMaxTradingVolumeS{
-   mapping(ActionTypes => Rule) tokenMaxTradingVolume;
+   mapping(ActionTypes => bool) tokenMaxTradingVolume;
+   uint32 ruleId;
    uint256 transferVolume;
    uint64 lastTransferTime;
 }
 
 struct TokenMaxDailyTradesS{
    mapping(ActionTypes => Rule) tokenMaxDailyTrades;
-   mapping(uint256 => uint256) tradesInPeriod;
-   mapping(uint256 => uint64) lastTxDate;
+   mapping(uint32 => mapping(uint256 => uint256)) tradesInPeriod;
+   mapping(uint32 => mapping(uint256 => uint64)) lastTxDate;
 }
 
 struct TokenMinHoldTime{
