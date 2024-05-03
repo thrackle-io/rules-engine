@@ -4,7 +4,7 @@ set -e
 SCRIPT_MODE=$1
 
 source ~/.bashrc
-foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2
+foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt

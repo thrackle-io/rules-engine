@@ -1,0 +1,2 @@
+# Pins a Foundry version (via commit hash), until they provide versions: https://github.com/foundry-rs/foundry/issues/3895
+63072bec5225654001a83fac44f789bd958ce491

@@ -9,7 +9,7 @@ This guide is intended to be a user-friendly introduction to the rules protocol.
 ## Installation and Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install Python 3.11, Homebrew, and then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
 
-`foundryup --version nightly-e0ea59cae26d945445d9cf21fdf22f4a18ac5bb2` 
+`foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)` 
 
 `pip3 install -r requirements.txt`
 
