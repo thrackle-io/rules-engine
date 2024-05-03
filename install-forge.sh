@@ -4,7 +4,7 @@ set -e
 SCRIPT_MODE=$1
 
 source ~/.bashrc
-foundryup --commit 721eb94
+foundryup --version nightly-d495216638c0adaa3df76190a6835537c579304d
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
