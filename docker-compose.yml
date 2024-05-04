@@ -5,7 +5,8 @@ services:
   anvil:
     build:
       context: .
-      dockerfile: Dockerfile.anvil
+      dockerfile: Dockerfile
+      target: anvil
     environment:
       FOUNDRY_PROFILE: docker
       RUST_LOG: backend,api,node,rpc=warn
@@ -17,6 +18,7 @@ services:
       - anvil
     build:
       context: .
-      dockerfile: Dockerfile.deploymentCheck
+      dockerfile: Dockerfile
+      target: deploy-tron
     environment:
       FOUNDRY_PROFILE: docker
