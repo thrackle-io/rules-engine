@@ -1247,7 +1247,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user1, 0);
     }
     /**
-     * This test makes sure that the initial date is set correctly when the transfer from is a Treasury Account.
+     * This test makes sure that the initial date is set correctly when the transfer from is a RuleBypass Account.
      */
     function testERC721_ERC721CommonTests_TokenMinHoldTime_FromTreasuryOrigin() public endWithStopPrank {
         /// set the rule for 24 hours
