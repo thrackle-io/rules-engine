@@ -1,8 +1,8 @@
 # ERC20HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
 
 **Inherits:**
-[HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerAdminMinTokenBalance](/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)
+[HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)
 
 
 ## Functions

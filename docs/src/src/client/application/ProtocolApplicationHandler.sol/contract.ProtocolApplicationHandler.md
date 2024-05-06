@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
@@ -134,8 +134,6 @@ mapping(address => uint64) lastTxDateRiskRule;
 
 
 ### usdValueTotalWithrawals
-AdminMinTokenBalanceRule data
-
 
 ```solidity
 mapping(address => uint128) usdValueTotalWithrawals;

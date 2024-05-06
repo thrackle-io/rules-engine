@@ -1,5 +1,5 @@
 # RuleApplicationValidationFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
 
 **Inherits:**
 ERC173
@@ -120,37 +120,6 @@ function getTotalAccountMaxTradeSize() internal view returns (uint32);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
-
-
-### validateAdminMinTokenBalance
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_actions`|`ActionTypes[]`||
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalAdminMinTokenBalance
-
-*Function to get total Admin Min Token Balance rules*
-
-
-```solidity
-function getTotalAdminMinTokenBalance() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
 ### validateTokenMinTxSize

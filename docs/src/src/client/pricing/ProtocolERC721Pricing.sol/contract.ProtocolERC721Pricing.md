@@ -1,5 +1,5 @@
 # ProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/pricing/ProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/pricing/ProtocolERC721Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/common/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)

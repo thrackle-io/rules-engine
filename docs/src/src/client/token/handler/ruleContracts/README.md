@@ -6,7 +6,6 @@
 - [HandlerAccountApproveDenyOracle constants](HandlerAccountApproveDenyOracle.sol/constants.HandlerAccountApproveDenyOracle.md)
 - [HandlerAccountMaxTradeSize](HandlerAccountMaxTradeSize.sol/contract.HandlerAccountMaxTradeSize.md)
 - [HandlerAccountMinMaxTokenBalance](HandlerAccountMinMaxTokenBalance.sol/contract.HandlerAccountMinMaxTokenBalance.md)
-- [HandlerAdminMinTokenBalance](HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md)
 - [HandlerBase](HandlerBase.sol/contract.HandlerBase.md)
 - [HandlerRuleContractsCommonImports](HandlerRuleContractsCommonImports.sol/abstract.HandlerRuleContractsCommonImports.md)
 - [HandlerTokenMaxBuySellVolume](HandlerTokenMaxBuySellVolume.sol/contract.HandlerTokenMaxBuySellVolume.md)

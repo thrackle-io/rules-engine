@@ -1,5 +1,5 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/token/handler/ruleContracts/Fees.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/token/handler/ruleContracts/Fees.sol)
 
 **Inherits:**
 [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IFeesErrors](/src/common/IErrors.sol/interface.IFeesErrors.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md)

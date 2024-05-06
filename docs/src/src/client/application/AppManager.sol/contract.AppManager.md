@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -597,26 +597,13 @@ function addMultipleRuleBypassAccounts(address[] memory _accounts) external only
 
 ### renounceRuleBypassAccount
 
-This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
+This function renounces the rule bypass account. Rule Bypass Accounts cannot renounce role while rule is active.
 
 *Remove oneself from the rule bypass account role.*
 
 
 ```solidity
 function renounceRuleBypassAccount() external nonReentrant;
-```
-
-### checkForAdminMinTokenBalanceCapable
-
-If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
-
-*Loop through all the registered tokens, if they are capable of admin min token balance, see if it's active. If so, revert*
-
-*ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules.*
-
-
-```solidity
-function checkForAdminMinTokenBalanceCapable() internal;
 ```
 
 ### isAccessLevelAdmin

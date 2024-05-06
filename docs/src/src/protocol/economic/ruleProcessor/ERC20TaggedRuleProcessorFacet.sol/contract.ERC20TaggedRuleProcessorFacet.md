@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -193,62 +193,6 @@ function getTotalAccountMinMaxTokenBalances() public view returns (uint32);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
-
-
-### checkAdminMinTokenBalance
-
-that the function will revert if the check finds a violation of the rule, but won't give anything
-back if everything checks out.
-
-*Checks that an admin won't hold less tokens than promised until a certain date*
-
-
-```solidity
-function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`currentBalance`|`uint256`|of tokens held by the admin|
-|`amount`|`uint256`|Number of tokens to be transferred|
-
-
-### getAdminMinTokenBalance
-
-*Function gets AdminMinTokenBalance rule at index*
-
-
-```solidity
-function getAdminMinTokenBalance(uint32 _index) public view returns (TaggedRules.AdminMinTokenBalance memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_index`|`uint32`|position of rule in array|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`TaggedRules.AdminMinTokenBalance`|adminMinTokenBalanceRules rule at indexed postion|
-
-
-### getTotalAdminMinTokenBalance
-
-*Function to get total AdminMinTokenBalance rules*
-
-
-```solidity
-function getTotalAdminMinTokenBalance() public view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
 ### checkAccountMaxTradeSize

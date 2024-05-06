@@ -40,7 +40,6 @@
 - [TokenMaxBuySellVolumeS](RuleStorage.sol/struct.TokenMaxBuySellVolumeS.md)
 - [AccountMinMaxTokenBalanceHandlerS](RuleStorage.sol/struct.AccountMinMaxTokenBalanceHandlerS.md)
 - [HandlerBaseS](RuleStorage.sol/struct.HandlerBaseS.md)
-- [AdminMinTokenBalanceS](RuleStorage.sol/struct.AdminMinTokenBalanceS.md)
 - [TokenMaxSupplyVolatilityS](RuleStorage.sol/struct.TokenMaxSupplyVolatilityS.md)
 - [TokenMaxTradingVolumeS](RuleStorage.sol/struct.TokenMaxTradingVolumeS.md)
 - [TokenMaxDailyTradesS](RuleStorage.sol/struct.TokenMaxDailyTradesS.md)

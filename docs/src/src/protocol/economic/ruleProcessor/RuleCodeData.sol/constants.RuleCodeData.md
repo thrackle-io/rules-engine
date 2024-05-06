@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
 
 ### AMM_FEE
 
@@ -23,12 +23,6 @@ bytes32 constant TOKEN_MAX_BUY_SELL_VOLUME = "TOKEN_MAX_BUY_SELL_VOLUME";
 
 ```solidity
 bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE = "ACCOUNT_MIN_MAX_TOKEN_BALANCE";
-```
-
-### ADMIN_MIN_TOKEN_BALANCE
-
-```solidity
-bytes32 constant ADMIN_MIN_TOKEN_BALANCE = "ADMIN_MIN_TOKEN_BALANCE";
 ```
 
 ### ACC_MAX_VALUE_BY_ACCESS_LEVEL

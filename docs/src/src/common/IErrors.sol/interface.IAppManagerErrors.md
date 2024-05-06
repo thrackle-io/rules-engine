@@ -1,5 +1,5 @@
 # IAppManagerErrors
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/common/IErrors.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/common/IErrors.sol)
 
 **Inherits:**
 [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md)
@@ -34,12 +34,6 @@ error NotAUser(address _address);
 
 ```solidity
 error AddressAlreadyRegistered();
-```
-
-### AdminMinTokenBalanceisActive
-
-```solidity
-error AdminMinTokenBalanceisActive();
 ```
 
 ### NotRegisteredHandler

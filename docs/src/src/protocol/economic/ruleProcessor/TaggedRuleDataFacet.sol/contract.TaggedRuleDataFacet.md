@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -145,34 +145,6 @@ function _addAccountMinMaxTokenBalance(
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|position of new rule in array|
-
-
-### addAdminMinTokenBalance
-
-Admin Min Token Balance **********
-
-*Function adds Admin Min Token Balance rule*
-
-
-```solidity
-function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime)
-    external
-    ruleAdministratorOnly(_appManagerAddr)
-    returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_amount`|`uint256`|Minimum amount of token to hold to|
-|`_endTime`|`uint256`|Date of release|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|adminMinTokenBalance Rules position of new rule in array|
 
 
 ### addTokenMaxDailyTrades
