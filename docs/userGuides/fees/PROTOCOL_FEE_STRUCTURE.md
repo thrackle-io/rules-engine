@@ -10,7 +10,7 @@ Fees are applied to accounts via general tags in the [AppMananger](../../../src/
 
 Protocol supported tokens will always assess all fees asigned to the account executing the current function. If a token has fees active and an account is tagged with applicable fees or a blank tag is used to assign a default fee, those fees are assessed on token transfers (additive). Token fees are assessed and taken from the token itself, not a collateralized token, when fees are active in the token handler. 
 
-Fees are transferred to fee sink addresses when a fee is created for the token. These addresses will be subject to all active token and application level [rules](../rules/README.md). If a fee sink address is determined to be exempt from rules an [application administrator](../permissions/ADMIN-ROLES.md) can grant the role of Treasury Account to that address. 
+Fees are transferred to fee sink addresses when a fee is created for the token. These addresses will be subject to all active token and application level [rules](../rules/README.md). In order for fees to function in conjunction with other enabled rules, it is recommended the fee sink address be granted the role of [Treasury Account](../permissions/ADMIN-ROLES.md). If a fee sink address is granted the Treasury account role, that address will be exempt from all rule checks. 
 
 
 ## Applies To:
