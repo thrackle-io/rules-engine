@@ -37,7 +37,7 @@ Additionally, each starting unix timestamp for the ownership of the tokenId is s
 /// Minimum Hold time data
     mapping(uint256 => uint256) ownershipStart;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 
 ## Configuration and Enabling/Disabling
@@ -84,7 +84,7 @@ function setTokenMinHoldTime(
             uint32 _minHoldTimeHours
         ) external ruleAdministratorOnly(_appManagerAddr);
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 
 ### Parameters:
@@ -104,7 +104,7 @@ The following validation will be carried out by the create function in order to 
 - `_minHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
 
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Other Functions:
 

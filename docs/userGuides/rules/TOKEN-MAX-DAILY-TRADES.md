@@ -191,14 +191,14 @@ This rule returns a new tradesInPeriod(uint256) to the token handler on success.
 ```c
 mapping(uint256 => uint256) tradesInPeriod;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 ### Data Recorded
 
 This rule requires that the handler record the timestamp for each tokenId's last trade. This is recorded only after the rule is activated and after each successful transfer. 
 ```c
 mapping(uint256 => uint64) lastTxDate;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 ### Events
 
 - **event AD1467_ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 

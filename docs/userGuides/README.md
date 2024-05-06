@@ -44,7 +44,7 @@ And you are done!
 |[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules protocol. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
 
 ## API 
-API documentation for the smart contract suite can be found [here](src/src/README.md).
+API documentation for the smart contract suite can be found [here](../src/src/README.md).
 
 ## Deployment Scripts
 
@@ -229,7 +229,7 @@ Formatting at the commandline:
 [fees-url]: ./fees/README.md
 [riskScore-url]: ./riskScore/README.md
 [glossary-url]: ./GLOSSARY.md
-[handlerGuide-url]: ./Architecture/Client/Application/APPLICATION-HANDLER.md
+[handlerGuide-url]: ./architecture/client/application/APPLICATION-HANDLER.md
 [fungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md
 [nonfungibleTokenHandlerGuide-url]: ./architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md
 

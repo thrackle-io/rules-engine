@@ -27,7 +27,7 @@ bash script/ParseApplicationDeploy.sh 5
 
 (add the --rpc-url argument to the end of each of the forge commands to point the scripts to the chain you would like to deploy on)
 
-This process can be automated by running the [DeployExampleApplication.sh](../.././script/deploy/DeployExampleApplication.sh) script.
+This process can be automated by running the [DeployExampleApplication.sh](../../../script/deploy/DeployExampleApplication.sh) script.
 
 ### Contracts Deployed
 
