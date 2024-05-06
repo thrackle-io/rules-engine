@@ -23,7 +23,7 @@ import "../handler/diamond/ERC20HandlerMainFacet.sol";
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
     /// Max supply should only be set once. Zero means infinite supply.
     // slither-disable-next-line constable-states
-    uint256 MAX_SUPPLY;
+    uint256 maxSupply;
 
     /**
      * @dev Constructor sets name and symbol for the ERC20 token and makes connections to the protocol.
@@ -158,7 +158,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Protocol
         if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
-        if (MAX_SUPPLY > 0 && totalSupply() + amount > MAX_SUPPLY) {
+        if (maxSupply > 0 && totalSupply() + amount > maxSupply) {
             revert ExceedingMaxSupply();
         }
         _mint(to, amount);
@@ -185,14 +185,14 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Protocol
      * @param _maxSupply maximum supply of tokens allowed.
      */
     function setMaxSupply(uint256 _maxSupply) external appAdministratorOnly(appManagerAddress) {
-        MAX_SUPPLY = _maxSupply;
+        maxSupply = _maxSupply;
     }
 
     /**
      * @dev Function gets the Max Supply for tokens.
      */
     function getMaxSupply() external view returns (uint256) {
-        return MAX_SUPPLY;
+        return maxSupply;
     }
 
     /**

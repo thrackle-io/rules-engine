@@ -18,7 +18,7 @@ contract VersionFacet is ERC173 {
     * versioning format: --> "MAJOR.MINOR.PATCH".
     */
     function updateVersion(string memory newVersion) external onlyOwner{
-        lib.versionStorage().VERSION = newVersion;
+        lib.versionStorage().version = newVersion;
     }
 
     /**
@@ -26,7 +26,7 @@ contract VersionFacet is ERC173 {
     * @return string version.
     */
     function version() external view returns(string memory){
-        return lib.versionStorage().VERSION;
+        return lib.versionStorage().version;
     }
 
 
