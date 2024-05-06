@@ -306,7 +306,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Remove oneself from the rule bypass account role.
-     * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
+     * @notice This function renounces the rule bypass account. Rule Bypass Accounts cannot renounce role while rule is active.
      */
     function renounceRuleBypassAccount() external nonReentrant {
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been

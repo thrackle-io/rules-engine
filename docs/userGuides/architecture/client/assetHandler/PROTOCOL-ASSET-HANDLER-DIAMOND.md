@@ -42,10 +42,6 @@ function proposeAppManagerAddress(address _newAppManagerAddress) external appAdm
 ```
 
 
-#### Handler Admin Min Token Balance
-The Admin Min Token Balance contract contains functions to set the [Admin Min Token Balance Rule](../../../rules/ADMIN-MIN-TOKEN-BALANCE.md). 
-
-
 #### Handler Utils 
 This contract holds utility functions for the handler diamond. The first is to determine the action type of the transaction. The second is to determine if an address in the transaction is a contract or externally owned account. 
 
