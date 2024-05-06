@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/29c0f577f4a40a4ed7ae1702ee35ca11ff1ccfaf/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/570e509b7dae1b89ffe858956bb3df9bbac2510a/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -13,12 +13,12 @@ This is the base contract for all protocol ERC20s
 
 
 ## State Variables
-### MAX_SUPPLY
+### maxSupply
 Max supply should only be set once. Zero means infinite supply.
 
 
 ```solidity
-uint256 MAX_SUPPLY;
+uint256 maxSupply;
 ```
 
 
