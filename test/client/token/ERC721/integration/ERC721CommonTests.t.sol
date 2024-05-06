@@ -1007,86 +1007,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user3, 2);
     }
 
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Negative() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        switchToRuleBypassAccount();
-        /// This one fails
-        bytes4 selector = bytes4(keccak256("UnderMinBalance()"));
-        vm.expectRevert(abi.encodeWithSelector(selector));
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
-    }
-
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Period() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        switchToRuleBypassAccount();
-        /// Move Time forward 366 days
-        vm.warp(Blocktime + 366 days);
-
-        /// Transfers and updating rules should now pass
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
-    }
-
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Burn_Positive() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        vm.warp(Blocktime + 366 days);
-        switchToRuleBypassAccount();
-        ERC721Burnable(address(testCaseNFT)).burn(2);
-    }
-
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Burn_Negative() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        switchToRuleBypassAccount();
-        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-        ERC721Burnable(address(testCaseNFT)).burn(2);
-    }
-
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Sell_Positive() public endWithStopPrank {
-        switchToAppAdministrator();
-        amm = new DummyNFTAMM();
-        for (uint i; i < 10; i++) {
-            ProtocolERC721(address(testCaseNFT)).safeMint(address(amm));
-        }
-        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
-        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
-        applicationCoin.mint(ruleBypassAccount, 1000 * ATTO);
-        for (uint i; i < 6; i++) {
-            ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
-        }
-        assertEq(testCaseNFT.balanceOf(ruleBypassAccount), 6);
-        applicationAppManager.registerAMM(address(amm));
-        switchToAppAdministrator();
-        _adminMinTokenBalanceSetupNoMints();
-        vm.warp(Blocktime + 366 days);
-        switchToRuleBypassAccount();
-        testCaseNFT.setApprovalForAll(address(amm), true);
-        applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
-    }
-
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Sell_Negative() public endWithStopPrank {
-        switchToAppAdministrator();
-        amm = new DummyNFTAMM();
-        for (uint i; i < 10; i++) {
-            ProtocolERC721(address(testCaseNFT)).safeMint(address(amm));
-        }
-        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
-        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
-        applicationCoin.mint(ruleBypassAccount, 1000 * ATTO);
-        for (uint i; i < 6; i++) {
-            ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
-        }
-        assertEq(testCaseNFT.balanceOf(ruleBypassAccount), 6);
-        applicationAppManager.registerAMM(address(amm));
-        switchToAppAdministrator();
-        _adminMinTokenBalanceSetupNoMints();
-        switchToRuleBypassAccount();
-        testCaseNFT.setApprovalForAll(address(amm), true);
-        applicationCoin.approve(address(amm), 10 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 12, false);
-        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 1, 11, false);
-    }
-
     function testERC721_ERC721CommonTests_TransferVolumeRule_Negative() public endWithStopPrank {
         _transferVolumeRuleSetup();
         vm.startPrank(user1);
@@ -2686,35 +2606,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user3, user2, 3); ///User 3 has min limit of 3
         testCaseNFT.safeTransferFrom(user3, user1, 1);
         assertEq(testCaseNFT.balanceOf(user3), 3);
-    }
-
-    function _adminMinTokenBalanceSetup() public endWithStopPrank {
-        switchToAppAdministrator();
-        /// Mint TokenId 0-6 to super admin
-        for (uint i; i < 7; i++) {
-            ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
-        }
-        /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        switchToRuleAdmin();
-        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        vm.expectRevert(0xd66c3008);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-
-        switchToRuleBypassAccount();
-        /// These transfers should pass
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 1);
-    }
-
-    function _adminMinTokenBalanceSetupNoMints() public endWithStopPrank {
-        /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        switchToRuleAdmin();
-        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
     }
 
     function _transferVolumeRuleSetup() public endWithStopPrank {

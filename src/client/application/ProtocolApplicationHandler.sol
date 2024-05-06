@@ -58,7 +58,6 @@ contract ProtocolApplicationHandler is
     /// MaxTxSizePerPeriodByRisk data
     mapping(address => uint128) usdValueTransactedInRiskPeriod;
     mapping(address => uint64) lastTxDateRiskRule;
-    /// AdminMinTokenBalanceRule data
     mapping(address => uint128) usdValueTotalWithrawals;
 
     /**

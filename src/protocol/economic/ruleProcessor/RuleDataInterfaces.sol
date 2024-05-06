@@ -73,12 +73,6 @@ interface ITaggedRules {
         uint16 period; /// hours
     }
 
-    /// ******** Admin Min Token Balance ********
-    struct AdminMinTokenBalance {
-        uint256 amount;
-        uint256 endTime; /// timestamp
-    }
-
     /// ******** TokenMaxDailyTrades ********
     struct TokenMaxDailyTrades {
         uint8 tradesAllowedPerDay;

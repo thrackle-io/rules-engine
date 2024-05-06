@@ -22,7 +22,6 @@ The diamond pattern allows the handler to upgrade, add new features and improvem
 
 Each asset handler diamond will inherit from the following contracts: 
 - [HandlerBase.sol](../../../../../src/client/token/handler/ruleContracts/HandlerBase.sol)
-- [HandlerAdminMinTokenBalance.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol) 
 - [HandlerUtils.sol](../../../../../src/client/token/handler/common/HandlerUtils.sol)
 - [HandlerDiamondLib.sol](../../../../../src/client/token/handler/diamond/HandlerDiamondLib.sol) 
 - [RuleStorage.sol](../../../../../src/client/token/handler/diamond/RuleStorage.sol)
@@ -41,10 +40,6 @@ function proposeAppManagerAddress(address _newAppManagerAddress) external appAdm
 ```c
  function confirmAppManagerAddress() external
 ```
-
-
-#### Handler Admin Min Token Balance
-The Admin Min Token Balance contract contains functions to set the [Admin Min Token Balance Rule](../../../rules/ADMIN-MIN-TOKEN-BALANCE.md). 
 
 
 #### Handler Utils 

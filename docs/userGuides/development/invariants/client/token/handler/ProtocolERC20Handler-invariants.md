@@ -7,8 +7,6 @@ This document covers all the facets for the ERC20 handler, its rules, and the in
 
 - Only the connected ERC20 can access checkAllRules
 - Can only be initialized once
-- When AdminMinTokenBalance rule is active, it applies to RuleBypassAccounts
-- All active rule processing except AdminMinTokenBalance is skipped for RuleBypassAccounts
 - All transfers are allowed to a registered treasury account
 - When a rule is set, its status is active.
 - 10 AccountAllowDenyOracle may be applied per action.

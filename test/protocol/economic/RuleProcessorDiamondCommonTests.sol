@@ -606,40 +606,6 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         assertEq(result, _indexes.length);
     }
 
-    /**************** AdminMinTokenBalance Rule Testing  ****************/
-    /// Test Adding AdminMinTokenBalance Rule endTime: block.timestamp + 10000
-    function testProtocol_RuleProcessorDiamond_AddAdminMinTokenBalanceStorage_Positive() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToSuperAdmin();
-        applicationAppManager.addAppAdministrator(address(22));
-        switchToRuleAdmin();
-        assertEq(applicationAppManager.isAppAdministrator(address(22)), true);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5000, block.timestamp + 10000);
-        TaggedRules.AdminMinTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminMinTokenBalance(_index);
-        assertEq(rule.amount, 5000);
-        assertEq(rule.endTime, block.timestamp + 10000);
-    }
-
-    /// Test Adding AdminMinTokenBalance Rule while not admin
-    function testProtocol_RuleProcessorDiamond_AdminMinTokenBalanceNotPassingNotAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToUser();
-        vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 6500, 1669748600);
-    }
-
-    /// Test Get Total Admin Withdrawal Rules
-    function testProtocol_RuleProcessorDiamond_AdminMinTokenBalanceTotal() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToRuleAdmin();
-        uint256[101] memory _indexes;
-        uint256 amount = 1000;
-        uint256 endTime = block.timestamp + 10000;
-        for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), amount, endTime);
-        }
-        uint256 result;
-        result = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAdminMinTokenBalance();
-        assertEq(result, _indexes.length);
-    }
-
     /***************** RULE PROCESSING *****************/
     /// Test Token Min Transaction Size while not admin
     function testProtocol_RuleProcessorDiamond_TokenMinTransactionSizeNotPassingByNonAdmin() public endWithStopPrank ifDeploymentTestsEnabled {

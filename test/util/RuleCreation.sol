@@ -21,7 +21,6 @@ abstract contract RuleCreation is TestCommonFoundry {
     AccountMaxValueByRisk
     AccountMaxValueOutByAccessLevel
     AccountMin/MaxTokenBalanceRule
-    AdminMinTokenBalance
     TokenMaxBuySellVolume
     TokenMaxDailyTradesRule
     TokenMaxSellVolume
@@ -146,15 +145,6 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), ruleTags, minAmounts, maxAmounts, periods, uint64(Blocktime));
         TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTags[0]);
         assertEq(rule.max, maxAmounts[0]);
-        vm.stopPrank();
-        return ruleId;
-    }
-
-    function createAdminMinTokenBalanceRule(uint256 adminWithdrawalTotal, uint64 period) public returns (uint32) {
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), adminWithdrawalTotal, period);
-        TaggedRules.AdminMinTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminMinTokenBalance(ruleId);
-        assertEq(rule.amount, adminWithdrawalTotal);
         vm.stopPrank();
         return ruleId;
     }

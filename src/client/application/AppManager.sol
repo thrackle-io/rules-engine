@@ -16,7 +16,6 @@ import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/application/data/IDataModule.sol";
-import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
 import {IAppLevelEvents, IApplicationEvents} from "src/common/IEvents.sol";
@@ -139,10 +138,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) nonReentrant {
         /// enforcing the min-1-admin requirement.
         if (role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
-        // applied to this function
-        // slither-disable-next-line reentrancy-benign
-        if (role == RULE_BYPASS_ACCOUNT) checkForAdminMinTokenBalanceCapable();
         // slither-disable-next-line reentrancy-events
         AccessControl.revokeRole(role, account);
     }
@@ -311,33 +306,15 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev Remove oneself from the rule bypass account role.
-     * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
+     * @notice This function renounces the rule bypass account. Rule Bypass Accounts cannot renounce role while rule is active.
      */
     function renounceRuleBypassAccount() external nonReentrant {
-        /// If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
-        checkForAdminMinTokenBalanceCapable();
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-benign
         renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
         // slither-disable-next-line reentrancy-events
         emit AD1467_RuleBypassAccount(_msgSender(), false);
-    }
-
-    /**
-     * @dev Loop through all the registered tokens, if they are capable of admin min token balance, see if it's active. If so, revert
-     * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules.
-     */
-    function checkForAdminMinTokenBalanceCapable() internal {
-        uint256 length = tokenList.length;
-        for (uint256 i; i < length; ++i) {
-            // check to see if supports the rule first
-            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminMinTokenBalanceCapable).interfaceId)) {
-                if (IAdminMinTokenBalanceCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminMinTokenBalanceActiveAndApplicable()) {
-                    revert AdminMinTokenBalanceisActive();
-                }
-            }
-        }
     }
 
     /// -------------ACCESS LEVEL---------------
