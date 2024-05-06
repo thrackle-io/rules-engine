@@ -207,7 +207,7 @@ This rule does not require any data to be recorded.
         - handlerAddress: the address of the application handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
         - ruleType: "BALANCE_BY_RISK".

@@ -242,7 +242,7 @@ mapping(address => uint64) lastTxDateRiskRule;
         - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
-- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
         - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
