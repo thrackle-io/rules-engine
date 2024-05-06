@@ -28,7 +28,7 @@ And you are done!
 
 | Document | Description |
 |----------|-------------|
-|[Access Level Guide][accessLevel-url]| This section contains documents on access levels, a feature that allows you to enable and block access according to broadly defined conditions, useful for game onboarding and compliance processes.|
+|[Access Level Guide][accessLevel-url]| This section contains documents on access levels, a feature that allows you to enable and block access according to broadly defined conditions, useful for application onboarding and compliance processes.|
 |[Admin Roles][adminRoles-url]| This section contains documentation on what admin roles are available and gives you the information you need on to configure how your application will be governed and administered.|
 |[Application Handler Guide][handlerGuide-url] | This teaches you about the application handler and how it works within the context of the main protocol. This is critical to understand if you're going to go about creating your own custom rules.|
 |[Architecture Overview][archOverview-url]| For pretty diagrams that show the process of the protocol and the overall architecture, look here.|
@@ -103,7 +103,7 @@ Be sure to [set environmental variables](./deployment/SET-ENVIRONMENT.md) and so
 `scripts/deploy/DeployProtocol.sh`
 This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
 
-#### Deploy Some Test Game Tokens
+#### Deploy Some Test Application Tokens
 
 `script/clientScripts/Application_Deploy_01_AppManager.s.sol`
 `script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol`
@@ -111,7 +111,7 @@ This script is responsible for deploying all the protocol contracts. Take into a
 `script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol`
 `script/clientScripts/Application_Deploy_05_Oracle.s.sol`
 `script/clientScripts/Application_Deploy_06_Pricing.s.sol`
-These scripts deploy the contracts that are specific for games, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
+These scripts deploy the contracts that are specific for applications, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
 
 If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
@@ -163,7 +163,7 @@ Repeat the process for each desired test. If a configuration error is encountere
 
 ### Other Relevant Scripts
 
-Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/games through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` directory. On the other hand, `src/example/script/` will hold the files that are related to specific implementations like tokens, AppManager, AppHandler, etc.
+Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/applications through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` directory. On the other hand, `src/example/script/` will hold the files that are related to specific implementations like tokens, AppManager, AppHandler, etc.
 
 ---
 ## Command Tools

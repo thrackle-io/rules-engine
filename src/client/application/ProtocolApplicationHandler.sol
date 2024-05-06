@@ -344,8 +344,6 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
-            // slither-disable-next-line calls-loop
-            ruleProcessor.validateAccountMaxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
@@ -371,7 +369,6 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(createActionTypesArray(_action), _ruleId);
         accountMaxValueByRiskScore[_action].ruleId = _ruleId;
         accountMaxValueByRiskScore[_action].active = true;
         emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_RISK_SCORE, _ruleId);
@@ -505,8 +502,6 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
-            // slither-disable-next-line calls-loop
-            ruleProcessor.validateAccountMaxValueByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
