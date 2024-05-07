@@ -1,5 +1,5 @@
 # ICommonApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13349942d6b36cb5b881624be044b28167a194cf/src/common/IEvents.sol)
 
 Common Application Handler Events Library
 
@@ -35,9 +35,9 @@ event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
 event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes[] actions);
 ```
 
-### AD1467_RulesBypassedViaRuleBypassAccount
+### AD1467_RulesBypassedViaTreasuryAccount
 
 ```solidity
-event AD1467_RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
+event AD1467_RulesBypassedViaTreasuryAccount(address indexed treasuryAccount, address indexed appManager);
 ```
 

@@ -1,5 +1,5 @@
 # IApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13349942d6b36cb5b881624be044b28167a194cf/src/common/IEvents.sol)
 
 Application Handler Events Library
 
@@ -28,9 +28,7 @@ event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexe
 ### AD1467_ApplicationRuleAppliedFull
 
 ```solidity
-event AD1467_ApplicationRuleAppliedFull(
-    bytes32 indexed ruleType, ActionTypes[] indexed action, uint32[] indexed ruleId
-);
+event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);
 ```
 
 ### AD1467_ERC721PricingAddressSet

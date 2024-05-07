@@ -1,5 +1,5 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/token/handler/ruleContracts/Fees.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13349942d6b36cb5b881624be044b28167a194cf/src/client/token/handler/ruleContracts/Fees.sol)
 
 **Inherits:**
 [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IFeesErrors](/src/common/IErrors.sol/interface.IFeesErrors.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md)
@@ -103,7 +103,7 @@ different target accounts. Since struct arrays cannot be function parameters for
 function getApplicableFees(address _from, uint256 _balanceFrom)
     public
     view
-    returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages);
+    returns (address[] memory feeSinks, int24[] memory feePercentages);
 ```
 **Parameters**
 
@@ -116,7 +116,7 @@ function getApplicableFees(address _from, uint256 _balanceFrom)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`feeCollectorAccounts`|`address[]`|list of where the fees are sent|
+|`feeSinks`|`address[]`|list of where the fees are sent|
 |`feePercentages`|`int24[]`|list of all applicable fees/discounts|
 
 

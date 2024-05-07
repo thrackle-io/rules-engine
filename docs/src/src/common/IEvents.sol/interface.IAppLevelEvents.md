@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13349942d6b36cb5b881624be044b28167a194cf/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -76,10 +76,10 @@ event AD1467_AppAdministrator(address indexed admin, bool indexed add);
 event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
 ```
 
-### AD1467_RuleBypassAccount
+### AD1467_TreasuryAccount
 
 ```solidity
-event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
+event AD1467_TreasuryAccount(address indexed treasuryAccount, bool indexed add);
 ```
 
 ### AD1467_AppNameChanged
@@ -106,12 +106,6 @@ event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
 
 ```solidity
 event AD1467_AMMRegistered(address indexed _address);
-```
-
-### AD1467_TreasuryRegistered
-
-```solidity
-event AD1467_TreasuryRegistered(address indexed _address);
 ```
 
 ### AD1467_TradingRuleAddressAllowlist

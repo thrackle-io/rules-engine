@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/4e6a814efa6ccf934f63826b54087808a311218d/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13349942d6b36cb5b881624be044b28167a194cf/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -116,7 +116,7 @@ function mint(address to, uint256 amount) public virtual;
 
 ### flashLoan
 
-Check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
+Check that the address calling mint is an authorized appAdminstrator
 
 *This function is overridden here as a guarantee that flashloans are not allowed. This is done in case they are enabled at a later time.*
 
