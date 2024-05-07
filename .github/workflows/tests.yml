@@ -23,6 +23,9 @@ jobs:
           submodules: recursive
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          # May 2, 2024 - Must be a release (nightly) tag
+          version: nightly-f625d0fa7c51e65b4bf1e8f7931cd1c6e2e285e9 
 
       - name: Install dependencies
         run: |
