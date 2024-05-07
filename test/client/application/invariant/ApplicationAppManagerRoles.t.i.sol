@@ -88,7 +88,7 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         switchToAppAdministrator();
         vm.expectEmit();
         emit AD1467_AppAdministrator(appAdministrator, false);
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
     }
 
     /** RULE ADMIN */
@@ -124,7 +124,7 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         switchToRuleAdmin();
         vm.expectEmit();
         emit AD1467_RuleAdmin(ruleAdmin, false);
-        applicationAppManager.renounceRuleAdministrator();
+        applicationAppManager.renounceRole(RULE_ADMIN_ROLE, ruleAdmin);
     }
 
     /** RISK ADMIN */
@@ -160,7 +160,7 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         switchToRiskAdmin();
         vm.expectEmit();
         emit AD1467_RiskAdmin(riskAdmin, false);
-        applicationAppManager.renounceRiskAdmin();
+        applicationAppManager.renounceRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
     /** ACCESS LEVEL ADMIN */
@@ -196,7 +196,7 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         switchToAccessLevelAdmin();
         vm.expectEmit();
         emit AD1467_AccessLevelAdmin(accessLevelAdmin, false);
-        applicationAppManager.renounceAccessLevelAdmin();
+        applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
     /** TREASURY ACCOUNT   */
@@ -232,7 +232,7 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         switchToTreasuryAccount();
         vm.expectEmit();
         emit AD1467_TreasuryAccount(treasuryAccount, false);
-        applicationAppManager.renounceTreasuryAccount();
+        applicationAppManager.renounceRole(TREASURY_ACCOUNT, treasuryAccount);
     }
 
 }

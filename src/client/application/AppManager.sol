@@ -119,6 +119,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
         if (role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
         AccessControl.renounceRole(role, account);
+
+        if (role == APP_ADMIN_ROLE) emit AD1467_AppAdministrator(_msgSender(), false);
+        if (role == RULE_ADMIN_ROLE) emit AD1467_RuleAdmin(_msgSender(), false);
+        if (role == TREASURY_ACCOUNT) emit AD1467_TreasuryAccount(_msgSender(), false);
+        if (role == ACCESS_LEVEL_ADMIN_ROLE) emit AD1467_AccessLevelAdmin(_msgSender(), false);
+        if (role == RISK_ADMIN_ROLE) emit AD1467_RiskAdmin(_msgSender(), false);
     }
 
     /**
@@ -218,14 +224,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         }
     }
 
-    /**
-     * @dev Remove oneself from the app administrator role.
-     */
-    function renounceAppAdministrator() external {
-        renounceRole(APP_ADMIN_ROLE, _msgSender());
-        emit AD1467_AppAdministrator(_msgSender(), false);
-    }
-
     /// -------------RULE ADMIN---------------
 
     /**
@@ -255,14 +253,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addRuleAdministrator(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the rule admin role.
-     */
-    function renounceRuleAdministrator() external {
-        renounceRole(RULE_ADMIN_ROLE, _msgSender());
-        emit AD1467_RuleAdmin(_msgSender(), false);
     }
 
     /// -------------TREASURY ACCOUNT ---------------
@@ -296,19 +286,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         }
     }
 
-    /**
-     * @dev Remove oneself from the Treasury account role.
-     * @notice This function renounces the Treasury Account role.
-     */
-    function renounceTreasuryAccount() external nonReentrant {
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
-        // applied to this function
-        // slither-disable-next-line reentrancy-benign
-        renounceRole(TREASURY_ACCOUNT, _msgSender());
-        // slither-disable-next-line reentrancy-events
-        emit AD1467_TreasuryAccount(_msgSender(), false);
-    }
-
     /// -------------ACCESS LEVEL---------------
     /**
      * @dev This function is where the access level admin role is actually checked
@@ -337,14 +314,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addAccessLevelAdmin(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the access level role.
-     */
-    function renounceAccessLevelAdmin() external {
-        renounceRole(ACCESS_LEVEL_ADMIN_ROLE, _msgSender());
-        emit AD1467_AccessLevelAdmin(_msgSender(), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -376,14 +345,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addRiskAdmin(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the risk admin role.
-     */
-    function renounceRiskAdmin() external {
-        renounceRole(RISK_ADMIN_ROLE, _msgSender());
-        emit AD1467_RiskAdmin(_msgSender(), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------

@@ -140,7 +140,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertTrue(applicationAppManager.hasRole(APP_ADMIN_ROLE, admin)); // verify it was added as a app administrator
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.renounceAppAdministrator();
+            applicationAppManager.renounceRole(APP_ADMIN_ROLE, admin);
             assertFalse(applicationAppManager.isAppAdministrator(admin));
         }
     }
@@ -258,7 +258,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertFalse(applicationAppManager.isRiskAdmin(address(88)));
             vm.stopPrank(); //stop interacting as the app administrator
             vm.startPrank(random); //interact as the created risk admin
-            applicationAppManager.renounceRiskAdmin();
+            applicationAppManager.renounceRole(RISK_ADMIN_ROLE, random);
             assertFalse(applicationAppManager.isRiskAdmin(random));
         }
     }
@@ -354,7 +354,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
-            applicationAppManager.renounceAccessLevelAdmin();
+            applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, random);
             assertFalse(applicationAppManager.isAccessLevelAdmin(random));
         }
     }
