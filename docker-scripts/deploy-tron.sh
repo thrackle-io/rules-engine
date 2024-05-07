@@ -2,6 +2,10 @@
 set -e
 
 source ~/.bashrc
+
+## This script should only ever be run on a `compile-tron` or higher layer of the tron
+## Dockerfile, which is where this venv will have been created. If this script is run
+## in some other context it will fail on this line due to the missing venv. 
 source .venv/bin/activate
 
 source script/SetupProtocolDeploy.sh
@@ -24,4 +28,6 @@ forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --br
 source script/ParseApplicationDeploy.sh 5
 forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast
 
+# Keep the tron container running so that tron devs can exec into it and run
+# forge tests and other forge/cast/etc commands against a populated .env file
 tail -f /dev/null

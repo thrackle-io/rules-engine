@@ -1,6 +1,4 @@
 version: "3.8"
-# Please note that this docker compose is using the deploy-check tron container
-# which is separate from the "real" container that's used to deploy tron.
 services:
   anvil:
     build:
@@ -13,7 +11,7 @@ services:
     restart: unless-stopped
     ports:
       - "8545:8545"
-  tron-setup:
+  deploy:
     depends_on:
       - anvil
     build:
