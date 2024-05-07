@@ -170,13 +170,17 @@ contract ProtocolApplicationHandler is
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        // Exempting address(0) allows for minting.
-        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)  && _from != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-        /// Exempting address(0) allows for burning.
-        if (accountDenyForNoAccessLevel[_action].active && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+        if (accountDenyForNoAccessLevel[_action].active) {
+            if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+            if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            if (_action == ActionTypes.P2P_TRANSFER) {
+                ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+            }
+        }
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
-        if (accountMaxValueOutByAccessLevel[_action].active && !appManager.isRegisteredAMM(_from)) {
+        if (accountMaxValueOutByAccessLevel[_action].active) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
                 accountMaxValueOutByAccessLevel[_action].ruleId,
                 fromScore,

@@ -16,7 +16,7 @@ contract ApplicationAppManagerDataInvariantTest is TestCommonFoundry {
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
         applicationAppManager.addRiskAdmin(riskAdmin);
         applicationAppManager.addRuleAdministrator(ruleAdmin);
-        applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
+        applicationAppManager.addTreasuryAccount(treasuryAccount);
         applicationAppManager.addTag(bob,bytes32("TAG"));
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(bob, 4);
@@ -24,7 +24,7 @@ contract ApplicationAppManagerDataInvariantTest is TestCommonFoundry {
         targetSender(accessLevelAdmin);
         targetSender(riskAdmin);
         targetSender(ruleAdmin);
-        targetSender(ruleBypassAccount);
+        targetSender(treasuryAccount);
     }
 
     /** ACCESS LEVELS **********/

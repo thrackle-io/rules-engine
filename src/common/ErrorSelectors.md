@@ -107,9 +107,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0xfa006f25 | OverMaxVolume()                                                  |
 | 0x009da0ce | OverMaxTradingVolume()                                           |
 | 0xa93074f9 | MintFeeNotReached()                                              |
-| 0x834f37b6 | TreasuryAddressCannotBeTokenContract()                           |
 | 0xbd1c60b0 | OnlyOwnerCanMint()                                               |
-| 0xf726ee2d | TreasuryAddressNotSet()                                          |
 | 0xc406d470 | OverMaxSupplyVolatility()                                        |
 | 0x5f98112f | UnderHoldPeriod()                                                |
 | 0x771d7f93 | PeriodExceeds5Years()                                            |
@@ -126,7 +124,6 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0xc3771360 | CannotWithdrawZero()                                             |
 | 0xa9ad62f8 | FunctionDoesNotExist()                                           |
 | 0xad3a8b9e | NotEnoughBalance()                                               |
-| 0xac28d0b2 | NotProposedTreasury(address proposedTreasury)                    |
 | 0xb19c6749 | TrasferFailed(bytes reason)                                      |
 | 0x202409e9 | NoMintsAvailable()                                               |
 | 0x2a79d188 | NotAppAdministratorOrOwner()                                     |

@@ -834,8 +834,8 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_PauseRulesViaAppManager_Bypass() public endWithStopPrank {
         _pauseRuleSetup();
-        ///Check that rule bypass accounts can still transfer within pausePeriod
-        switchToRuleBypassAccount();
+        ///Check that Treasury accounts can still transfer within pausePeriod
+        switchToTreasuryAccount();
 
         testCaseToken.transfer(superAdmin, 1000);
         assertEq(testCaseToken.balanceOf(superAdmin), 1000);
@@ -2206,8 +2206,8 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// set up a non admin user with tokens
         testCaseToken.transfer(user1, 100000);
         assertEq(testCaseToken.balanceOf(user1), 100000);
-        testCaseToken.transfer(ruleBypassAccount, 100000);
-        assertEq(testCaseToken.balanceOf(ruleBypassAccount), 100000);
+        testCaseToken.transfer(treasuryAccount, 100000);
+        assertEq(testCaseToken.balanceOf(treasuryAccount), 100000);
         vm.startPrank(user1);
         testCaseToken.transfer(user2, 1000);
 
@@ -2282,7 +2282,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.mint(rich_user, 10000);
         applicationCoin2.mint(user3, 10000);
         DummyAMM amm = new DummyAMM();
-        applicationAppManager.registerAMM(address(amm));
 
         ProtocolERC20(address(testCaseToken)).mint(user1, 10000);
         ///perform buy that checks rule
@@ -2341,7 +2340,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.mint(rich_user, 10000);
         applicationCoin2.mint(user3, 10000);
         DummyAMM amm = new DummyAMM();
-        applicationAppManager.registerAMM(address(amm));
 
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);

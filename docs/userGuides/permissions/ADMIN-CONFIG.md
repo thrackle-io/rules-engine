@@ -13,7 +13,7 @@ An application relies on many [administrator roles][admin-roles] to work properl
 
 2. Repeat for all addresses that may need appAdmin privileges ([see admin accounts][admin-roles]).
 
-3. Repeat previous steps for all addresses that may need any other [admin roles][admin-roles] (ruleAdmin, riskAdmin, accessTierAdmin, ruleBypass account) through the respective function in the appManager. This time, you can sign the transactions with any of the addresses that were granted the appAdmin role in the previous steps since it is only addresses with appAdmin privileges that can grant these other admin roles.
+3. Repeat previous steps for all addresses that may need any other [admin roles][admin-roles] (ruleAdmin, riskAdmin, accessTierAdmin, Treasury account) through the respective function in the appManager. This time, you can sign the transactions with any of the addresses that were granted the appAdmin role in the previous steps since it is only addresses with appAdmin privileges that can grant these other admin roles.
 
 
 <!-- These are the header links -->

@@ -98,7 +98,7 @@ All invariants have links to their invariant test files unless specified otherwi
 
 ### Admin Min Token Balance *
 
-- When this rule is applied, the token balance of a rule bypasser account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the rule bypasser account must not be allowed to renounce its role.
+- When this rule is applied, the token balance of a treasury account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the treasury account must not be allowed to renounce its role.
 
 ### RuleApplicationValidationFacet *
 

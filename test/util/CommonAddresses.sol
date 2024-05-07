@@ -11,11 +11,11 @@ contract CommonAddresses {
     address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xDEAD);
     address newSuperAdmin = address(0xACE);
-    address ruleBypassAccount = address(0xAAA);
+    address treasuryAccount = address(0xAAA);
     address ruleAdmin = address(0xACDC);
     address accessLevelAdmin = address(0xBBB);
     address riskAdmin = address(0xCCC);
-    address feeTreasury = address(0xDDD);
+    address feeSink = address(0xDDF);
     address user = address(0xDDD);
     address bob = address(0xB0B);
     address user1 = address(11);
@@ -34,7 +34,6 @@ contract CommonAddresses {
     address proxyOwner = address(787);
     address newAdmin = address(75);
     address ammAddress = address(0xa33);
-    address treasuryAddress = address(0xadde55);
     address tradingRuleAddress = address(0x00222);
     address[] badBoys;
     address[] goodBoys;

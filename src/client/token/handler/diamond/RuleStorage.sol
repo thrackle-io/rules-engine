@@ -9,7 +9,7 @@ struct Fee {
    uint256 minBalance;
    uint256 maxBalance;
    int24 feePercentage;
-   address feeCollectorAccount;
+   address feeSink;
 }
 
 struct FeeS{    

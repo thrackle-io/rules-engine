@@ -19,11 +19,11 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         assertTrue(applicationAppManager.isSuperAdmin(superAdmin));
     }
 
-    // When grantRole RULE_BYPASS_ACCOUNT is called directly on the AppManager contract the transaction will be reverted.
-    function invariant_GrantRoleDirectCallRevertsRuleBypass() public {
+    // When grantRole TREASURY_ACCOUNT is called directly on the AppManager contract the transaction will be reverted.
+    function invariant_GrantRoleDirectCallRevertsTreasury() public {
         vm.expectRevert(bytes("Function disabled"));
-        applicationAppManager.grantRole(RULE_BYPASS_ACCOUNT, user);
-        assertFalse(applicationAppManager.isRuleBypassAccount(user));
+        applicationAppManager.grantRole(TREASURY_ACCOUNT, user);
+        assertFalse(applicationAppManager.isTreasuryAccount(user));
     }
     // When grantRole is SUPER_ADMIN_ROLE called directly on the AppManager contract the transaction will be reverted.
     function invariant_GrantRoleDirectCallRevertsSuperAdmin() public {
@@ -199,40 +199,40 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         applicationAppManager.renounceAccessLevelAdmin();
     }
 
-    /** RULE BYPASS  */
-    // When addRuleBypassAccount is called by an account other than the App Admin the transaction will be reverted.
-    function invariant_OnlyAppAdminCanAddRemoveRuleBypassAccount() public {
+    /** TREASURY ACCOUNT   */
+    // When addTreasuryAccount is called by an account other than the App Admin the transaction will be reverted.
+    function invariant_OnlyAppAdminCanAddRemoveTreasuryAccount() public {
         if (_seed%2==0){
             switchToAppAdministrator();
-            applicationAppManager.addRuleBypassAccount(user);
-            assertTrue(applicationAppManager.isRuleBypassAccount(user));
+            applicationAppManager.addTreasuryAccount(user);
+            assertTrue(applicationAppManager.isTreasuryAccount(user));
         } else{
             vm.expectRevert();
-            applicationAppManager.addRuleBypassAccount(user);
-            assertFalse(applicationAppManager.isRuleBypassAccount(user));
+            applicationAppManager.addTreasuryAccount(user);
+            assertFalse(applicationAppManager.isTreasuryAccount(user));
         }
         _seed++;
     }
-    // When addRuleBypassAccount is called with an address of 0 the transaction will be reverted.
-    function invariant_AddRuleBypassAccountrNoZeroAddress() public {
+    // When addTreasuryAccount is called with an address of 0 the transaction will be reverted.
+    function invariant_AddTreasuryAccountrNoZeroAddress() public {
         switchToAppAdministrator();
         vm.expectRevert();
         applicationAppManager.addRuleAdministrator(address(0));
         assertFalse(applicationAppManager.isRuleAdministrator(address(0)));
     }
-    // If addRuleBypassAccount is not reverted the RuleBypassAccount event will be emitted.
-    function invariant_AddRuleBypassAccountEmitsEvent() public {
+    // If addTreasuryAccount is not reverted the TreasuryAccount event will be emitted.
+    function invariant_AddTreasuryAccountEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RuleBypassAccount(user, true);
-        applicationAppManager.addRuleBypassAccount(user);
+        emit AD1467_TreasuryAccount(user, true);
+        applicationAppManager.addTreasuryAccount(user);
     }
-    // When renounceRuleBypassAccount is called the RuleBypassAccount event will be emitted.
-    function invariant_RenounceRuleBypassAccountEmitsEvent() public {
-        switchToRuleBypassAccount();
+    // When renounceTreasuryAccount is called the TreasuryAccount event will be emitted.
+    function invariant_RenounceTreasuryAccountEmitsEvent() public {
+        switchToTreasuryAccount();
         vm.expectEmit();
-        emit AD1467_RuleBypassAccount(ruleBypassAccount, false);
-        applicationAppManager.renounceRuleBypassAccount();
+        emit AD1467_TreasuryAccount(treasuryAccount, false);
+        applicationAppManager.renounceTreasuryAccount();
     }
 
 }

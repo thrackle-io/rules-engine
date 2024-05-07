@@ -225,22 +225,22 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         /// mint initial supply
         uint256 initialSupply = 100_000 * (10 ** 18);
         uint256 volume = uint256(volLimit) * 10;
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
         vm.startPrank(user1);
-        if (user1 != ruleBypassAccount) {
+        if (user1 != treasuryAccount) {
             if (amount > initialSupply - volume) {
                 vm.expectRevert(0xc406d470);
                 applicationCoin.mint(user1, amount);
             }
         }
         // /// test burn
-        if (user1 != ruleBypassAccount) {
+        if (user1 != treasuryAccount) {
             if (amount > uint(applicationCoin.totalSupply()) - volume) {
                 vm.expectRevert(0xc406d470);
                 applicationCoin.burn(amount);
@@ -249,9 +249,9 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 
         /// reset the total supply
         {
-            switchToRuleBypassAccount();
+            switchToTreasuryAccount();
             applicationCoin.burn(applicationCoin.totalSupply());
-            applicationCoin.mint(ruleBypassAccount, initialSupply);
+            applicationCoin.mint(treasuryAccount, initialSupply);
             vm.warp(Blocktime + 36 hours);
 
             vm.stopPrank();
@@ -261,12 +261,12 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationCoin.mint(user1, transferAmount);
 
-            applicationCoin.transfer(ruleBypassAccount, applicationCoin.balanceOf(user1));
+            applicationCoin.transfer(treasuryAccount, applicationCoin.balanceOf(user1));
         }
         /// test minimum volatility limits
-        switchToRuleBypassAccount();
-        applicationCoin.burn(applicationCoin.balanceOf(ruleBypassAccount));
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
+        switchToTreasuryAccount();
+        applicationCoin.burn(applicationCoin.balanceOf(treasuryAccount));
+        applicationCoin.mint(treasuryAccount, initialSupply);
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 96 hours);
         uint16 volatilityLimit = 1; /// 0.01%
@@ -281,10 +281,10 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
 
         /// test above 100% volatility limits
-        applicationCoin.transfer(ruleBypassAccount, applicationCoin.balanceOf(user1));
-        switchToRuleBypassAccount();
-        applicationCoin.burn(applicationCoin.balanceOf(ruleBypassAccount));
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
+        applicationCoin.transfer(treasuryAccount, applicationCoin.balanceOf(user1));
+        switchToTreasuryAccount();
+        applicationCoin.burn(applicationCoin.balanceOf(treasuryAccount));
+        applicationCoin.mint(treasuryAccount, initialSupply);
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 120 hours);
         uint16 newVolatilityLimit = 50000; /// 500%

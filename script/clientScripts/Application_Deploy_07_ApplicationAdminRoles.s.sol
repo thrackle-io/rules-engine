@@ -40,7 +40,7 @@ contract ApplicationAdminRolesScript is Script {
          * RULE_ADMIN = Rule admin
          * ACCESS_LEVEL_ADMIN = Access Level admin
          * RISK_ADMIN = Risk admin
-         * RULE_BYPASS_ACCOUNT = rule bypass account 
+         * TREASURY_ACCOUNT = treasury account 
          */
         if (vm.envAddress("LOCAL_RULE_ADMIN") != address(0x0)) {
             applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
@@ -53,8 +53,8 @@ contract ApplicationAdminRolesScript is Script {
         if (vm.envAddress("RISK_ADMIN") != address(0x0)) {
             applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
         }
-        if (vm.envAddress("RULE_BYPASS_ACCOUNT") != address(0x0)) {
-            applicationAppManager.addRuleBypassAccount(vm.envAddress("RULE_BYPASS_ACCOUNT"));
+        if (vm.envAddress("TREASURY_ACCOUNT") != address(0x0)) {
+            applicationAppManager.addTreasuryAccount(vm.envAddress("TREASURY_ACCOUNT"));
         }
         vm.stopBroadcast();
     }

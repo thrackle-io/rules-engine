@@ -59,7 +59,7 @@ This document offers a high level overview of the rules protocol - what it does 
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721 or the protocol hook.                                                                                                |
 | Protocol Supported ERC20  | An ERC20 token that implements the protocol ProtocolERC20 or the protocol hook.                                                                                                |
 | Access-Level Provider     | An external provider that rates or segments users based on external criteria for access level solutions. Default access level mechanisms allow developers to set user access levels.        |
-| Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, Risk Admin, Rule Admin, and Rule Bypass Admin.                                                                            |
+| Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, Risk Admin, Rule Admin, and Treasury Account.                                                                            |
 | Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcessorDiamond and applied in the application's AppManager.        |
 | Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleProcessorDiamond and applied in the token's Handler.        |
 | Tag | Bytes32 strings that can be attached to accounts via AppManager. Think of it as labels or badges that accounts can have. |
@@ -238,7 +238,7 @@ The Application Manager can be utilized for both updating and checking an accoun
 - [Risk Admin](./userGuides/permissions/ADMIN-ROLES.md#risk-admin).
 - [Access Level Admin](./userGuides/permissions/ADMIN-ROLES.md#access-level-admin).
 - [Rule Admin](./userGuides/permissions/ADMIN-ROLES.md#rule-admin).
-- [Rule-Bypass Account](./userGuides/permissions/ADMIN-ROLES.md#rule-bypass-account).
+- [Treasury Account](./userGuides/permissions/ADMIN-ROLES.md#treasury-account).
 
 #### Super Admin Special Case
 

@@ -36,11 +36,11 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function isRuleAdministrator(address account) external view returns (bool);
 
     /**
-     * @dev This function is where the rule bypass account role is actually checked
+     * @dev This function is where the rTreasury account role is actually checked
      * @param account address to be checked
-     * @return success true if RULE_BYPASS_ACCOUNT, false if not
+     * @return success true if TREASURY_ACCOUNT, false if not
      */
-    function isRuleBypassAccount(address account) external view returns (bool);
+    function isTreasuryAccount(address account) external view returns (bool);
 
     /**
      * @dev This function is where the access level admin role is actually checked
@@ -122,30 +122,6 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
      * @return the identification string.
      */
     function getTokenID(address _tokenAddress) external view returns (string memory);
-
-    /**
-     * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
-     * @param _AMMAddress Address for the AMM to be registered
-     */
-    function registerAMM(address _AMMAddress) external;
-
-    /**
-     * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
-     * @param _AMMAddress Address for the AMM
-     */
-    function isRegisteredAMM(address _AMMAddress) external view returns (bool);
-
-    /**
-     * @dev This function allows the devs to deregister an AMM contract address.
-     * @param _AMMAddress The address of the AMM to be de-registered
-     */
-    function deRegisterAMM(address _AMMAddress) external;
-
-    /**
-     * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
-     * @param _treasuryAddress Address for the treasury
-     */
-    function isTreasury(address _treasuryAddress) external view returns (bool);
 
     /**
      * @dev manage the allowlist for trading-rule bypasser accounts
