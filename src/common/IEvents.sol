@@ -79,7 +79,7 @@ interface IApplicationHandlerEvents {
     // Rule applied
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
-    event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] indexed action, uint32[] indexed ruleId);
+    event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);
     /// Pricing
     event AD1467_ERC721PricingAddressSet(address indexed _address);
     event AD1467_ERC20PricingAddressSet(address indexed _address);
