@@ -76,12 +76,7 @@ contract OracleApproved is Ownable, IOracleEvents {
      * @return approved returns true if in the approved list, false if not.
      */
     function isApprovedVerbose(address addr) public returns (bool) {
-        if (isApproved(addr)) {
-            emit AD1467_ApprovedAddress(addr);
-            return true;
-        } else {
-            emit AD1467_NotApprovedAddress(addr);
-            return false;
-        }
+        emit AD1467_DeniedAddress(addr, (isApproved(addr)));
+        return (isApproved(addr));
     }
 }

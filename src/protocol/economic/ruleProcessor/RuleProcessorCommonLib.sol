@@ -43,11 +43,7 @@ library RuleProcessorCommonLib {
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
-        if (_startTime <= block.timestamp) {
-            return true;
-        } else {
-            return false;
-        }
+        return _startTime <= block.timestamp;
     }
 
     /**
@@ -69,11 +65,7 @@ library RuleProcessorCommonLib {
         // slither-disable-next-line timestamp
         uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTime) % (_period * 1 hours));
         // slither-disable-next-line timestamp
-        if (_lastTransferTime >= currentPeriodStart) {
-            return true;
-        } else {
-            return false;
-        }
+        return _lastTransferTime >= currentPeriodStart;
     }
 
     /**
@@ -90,7 +82,7 @@ library RuleProcessorCommonLib {
      * @param _isAll true if applies to all users
      */
     function isApplicableToAllUsers(bytes32[] memory _tags) internal pure returns (bool _isAll) {
-        if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
+        return _tags.length == 1 && _tags[0] == bytes32("");
     }
 
     /**

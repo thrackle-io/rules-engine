@@ -62,8 +62,7 @@ interface IOracleEvents{
     event AD1467_ApprovedAddress(address indexed addr);
     event AD1467_NotApprovedAddress(address indexed addr);
     event AD1467_ApproveListOracleDeployed();
-    event AD1467_DeniedAddress(address indexed addr);
-    event AD1467_NonDeniedAddress(address indexed addr);
+    event AD1467_DeniedAddress(address indexed addr, bool isDenied);
     event AD1467_DeniedListOracleDeployed();
     event AD1467_OracleListChanged(bool indexed add, address[] addresses); // new event
 }
