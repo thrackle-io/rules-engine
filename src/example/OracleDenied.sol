@@ -76,7 +76,8 @@ contract OracleDenied is Ownable, IOracleEvents {
      * @return denied returns true if in the denied list, false if not.
      */
     function isDeniedVerbose(address addr) public returns (bool) {
-        emit AD1467_DeniedAddress(addr, (isDenied(addr)));
-        return (isDenied(addr)); 
+        bool isAddressDenied = isDenied(addr);
+        emit AD1467_DeniedAddress(addr, isAddressDenied);
+        return isAddressDenied; 
     }
 }
