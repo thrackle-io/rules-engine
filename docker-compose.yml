@@ -5,9 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: anvil
-    environment:
-      FOUNDRY_PROFILE: docker
-      RUST_LOG: backend,api,node,rpc=warn
     restart: unless-stopped
     ports:
       - "8545:8545"
@@ -18,5 +15,3 @@ services:
       context: .
       dockerfile: Dockerfile
       target: deploy-tron
-    environment:
-      FOUNDRY_PROFILE: docker

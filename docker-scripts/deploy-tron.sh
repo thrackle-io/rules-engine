@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-source ~/.bashrc
-
 ## This script should only ever be run on a `compile-tron` or higher layer of the tron
 ## Dockerfile, which is where this venv will have been created. If this script is run
 ## in some other context it will fail on this line due to the missing venv. 

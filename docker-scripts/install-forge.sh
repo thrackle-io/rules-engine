@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
-source ~/.bashrc
-
-# Pin foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
-#foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
-foundryup --version nightly-2e3c197afc341c0f4adbb9dbe09fc04ebb9b7a5d
+# Using cargo directly to compile foundry from github
+# --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
+cargo install \
+	--git https://github.com/foundry-rs/foundry \
+	--rev $(awk '$1~/^[^#]/' foundry.lock) \
+	--profile local \
+	--locked forge cast chisel anvil
