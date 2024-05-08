@@ -463,6 +463,25 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
         testCaseNFT.transferFrom(user2, user1, 2);
     }
+    /// TokenMaxDailyTrades test to ensure data is properly pruned 
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Pruning() public endWithStopPrank {
+        _tokenMaxDailyTradesSetup(true);
+        // add the other tag and check to make sure that it still only allows 1 trade
+        vm.startPrank(user1);
+        // first one should pass
+        testCaseNFT.transferFrom(user1, user2, 2);
+        vm.startPrank(user2);
+        // this one should fail because it is more than 1 in 24 hours
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        testCaseNFT.transferFrom(user2, user1, 2);
+        // deactivate and reactivate which will prune accumulators
+        switchToRuleAdmin();
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).activateTokenMaxDailyTrades(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).activateTokenMaxDailyTrades(createActionTypeArray(ActionTypes.P2P_TRANSFER), true);
+        // this one should work
+        vm.startPrank(user2);
+        testCaseNFT.transferFrom(user2, user1, 2);
+    }
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Negative() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(false);
@@ -1188,7 +1207,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Burn_Negative() public endWithStopPrank { 
-        /// ensure that buys trigger the hold time clock and that applicaple actions check the clock (Burn)
+        /// ensure that buys trigger the hold time clock and that applicable actions check the clock (Burn)
         _setUpNFTAMMForRuleChecks();
         setTokenMinHoldTimeRule(24);
         switchToUser();

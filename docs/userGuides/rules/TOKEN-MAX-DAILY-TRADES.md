@@ -198,6 +198,9 @@ This rule requires that the handler record the timestamp for each tokenId's last
 mapping(uint256 => uint64) lastTxDate;
 ```
 ###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
+
 ### Events
 
 - **event AD1467_ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 

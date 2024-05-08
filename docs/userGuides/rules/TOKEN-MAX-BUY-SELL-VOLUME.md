@@ -226,6 +226,10 @@ uint256 private totalSoldInPeriod;
 
 *see [Token Handler Trading Rule Facet](../../../src/client/token/handler/diamond/TradingRuleFacet.sol)*
 
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
+
+
 ## Events
 
 - **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 

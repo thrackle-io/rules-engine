@@ -22,6 +22,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     function setTokenMaxDailyTradesId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(_actions, _ruleId);
+        clearTokenMaxDailyTradesAccumulators(_ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxDailyTradesIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);
@@ -37,7 +38,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
     function setTokenMaxDailyTradesIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         if (_actions.length == 0) revert InputArraysSizesNotValid();
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
-        clearTokenMaxDailyTrades();
+        clearTokenMaxDailyTrades(_ruleIds);
         for (uint i; i < _actions.length; ++i) {
             // slither-disable-next-line calls-loop
             IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(createActionTypesArray(_actions[i]), _ruleIds[i]);
@@ -49,16 +50,28 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
     /**
      * @dev Clear the rule data structure
      */
-    function clearTokenMaxDailyTrades() internal {
+    function clearTokenMaxDailyTrades(uint32[] calldata _ruleIds) internal {
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
+        for (uint i; i < _ruleIds.length;i++) {
+            clearTokenMaxDailyTradesAccumulators(_ruleIds[i]);
+        }
+        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction;i++) {
             delete data.tokenMaxDailyTrades[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
     }
 
+    /**
+     * @dev Clear the rule data accumulators
+     */
+    function clearTokenMaxDailyTradesAccumulators(uint32 _ruleId) internal {
+
+        TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
+        for (uint i; i < data.tokenIdsByRuleId[_ruleId].length; ++i) {
+            delete data.tradesInPeriod[_ruleId][data.tokenIdsByRuleId[_ruleId][i]];
+            delete data.lastTxDate[_ruleId][data.tokenIdsByRuleId[_ruleId][i]];
+        }
+        delete data.tokenIdsByRuleId[_ruleId];
+    }
     /**
      * @dev Set the TokenMaxDailyTrades.
      * @notice that setting a rule will automatically activate it.
@@ -82,6 +95,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
     function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ++i) {
             if (_actions[i] == ActionTypes.BURN) revert InvalidAction(); 
+            if (!_on) clearTokenMaxDailyTradesAccumulators(lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].ruleId);
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;
         }
         if (_on) {

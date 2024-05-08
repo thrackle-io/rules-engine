@@ -30,7 +30,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
-        data.lastPossibleAction = 4;
+        data.lastPossibleAction = 5;
         ini.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
@@ -119,8 +119,11 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         } else if (isFromTreasuryAccount || isToTreasuryAccount) {
             emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
         }
-        if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) 
-                lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
+        if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) {
+            lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
+            if (lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId]==0) lib.tokenMinHoldTimeStorage().tokenIds.push(_tokenId);
+        }
+
         return true;
     }
 

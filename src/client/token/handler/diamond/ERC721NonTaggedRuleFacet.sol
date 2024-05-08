@@ -140,6 +140,10 @@ contract ERC721NonTaggedRuleFacet is
             tags,
             maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId]
         );
+        // if the tokenId has not been traded in the period, create the tokenIdsByRuleId elements
+        if (maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] == 0){
+            maxDailyTrades.tokenIdsByRuleId[maxDailyTrades.tokenMaxDailyTrades[action].ruleId].push(_tokenId);
+        }
         maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] = uint64(block.timestamp);
     }       
 
@@ -150,9 +154,9 @@ contract ERC721NonTaggedRuleFacet is
      * @param handlerBase address of the handler proxy 
      */
     function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase) internal view {
-        TokenMinHoldTimeS storage minHodlTime = lib.tokenMinHoldTimeStorage();
-        if (minHodlTime.tokenMinHoldTime[_action].active && minHodlTime.ownershipStart[_tokenId] > 0)
-            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHodlTime.tokenMinHoldTime[_action].period, minHodlTime.ownershipStart[_tokenId]);
+        TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
+        if (minHoldTime.tokenMinHoldTime[_action].active && minHoldTime.ownershipStart[_tokenId] > 0)
+            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[_action].period, minHoldTime.ownershipStart[_tokenId]);
     }
 
 

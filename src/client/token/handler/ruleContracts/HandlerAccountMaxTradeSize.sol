@@ -31,6 +31,7 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
     function setAccountMaxTradeSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxTradeSize(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
+            clearAccountMaxTradeSizeSingleAction(_actions[i]);
             setAccountMaxTradeSizeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_TRADE_SIZE, _actions[i], _ruleId);
         }
@@ -57,12 +58,36 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
      */
     function clearAccountMaxTradeSize() internal {
         AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
+        clearAccountMaxTradeSizeAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.accountMaxTradeSize[ActionTypes(i)];
             unchecked {
                 ++i;
             }
         }
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxTradeSizeSingleAction(ActionTypes _action) internal {
+        AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
+        clearAccountMaxTradeSizeAccumulators();
+        delete data.accountMaxTradeSize[_action];
+    }
+
+    /**
+     * @dev Clear the rule data accumulators
+     */
+    function clearAccountMaxTradeSizeAccumulators() internal {
+        AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
+        for (uint i; i < data.transactors.length; ++i) {
+            delete data.boughtInPeriod[data.transactors[i]];
+            delete data.lastPurchaseTime[data.transactors[i]];
+            delete data.salesInPeriod[data.transactors[i]];
+            delete data.lastSellTime[data.transactors[i]];
+        }
+        delete data.transactors;
     }
 
     /**
@@ -85,6 +110,7 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxTradeSize(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_on) clearAccountMaxTradeSizeAccumulators();
         for (uint i; i < _actions.length; ++i) {
             if (!(_actions[i] == ActionTypes.SELL || _actions[i] == ActionTypes.BUY)) revert InvalidAction();
             lib.accountMaxTradeSizeStorage().accountMaxTradeSize[_actions[i]].active = _on;

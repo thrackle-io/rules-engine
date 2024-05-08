@@ -48,6 +48,10 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
                 _amount, 
                 toTags, 
                 maxTradeSize.lastPurchaseTime[_to]);
+            // If the account has already been added to the transactor list, then skip. Otherwise, add them.
+            if (maxTradeSize.lastSellTime[_to] == 0){
+                maxTradeSize.transactors.push(_to);
+            }
             maxTradeSize.lastPurchaseTime[_to] = uint64(block.timestamp);
         }
         if(lib.tokenMaxBuySellVolumeStorage().tokenMaxBuySellVolume[action].active){
@@ -58,7 +62,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
                 _amount,  
                 maxVolume.lastPurchaseTime,  
                 maxVolume.boughtInPeriod
-            );
+            );           
             maxVolume.lastPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
         }
     }
@@ -80,6 +84,10 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
                 fromTags,  
                 maxTradeSize.lastSellTime[_from]
             );
+            // If the account has already been added to the transactor list, then skip. Otherwise, add them.
+            if (maxTradeSize.lastSellTime[_from] == 0){
+                maxTradeSize.transactors.push(_from);
+            }
             maxTradeSize.lastSellTime[_from] = uint64(block.timestamp);
         }
         if(lib.tokenMaxBuySellVolumeStorage().tokenMaxBuySellVolume[action].active){
