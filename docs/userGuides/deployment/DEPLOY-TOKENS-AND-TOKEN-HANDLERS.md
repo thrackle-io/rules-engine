@@ -13,11 +13,20 @@ Tokens are the lifeblood of the web3 economy and with applications they are no d
 
 ## Prerequisites
 
-It's required that the token that you are deploying is a protocol compatible token and therefore inherits the protocol token set (see example [here](../../../src/example/ERC20/ApplicationERC20.sol)). It is also required that you have a [deployed protocol](./DEPLOY-PROTOCOL.md), and a [deployed application manager](./DEPLOY-APPMANAGER.md). It's also required that you have properly configured [admins](../permissions/ADMIN-ROLES.md).
+It's required that the token that you are deploying is a protocol compatible token and therefore inherits the protocol token set (see example [here](../../../src/example/ERC20/ApplicationERC20.sol)). It is also required that you have a [deployed protocol](./DEPLOY-PROTOCOL.md), and a [deployed application manager](./DEPLOY-APPMANAGER.md). It's also required that you have properly configured [admins](../permissions/ADMIN-ROLES.md) as the App Administrator role is required for the scripts to function.
+
+If you are using an already deployed rule processor address and app manager address set the addresses:
+        ````
+        export RULE_PROCESSOR_DIAMOND=<ruleProcessorDiamondAddress>
+        ````    
+        &        
+        ````
+        export APPLICATION_APP_MANAGER=<applicationAppManagerAddress>
+        ````
 
 ## Simple ERC20 Deployment
 
-1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` is used by the deployment script. 
+1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script. 
 
 2. Inside the [Application Token script](../../../script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol) change the `Frankenstein` name and `FRANK` symbol to the desired name and symbol for the token. 
 
@@ -29,15 +38,18 @@ It's required that the token that you are deploying is a protocol compatible tok
         ````
         bash script/ParseApplicationDeploy.sh 2
         ````
-
+5. Configure the contracts:
+        ````
+        forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast
+        ````
 
 ## Simple NFT Deployment
 
 NOTE: NFT Batch minting and burning is not supported in this release.
 
-1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` is used by the deployment script. 
+1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script. 
 
-2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `name` and `symbol` of your NFT to the desired name and symbol for the token. 
+2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `name`, `symbol` and `APPLICATION_ERC721_URI_1` of your NFT to the desired name, symbol and token URI for the deployment. 
 
 3. Deploy the contracts:
         ````
@@ -47,7 +59,12 @@ NOTE: NFT Batch minting and burning is not supported in this release.
         ````
         bash script/ParseApplicationDeploy.sh 3
         ````
-5. This script deploys the NFT token, Asset Handler Diamond, Initializes the diamond, connects the token to the handler and registers the token with the [Application Manager](../architecture/client/application/APPLICATION-MANAGER.md).
+5. Configure the contracts:
+        ````
+        forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast
+        ````
+
+These scripts deploy a Fungible Token, Non-Fungible Token, Asset Handler Diamond for each token, Initializes each diamond, connects the tokens to their handler and registers each token with the [Application Manager](../architecture/client/application/APPLICATION-MANAGER.md). 
 
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
