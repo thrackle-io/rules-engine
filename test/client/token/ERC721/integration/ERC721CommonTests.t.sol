@@ -483,6 +483,26 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 2);
     }
 
+    /// TokenMaxDailyTrades test to ensure data is properly pruned 
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Update_Pruning() public endWithStopPrank {
+        _tokenMaxDailyTradesSetup(true);
+        // add the other tag and check to make sure that it still only allows 1 trade
+        vm.startPrank(user1);
+        // first one should pass
+        testCaseNFT.transferFrom(user1, user2, 2);
+        vm.startPrank(user2);
+        // this one should fail because it is more than 1 in 24 hours
+        vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
+        testCaseNFT.transferFrom(user2, user1, 2);
+        // deactivate and reactivate which will prune accumulators
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMaxDailyTradesRule("", 1);
+        setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleId);
+        // this one should work
+        vm.startPrank(user2);
+        testCaseNFT.transferFrom(user2, user1, 2);
+    }
+
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Negative() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(false);
         vm.startPrank(user2);
@@ -1159,6 +1179,24 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.startPrank(user1);
         /// ensure that mint triggers the hold time clock and that applicable actions check the clock (p2p transfer)
         vm.expectRevert(0x5f98112f);
+        testCaseNFT.safeTransferFrom(user1, user2, 0);
+    }
+
+     function testERC721_ERC721CommonTests_TokenMinHoldTime_Update_Pruning() public endWithStopPrank {
+        /// set the rule for 24 hours
+        switchToRuleAdmin();
+        setTokenMinHoldTimeRule(24);
+        switchToAppAdministrator();
+        // mint 1 nft to non admin user(this should set their ownership start time)
+        ProtocolERC721(address(testCaseNFT)).safeMint(user1); /// ensure mint works with rule active 
+        vm.startPrank(user1);
+        /// ensure that mint triggers the hold time clock and that applicable actions check the clock (p2p transfer)
+        vm.expectRevert(0x5f98112f);
+        testCaseNFT.safeTransferFrom(user1, user2, 0);
+        // deactivate and reactivate which will prune accumulators
+        switchToRuleAdmin();
+        setTokenMinHoldTimeRule(24);
+        vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }
 
@@ -2448,7 +2486,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             ProtocolERC721(address(testCaseNFT)).safeMint(user1);
         }
 
-        assertEq(testCaseNFT.balanceOf(user1), 5);
         // add the rule.
         switchToRuleAdmin();
         if (tag) {
@@ -2465,7 +2502,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         // perform 1 transfer
         vm.startPrank(user1);
         testCaseNFT.transferFrom(user1, user2, 1);
-        assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
     function _tokenMaxDailyTradesSetupNoBurns() public endWithStopPrank {

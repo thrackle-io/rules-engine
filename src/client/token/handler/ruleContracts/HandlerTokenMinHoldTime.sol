@@ -67,6 +67,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      */
     function clearTokenMinHoldTime() internal {
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
+        clearTokenMinHoldTimeAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMinHoldTime[ActionTypes(i)];
             unchecked {

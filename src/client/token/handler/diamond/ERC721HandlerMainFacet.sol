@@ -120,8 +120,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
             emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
         }
         if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) {
-            lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
             if (lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId]==0) lib.tokenMinHoldTimeStorage().tokenIds.push(_tokenId);
+            lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         }
 
         return true;
