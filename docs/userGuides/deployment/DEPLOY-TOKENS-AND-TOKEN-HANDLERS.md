@@ -49,6 +49,11 @@ NOTE: NFT Batch minting and burning is not supported in this release.
         ````
 5. This script deploys the NFT token, Asset Handler Diamond, Initializes the diamond, connects the token to the handler and registers the token with the [Application Manager](../architecture/client/application/APPLICATION-MANAGER.md).
 
+6. To use a script for an example upgradeable ERC721 token with proper initialization, run the following:
+        ````
+        forge script script/DeployProtocolERC721U.sol --ffi --broadcast
+        ````
+
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
 [environment-url]: ./SET-ENVIRONMENT.md
