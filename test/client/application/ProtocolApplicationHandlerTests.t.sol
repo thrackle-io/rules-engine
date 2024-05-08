@@ -16,11 +16,13 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
 
     function test_versionUpgradeFacet() public {
         bool success;
-        setUpProtocolAndAppManagerAndTokensUpgradeable();
-        switchToAppAdministrator();
+        //setUpProtocolAndAppManagerAndTokensUpgradeable();
+        switchToSuperAdmin();
+        console.log("about to upgrade version first time");
         vm.expectEmit();
         emit AD1467_UpgradedToVersion(appAdministrator, "1.2.0");
         (success, ) = address(applicationCoinHandler).call(abi.encodeWithSignature("updateVersion(string)", "1.2.0"));
+        console.log("success: ", success);
         assertTrue(success);
 
         vm.expectEmit();
