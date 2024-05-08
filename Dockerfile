@@ -6,10 +6,9 @@
 # a specific commit hash in their repo, thus avoiding all the issues we've had with their release
 # process and wacky install scripts.
 #
-# This layer is cached and not re-built unless there is some change to either foundry.lock
-# or docker-scripts/install-forge.sh. It may be necessary to specifically update your Docker 
-# settings to increase the max available memory in a container for this base stage to successfully
-# build. 
+# This layer is cached and not re-built unless there is some change to foundry.lock. It may be 
+# necessary to specifically update your Docker settings to increase the max available memory in
+# a container for this base stage to successfully build. 
 #
 ################################################
 
@@ -20,12 +19,14 @@ RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-ven
 
 WORKDIR /usr/local/src/tron
 
-RUN mkdir docker-scripts/
 COPY foundry.lock .
-COPY docker-scripts/install-forge.sh docker-scripts/
 
-RUN chmod a+x ./docker-scripts/install-forge.sh
-RUN ./docker-scripts/install-forge.sh
+# --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
+RUN cargo install \
+	--git https://github.com/foundry-rs/foundry \
+	--rev $(awk '$1~/^[^#]/' foundry.lock) \
+	--profile local \
+	--locked forge cast chisel anvil
 
 ################################################
 #
@@ -48,13 +49,15 @@ RUN ./docker-scripts/compile-tron.sh
 #
 # FOUNDRY_PROFILE selects a profile from foundry.toml
 # RUST_LOG configures anvil output information. I think. 
+# CHAIN_ID is the chain-id Anvil runs on
 #
 ################################################
 
 FROM compile-tron as anvil
 ENV FOUNDRY_PROFILE=docker
 ENV RUST_LOG=backend,api,node,rpc=warn
-CMD ["./docker-scripts/run-anvil.sh"]
+ENV CHAIN_ID=31337
+CMD ["anvil", "--host", "0.0.0.0", "--chain-id", "${CHAIN_ID}"]
 
 ################################################
 #
