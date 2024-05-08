@@ -57,7 +57,7 @@ FROM compile-tron as anvil
 ENV FOUNDRY_PROFILE=docker
 ENV RUST_LOG=backend,api,node,rpc=warn
 ENV CHAIN_ID=31337
-CMD ["anvil", "--host", "0.0.0.0", "--chain-id", "$CHAIN_ID"]
+ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 ################################################
 #
