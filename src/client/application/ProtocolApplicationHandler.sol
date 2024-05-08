@@ -340,6 +340,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMaxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
@@ -497,6 +498,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
@@ -581,6 +583,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMaxValueOutByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueOutByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
@@ -665,6 +668,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMaxTxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
+        validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxTxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
