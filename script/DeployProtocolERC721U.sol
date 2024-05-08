@@ -14,7 +14,6 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
 
  contract DeployProtocolERC721Upgradeable is Script {
 
-    uint256 privateKey;
     ApplicationAppManager applicationAppManager;
     uint256 appAdminKey;
     address appAdminAddress;
