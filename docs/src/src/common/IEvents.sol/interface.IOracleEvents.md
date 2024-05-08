@@ -1,5 +1,5 @@
 # IOracleEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/845c12315ef4ac1a6cc2b1c3212b2b372da974eb/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/0336bb34620bb9e55e13cd371f0aebd8997d21c3/src/common/IEvents.sol)
 
 Oracle Events Library
 
@@ -10,13 +10,7 @@ Oracle Events Library
 ### AD1467_ApprovedAddress
 
 ```solidity
-event AD1467_ApprovedAddress(address indexed addr);
-```
-
-### AD1467_NotApprovedAddress
-
-```solidity
-event AD1467_NotApprovedAddress(address indexed addr);
+event AD1467_ApprovedAddress(address indexed addr, bool isApproved);
 ```
 
 ### AD1467_ApproveListOracleDeployed
@@ -28,13 +22,7 @@ event AD1467_ApproveListOracleDeployed();
 ### AD1467_DeniedAddress
 
 ```solidity
-event AD1467_DeniedAddress(address indexed addr);
-```
-
-### AD1467_NonDeniedAddress
-
-```solidity
-event AD1467_NonDeniedAddress(address indexed addr);
+event AD1467_DeniedAddress(address indexed addr, bool isDenied);
 ```
 
 ### AD1467_DeniedListOracleDeployed
