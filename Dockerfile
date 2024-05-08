@@ -32,27 +32,15 @@ RUN cargo install \
 #
 # `compile-tron` layer pulls all of the tron repo into the container
 # and then runs `forge build` to compile it. This stage will rebuild any 
-# time anything in compile-tron.sh, tron/lib, tron/src, tron/script, 
-# tron/test, or requirements.txt changes, but not the rest of the repo. 
+# time any file in the tron repo changes, including this Dockerfile and
+# any of the docker-scripts/ 
 #
 ################################################
 
 FROM foundry-base as compile-tron
-
-RUN mkdir docker-scripts/
-COPY ./docker-scripts/compile-tron.sh ./docker-scripts/
-COPY ./lib/ .
-COPY ./src/ .
-COPY ./script/ .
-COPY ./test/ .
-COPY requirements.txt .
-RUN chmod -R a+x docker-scripts/
-RUN ./docker-scripts/compile-tron.sh
-
-RUN mv ./out/ ./out.save/
 COPY . .
-RUN mv ./out.save/ out/
-RUN chmod -R a+x docker-scripts/
+RUN chmod -R a+x docker-scripts
+RUN ./docker-scripts/compile-tron.sh
 
 ################################################
 #
