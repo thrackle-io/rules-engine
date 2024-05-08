@@ -49,9 +49,9 @@ COPY requirements.txt .
 RUN chmod -R a+x docker-scripts/
 RUN ./docker-scripts/compile-tron.sh
 
-RUN mv out/ out.save/
+RUN mv ./out/ ./out.save/
 COPY . .
-RUN mv out.save/ out/
+RUN mv ./out.save/ out/
 RUN chmod -R a+x docker-scripts/
 
 ################################################
