@@ -32,7 +32,7 @@
 
    1. Make sure `foundry.lock` is set to an appropriate version, then update Foundry.
 
-      `foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)`
+      `./foundry-version-check.sh`
 
    2. Generate the docs:
 

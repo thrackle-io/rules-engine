@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e
+cd "$(dirname "$0")"
 
-SCRIPT_MODE=$1
+SCRIPT_MODE=${1:-0}
 
 source ~/.bashrc
-# Pin foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
-foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
+# Ensures foundry is installed and up to date with foundry.lock
+./foundry-version-check.sh
+
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+python3 -m pip install --quiet -r requirements.txt
 
 if [ $SCRIPT_MODE = "--with-build" ]; then
 	forge build
