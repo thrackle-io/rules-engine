@@ -56,7 +56,7 @@ For local deployments, use Anvil's local blockchain in combination with the depl
 forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
 ```
 
-To test the scripts for local deployments, open a dedicated terminal to run an Anvil local blochain:
+To test the scripts for local deployments, open a dedicated terminal to run an Anvil local blockchain:
 
 ```bash
 export FOUNDRY_PROFILE=local
