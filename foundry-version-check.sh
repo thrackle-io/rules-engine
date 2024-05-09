@@ -38,5 +38,6 @@ else
   else
     echo "🏗️ Installing Foundry..."
     $(curl -L https://foundry.paradigm.xyz)
+    foundryup --commit $foundry_pinned_version
   fi
 fi
