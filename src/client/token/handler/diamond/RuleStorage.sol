@@ -87,6 +87,7 @@ struct TokenMinHoldTimeS {
    mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
    mapping(uint256 => uint256) ownershipStart;
    uint256[] tokenIds;
+   bool anyActionActive;
 }
 
 struct NFTValuationLimitS{

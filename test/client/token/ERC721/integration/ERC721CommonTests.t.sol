@@ -1234,8 +1234,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Negative() public endWithStopPrank { 
         /// ensure that buys trigger the hold time clock and that applicaple actions check the clock (p2p transfer)
-        _setUpNFTAMMForRuleChecks();
         setTokenMinHoldTimeRule(24);
+        _setUpNFTAMMForRuleChecks();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -1246,8 +1246,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Burn_Negative() public endWithStopPrank { 
         /// ensure that buys trigger the hold time clock and that applicable actions check the clock (Burn)
-        _setUpNFTAMMForRuleChecks();
         setTokenMinHoldTimeRule(24);
+        _setUpNFTAMMForRuleChecks();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);

@@ -13,7 +13,6 @@ import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 import "diamond-std/implementations/ERC173/ERC173.sol";
 
 contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
-
     /**
      * @dev Initializer params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -119,8 +118,11 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         } else if (isFromTreasuryAccount || isToTreasuryAccount) {
             emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
         }
-        if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) {
-            if (lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId]==0) lib.tokenMinHoldTimeStorage().tokenIds.push(_tokenId);
+        // if the current action is not a burn and MinHoldTime is active for any action, record ownership
+        if (action != ActionTypes.BURN && lib.tokenMinHoldTimeStorage().anyActionActive) {            
+            if (lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId]==0) {
+                lib.tokenMinHoldTimeStorage().tokenIds.push(_tokenId);
+            }
             lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         }
 
