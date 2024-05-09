@@ -21,12 +21,6 @@ interface IAppLevelEvents {
     event AD1467_AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event AD1467_DataContractsMigrated(address indexed ownerAddress);
     event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
-    event AD1467_RuleAdmin(address indexed admin, bool indexed add);
-    event AD1467_RiskAdmin(address indexed admin, bool indexed add);
-    event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
-    event AD1467_AppAdministrator(address indexed admin, bool indexed add); 
-    event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
-    event AD1467_TreasuryAccount(address indexed treasuryAccount, bool indexed add);
     event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
     event AD1467_TokenRegistered(string indexed _token, address indexed _address);

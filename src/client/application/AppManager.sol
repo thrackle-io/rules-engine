@@ -119,12 +119,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
         if (role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
         AccessControl.renounceRole(role, account);
-
-        if (role == APP_ADMIN_ROLE) emit AD1467_AppAdministrator(_msgSender(), false);
-        if (role == RULE_ADMIN_ROLE) emit AD1467_RuleAdmin(_msgSender(), false);
-        if (role == TREASURY_ACCOUNT) emit AD1467_TreasuryAccount(_msgSender(), false);
-        if (role == ACCESS_LEVEL_ADMIN_ROLE) emit AD1467_AccessLevelAdmin(_msgSender(), false);
-        if (role == RISK_ADMIN_ROLE) emit AD1467_RiskAdmin(_msgSender(), false);
     }
 
     /**
@@ -189,8 +183,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
         super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
-        emit AD1467_SuperAdministrator(_msgSender(), true);
-        emit AD1467_SuperAdministrator(oldSuperAdmin, false);
     }
 
     /// -------------APP ADMIN---------------
@@ -211,7 +203,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(APP_ADMIN_ROLE, account);
-        emit AD1467_AppAdministrator(account, true);
     }
 
     /**
@@ -242,7 +233,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_ADMIN_ROLE, account);
-        emit AD1467_RuleAdmin(account, true);
     }
 
     /**
@@ -273,7 +263,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addTreasuryAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(TREASURY_ACCOUNT, account);
-        emit AD1467_TreasuryAccount(account, true);
     }
 
     /**
@@ -303,7 +292,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addAccessLevelAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(ACCESS_LEVEL_ADMIN_ROLE, account);
-        emit AD1467_AccessLevelAdmin(account, true);
     }
 
     /**
@@ -334,7 +322,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RISK_ADMIN_ROLE, account);
-        emit AD1467_RiskAdmin(account, true);
     }
 
     /**
