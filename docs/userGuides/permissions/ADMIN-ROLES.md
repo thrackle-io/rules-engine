@@ -68,7 +68,7 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --p
 * Application Administrators may add/remove Risk Administrators.
 * Application Administrators may add/remove Access Level Administrators.
 * Application Administrators may add/remove Treasury Accounts.
-* Application Administrators may add/edit/remove player account metadata such as tags (not including risk/access levels).
+* Application Administrators may add/edit/remove account metadata such as tags (not including risk/access levels).
 * Application Administrators may renounce their role.
 * Application Administrators may register/deregister asset contracts.
 * Application Administrators may set upgraded handler addresses.
