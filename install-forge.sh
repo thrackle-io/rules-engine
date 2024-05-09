@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
+cd "$(dirname "$0")"
 
-SCRIPT_MODE=$1
+SCRIPT_MODE=${1:-0}
 
 source ~/.bashrc
 # Ensures foundry is installed and up to date with foundry.lock
@@ -9,7 +10,7 @@ source ~/.bashrc
 
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+python3 -m pip install --quiet -r requirements.txt
 
 if [ $SCRIPT_MODE = "--with-build" ]; then
 	forge build
