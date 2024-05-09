@@ -1,14 +1,10 @@
 #!/bin/bash
+set -eo pipefail
 
 ENV_FILE=".env"
 
-if [[ -n $CHAIN_ID ]]; then
-  CHAIN_ID=${CHAIN_ID}
-elif [[ -n $DB_CHAIN ]]; then
-  CHAIN_ID=${DB_CHAIN}
-else
-  CHAIN_ID=31337
-fi
+# Fallback to DB_CHAIN or 31337 if neither are set
+CHAIN_ID=${CHAIN_ID:-${DB_CHAIN:-31337}}
 
 settingChainID=false
 
