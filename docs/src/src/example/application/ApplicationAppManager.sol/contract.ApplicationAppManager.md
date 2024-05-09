@@ -1,5 +1,5 @@
 # ApplicationAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/e7a29d289e813f2ec0afb244343b31481470bf5f/src/example/application/ApplicationAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/38ad28ed586c360d4509e485bd378da51297351d/src/example/application/ApplicationAppManager.sol)
 
 **Inherits:**
 [AppManager](/src/client/application/AppManager.sol/contract.AppManager.md)
