@@ -1,9 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
 
-# function to check for installations
-installed()
-{
-  command -v "$1" >/dev/null 2>&1
-}
 # function to get input from the user
 promptForInput() {
   echo -n "Enter $1: "
@@ -17,14 +15,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-# make sure that foundry is installed. If it is, update it to the specific version. If not, install it.
-if installed forge; then
-  echo "...Updating Foundry..."
-  COMMAND="$(foundryup --commit $(awk '$1~/^[^#]/' foundry.lock))"
-else
-  echo "...Installing Foundry..."
-  $(curl -L https://foundry.paradigm.xyz)
-fi
+
+./foundry-version-check.sh
 
 if [ -n $FOUNDRY_PROFILE ]; then
   RPC_URL="local"
