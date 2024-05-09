@@ -50,7 +50,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script. 
 
-2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `name`, `symbol` and `APPLICATION_ERC721_URI_1` of your NFT to the desired name, symbol and token URI for the deployment. 
+2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `Clyde` name, `CLYDEPIC` symbol inside the script and `APPLICATION_ERC721_URI_1` inside the .env file to the desired name, symbol and token URI for your NFT deployment. 
 
 3. Deploy the contracts:
         ````
