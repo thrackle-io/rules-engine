@@ -95,5 +95,5 @@ struct InitializedS{
 }
 
 struct HandlerVersionS{
-   string VERSION;
+   string version;
 }

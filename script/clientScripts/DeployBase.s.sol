@@ -48,7 +48,7 @@ contract DeployBase is Script, DiamondScriptUtil {
         // Register all facets.
         string[4] memory facets = [
             // diamond version
-            "VersionFacet",
+            "HandlerVersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // // Raw implementation facets.
@@ -59,7 +59,7 @@ contract DeployBase is Script, DiamondScriptUtil {
         ];
 
         string[4] memory directories = [
-            "./out/VersionFacet.sol/",
+            "./out/HandlerVersionFacet.sol/",
             "./out/ProtocolNativeFacet.sol/",
             "./out/ProtocolRawFacet.sol/",
             "./out/ERC20HandlerMainFacet.sol/"
@@ -176,7 +176,7 @@ contract DeployBase is Script, DiamondScriptUtil {
         // Register all facets.
         string[4] memory facets = [
             // diamond version
-            "VersionFacet",
+            "HandlerVersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.
@@ -187,7 +187,7 @@ contract DeployBase is Script, DiamondScriptUtil {
         ];
 
         string[4] memory directories = [
-            "./out/VersionFacet.sol/",
+            "./out/HandlerVersionFacet.sol/",
             "./out/ProtocolNativeFacet.sol/",
             "./out/ProtocolRawFacet.sol/",
             "./out/ERC721HandlerMainFacet.sol/"

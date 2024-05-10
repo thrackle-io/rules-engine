@@ -5,9 +5,9 @@ import {StorageLib as lib} from "./StorageLib.sol";
 import {IHandlerDiamondEvents} from "../../../../common/IEvents.sol";
 import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 /**
- * @title Protocol Version Facet 
+ * @title Handler Version Facet 
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @VoR0220, @GordonPalmer
- * @notice This is a facet that should be deployed for any protocol diamond.
+ * @notice This is a facet that should be deployed for any handler diamond to track versions.
  * @dev setter and getter functions for Version of a diamond.
  */
 contract HandlerVersionFacet is IHandlerDiamondEvents, AppAdministratorOrOwnerOnlyDiamondVersion {
@@ -17,7 +17,7 @@ contract HandlerVersionFacet is IHandlerDiamondEvents, AppAdministratorOrOwnerOn
     * versioning format: --> "MAJOR.MINOR.PATCH".
     */
     function updateVersion(string memory newVersion) external appAdministratorOrOwnerOnly(lib.handlerBaseStorage().appManager) {
-        lib.handlerVersionStorage().VERSION = newVersion;
+        lib.handlerVersionStorage().version = newVersion;
         emit AD1467_UpgradedToVersion(msg.sender, newVersion);
     }
 
@@ -26,7 +26,7 @@ contract HandlerVersionFacet is IHandlerDiamondEvents, AppAdministratorOrOwnerOn
     * @return string version.
     */
     function version() external view returns(string memory){
-        return lib.handlerVersionStorage().VERSION;
+        return lib.handlerVersionStorage().version;
     }
 
 
