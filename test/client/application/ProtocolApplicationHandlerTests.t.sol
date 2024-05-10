@@ -29,6 +29,8 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
         (success, ) = address(applicationNFTHandler).call(abi.encodeWithSignature("updateVersion(string)", "1.2.0"));
         assertTrue(success);
 
+        vm.assertEq(HandlerVersionFacet(address(applicationCoinHandler)).version(), "1.2.0");
+        vm.assertEq(HandlerVersionFacet(address(applicationNFTHandler)).version(), "1.2.0");
     }
 
     // note: make a test for get acc total valuation 
