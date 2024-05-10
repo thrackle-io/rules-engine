@@ -34,13 +34,13 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        ownerAddress = vm.envAddress("APP_ADMIN");
         vm.startBroadcast(privateKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC721AdminOrOwnerMint nftupgradeable = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721U_ADDRESS"));
-        applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER_ADDRESS")));
+        applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
         /// Create NFT
         createERC721HandlerDiamondPt2("DAWGUniversity", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
@@ -48,6 +48,8 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
+        console.log("Connecting handler to token");
+        console.log(nftupgradeable.getAdmin());
         nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
         /// Register the tokens with the application's app manager

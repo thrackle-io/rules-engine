@@ -5,6 +5,7 @@ import "forge-std/Script.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "./DeployBase.s.sol";
 
 /**
  * @title The Post Deployment Configuration Step For the Token
@@ -29,23 +30,20 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
     HandlerDiamond applicationNFTHandlerDiamond;
     ApplicationAppManager applicationAppManager;
     
-    uint256 privateKey;
-    address ownerAddress;
-    
     uint256 appAdminKey;
     address appAdminAddress;
 
     function run() external {
 
-        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
-        vm.startBroadcast(privateKey);
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.startBroadcast(appAdminKey);
 
         applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
         bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "DAWGUniversity", "DAWGU", address(applicationAppManager), "https://dawgieboisuniversity");
-        ApplicationERC721UProxy proxy = new ApplicationERC721UProxy(address(_applicationNFTU), appAdminAddress, callData);
+        new ApplicationERC721UProxy(address(_applicationNFTU), appAdminAddress, callData);
         applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("DAWGUniversity");
         
         vm.stopBroadcast();
