@@ -8,30 +8,47 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
 
 /**
  * @title The Post Deployment Configuration Step For the Token
- * @author @VoR0220
- * @notice This is an example script for how to deploy a protocol ERC721 upgradeable token and proxy. This is purely an example and should be modified to fit the needs of the deployment. Other possible implementations one might want to look at include the Openzeppelin Foundry Upgrades library. 
+ * @author @VoR0220, @ShaneDuncan, @TJEverett, @GordanPalmer
+ * @notice This is an example script for how to deploy a protocol ERC721 upgradeable token and proxy. 
+ ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **. 
+ * Deploy Scripts:
+ * forge script clientScripts/script/Application_Deploy_01_AppManager.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_02_ApplicationFT1.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_03_ApplicationFT2.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_04_ApplicationNFT.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_04_ApplicationNFTUpgradable.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_05_Oracle.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_06_Pricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script clientScripts/script/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * <<<OPTIONAL>>>
+ * forge script clientScripts/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
- contract DeployProtocolERC721Upgradeable is Script {
+ contract DeployProtocolERC721Upgradeable is Script, DeployBase {
 
+    HandlerDiamond applicationNFTHandlerDiamond;
     ApplicationAppManager applicationAppManager;
+    
+    uint256 privateKey;
+    address ownerAddress;
+    
     uint256 appAdminKey;
     address appAdminAddress;
 
     function run() external {
 
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
-        vm.startBroadcast(appAdminKey);
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        vm.startBroadcast(privateKey);
 
         applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
-        bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "ERC721U", "ERC721U", address(applicationAppManager), "https://");
+        bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "DAWGUniversity", "DAWGU", address(applicationAppManager), "https://dawgieboisuniversity");
         ApplicationERC721UProxy proxy = new ApplicationERC721UProxy(address(_applicationNFTU), appAdminAddress, callData);
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("DAWGUniversity");
+        
         vm.stopBroadcast();
-        console.log("Deployed ERC721U proxy at address: ", address(proxy));
-        console.log("Deployed ERC721U at address: ", address(_applicationNFTU));
     }
  }
 
