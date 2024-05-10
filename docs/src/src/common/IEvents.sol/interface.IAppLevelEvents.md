@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/38ad28ed586c360d4509e485bd378da51297351d/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/bb9fb29098b7e62d948f810420d516cd6ca78012/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -44,42 +44,6 @@ event AD1467_DataContractsMigrated(address indexed ownerAddress);
 
 ```solidity
 event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
-```
-
-### AD1467_RuleAdmin
-
-```solidity
-event AD1467_RuleAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_RiskAdmin
-
-```solidity
-event AD1467_RiskAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_AccessLevelAdmin
-
-```solidity
-event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_AppAdministrator
-
-```solidity
-event AD1467_AppAdministrator(address indexed admin, bool indexed add);
-```
-
-### AD1467_SuperAdministrator
-
-```solidity
-event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
-```
-
-### AD1467_TreasuryAccount
-
-```solidity
-event AD1467_TreasuryAccount(address indexed treasuryAccount, bool indexed add);
 ```
 
 ### AD1467_AppNameChanged

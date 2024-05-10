@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/38ad28ed586c360d4509e485bd378da51297351d/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/bb9fb29098b7e62d948f810420d516cd6ca78012/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -425,15 +425,6 @@ function addMultipleAppAdministrator(address[] memory _accounts) external onlyRo
 |`_accounts`|`address[]`|address array to be added|
 
 
-### renounceAppAdministrator
-
-*Remove oneself from the app administrator role.*
-
-
-```solidity
-function renounceAppAdministrator() external;
-```
-
 ### isRuleAdministrator
 
 -------------RULE ADMIN---------------
@@ -486,15 +477,6 @@ function addMultipleRuleAdministrator(address[] memory account) external onlyRol
 |----|----|-----------|
 |`account`|`address[]`|address to be added as a rule admin|
 
-
-### renounceRuleAdministrator
-
-*Remove oneself from the rule admin role.*
-
-
-```solidity
-function renounceRuleAdministrator() external;
-```
 
 ### isTreasuryAccount
 
@@ -549,17 +531,6 @@ function addMultipleTreasuryAccounts(address[] memory _accounts) external onlyRo
 |`_accounts`|`address[]`|addresses to be added as a Treasury account|
 
 
-### renounceTreasuryAccount
-
-This function renounces the Treasury Account role.
-
-*Remove oneself from the Treasury account role.*
-
-
-```solidity
-function renounceTreasuryAccount() external nonReentrant;
-```
-
 ### isAccessLevelAdmin
 
 -------------ACCESS LEVEL---------------
@@ -613,15 +584,6 @@ function addMultipleAccessLevelAdmins(address[] memory account) external onlyRol
 |`account`|`address[]`|address to be added as a access level|
 
 
-### renounceAccessLevelAdmin
-
-*Remove oneself from the access level role.*
-
-
-```solidity
-function renounceAccessLevelAdmin() external;
-```
-
 ### isRiskAdmin
 
 -------------RISK ADMIN---------------
@@ -674,15 +636,6 @@ function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_AD
 |----|----|-----------|
 |`account`|`address[]`|address to be added|
 
-
-### renounceRiskAdmin
-
-*Remove oneself from the risk admin role.*
-
-
-```solidity
-function renounceRiskAdmin() external;
-```
 
 ### addAccessLevel
 
