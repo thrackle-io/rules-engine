@@ -24,13 +24,13 @@ contract PauseRules is IPauseRules, DataModule {
 
     /**
      * @dev Add the pause rule to the account. Restricted to the owner
+     * @notice This function first cleans outdated rules, then checks if new pause rule will exceed the MAX_RULES limit (15)
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
     function addPauseRule(uint64 _pauseStart, uint64 _pauseStop) public virtual onlyOwner {
-        if (pauseRules.length >= MAX_RULES) revert MaxPauseRulesReached();
-
         cleanOutdatedRules();
+        if (pauseRules.length >= MAX_RULES) revert MaxPauseRulesReached();
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
@@ -54,6 +54,8 @@ contract PauseRules is IPauseRules, DataModule {
 
     /**
      * @dev Remove the pause rule from the account. Restricted to the owner
+     * @notice Function loops through pause rules while there is at least 1 stored rule. Then calls _removePauseRule() for all rules whose end date is less than or equal to block.timestamp.
+     * This loop will continue looping through (a maximum of 15 rules) until all rules are "swapped and popped" in order to remove outdated rules, even when not stored in dated order. 
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
@@ -78,6 +80,8 @@ contract PauseRules is IPauseRules, DataModule {
 
     /**
      * @dev Cleans up outdated pause rules by removing them from the mapping
+     * @notice Function loops through pause rules and calls _removePauseRule() for all rules whose end date is less than or equal to block.timestamp
+     * This loop will continue looping through (a maximum of 15 rules) until all rules are "swapped and popped" in order to remove outdated rules, even when not stored in dated order. 
      */
     function cleanOutdatedRules() public virtual {
         uint256 i;
@@ -86,8 +90,8 @@ contract PauseRules is IPauseRules, DataModule {
             // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
             // slither-disable-next-line timestamp
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
-                emit AD1467_PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
                 _removePauseRule(uint8(i));
+                emit AD1467_PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
             }
             unchecked {
                 ++i;
