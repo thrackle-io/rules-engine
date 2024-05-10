@@ -90,8 +90,8 @@ contract PauseRules is IPauseRules, DataModule {
             // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
             // slither-disable-next-line timestamp
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
-                _removePauseRule(uint8(i));
                 emit AD1467_PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
+                _removePauseRule(uint8(i));
             }
             unchecked {
                 ++i;
