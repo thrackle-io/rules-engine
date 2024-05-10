@@ -183,8 +183,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
         super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
-        emit AD1467_SuperAdministrator(_msgSender(), true);
-        emit AD1467_SuperAdministrator(oldSuperAdmin, false);
     }
 
     /// -------------APP ADMIN---------------
@@ -205,7 +203,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(APP_ADMIN_ROLE, account);
-        emit AD1467_AppAdministrator(account, true);
     }
 
     /**
@@ -216,14 +213,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < _accounts.length; ++i) {
             addAppAdministrator(_accounts[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the app administrator role.
-     */
-    function renounceAppAdministrator() external {
-        renounceRole(APP_ADMIN_ROLE, _msgSender());
-        emit AD1467_AppAdministrator(_msgSender(), false);
     }
 
     /// -------------RULE ADMIN---------------
@@ -244,7 +233,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_ADMIN_ROLE, account);
-        emit AD1467_RuleAdmin(account, true);
     }
 
     /**
@@ -255,14 +243,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addRuleAdministrator(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the rule admin role.
-     */
-    function renounceRuleAdministrator() external {
-        renounceRole(RULE_ADMIN_ROLE, _msgSender());
-        emit AD1467_RuleAdmin(_msgSender(), false);
     }
 
     /// -------------TREASURY ACCOUNT ---------------
@@ -283,7 +263,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addTreasuryAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(TREASURY_ACCOUNT, account);
-        emit AD1467_TreasuryAccount(account, true);
     }
 
     /**
@@ -294,19 +273,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < _accounts.length; ++i) {
             addTreasuryAccount(_accounts[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the Treasury account role.
-     * @notice This function renounces the Treasury Account role.
-     */
-    function renounceTreasuryAccount() external nonReentrant {
-        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
-        // applied to this function
-        // slither-disable-next-line reentrancy-benign
-        renounceRole(TREASURY_ACCOUNT, _msgSender());
-        // slither-disable-next-line reentrancy-events
-        emit AD1467_TreasuryAccount(_msgSender(), false);
     }
 
     /// -------------ACCESS LEVEL---------------
@@ -326,7 +292,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addAccessLevelAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(ACCESS_LEVEL_ADMIN_ROLE, account);
-        emit AD1467_AccessLevelAdmin(account, true);
     }
 
     /**
@@ -337,14 +302,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addAccessLevelAdmin(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the access level role.
-     */
-    function renounceAccessLevelAdmin() external {
-        renounceRole(ACCESS_LEVEL_ADMIN_ROLE, _msgSender());
-        emit AD1467_AccessLevelAdmin(_msgSender(), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -365,7 +322,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RISK_ADMIN_ROLE, account);
-        emit AD1467_RiskAdmin(account, true);
     }
 
     /**
@@ -376,14 +332,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         for (uint256 i; i < account.length; ++i) {
             addRiskAdmin(account[i]);
         }
-    }
-
-    /**
-     * @dev Remove oneself from the risk admin role.
-     */
-    function renounceRiskAdmin() external {
-        renounceRole(RISK_ADMIN_ROLE, _msgSender());
-        emit AD1467_RiskAdmin(_msgSender(), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------

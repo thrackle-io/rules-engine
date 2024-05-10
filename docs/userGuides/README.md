@@ -194,9 +194,6 @@ Once you have deployed your smart contracts, you can monitor them using [Openzep
 | AD1467_HandlerConnected | "ApplicationAppManager/ProtocolERC20{U}/ProtocolERC721{U}"  | Emits whenever a handler is connected, whether that be an application handler or a token handler |
 | AD1467_AppManagerDeployed | ApplicationAppManager | Emits whenever a new application manager is deployed |
 | AD1467_AppManagerDeployedForUpgrade |	ApplicationAppManager | Emits whenever a new application manager is deployed as an upgrade to a previous application manager |
-| AD1467_AppAdministrator | ApplicationAppManager | Emits whenever an application administrator is set |
-| AD1467_SuperAdministrator |	ApplicationAppManager | Emits whenever a super administrator is set |
-| AD1467_TreasuryAccount	| ApplicationAppManager | Emits whenever a treasury account role is set or removed |
 | AD1467_ApplicationHandlerDeployed	| ApplicationHandler | Emits whenever a new application handler is deployed |
 | AD1467_ERC721PricingAddressSet	| ApplicationHandler | Emits whenever an ERC721 pricer is set |
 | AD1467_ERC20PricingAddressSet	| ApplicationHandler | Emits whenever an ERC20 pricer is set |

@@ -100,7 +100,9 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as an app administrator
         /// we renounce so there can be only one appAdmin
-        applicationAppManager.renounceAppAdministrator();
+        vm.startPrank(appAdministrator);
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
+        switchToSuperAdmin();
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
@@ -113,7 +115,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceAppAdministrator() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
         assertFalse(applicationAppManager.isAppAdministrator(appAdministrator));
     }
 
@@ -137,7 +139,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceRiskAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToRiskAdmin(); //interact as the created risk admin
-        applicationAppManager.renounceRiskAdmin();
+        applicationAppManager.renounceRole(RISK_ADMIN_ROLE, riskAdmin);
         assertFalse(applicationAppManager.isRiskAdmin(riskAdmin));
     }
 
@@ -171,7 +173,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceAccessLevelAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAccessLevelAdmin();
-        applicationAppManager.renounceAccessLevelAdmin();
+        applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
         assertFalse(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin));
     }
 
@@ -492,36 +494,36 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
     function testApplication_ApplicationCommonTests_RuleAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RuleAdmin(ruleAdmin, true);
-        applicationAppManager.addRuleAdministrator(ruleAdmin);
+        emit RoleGranted(RULE_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addRuleAdministrator(user);
     }
 
     function testApplication_ApplicationCommonTests_RiskAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RiskAdmin(riskAdmin, true);
-        applicationAppManager.addRiskAdmin(riskAdmin);
+        emit RoleGranted(RISK_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addRiskAdmin(user);
     }
 
     function testApplication_ApplicationCommonTests_AccessLevelAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_AccessLevelAdmin(accessLevelAdmin, true);
-        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
+        emit RoleGranted(ACCESS_LEVEL_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addAccessLevelAdmin(user);
     }
 
     function testApplication_ApplicationCommonTests_AppAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToSuperAdmin();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_AppAdministrator(appAdministrator, true);
-        applicationAppManager.addAppAdministrator(appAdministrator);
+        emit RoleGranted(APP_ADMIN_ROLE, user, superAdmin);
+        applicationAppManager.addAppAdministrator(user);
     }
 
     function testApplication_ApplicationCommonTests_TreasuryAccountEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_TreasuryAccount(treasuryAccount, true);
-        applicationAppManager.addTreasuryAccount(treasuryAccount);
+        emit RoleGranted(TREASURY_ACCOUNT, user, appAdministrator);
+        applicationAppManager.addTreasuryAccount(user);
     }
 
     function testApplication_ApplicationCommonTests_AppNameEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {

@@ -43,9 +43,9 @@ Adds the provided address as a new App Admin for the application. This function 
 A utility method to add multiple App Admins at the same time. Like the singular version this can only be called by the existing Super Admin.
 
 ```c
-function renounceAppAdministrator() external
+function renounceRole(bytes32 role, address account) external
 ```
-Removes the senders role as an App Admin.
+Removes the senders role as an App Admin if the role argument is APP_ADMIN_ROLE
 
 
 ##### Super Admin Special Case

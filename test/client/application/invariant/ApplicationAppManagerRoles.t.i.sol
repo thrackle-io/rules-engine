@@ -80,15 +80,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddAppAdministratorEmitsEvent() public {
         switchToSuperAdmin();
         vm.expectEmit();
-        emit AD1467_AppAdministrator(user, true);
+        emit RoleGranted(APP_ADMIN_ROLE, user, superAdmin);
         applicationAppManager.addAppAdministrator(user);
     }
-    // When renounceAppAdministrator is called the AppAdministrator event will be emitted.
+    // When renounceRole is called with argument APP_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceAppAdministratorEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_AppAdministrator(appAdministrator, false);
-        applicationAppManager.renounceAppAdministrator();
+        emit RoleRevoked(APP_ADMIN_ROLE, appAdministrator, appAdministrator);
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
     }
 
     /** RULE ADMIN */
@@ -116,15 +116,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddRuleAdministratorEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RuleAdmin(user, true);
+        emit RoleGranted(RULE_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addRuleAdministrator(user);
     }
-    // When renounceRuleAdministrator is called the RuleAdministrator event will be emitted.
+    // When renounceRole is called with argument RULE_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceRuleAdministratorEmitsEvent() public {
         switchToRuleAdmin();
         vm.expectEmit();
-        emit AD1467_RuleAdmin(ruleAdmin, false);
-        applicationAppManager.renounceRuleAdministrator();
+        emit RoleRevoked(RULE_ADMIN_ROLE, ruleAdmin, ruleAdmin);
+        applicationAppManager.renounceRole(RULE_ADMIN_ROLE, ruleAdmin);
     }
 
     /** RISK ADMIN */
@@ -152,15 +152,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddRiskAdminEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RiskAdmin(user, true);
+        emit RoleGranted(RISK_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addRiskAdmin(user);
     }
-    // When renounceRiskAdmin is called the RiskAdmin event will be emitted.
+    // When renounceRole is called with argument RISK_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceRiskAdminEmitsEvent() public {
         switchToRiskAdmin();
         vm.expectEmit();
-        emit AD1467_RiskAdmin(riskAdmin, false);
-        applicationAppManager.renounceRiskAdmin();
+        emit RoleRevoked(RISK_ADMIN_ROLE, riskAdmin, riskAdmin);
+        applicationAppManager.renounceRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
     /** ACCESS LEVEL ADMIN */
@@ -188,15 +188,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddAccessLevelAdminEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_AccessLevelAdmin(user, true);
+        emit RoleGranted(ACCESS_LEVEL_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addAccessLevelAdmin(user);
     }
-    // When renounceAccessLevelAdmin is called the AccessLevelAdmin event will be emitted.
+    // When renounceRole is called with argument ACCESS_LEVEL_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceAccessLevelAdminEmitsEvent() public {
         switchToAccessLevelAdmin();
         vm.expectEmit();
-        emit AD1467_AccessLevelAdmin(accessLevelAdmin, false);
-        applicationAppManager.renounceAccessLevelAdmin();
+        emit RoleRevoked(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin, accessLevelAdmin);
+        applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
     /** TREASURY ACCOUNT   */
@@ -224,15 +224,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddTreasuryAccountEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_TreasuryAccount(user, true);
+        emit RoleGranted(TREASURY_ACCOUNT, user, appAdministrator);
         applicationAppManager.addTreasuryAccount(user);
     }
-    // When renounceTreasuryAccount is called the TreasuryAccount event will be emitted.
+    // When renounceRole is called with argument TREASURY_ACCOUNT the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceTreasuryAccountEmitsEvent() public {
         switchToTreasuryAccount();
         vm.expectEmit();
-        emit AD1467_TreasuryAccount(treasuryAccount, false);
-        applicationAppManager.renounceTreasuryAccount();
+        emit RoleRevoked(TREASURY_ACCOUNT, treasuryAccount, treasuryAccount);
+        applicationAppManager.renounceRole(TREASURY_ACCOUNT, treasuryAccount);
     }
 
 }

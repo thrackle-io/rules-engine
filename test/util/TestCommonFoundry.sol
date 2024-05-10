@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/util/TestCommon.sol";
 import "test/util/EndWithStopPrank.sol";
 import "script/EnabledActionPerRuleArray.sol";
+import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 /**
  * @title Test Common Foundry
@@ -13,7 +14,7 @@ import "script/EnabledActionPerRuleArray.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActionPerRuleArray {
+abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActionPerRuleArray, AccessControl {
     modifier ifDeploymentTestsEnabled() {
         if (testDeployments) {
             _;
