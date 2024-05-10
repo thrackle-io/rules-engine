@@ -1,64 +1,93 @@
 #!/bin/bash
+set +e # Proceed on errors
+cd "$(dirname "$0")"
 
-SCRIPT_MODE=$1
+GITHUB_BRANCH_NAME=${GITHUB_BRANCH_NAME:-HEAD}
+SNS_TOPIC_ARN="arn:aws:sns:us-east-1:560711875040:GHDeployTest"
+
+SCRIPT_MODE=${1:-0}
+# Ensures foundry is installed and up to date with foundry.lock
+./foundry-version-check.sh
 
 source ~/.bashrc
-# Pin foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
-foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install -r requirements.txt
+python3 -m pip install --quiet -r requirements.txt
+
+case $SCRIPT_MODE in
+  "--with-build")
+    echo "Building..."
+    ;;
+  "--with-deploy-check")
+    echo "Deploying..."
+    ;;
+  *)
+    echo "No script mode specified. Provide --with-build or --with-deploy-check. Exiting..."
+    exit 1
+    ;;
+esac
 
 if [ $SCRIPT_MODE = "--with-build" ]; then
-  forge build   
+  forge build
 fi
 
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
-  source script/SetupProtocolDeploy.sh
-  forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
-  source script/ParseProtocolDeploy.sh
-  forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
-  forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast
-  forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast
+  echo "Running Deployments to Anvil... Only errors will be displayed."
+  {
+    source script/SetupProtocolDeploy.sh
+    forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
+    source script/ParseProtocolDeploy.sh
+    forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
+    forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast
+    forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast
 
-  forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast
-  source script/ParseApplicationDeploy.sh 1
-  forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast 
-  source script/ParseApplicationDeploy.sh 2
-  forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast 
-  forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
-  source script/ParseApplicationDeploy.sh 3
-  forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast 
-  forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast 
-  source script/ParseApplicationDeploy.sh 4
-  forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast
-  source script/ParseApplicationDeploy.sh 5
-  forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast
+    forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast
+    source script/ParseApplicationDeploy.sh 1
+    forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast 
+    source script/ParseApplicationDeploy.sh 2
+    forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast 
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
+    source script/ParseApplicationDeploy.sh 3
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast 
+    forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast 
+    source script/ParseApplicationDeploy.sh 4
+    forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast
+    source script/ParseApplicationDeploy.sh 5
+    forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast
+  } > /dev/null # silence stdout (error output will be shown)
 
-  TEST_ONE_UNCUT=$(forge test --ffi -vv --match-contract RuleProcessorDiamondTest)
-  TEST_ONE=$(echo $TEST_ONE_UNCUT | tail -n 1 | grep "0m failed" | wc -l | tr -d ' ')
-  TEST_TWO_UNCUT=$(forge test --ffi -vv --match-contract ApplicationDeploymentTest)
-  TEST_TWO=$(echo $TEST_TWO_UNCUT | tail -n 1 | grep "0m failed" | wc -l | tr -d ' ')
-  TEST_THREE_UNCUT=$(bash deployAppERC20Test.sh)
-  TEST_THREE=$(echo TEST_THREE_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' ')
-  TEST_FOUR_UNCUT=$(bash deployAppERC721Test.sh)
-  TEST_FOUR=$(echo TEST_FOUR_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' ')
+  test_commands=(
+    "forge test --ffi -vv --match-contract RuleProcessorDiamondTest"
+    "forge test --ffi -vv --match-contract ApplicationDeploymentTest"
+    "bash deployAppERC20Test.sh"
+    "bash deployAppERC721Test.sh"
+    "node abi-aggregator.mjs --branch \"$GITHUB_BRANCH_NAME\""
+  )
 
-  TEST_FIVE_UNCUT=$(node abi-aggregator.mjs --branch $GITHUB_BRANCH_NAME)
-  TEST_FIVE=$?
+  echo "Running tests..."
+  NUM_FAILED=0
+  for command in "${test_commands[@]}"; do
+      # Run command in a subshell and capture stderr
+      output=$( { eval "$command"; } 2>&1 )
+      # Capture return value
+      retval=$?
 
-  echo $TEST_ONE_UNCUT
-  echo $TEST_TWO_UNCUT
-  echo $TEST_THREE_UNCUT
-  echo $TEST_FOUR_UNCUT
-  echo $TEST_FIVE_UNCUT
+      # If return value is non-zero, the test failed
+      if [ $retval -ne 0 ]; then
+        echo " ❌ '$command' failed. Errors were:\n" >&2
+        echo -e "=================================" >&2
+        echo -e "$output"
+        echo -e "=================================\n" >&2
+        NUM_FAILED=$((NUM_FAILED+1))
+      fi
+  done
 
-  if [ "1" = "$TEST_ONE" ] && [ "1" = "$TEST_TWO" ] && [ "0" == "$TEST_THREE" ] && [ "0" == "$TEST_FOUR" ] && [ "0" == "$TEST_FIVE" ]; then
-    echo "Running K8s Build And Deploy workflow for $GITHUB_BRANCH_NAME"
-    export GH_TOKEN=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:560711875040:secret:GHPAT-y6CS5m --region us-east-1 | jq -r '.SecretString' | jq -r .GHPAT)
-    gh workflow run k8s.yml --ref $GITHUB_BRANCH_NAME
-  else 
-    echo "Sending sns message for failure"
-    aws sns publish --topic-arn arn:aws:sns:us-east-1:560711875040:GHDeployTest --message "Deploy Test failed for branch $GITHUB_BRANCH_NAME"
+  if [ $NUM_FAILED -gt 0 ]; then
+    echo "❌ $NUM_FAILED tests failed. Sending SNS message..."
+    aws sns publish --topic-arn $SNS_TOPIC_ARN --message "Deploy Test failed for branch $GITHUB_BRANCH_NAME"
+    exit 1
+  else
+    echo "✅ All tests passed."
+    echo -e "\n\n!!! TODO in PR 3/3 !!!: GitHub Actions 'Deploy' workflow will run this in a step. This script will no longer invoke a deployment."
   fi
 fi
