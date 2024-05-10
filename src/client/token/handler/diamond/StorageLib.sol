@@ -24,7 +24,20 @@ library StorageLib {
     bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("initialized-position")) - 1);
     bytes32 constant TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-buy-sell-position")) - 1);
     bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-trading-size-handler-postion")) - 1);
-    
+    bytes32 constant HANDLER_VERSION_POSITION = bytes32(uint256(keccak256("handler-version-position")) - 1);
+
+
+    /**
+     * @dev Function to store the Initialized flag
+     * @return ds Data Storage of the Initialized flag
+     */
+    function handlerVersionStorage() internal pure returns (HandlerVersionS storage ds) {
+        bytes32 position = HANDLER_VERSION_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
     /**
      * @dev Function to store the Initialized flag
      * @return ds Data Storage of the Initialized flag

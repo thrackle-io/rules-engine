@@ -29,6 +29,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
         data.assetAddress = _assetAddress;
         data.lastPossibleAction = 4;
         init.initialized = true;
+        // function selector is (transferOwnership(address))
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
 
@@ -87,6 +88,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
         if (!isFromTreasuryAccount && !isToTreasuryAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
             callAnotherFacet(
+                // function selector is for checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)
                 0x36bd6ea7, 
                 abi.encodeWithSignature(
                     "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
@@ -99,6 +101,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
                 )
             );
             callAnotherFacet(
+                // function selector is for checkNonTaggedRules(address,address,uint256,uint8)
                 0x6f43d91d, 
                 abi.encodeWithSignature(
                     "checkNonTaggedRules(address,address,uint256,uint8)",
