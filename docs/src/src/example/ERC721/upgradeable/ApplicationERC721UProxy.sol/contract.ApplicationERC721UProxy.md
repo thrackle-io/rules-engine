@@ -1,5 +1,5 @@
 # ApplicationERC721UProxy
-[Git Source](https://github.com/thrackle-io/tron/blob/bb9fb29098b7e62d948f810420d516cd6ca78012/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/9006c7893599df6faee125cfb638dc80c156ce12/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
 
 **Inherits:**
 ERC1967Proxy
