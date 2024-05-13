@@ -21,8 +21,19 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @param _on boolean representing if the rule is active
      */
     function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if (!_on) resetTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
             lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_actions[i]].active = _on;
+        }
+        // if any actions remain on for this rule, then set the anyActionActive to true, otherwise set to false
+        if (!_on){
+            lib.tokenMinHoldTimeStorage().anyActionActive = false;
+            for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
+                if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_actions[i]].active){
+                    lib.tokenMinHoldTimeStorage().anyActionActive = true;
+                    break;
+                }
+            } 
         }
         if (_on) {
             emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions);
@@ -38,6 +49,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @param _minHoldTimeHours min hold time in hours
      */
     function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        resetTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
             setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
@@ -65,12 +77,21 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      */
     function clearTokenMinHoldTime() internal {
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
+        resetTokenMinHoldTime();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMinHoldTime[ActionTypes(i)];
             unchecked {
                 ++i;
             }
         }
+    }
+   
+    /**
+     * @dev reset the ruleChangeDate within the rule data struct. This will signal the rule check to clear the accumulator data prior to checking the rule.
+     */
+    function resetTokenMinHoldTime() internal{
+        TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
+        data.ruleChangeDate = block.timestamp;
     }
 
     /**
@@ -85,6 +106,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
         data.tokenMinHoldTime[_action].period = _minHoldTimeHours;
         data.tokenMinHoldTime[_action].active = true;
+        data.anyActionActive = true;
     }
 
     /**

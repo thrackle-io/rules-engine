@@ -27,7 +27,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
-        data.lastPossibleAction = 4;
+        data.lastPossibleAction = 5;
         init.initialized = true;
         // function selector is (transferOwnership(address))
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));

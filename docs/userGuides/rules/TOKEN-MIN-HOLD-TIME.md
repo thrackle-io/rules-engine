@@ -129,6 +129,8 @@ This rule doesn't return any data.
 
 This rule requires the unix timestamp for each tokenId each time the ownership of the token is transferred.
 
+NOTE: When this rule is updated and/or deactivated, the recorded ownership data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state. This means that the rule will only apply to tokens in which the ownership began after the current implemented version of this rule was applied.
+
 ## Events
 
 - **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 

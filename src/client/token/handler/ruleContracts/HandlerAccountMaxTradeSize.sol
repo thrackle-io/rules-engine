@@ -30,7 +30,9 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
      */
     function setAccountMaxTradeSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxTradeSize(_actions, _ruleId);
+        resetAccountMaxTradeSize();
         for (uint i; i < _actions.length; ++i) {
+            delete lib.accountMaxTradeSizeStorage().accountMaxTradeSize[_actions[i]];
             setAccountMaxTradeSizeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_TRADE_SIZE, _actions[i], _ruleId);
         }
@@ -57,6 +59,7 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
      */
     function clearAccountMaxTradeSize() internal {
         AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
+        resetAccountMaxTradeSize();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.accountMaxTradeSize[ActionTypes(i)];
             unchecked {
@@ -80,11 +83,21 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
     }
 
     /**
+     * @dev reset the ruleChangeDate within the rule data struct. This will signal the rule check to clear the accumulator data prior to checking the rule.
+     */
+    function resetAccountMaxTradeSize() internal{
+
+        AccountMaxTradeSizeS storage data = lib.accountMaxTradeSizeStorage();
+        data.ruleChangeDate = block.timestamp;
+    }
+
+    /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _actions the action type to set the rule
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxTradeSize(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_on) resetAccountMaxTradeSize();
         for (uint i; i < _actions.length; ++i) {
             if (!(_actions[i] == ActionTypes.SELL || _actions[i] == ActionTypes.BUY)) revert InvalidAction();
             lib.accountMaxTradeSizeStorage().accountMaxTradeSize[_actions[i]].active = _on;

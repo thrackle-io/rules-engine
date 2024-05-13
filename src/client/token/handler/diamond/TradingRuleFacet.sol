@@ -14,7 +14,7 @@ import "../ruleContracts/HandlerTokenMaxBuySellVolume.sol";
 import "../../ERC20/IERC20Decimals.sol";
 
 contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellVolume, AppAdministratorOrOwnerOnlyDiamondVersion, IZeroAddressError, IHandlerDiamondErrors {
-
+    
     /**
      * @dev This function consolidates all the trading rules.
      * @param _from address of the from account
@@ -42,6 +42,11 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
     function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256 _amount, ActionTypes action) internal {
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
+            // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
+            if (maxTradeSize.lastPurchaseTime[_to] < maxTradeSize.ruleChangeDate){
+                delete maxTradeSize.boughtInPeriod[_to];
+                delete maxTradeSize.lastPurchaseTime[_to];
+            }
             maxTradeSize.boughtInPeriod[_to] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxTradeSize(
                 maxTradeSize.accountMaxTradeSize[action].ruleId, 
                 maxTradeSize.boughtInPeriod[_to], 
@@ -58,7 +63,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
                 _amount,  
                 maxVolume.lastPurchaseTime,  
                 maxVolume.boughtInPeriod
-            );
+            );           
             maxVolume.lastPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
         }
     }
@@ -73,6 +78,11 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellV
     function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, uint256 _amount, ActionTypes action) internal {
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
+            // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
+            if (maxTradeSize.lastSellTime[_from] < maxTradeSize.ruleChangeDate){
+                delete maxTradeSize.salesInPeriod[_from];
+                delete maxTradeSize.lastSellTime[_from];
+            }
             maxTradeSize.salesInPeriod[_from] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxTradeSize(
                 maxTradeSize.accountMaxTradeSize[action].ruleId,  
                 maxTradeSize.salesInPeriod[_from],  

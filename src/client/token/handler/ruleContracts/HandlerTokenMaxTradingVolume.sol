@@ -43,9 +43,29 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
     function clearTokenMaxTradingVolume() internal {
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
         delete data.ruleId;
+        clearTokenMaxTradingVolumeAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxTradingVolume[ActionTypes(i)];
         }
+    }
+
+     /**
+     * @dev Clear the rule data accumulators
+     */
+    function clearTokenMaxTradingVolumeAccumulators() internal {
+        TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
+        delete data.transferVolume;
+        delete data.lastTransferTime;
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearTokenMaxTradingVolumeSingleAction(ActionTypes _action) internal {
+        TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
+        clearTokenMaxTradingVolumeAccumulators();
+        delete data.ruleId;
+        delete data.tokenMaxTradingVolume[_action];
     }
 
     /**
@@ -57,6 +77,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
     // slither-disable-next-line calls-loop
     function setTokenMaxTradingVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(createActionTypesArray(_action), _ruleId);
+        clearTokenMaxTradingVolumeSingleAction(_action);
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
         data.ruleId = _ruleId;
         data.tokenMaxTradingVolume[_action] = true;
@@ -68,6 +89,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
      * @param _on boolean representing if the rule is active
      */
     function activateTokenMaxTradingVolume(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_on) clearTokenMaxTradingVolumeAccumulators();
         for (uint i; i < _actions.length; ++i) {
             lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[_actions[i]] = _on;
         }

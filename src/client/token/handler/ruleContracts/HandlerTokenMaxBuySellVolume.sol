@@ -30,6 +30,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray
      */
     function setTokenMaxBuySellVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuySellVolume(_actions, _ruleId);
+        clearTokenMaxBuySellVolumeAccumulators();
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxBuySellVolumeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_SELL_VOLUME, _actions[i], _ruleId);
@@ -57,16 +58,24 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray
      */
     function clearTokenMaxBuySellVolume() internal {
         TokenMaxBuySellVolumeS storage data = lib.tokenMaxBuySellVolumeStorage();
+        clearTokenMaxBuySellVolumeAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMaxBuySellVolume[ActionTypes(i)];
-            delete data.boughtInPeriod;
-            delete data.lastPurchaseTime;
-            delete data.salesInPeriod;
-            delete data.lastSellTime;
             unchecked {
                 ++i;
             }
         }
+    }
+
+    /**
+     * @dev Clear the rule data accumulators
+     */
+    function clearTokenMaxBuySellVolumeAccumulators() internal {
+        TokenMaxBuySellVolumeS storage data = lib.tokenMaxBuySellVolumeStorage();
+        delete data.boughtInPeriod;
+        delete data.lastPurchaseTime;
+        delete data.salesInPeriod;
+        delete data.lastSellTime;
     }
 
     /**
@@ -97,6 +106,7 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateTokenMaxBuySellVolume(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_on) clearTokenMaxBuySellVolumeAccumulators();
         for (uint i; i < _actions.length; ++i) {
             if (!(_actions[i] == ActionTypes.SELL || _actions[i] == ActionTypes.BUY)) revert InvalidAction();
             lib.tokenMaxBuySellVolumeStorage().tokenMaxBuySellVolume[_actions[i]].active = _on;

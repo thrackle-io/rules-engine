@@ -133,6 +133,10 @@ contract ERC721NonTaggedRuleFacet is
         // get all the tags for this NFT
         bytes32[] memory tags = IAppManager(handlerBaseStorage.appManager).getAllTags(handlerBaseStorage.assetAddress);
         TokenMaxDailyTradesS storage maxDailyTrades = lib.tokenMaxDailyTradesStorage();
+        // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
+        if (maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] < maxDailyTrades.ruleChangeDate){
+            delete maxDailyTrades.lastTxDate[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId];
+        }
         // in order to prevent cross contamination of action specific rules, the data is further broken down by action
         maxDailyTrades.tradesInPeriod[maxDailyTrades.tokenMaxDailyTrades[action].ruleId][_tokenId] = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxDailyTrades(
             maxDailyTrades.tokenMaxDailyTrades[action].ruleId,
@@ -149,10 +153,12 @@ contract ERC721NonTaggedRuleFacet is
      * @param _tokenId the specific token to check 
      * @param handlerBase address of the handler proxy 
      */
-    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase) internal view {
-        TokenMinHoldTimeS storage minHodlTime = lib.tokenMinHoldTimeStorage();
-        if (minHodlTime.tokenMinHoldTime[_action].active && minHodlTime.ownershipStart[_tokenId] > 0)
-            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHodlTime.tokenMinHoldTime[_action].period, minHodlTime.ownershipStart[_tokenId]);
+    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase) internal {
+        TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
+        // If the rule was changed after ownership was recorded, reset ownership. 
+        if (minHoldTime.ownershipStart[_tokenId] < minHoldTime.ruleChangeDate) minHoldTime.ownershipStart[_tokenId] = 0;
+        if (minHoldTime.tokenMinHoldTime[_action].active && minHoldTime.ownershipStart[_tokenId] > 0)
+            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[_action].period, minHoldTime.ownershipStart[_tokenId]);
     }
 
 

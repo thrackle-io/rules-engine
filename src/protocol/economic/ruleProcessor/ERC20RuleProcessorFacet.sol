@@ -235,7 +235,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         NonTaggedRules.TokenMaxBuySellVolume memory rule = getTokenMaxBuySellVolume(ruleId);
         totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ? amountToTransfer + totalWithinPeriod : amountToTransfer;
         uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply : rule.totalSupply;
-        uint16 percentOfTotalSupply;
+        uint16 percentOfTotalSupply = 0;
         if (totalSupply > 0){
             percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
         }
