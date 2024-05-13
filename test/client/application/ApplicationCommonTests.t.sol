@@ -373,6 +373,152 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         assertTrue(test.length == 3);
     }
 
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added out of order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 9);
+        applicationAppManager.removePauseRule(Blocktime + 1020, Blocktime + 1030);
+        vm.warp(Blocktime + 1800);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 0);
+    }
+
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose_Continued() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 6);
+        vm.warp(Blocktime + 150);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 3);
+        // Curent state: 3 rules still exist
+        vm.warp(Blocktime + 1001);
+        // Add more rules
+        applicationAppManager.addPauseRule(Blocktime + 1002, Blocktime + 1003);
+        applicationAppManager.addPauseRule(Blocktime + 1002, Blocktime + 1003);
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 5);
+        vm.warp(Blocktime + 1004);
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 5);
+        applicationAppManager.addPauseRule(Blocktime + 1005, Blocktime + 1075);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 4);
+        /**
+        4 rules with end times of 1010, 1030, 1070, 1075
+        */
+        // add rules with end dates out of order 
+        applicationAppManager.addPauseRule(Blocktime + 1006, Blocktime + 1077);
+        applicationAppManager.addPauseRule(Blocktime + 1007, Blocktime + 1068);
+        applicationAppManager.addPauseRule(Blocktime + 1008, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1009, Blocktime + 1044);
+        vm.warp(Blocktime + 1010);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 8);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 7);
+        vm.warp(Blocktime + 1071);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 3);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1078);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1077);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1076);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 6);
+        vm.warp(Blocktime + 1076);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 4);
+        vm.warp(Blocktime + 1077);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 2);
+        applicationAppManager.addPauseRule(Blocktime + 1079, Blocktime + 1092);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1099);
+        vm.warp(Blocktime + 1100);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 0);
+    }
+
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose_Pt2() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added in date order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1065, Blocktime + 1080);
+        applicationAppManager.addPauseRule(Blocktime + 1070, Blocktime + 1085);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1085, Blocktime + 1100);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 15);
+        // remove a rule to check if this will unorder the data structure and prevent cleaning 
+        applicationAppManager.removePauseRule(Blocktime + 1020, Blocktime + 1030);
+        vm.warp(Blocktime + 1800);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        // confirm all rules are cleaned after their end dates 
+        assertTrue(test.length == 0);
+    }
+
+    function testApplication_ApplicationCommonTests_AddPauseRuleCleansExpiredRules() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added in date order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1065, Blocktime + 1080);
+        applicationAppManager.addPauseRule(Blocktime + 1070, Blocktime + 1085);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1085, Blocktime + 1100);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 15);
+
+        vm.warp(Blocktime + 1800);
+        uint256 gas_start = gasleft(); 
+        applicationAppManager.addPauseRule(Blocktime + 1885, Blocktime + 1900);
+        console.log(gas_start - gasleft());
+        test = applicationAppManager.getPauseRules();
+        // confirm all rules are cleaned after their end dates 
+        assertTrue(test.length == 1);
+    }
+
     function testApplication_ApplicationCommonTests_SetNewTagProvider() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         Tags dataMod = new Tags(address(applicationAppManager));
