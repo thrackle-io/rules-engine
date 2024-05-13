@@ -54,7 +54,7 @@ import "./DeployBase.s.sol";
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
         bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "Jekyll&Hyde", "JKH", address(applicationAppManager), "https://jekyllandhydecollectibles.io");
-        new ApplicationERC721UProxy(address(_applicationNFTU), appAdminAddress, callData);
+        new ApplicationERC721UProxy(address(_applicationNFTU), appConfigAdminAddress, callData);
         applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Jekyll&Hyde");
         
         vm.stopBroadcast();

@@ -26,27 +26,34 @@ import "./DeployBase.s.sol";
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployNFTScript is Script, DeployBase {
+contract DeployProtocolERC721Upgradeable is Script, DeployBase {
     HandlerDiamond applicationNFTHandlerDiamond;
     uint256 privateKey;
     address ownerAddress;
     uint256 appAdminKey;
     address appAdminAddress;
+    uint256 appConfigAdminKey;
+    address appConfigAdminAddress;
 
     function setUp() public {}
 
     function run() public {
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
-        vm.startBroadcast(appAdminKey);
+        /// switch to the config admin
+        appConfigAdminKey = vm.envUint("CONFIG_APP_ADMIN_KEY");
+        appConfigAdminAddress = vm.envAddress("CONFIG_APP_ADMIN");
+        vm.startBroadcast(appConfigAdminKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC721AdminOrOwnerMint nftupgradeable = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721U_ADDRESS"));
         applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
         /// Create NFT Handler
         createERC721HandlerDiamondPt2("Jekyll&Hyde", address(applicationNFTHandlerDiamond));
-        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
+        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(appConfigAdminAddress), address(nftupgradeable));
+        vm.stopBroadcast();
 
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.startBroadcast(appAdminKey);
         /// Connect handler to token
         nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         /// Register the tokens with the application's app manager
