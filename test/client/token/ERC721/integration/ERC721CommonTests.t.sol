@@ -465,7 +465,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
     /// TokenMaxDailyTrades test to ensure data is properly pruned 
     function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Pruning() public endWithStopPrank {
+        vm.warp(Blocktime);
         _tokenMaxDailyTradesSetup(true);
+        vm.warp(block.timestamp + 1);
         // add the other tag and check to make sure that it still only allows 1 trade
         vm.startPrank(user1);
         // first one should pass
@@ -476,8 +478,10 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 2);
         // deactivate and reactivate which will prune accumulators
         switchToRuleAdmin();
+        vm.warp(block.timestamp + 1);
         ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).activateTokenMaxDailyTrades(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
         ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).activateTokenMaxDailyTrades(createActionTypeArray(ActionTypes.P2P_TRANSFER), true);
+        vm.warp(block.timestamp + 1);
         // this one should work
         vm.startPrank(user2);
         testCaseNFT.transferFrom(user2, user1, 2);
@@ -1183,19 +1187,24 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
      function testERC721_ERC721CommonTests_TokenMinHoldTime_Update_Pruning() public endWithStopPrank {
+        vm.warp(Blocktime);
         /// set the rule for 24 hours
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24);
+        vm.warp(block.timestamp + 1);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         ProtocolERC721(address(testCaseNFT)).safeMint(user1); /// ensure mint works with rule active 
+        vm.warp(block.timestamp + 1);
         vm.startPrank(user1);
         /// ensure that mint triggers the hold time clock and that applicable actions check the clock (p2p transfer)
         vm.expectRevert(0x5f98112f);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
+        vm.warp(block.timestamp + 1);
         // deactivate and reactivate which will prune accumulators
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24);
+        vm.warp(block.timestamp + 1);
         vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }

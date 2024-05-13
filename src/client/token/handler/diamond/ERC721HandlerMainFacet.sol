@@ -120,9 +120,6 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         }
         // if the current action is not a burn and MinHoldTime is active for any action, record ownership
         if (action != ActionTypes.BURN && lib.tokenMinHoldTimeStorage().anyActionActive) {            
-            if (lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId]==0) {
-                lib.tokenMinHoldTimeStorage().tokenIds.push(_tokenId);
-            }
             lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         }
 

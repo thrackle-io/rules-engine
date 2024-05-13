@@ -1363,16 +1363,19 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
         _setupAccountMaxTradeSizeSell();
+        vm.warp(block.timestamp + 1);
         // This one will pass so we know it is good
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
         /// This one violates the rule
         vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
+        vm.warp(block.timestamp + 1);
         /// Now, we deactivate and reactivate the rule and try again
         switchToRuleAdmin();
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.SELL), false);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.SELL), true);
+        vm.warp(block.timestamp + 1);
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
@@ -1385,29 +1388,36 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user1);
         testCaseToken.approve(address(amm), 50000);
         _setupAccountMaxTradeSizeSell();
+        vm.warp(block.timestamp + 1);
         // This one will pass so we know it is good
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
+        vm.warp(block.timestamp + 1);
         /// This one violates the rule
         vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
+        vm.warp(block.timestamp + 1);
         /// Now, we deactivate and reactivate the rule and try again
         switchToRuleAdmin();
         _setupAccountMaxTradeSizeSell();
+        vm.warp(block.timestamp + 1);
         vm.startPrank(user1);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 500, 500, true);
     }
 
     /// Account Max Sell Size test to ensure data is properly pruned 
     function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuy_Pruning() public endWithStopPrank {
+        vm.warp(Blocktime);
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
         vm.startPrank(user1);
         applicationCoin2.approve(address(amm), 50000);
         _setupAccountMaxTradeSizeBuyRuleBlankTag();
+        vm.warp(Blocktime+1);
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
+        vm.warp(Blocktime+2);
         /// Swap that fails
         vm.expectRevert(0x523976c2);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
@@ -1415,6 +1425,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToRuleAdmin();
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), false);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), true);
+        vm.warp(Blocktime+3);
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
     }
@@ -1516,6 +1527,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_AccountMaxTradeSizeBuyRule_BlankTag_Negative() public endWithStopPrank {
+        vm.warp(Blocktime);
         switchToAppAdministrator();
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();

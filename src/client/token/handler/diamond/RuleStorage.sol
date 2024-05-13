@@ -32,7 +32,7 @@ struct AccountMaxTradeSizeS{
    mapping(address => uint64) lastPurchaseTime;
    mapping(address => uint256) salesInPeriod;
    mapping(address => uint64) lastSellTime;
-   address[] transactors;
+   uint256 ruleChangeDate;
 }
 
 struct TokenMaxBuySellVolumeS{
@@ -74,7 +74,7 @@ struct TokenMaxDailyTradesS{
    mapping(ActionTypes => Rule) tokenMaxDailyTrades;
    mapping(uint32 => mapping(uint256 => uint256)) tradesInPeriod;
    mapping(uint32 => mapping(uint256 => uint64)) lastTxDate;
-   mapping(uint32 => uint256[]) tokenIdsByRuleId;
+   uint256 ruleChangeDate;
 }
 
 struct TokenMinHoldTime{
@@ -86,7 +86,7 @@ struct TokenMinHoldTime{
 struct TokenMinHoldTimeS {
    mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
    mapping(uint256 => uint256) ownershipStart;
-   uint256[] tokenIds;
+   uint256 ruleChangeDate;
    bool anyActionActive;
 }
 

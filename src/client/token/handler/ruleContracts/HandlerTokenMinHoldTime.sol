@@ -21,7 +21,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @param _on boolean representing if the rule is active
      */
     function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if (!_on) clearTokenMinHoldTimeAccumulators();
+        if (!_on) resetTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
             lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_actions[i]].active = _on;
         }
@@ -49,7 +49,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @param _minHoldTimeHours min hold time in hours
      */
     function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        clearTokenMinHoldTimeAccumulators();
+        resetTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
             setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
@@ -77,7 +77,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      */
     function clearTokenMinHoldTime() internal {
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
-        clearTokenMinHoldTimeAccumulators();
+        resetTokenMinHoldTime();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
             delete data.tokenMinHoldTime[ActionTypes(i)];
             unchecked {
@@ -85,18 +85,13 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
             }
         }
     }
-
+   
     /**
-     * @dev Clear the rule data structure accumulators
+     * @dev reset the ruleChangeDate within the rule data struct. This will signal the rule check to clear the accumulator data prior to checking the rule.
      */
-    function clearTokenMinHoldTimeAccumulators() internal {
+    function resetTokenMinHoldTime() internal{
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
-        for (uint i; i < data.tokenIds.length;) {
-            data.ownershipStart[data.tokenIds[i]] = 0;
-            unchecked {
-                ++i;
-            }
-        }
+        data.ruleChangeDate = block.timestamp;
     }
 
     /**
