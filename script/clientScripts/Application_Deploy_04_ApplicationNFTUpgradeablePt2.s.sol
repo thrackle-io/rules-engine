@@ -10,6 +10,7 @@ import "./DeployBase.s.sol";
 
 /**
  * @title Application Deploy 04 Application Non-Fungible Token Upgradeable Script
+ * @author @VoR0220, @ShaneDuncan, @TJEverett, @GordanPalmer
  * @dev This script will deploy an ERC721 non-fungible token and Handler.
  * @notice Deploys an application ERC721 non-fungible token and Handler..
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
@@ -43,7 +44,7 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         ApplicationERC721AdminOrOwnerMint nftupgradeable = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721U_ADDRESS"));
         applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
         /// Create NFT Handler
-        createERC721HandlerDiamondPt2("DAWGUniversity", address(applicationNFTHandlerDiamond));
+        createERC721HandlerDiamondPt2("Jekyll&Hyde", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
         vm.stopBroadcast();
 
@@ -59,7 +60,7 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         /// then connect
         nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("DAWGUniversity", address(nftupgradeable));
+        applicationAppManager.registerToken("Jekyll&Hyde", address(nftupgradeable));
 
         vm.stopBroadcast();
     }

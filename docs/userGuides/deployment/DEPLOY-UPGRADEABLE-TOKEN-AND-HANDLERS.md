@@ -32,7 +32,7 @@ NOTE:
 
 1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER`, `CONFIG_APP_ADMIN` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script.  
 
-2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol) change the `DAWGUniversity` name, `DAWGU` symbol and `https://dawgieboisuniversity` inside the script to the desired name, symbol and token URI for your NFT deployment. 
+2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol) change the `Jekyll&Hyde` name, `JKH` symbol and `https://jekyllandhydecollectibles.io/` inside the script to the desired name, symbol and token URI for your NFT deployment. 
 
 3. Deploy the contracts:
         ````
