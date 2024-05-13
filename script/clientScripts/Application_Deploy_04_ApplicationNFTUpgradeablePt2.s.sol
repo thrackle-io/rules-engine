@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Script.sol";
 import "src/example/application/ApplicationHandler.sol";
 import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import "./DeployBase.s.sol";
 
@@ -34,24 +35,29 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        ownerAddress = vm.envAddress("APP_ADMIN");
-        vm.startBroadcast(privateKey);
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.startBroadcast(appAdminKey);
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC721AdminOrOwnerMint nftupgradeable = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721U_ADDRESS"));
         applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
-        /// Create NFT
+        /// Create NFT Handler
         createERC721HandlerDiamondPt2("DAWGUniversity", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
-        vm.startBroadcast(appAdminKey);
-        console.log("Connecting handler to token");
-        console.log(nftupgradeable.getAdmin());
-        nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
+        /// super admin adds a second app administrator for configuration to bypass peculiarities with initialization and handler connection
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
+        applicationAppManager.addAppAdministrator(vm.envAddress("CONFIG_APP_ADMIN"));
+        vm.stopBroadcast();
+
+        /// Connect handler to token 
+
+        /// switch to the config admin
+        vm.startBroadcast(vm.envUint("CONFIG_APP_ADMIN_KEY"));
+        /// then connect
+        nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("DAWGUniversity", address(nftupgradeable));
 
