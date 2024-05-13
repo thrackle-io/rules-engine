@@ -1,5 +1,5 @@
 # StorageLib
-[Git Source](https://github.com/thrackle-io/tron/blob/83f9171b0938eaf7bc30d655175a8e0d5f93feb4/src/client/token/handler/diamond/StorageLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/a32755ef70ede3dfc3a49e226e4b15ac07a36ebd/src/client/token/handler/diamond/StorageLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -115,7 +115,29 @@ bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION =
 ```
 
 
+### HANDLER_VERSION_POSITION
+
+```solidity
+bytes32 constant HANDLER_VERSION_POSITION = bytes32(uint256(keccak256("handler-version-position")) - 1);
+```
+
+
 ## Functions
+### handlerVersionStorage
+
+*Function to store the Initialized flag*
+
+
+```solidity
+function handlerVersionStorage() internal pure returns (HandlerVersionS storage ds);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ds`|`HandlerVersionS`|Data Storage of the Initialized flag|
+
+
 ### initializedStorage
 
 *Function to store the Initialized flag*

@@ -1,5 +1,5 @@
 # IHandlerDiamondEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/83f9171b0938eaf7bc30d655175a8e0d5f93feb4/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/a32755ef70ede3dfc3a49e226e4b15ac07a36ebd/src/common/IEvents.sol)
 
 Diamond Handler Events Library
 
@@ -11,5 +11,11 @@ Diamond Handler Events Library
 
 ```solidity
 event AD1467_HandlerDeployed();
+```
+
+### AD1467_UpgradedToVersion
+
+```solidity
+event AD1467_UpgradedToVersion(address indexed origin, string indexed version);
 ```
 
