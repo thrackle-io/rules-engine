@@ -880,7 +880,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 350);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL);
-        console.log("here!");
         // Apply the rules to all actions
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly

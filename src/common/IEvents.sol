@@ -118,6 +118,7 @@ interface IEconomicEvents {
  */
 interface IHandlerDiamondEvents {
     event AD1467_HandlerDeployed();
+    event AD1467_UpgradedToVersion(address indexed origin, string indexed version);
 }
 
 /**

@@ -93,3 +93,7 @@ struct NFTValuationLimitS{
 struct InitializedS{
    bool initialized;
 }
+
+struct HandlerVersionS{
+   string version;
+}

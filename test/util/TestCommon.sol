@@ -67,6 +67,7 @@ import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20Handl
 import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
 import "src/client/token/handler/diamond/FeesFacet.sol";
 import "src/client/token/handler/diamond/RuleStorage.sol";
+import {HandlerVersionFacet} from "src/client/token/handler/diamond/HandlerVersionFacet.sol";
 /// common imports
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
