@@ -46,18 +46,8 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         /// Create NFT Handler
         createERC721HandlerDiamondPt2("Jekyll&Hyde", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
-        vm.stopBroadcast();
 
-        /// super admin adds a second app administrator for configuration to bypass peculiarities with initialization and handler connection
-        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
-        applicationAppManager.addAppAdministrator(vm.envAddress("CONFIG_APP_ADMIN"));
-        vm.stopBroadcast();
-
-        /// Connect handler to token 
-
-        /// switch to the config admin
-        vm.startBroadcast(vm.envUint("CONFIG_APP_ADMIN_KEY"));
-        /// then connect
+        /// Connect handler to token
         nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Jekyll&Hyde", address(nftupgradeable));

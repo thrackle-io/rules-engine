@@ -30,21 +30,32 @@ import "./DeployBase.s.sol";
     HandlerDiamond applicationNFTHandlerDiamond;
     ApplicationAppManager applicationAppManager;
     
-    uint256 appAdminKey;
-    address appAdminAddress;
+    uint256 appConfigAdminKey;
+    address appConfigAdminAddress;
+    uint256 privateKey;
+    address ownerAddress;
 
     function run() external {
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        vm.startBroadcast(privateKey);
 
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
-        vm.startBroadcast(appAdminKey);
-
+        /// add config admin as app administrator to bypass peculiarities of the proxies
         applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
+        applicationAppManager.addAppAdministrator(vm.envAddress("CONFIG_APP_ADMIN"));
+        vm.stopBroadcast();
+
+        /// switch to the config admin
+        appConfigAdminKey = vm.envUint("CONFIG_APP_ADMIN_KEY");
+        appConfigAdminAddress = vm.envAddress("CONFIG_APP_ADMIN");
+        vm.startBroadcast(appConfigAdminKey);
+
+
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
         bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "Jekyll&Hyde", "JKH", address(applicationAppManager), "https://jekyllandhydecollectibles.io");
         new ApplicationERC721UProxy(address(_applicationNFTU), appAdminAddress, callData);
-        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("DAWGUniversity");
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Jekyll&Hyde");
         
         vm.stopBroadcast();
     }
