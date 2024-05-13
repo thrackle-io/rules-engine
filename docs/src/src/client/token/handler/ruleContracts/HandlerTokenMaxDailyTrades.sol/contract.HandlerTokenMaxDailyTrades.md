@@ -1,5 +1,5 @@
 # HandlerTokenMaxDailyTrades
-[Git Source](https://github.com/thrackle-io/tron/blob/a32755ef70ede3dfc3a49e226e4b15ac07a36ebd/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -61,6 +61,15 @@ function setTokenMaxDailyTradesIdFull(ActionTypes[] calldata _actions, uint32[] 
 
 ```solidity
 function clearTokenMaxDailyTrades() internal;
+```
+
+### resetTokenMaxDailyTrades
+
+*reset the ruleChangeDate within the rule data struct. This will signal the rule check to clear the accumulator data prior to checking the rule.*
+
+
+```solidity
+function resetTokenMaxDailyTrades() internal;
 ```
 
 ### setTokenMaxDailyTradesIdUpdate
