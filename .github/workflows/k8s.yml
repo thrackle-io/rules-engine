@@ -30,6 +30,12 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set short SHA
+        id: sha_short
+        run: |
+          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -37,8 +43,8 @@ jobs:
           file: ./Dockerfile
           target: anvil
           push: true
-          tags: ${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}
-          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}
+          tags: ${{ env.ANVIL_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.ANVIL_IMAGE_TAG }}
           cache-to: type=inline
 
       - name: Build and push
@@ -48,8 +54,8 @@ jobs:
           file: ./Dockerfile
           target: deploy-tron
           push: true
-          tags: ${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-${GITHUB_SHA::7}
-          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-${GITHUB_SHA::7}
+          tags: ${{ env.TRON_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.TRON_IMAGE_TAG }}
           cache-to: type=inline
 
     #
