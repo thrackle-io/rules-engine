@@ -36,7 +36,7 @@ jobs:
           echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}' >> $GITHUB_ENV
 
-      - name: Build and push
+      - name: Build and push Anvil
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -44,10 +44,10 @@ jobs:
           target: anvil
           push: true
           tags: ${{ env.ANVIL_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.ANVIL_IMAGE_TAG }}
+          cache-from: type=registry,ref=foundry-base:latest
           cache-to: type=inline
 
-      - name: Build and push
+      - name: Build and push Tron
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -55,16 +55,5 @@ jobs:
           target: deploy-tron
           push: true
           tags: ${{ env.TRON_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.TRON_IMAGE_TAG }}
+          cache-from: type=registry,ref=foundry-base:latest
           cache-to: type=inline
-
-    #  - name: Set Image Tags
-    #    run: |
-    #      echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
-    #      echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
-    #  - name: Build and Push Docker Images
-    #    run: |
-    #      docker build -t ${{ env.ANVIL_IMAGE_TAG }} -f Dockerfile.anvil .
-    #      docker build -t ${{ env.TRON_IMAGE_TAG }} -f Dockerfile.tron .
-    #      docker push ${{ env.ANVIL_IMAGE_TAG }}
-    #      docker push ${{ env.TRON_IMAGE_TAG }}
