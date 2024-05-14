@@ -1,5 +1,5 @@
 # Tags
-[Git Source](https://github.com/thrackle-io/tron/blob/418593f8a1f14afa022635321794b26239d6f80e/src/client/application/data/Tags.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/1ba87bf9bb403411ce677f8e83126c3bf8cfa713/src/client/application/data/Tags.sol)
 
 **Inherits:**
 [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [ITags](/src/client/application/data/ITags.sol/interface.ITags.md), [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md)
