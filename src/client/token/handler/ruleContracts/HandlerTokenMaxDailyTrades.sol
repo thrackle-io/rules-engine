@@ -22,6 +22,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     function setTokenMaxDailyTradesId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(_actions, _ruleId);
+        resetTokenMaxDailyTrades();
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxDailyTradesIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);
@@ -51,12 +52,18 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      */
     function clearTokenMaxDailyTrades() internal {
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
-        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction;) {
+        resetTokenMaxDailyTrades();
+        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction;i++) {
             delete data.tokenMaxDailyTrades[ActionTypes(i)];
-            unchecked {
-                ++i;
-            }
         }
+    }
+
+    /**
+     * @dev reset the ruleChangeDate within the rule data struct. This will signal the rule check to clear the accumulator data prior to checking the rule.
+     */
+    function resetTokenMaxDailyTrades() internal{
+        TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
+        data.ruleChangeDate = block.timestamp;
     }
 
     /**
@@ -80,6 +87,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if (!_on) resetTokenMaxDailyTrades();
         for (uint i; i < _actions.length; ++i) {
             if (_actions[i] == ActionTypes.BURN) revert InvalidAction(); 
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;

@@ -81,10 +81,10 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
      * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
      * @param _from originating address
      * @param _balanceFrom Token balance of the sender address
-     * @return feeCollectorAccounts list of where the fees are sent
+     * @return feeSinks list of where the fees are sent
      * @return feePercentages list of all applicable fees/discounts
      */
-    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
+    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeSinks, int24[] memory feePercentages) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         Fee memory fee;
         bytes32[] memory fromTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_from);
@@ -104,7 +104,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         if (_fromTags.length != 0 && !IAppManager(handlerBaseStorage.appManager).isAppAdministrator(_from)) {
             uint feeCount = 0;
             // size the dynamic arrays by maximum possible fees
-            feeCollectorAccounts = new address[](_fromTags.length);
+            feeSinks = new address[](_fromTags.length);
             feePercentages = new int24[](_fromTags.length);
             /// loop through and accumulate the fee percentages based on tags
             for (uint i; i < _fromTags.length; ++i) {
@@ -116,7 +116,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
                         discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
                     } else {
                         feePercentages[feeCount] = fee.feePercentage;
-                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+                        feeSinks[feeCount] = fee.feeSink;
                         // add to the total fee percentage
                         totalFeePercent += fee.feePercentage;
                         unchecked {
@@ -143,6 +143,6 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         if (totalFeePercent - int24(discount) > 10000) {
             revert FeesAreGreaterThanTransactionAmount(_from);
         }
-        return (feeCollectorAccounts, feePercentages);
+        return (feeSinks, feePercentages);
     }
 }

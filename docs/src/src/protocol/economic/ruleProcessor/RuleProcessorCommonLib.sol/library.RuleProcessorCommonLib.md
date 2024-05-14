@@ -1,5 +1,5 @@
 # RuleProcessorCommonLib
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -158,7 +158,7 @@ If more than one tag, none can be blank.
 function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultiplier, uint256 _totalSupply)
     internal
     pure
-    returns (int256);
+    returns (int256 _volatility);
 ```
 **Parameters**
 
@@ -167,6 +167,12 @@ function calculateVolatility(int256 _volumeTotalForPeriod, uint256 _volumeMultip
 |`_volumeTotalForPeriod`|`int256`|total volume within the period|
 |`_volumeMultiplier`|`uint256`|volume muliplier|
 |`_totalSupply`|`uint256`|token total supply|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_volatility`|`int256`|calculated volatility|
 
 
 ## Errors

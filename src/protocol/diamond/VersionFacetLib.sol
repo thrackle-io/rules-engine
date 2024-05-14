@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 struct VersionStorage{
-    string VERSION;
+    string version;
 }
 
 /**

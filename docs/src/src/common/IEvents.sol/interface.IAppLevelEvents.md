@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -46,42 +46,6 @@ event AD1467_DataContractsMigrated(address indexed ownerAddress);
 event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
 ```
 
-### AD1467_RuleAdmin
-
-```solidity
-event AD1467_RuleAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_RiskAdmin
-
-```solidity
-event AD1467_RiskAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_AccessLevelAdmin
-
-```solidity
-event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
-```
-
-### AD1467_AppAdministrator
-
-```solidity
-event AD1467_AppAdministrator(address indexed admin, bool indexed add);
-```
-
-### AD1467_SuperAdministrator
-
-```solidity
-event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
-```
-
-### AD1467_RuleBypassAccount
-
-```solidity
-event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
-```
-
 ### AD1467_AppNameChanged
 
 ```solidity
@@ -106,12 +70,6 @@ event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
 
 ```solidity
 event AD1467_AMMRegistered(address indexed _address);
-```
-
-### AD1467_TreasuryRegistered
-
-```solidity
-event AD1467_TreasuryRegistered(address indexed _address);
 ```
 
 ### AD1467_TradingRuleAddressAllowlist

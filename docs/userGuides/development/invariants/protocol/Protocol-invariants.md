@@ -9,7 +9,7 @@ All invariants have links to their invariant test files unless specified otherwi
 
 ## General Invariants
 
-### [All Rules - Storage](/test/protocol/economic/invariant/rules/)
+### [All Rules - Storage](../../../../../test/protocol/economic/invariant/rules/)
 
 - The total amount of rules will never decrease.
 - There can be only a total of 2**32 of each rule type.
@@ -18,47 +18,47 @@ All invariants have links to their invariant test files unless specified otherwi
 - Rules can never be erased from the blockchain.
 - Rules can never be modified.
 
-### [All Rules - Processing and Application](/test/client/token/invariant/)
+### [All Rules - Processing and Application](../../../../../test/client/token/invariant/)
 
 - Deactivating a rule in one token, AMM or Application does not affect its application in others.
 - Rules can be shared by multiple applications and/or assets. # note not implemented
 - Rules at the application level apply to all registered tokens. # note not implemented
   
-## [Rule Invariants - With State Variables](/test/client/token/invariant/)
+## [Rule Invariants - With State Variables](../../../../../test/client/token/invariant/)
 
-### [Account Max Value Out By Access Level](/test/client/token/invariant/accountMaxValueOutByAccessLevel/RuleProcessingAccountMaxValueOutByAccessLevelMulti.t.i.sol)
+### [Account Max Value Out By Access Level](../../../../../test/client/token/invariant/accountMaxValueOutByAccessLevel/RuleProcessingAccountMaxValueOutByAccessLevelMulti.t.i.sol)
 
 - When this rule is applied, An account's cumulative total of funds withdrawn from the protocol in USD terms must not exceed the maximum for that account's access level defined in the Account-Max-Value-Out-By-Access-Level rule applied for the application counting from the activation of the rule. 
 
-### [Account Max Transaction Value By Risk](/test/client/token/invariant/accountMaxTxValueByRiskScore/RuleProcessingAccountMaxTxValueByRiskScoreMulti.t.i.sol)
+### [Account Max Transaction Value By Risk](../../../../../test/client/token/invariant/accountMaxTxValueByRiskScore/RuleProcessingAccountMaxTxValueByRiskScoreMulti.t.i.sol)
 
 - When this rule is applied, the cumulative USD value transacted in all application assets within a defined period of time can never exceed the maximum of the AccountMaxTxValueByRiskScore applied for the application and the risk score of the account.
 
-### [Token Max Trading Volume](/test/client/token/invariant/tokenMaxTradingVolume/RuleProcessingTokenMaxTradingVolumeMulti.t.i.sol)
+### [Token Max Trading Volume](../../../../../test/client/token/invariant/tokenMaxTradingVolume/RuleProcessingTokenMaxTradingVolumeMulti.t.i.sol)
 
 - When this rule is applied, the cumulative amount of tokens transacted in a defined period of time relative to the total supply of the token can never exceed the maximum of the TokenMaxTradingVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
-### [Token Max Supply Votality](/test/client/token/invariant/tokenMaxSupplyVolatility/RuleProcessingTokenMaxSupplyVolatilityMulti.t.i.sol)
+### [Token Max Supply Votality](../../../../../test/client/token/invariant/tokenMaxSupplyVolatility/RuleProcessingTokenMaxSupplyVolatilityMulti.t.i.sol)
 
 - When this rule is applied, the cumulative net amount of tokens minted or burned in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxSupplyVolatility applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
-### [Token Max Buy Volume](/test/client/token/invariant/tokenMaxBuyVolume/RuleProcessingTokenMaxBuyVolumeMulti.t.i.sol)
+### [Token Max Buy Volume](../../../../../test/client/token/invariant/tokenMaxBuyVolume/RuleProcessingTokenMaxBuyVolumeMulti.t.i.sol)
 
 - When this rule is applied, the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
-### [Token Max Sell Volume](/test/client/token/invariant/tokenMaxSellVolume/RuleProcessingTokenMaxSellVolumeMulti.t.i.sol)
+### [Token Max Sell Volume](../../../../../test/client/token/invariant/tokenMaxSellVolume/RuleProcessingTokenMaxSellVolumeMulti.t.i.sol)
 
 - When this rule is applied, the cumulative amount of tokens sold in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxSellVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
-### [Account Max Buy Size](/test/client/token/invariant/accountMaxBuySize/RuleProcessingAccountMaxBuySizeMulti.t.i.sol)
+### [Account Max Buy Size](../../../../../test/client/token/invariant/accountMaxBuySize/RuleProcessingAccountMaxBuySizeMulti.t.i.sol)
 
 - When this rule is applied, the cumulative amount of tokens purchased in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the MaxBuySize applied for the asset.  
 
-### [Account Max Sell Size](/test/client/token/invariant/accountMaxSellSize/RuleProcessingAccountMaxSellSizeMulti.t.i.sol)
+### [Account Max Sell Size](../../../../../test/client/token/invariant/accountMaxSellSize/RuleProcessingAccountMaxSellSizeMulti.t.i.sol)
 
 - When this rule is applied, the cumulative amount of tokens sold in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the AccountMaxSellSize applied for the asset.  
 
-### [Token Max Daily Trades](/test/client/token/invariant/tokenMaxDailyTrades/RuleProcessingTokenMaxDailyTradesMulti.t.i.sol)
+### [Token Max Daily Trades](../../../../../test/client/token/invariant/tokenMaxDailyTrades/RuleProcessingTokenMaxDailyTradesMulti.t.i.sol)
 
 - When this rule is applied, the amount of times that a particular NFT is transferred during a fixed 24-hour period can never exceed the maximum defined by the most restrictive tag of the NFT found in the TokenMaxDailyTrades applied to the token.
 
@@ -98,7 +98,7 @@ All invariants have links to their invariant test files unless specified otherwi
 
 ### Admin Min Token Balance *
 
-- When this rule is applied, the token balance of a rule bypasser account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the rule bypasser account must not be allowed to renounce its role.
+- When this rule is applied, the token balance of a treasury account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the treasury account must not be allowed to renounce its role.
 
 ### RuleApplicationValidationFacet *
 

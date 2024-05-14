@@ -106,10 +106,9 @@ The rule will be evaluated with the following logic:
 
 ## Evaluation Exceptions 
 This rule doesn't apply when:
-- An approved Trading-Rule Whitelisted address is in the *to* side of the transaction.
-- rulebypasser account is in the *from* or *to* side of the transaction.
+- An approved Trading-Rule approved address is in the *to* side of the transaction.
+- Treasury account is in the *from* or *to* side of the transaction.
 
-Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction.
 
 ### Revert Message
 
@@ -221,7 +220,9 @@ mapping(address => uint256) boughtInPeriod;
 mapping(address => uint64) lastPurchaseTime;
 ```
 
-*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
+*see [Token Handler Trading Rule Facet](../../../src/client/token/handler/diamond/TradingRuleFacet.sol)*
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
 
 ## Events
 

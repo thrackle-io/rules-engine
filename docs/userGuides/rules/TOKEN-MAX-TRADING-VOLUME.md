@@ -82,8 +82,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenMaxTradingVolume*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+- This rule doesn't apply when a **treasuryAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an treasury account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 
 ### Revert Message
 
@@ -194,7 +193,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
+*see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Data Recorded
 
@@ -208,7 +207,9 @@ uint64 private lastTransferTime;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
+*see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)/[ERC20Handler](../architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md)*
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
 
 ## Events
 

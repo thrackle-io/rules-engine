@@ -15,7 +15,6 @@ library StorageLib {
     bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
     bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);    
     bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
-    bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("admin-min-token-balance-position")) - 1);
     bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-supply-volatility-position")) - 1);
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-trading-volume-position")) - 1);
     bytes32 constant TOKEN_MIN_TX_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-tx-size-position")) - 1);
@@ -25,7 +24,20 @@ library StorageLib {
     bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("initialized-position")) - 1);
     bytes32 constant TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-buy-sell-position")) - 1);
     bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-trading-size-handler-postion")) - 1);
-    
+    bytes32 constant HANDLER_VERSION_POSITION = bytes32(uint256(keccak256("handler-version-position")) - 1);
+
+
+    /**
+     * @dev Function to store the Initialized flag
+     * @return ds Data Storage of the Initialized flag
+     */
+    function handlerVersionStorage() internal pure returns (HandlerVersionS storage ds) {
+        bytes32 position = HANDLER_VERSION_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
     /**
      * @dev Function to store the Initialized flag
      * @return ds Data Storage of the Initialized flag
@@ -98,17 +110,6 @@ library StorageLib {
      */
     function tokenMaxDailyTradesStorage() internal pure returns (TokenMaxDailyTradesS storage ds) {
         bytes32 position = TOKEN_MAX_DAILY_TRADES_HANDLER_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Admin Min Token Balance rules
-     * @return ds Data Storage of Admin Min Token Balance Rule
-     */
-    function adminMinTokenBalanceStorage() internal pure returns (AdminMinTokenBalanceS storage ds) {
-        bytes32 position = ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }

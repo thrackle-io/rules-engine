@@ -3190,8 +3190,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
 
-        switchToRuleBypassAccount();
-        draculaCoin.mint(ruleBypassAccount, type(uint256).max);
+        switchToTreasuryAccount();
+        draculaCoin.mint(treasuryAccount, type(uint256).max);
 
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
@@ -3233,8 +3233,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRuleSingleAction(ActionTypes.P2P_TRANSFER, ruleId);
 
-        switchToRuleBypassAccount();
-        draculaCoin.mint(ruleBypassAccount, type(uint256).max);
+        switchToTreasuryAccount();
+        draculaCoin.mint(treasuryAccount, type(uint256).max);
 
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
@@ -3324,151 +3324,6 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         tradeAmount = 2 * (10 ** 18);
         vm.expectRevert(0xaee8b993);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), tradeAmount, tradeAmount, false);
-    }
-
-    /** Test All actions */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_All_CannotDeactivateIfActive() public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        switchToRuleAdmin();
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationCoinHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
-    }
-
-    /** Test TRANSFER only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Transfer_CannotDeactivateIfActive() public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        switchToRuleAdmin();
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
-    }
-
-    /** Test BURN only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Burn_CannotDeactivateIfActive() public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        switchToRuleAdmin();
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(createActionTypeArray(ActionTypes.BURN), false);
-    }
-
-    /** Test SELL only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Sell_CannotDeactivateIfActive() public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        switchToRuleAdmin();
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0xd66c3008);
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(createActionTypeArray(ActionTypes.SELL), false);
-    }
-
-    /** Test All actions */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Set_All_Positive(uint256 amount, uint32 secondsForward) public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationCoinHandler), ruleId);
-        vm.warp(block.timestamp + secondsForward);
-        switchToRuleBypassAccount();
-
-        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-
-        applicationCoin.transfer(user1, amount);
-        switchToRuleAdmin();
-        /// if last rule is expired, we should be able to turn off and update the rule
-        if (secondsForward >= 365 days) {
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-            assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActiveAndApplicable());
-        }
-    }
-
-    /** Test TRANSFER only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Set_Transfer_Positive(uint256 amount, uint32 secondsForward) public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
-        vm.warp(block.timestamp + secondsForward);
-        switchToRuleBypassAccount();
-
-        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-
-        applicationCoin.transfer(user1, amount);
-        switchToRuleAdmin();
-        /// if last rule is expired, we should be able to turn off and update the rule
-        if (secondsForward >= 365 days) {
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-            assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActiveAndApplicable());
-        }
-    }
-
-    /** Test BURN only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Set_Burn_Positive(uint256 amount, uint32 secondsForward) public endWithStopPrank {
-        /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
-        vm.warp(block.timestamp + secondsForward);
-        switchToRuleBypassAccount();
-
-        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-
-        applicationCoin.burn(amount);
-        switchToRuleAdmin();
-        /// if last rule is expired, we should be able to turn off and update the rule
-        if (secondsForward >= 365 days) {
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-            assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActiveAndApplicable());
-        }
-    }
-
-    /** Test SELL only */
-    function testERC20_ApplicationERC20Fuzz_AdminMinTokenBalance_Set_Sell_Positive(uint128 amount, uint32 secondsForward) public endWithStopPrank {
-        /// we load the admin with tokens
-        uint256 supply = type(uint128).max;
-        uint256 tradeAmount;
-        // Create and configure AMM, load user1 with applicationCoin2 so she can buy applicationCoin
-        DummyAMM amm = _createAndInitializeAMM(applicationCoin, applicationCoin2, ruleBypassAccount, supply, true);
-        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
-        vm.warp(block.timestamp + secondsForward);
-        switchToRuleBypassAccount();
-
-        /// Approve all the transfers
-        applicationCoin.approve(address(amm), supply);
-        tradeAmount = amount;
-        if (secondsForward < 365 days && type(uint128).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), tradeAmount, tradeAmount, true);
-        switchToRuleAdmin();
-        /// if last rule is expired, we should be able to turn off and update the rule
-        if (secondsForward >= 365 days) {
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-            assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActiveAndApplicable());
-        }
     }
 
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Positive2(uint8 _addressIndex, uint256 _amountSeed, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
@@ -3920,8 +3775,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
@@ -3950,8 +3805,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
@@ -3979,8 +3834,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
@@ -4006,8 +3861,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
@@ -4033,8 +3888,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
@@ -4060,8 +3915,8 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
-        applicationCoin.mint(ruleBypassAccount, initialSupply);
-        switchToRuleBypassAccount();
+        applicationCoin.mint(treasuryAccount, initialSupply);
+        switchToTreasuryAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);

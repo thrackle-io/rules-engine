@@ -58,8 +58,6 @@ contract ApplicationDeployPricingScript is Script {
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
         applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
-        /// register the coin treasury
-        applicationAppManager.registerTreasury(vm.envAddress("ANVIL_ADDRESS_4"));
         
         ruleAdminKey = vm.envUint("LOCAL_RULE_ADMIN_KEY");
         vm.stopBroadcast();

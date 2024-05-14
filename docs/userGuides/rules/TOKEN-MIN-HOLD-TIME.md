@@ -37,7 +37,7 @@ Additionally, each starting unix timestamp for the ownership of the tokenId is s
 /// Minimum Hold time data
     mapping(uint256 => uint256) ownershipStart;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 
 ## Configuration and Enabling/Disabling
@@ -61,7 +61,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ERC721RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkTokenMinHoldTime*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **treasuryAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an treasury account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 
 
 ### Revert Message
@@ -84,7 +84,7 @@ function setTokenMinHoldTime(
             uint32 _minHoldTimeHours
         ) external ruleAdministratorOnly(_appManagerAddr);
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 
 ### Parameters:
@@ -104,7 +104,7 @@ The following validation will be carried out by the create function in order to 
 - `_minHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
 
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 
 ## Other Functions:
 
@@ -128,6 +128,8 @@ This rule doesn't return any data.
 ## Data Recorded
 
 This rule requires the unix timestamp for each tokenId each time the ownership of the token is transferred.
+
+NOTE: When this rule is updated and/or deactivated, the recorded ownership data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state. This means that the rule will only apply to tokens in which the ownership began after the current implemented version of this rule was applied.
 
 ## Events
 

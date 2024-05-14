@@ -8,7 +8,7 @@
 | Environment         | RPC URL|
 | :--- | :---  | 
 | Local | http://localhost:8545 | 
-| Polygon Mumbai |  https://rpc-mumbai.matic.today |
+| Polygon Amoy |  https://rpc-amoy.polygon.technology/ |
 | Polygon POS |  https://polygon-rpc.com  |
 
 _NOTE: These are the public examples. You still need to use a node provider like [Alchemy][alchemy-url] or [Infura][infura-url]_

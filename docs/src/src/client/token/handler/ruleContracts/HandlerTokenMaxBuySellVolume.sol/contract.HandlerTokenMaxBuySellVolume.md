@@ -1,5 +1,5 @@
 # HandlerTokenMaxBuySellVolume
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -82,6 +82,15 @@ function setTokenMaxBuySellVolumeIdFull(ActionTypes[] calldata _actions, uint32[
 
 ```solidity
 function clearTokenMaxBuySellVolume() internal;
+```
+
+### clearTokenMaxBuySellVolumeAccumulators
+
+*Clear the rule data accumulators*
+
+
+```solidity
+function clearTokenMaxBuySellVolumeAccumulators() internal;
 ```
 
 ### setTokenMaxBuySellVolumeIdUpdate

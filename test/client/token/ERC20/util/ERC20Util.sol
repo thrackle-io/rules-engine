@@ -46,23 +46,6 @@ abstract contract ERC20Util is TokenUtils, DummyAMM {
         ERC20TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceIdFull(actions, ruleIds);
     }
 
-    function setAdminMinTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
-        ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
-    }
-
-    function setAdminMinTokenBalanceRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        ActionTypes[] memory actionTypes = createActionTypeArray(_action);
-        ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
-    }
-
-    function setAdminMinTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceIdFull(actions, ruleIds);
-    }
-
     function setTokenMaxSupplyVolatilityRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);

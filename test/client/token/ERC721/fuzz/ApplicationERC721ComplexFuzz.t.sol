@@ -302,17 +302,17 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         for (uint i; i < 30; ++i) {
-            applicationNFT.safeMint(ruleBypassAccount);
+            applicationNFT.safeMint(treasuryAccount);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
         }
-        applicationCoin.transfer(ruleBypassAccount, type(uint256).max);
+        applicationCoin.transfer(treasuryAccount, type(uint256).max);
         (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
-        switchToRuleBypassAccount();
-        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 0); // a 10-dollar NFT
+        switchToTreasuryAccount();
+        applicationNFT.safeTransferFrom(treasuryAccount, _user1, 0); // a 10-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 1);
-        applicationNFT.safeTransferFrom(ruleBypassAccount, _user3, 19); // an 200-dollar NFT
+        applicationNFT.safeTransferFrom(treasuryAccount, _user3, 19); // an 200-dollar NFT
         assertEq(applicationNFT.balanceOf(_user3), 1);
         // we make sure that _amountSeed is between 10 and 255
         if (_amountSeed < 245) _amountSeed += 10;
@@ -323,7 +323,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
-        switchToRuleBypassAccount();
+        switchToTreasuryAccount();
         ///perform transfer that checks rule when account does not have AccessLevel fails
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -361,8 +361,8 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         }
 
         /// let's give user2 a 100-dollar NFT
-        switchToRuleBypassAccount();
-        applicationNFT.safeTransferFrom(ruleBypassAccount, _user2, 9); // a 100-dollar NFT
+        switchToTreasuryAccount();
+        applicationNFT.safeTransferFrom(treasuryAccount, _user2, 9); // a 100-dollar NFT
         assertEq(applicationNFT.balanceOf(_user2), 1);
         /// now let's assign him access=2 and let's check the rule again
         switchToAccessLevelAdmin();
@@ -379,7 +379,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         }
 
         /// create erc20 token, mint, and transfer to user
-        switchToRuleBypassAccount();
+        switchToTreasuryAccount();
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
         switchToAppAdministrator();
@@ -390,8 +390,8 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         applicationAppManager.addAccessLevel(_user4, 4);
 
         /// let's give user1 a 150-dollar NFT
-        switchToRuleBypassAccount();
-        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 14); // a 150-dollar NFT
+        switchToTreasuryAccount();
+        applicationNFT.safeTransferFrom(treasuryAccount, _user1, 14); // a 150-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 2);
 
         vm.stopPrank();
@@ -867,7 +867,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         /// create rule params
         uint32 ruleId = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         setAccountMaxValueOutByAccessLevelRule(ruleId);
-        switchToRuleBypassAccount();
+        switchToTreasuryAccount();
         /// assign accessLevels to users
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user1, accessLevel);

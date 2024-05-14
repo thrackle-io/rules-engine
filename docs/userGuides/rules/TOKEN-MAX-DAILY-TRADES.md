@@ -83,8 +83,7 @@ The rule will be evaluated in the following way:
 ###### *see [ERC721RuleProcessor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkTokenMaxDailyTrades*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+- This rule doesn't apply when a **treasuryAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an treasury account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 
 ### Revert Message
 
@@ -191,14 +190,17 @@ This rule returns a new tradesInPeriod(uint256) to the token handler on success.
 ```c
 mapping(uint256 => uint256) tradesInPeriod;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
 ### Data Recorded
 
 This rule requires that the handler record the timestamp for each tokenId's last trade. This is recorded only after the rule is activated and after each successful transfer. 
 ```c
 mapping(uint256 => uint64) lastTxDate;
 ```
-###### *see [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
+
 ### Events
 
 - **event AD1467_ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 

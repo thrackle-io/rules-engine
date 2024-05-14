@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -76,13 +76,13 @@ function isRuleAdministrator(address account) external view returns (bool);
 |`<none>`|`bool`|success true if rule administrator, false if not|
 
 
-### isRuleBypassAccount
+### isTreasuryAccount
 
-*This function is where the rule bypass account role is actually checked*
+*This function is where the rTreasury account role is actually checked*
 
 
 ```solidity
-function isRuleBypassAccount(address account) external view returns (bool);
+function isTreasuryAccount(address account) external view returns (bool);
 ```
 **Parameters**
 
@@ -94,7 +94,7 @@ function isRuleBypassAccount(address account) external view returns (bool);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`bool`|success true if RULE_BYPASS_ACCOUNT, false if not|
+|`<none>`|`bool`|success true if TREASURY_ACCOUNT, false if not|
 
 
 ### isAccessLevelAdmin
@@ -319,66 +319,6 @@ function getTokenID(address _tokenAddress) external view returns (string memory)
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`string`|the identification string.|
-
-
-### registerAMM
-
-*This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function registerAMM(address _AMMAddress) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|Address for the AMM to be registered|
-
-
-### isRegisteredAMM
-
-*This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function isRegisteredAMM(address _AMMAddress) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|Address for the AMM|
-
-
-### deRegisterAMM
-
-*This function allows the devs to deregister an AMM contract address.*
-
-
-```solidity
-function deRegisterAMM(address _AMMAddress) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|The address of the AMM to be de-registered|
-
-
-### isTreasury
-
-*This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function isTreasury(address _treasuryAddress) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_treasuryAddress`|`address`|Address for the treasury|
 
 
 ### approveAddressToTradingRuleAllowlist

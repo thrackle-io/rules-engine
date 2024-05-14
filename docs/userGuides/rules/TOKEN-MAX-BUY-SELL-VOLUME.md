@@ -83,10 +83,8 @@ The rule will be evaluated with the following logic:
 
 ## Evaluation Exceptions 
 This rule doesn't apply when:
-- An approved Trading-Rule Whitelisted address is in the *to* side of the transaction.
-- rulebypasser account is in the *from* or *to* side of the transaction.
-
-Additionally, in the case of the ERC20, this rule doesn't apply when a registered treasury address is in the *to* side of the transaction.
+- An approved Trading-Rule approved address is in the *to* side of the transaction.
+- a treasury account is in the *from* or *to* side of the transaction.
 
 ### Revert Message
 
@@ -172,7 +170,7 @@ The following validation will be carried out by the create function in order to 
             view 
             returns (uint256);
         ```
-- in [ERC20Handler](../Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md), [ERC721Handler](../Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md):
+- in [ERC20Handler](../architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md), [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md):
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
         function setTokenMaxBuySellVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
@@ -227,6 +225,10 @@ uint256 private totalSoldInPeriod;
 ```
 
 *see [Token Handler Trading Rule Facet](../../../src/client/token/handler/diamond/TradingRuleFacet.sol)*
+
+
+NOTE: When this rule is updated and/or deactivated, the recorded data is cleared. When the rule is reactivated or set to a new ruleId, the recorded data will start in its default state.
+
 
 ## Events
 

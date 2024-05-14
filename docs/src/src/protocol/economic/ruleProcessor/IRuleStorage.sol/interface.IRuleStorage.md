@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -66,17 +66,6 @@ struct TokenMaxPriceVolatilityS {
 struct TokenMaxTradingVolumeS {
     mapping(uint32 => INonTaggedRules.TokenMaxTradingVolume) tokenMaxTradingVolumeRules;
     uint32 tokenMaxTradingVolumeIndex;
-}
-```
-
-### AdminMinTokenBalanceS
-******** Admin Min Token Balance ********
-
-
-```solidity
-struct AdminMinTokenBalanceS {
-    mapping(uint32 => ITaggedRules.AdminMinTokenBalance) adminMinTokenBalanceRules;
-    uint32 adminMinTokenBalanceIndex;
 }
 ```
 

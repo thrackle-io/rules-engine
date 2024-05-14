@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -13,12 +13,12 @@ This is the base contract for all protocol ERC20s
 
 
 ## State Variables
-### MAX_SUPPLY
+### maxSupply
 Max supply should only be set once. Zero means infinite supply.
 
 
 ```solidity
-uint256 MAX_SUPPLY;
+uint256 maxSupply;
 ```
 
 
@@ -116,7 +116,7 @@ function mint(address to, uint256 amount) public virtual;
 
 ### flashLoan
 
-Check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
+Check that the address calling mint is an authorized appAdminstrator
 
 *This function is overridden here as a guarantee that flashloans are not allowed. This is done in case they are enabled at a later time.*
 

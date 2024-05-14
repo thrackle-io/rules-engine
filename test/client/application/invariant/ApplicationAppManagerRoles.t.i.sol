@@ -19,11 +19,11 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
         assertTrue(applicationAppManager.isSuperAdmin(superAdmin));
     }
 
-    // When grantRole RULE_BYPASS_ACCOUNT is called directly on the AppManager contract the transaction will be reverted.
-    function invariant_GrantRoleDirectCallRevertsRuleBypass() public {
+    // When grantRole TREASURY_ACCOUNT is called directly on the AppManager contract the transaction will be reverted.
+    function invariant_GrantRoleDirectCallRevertsTreasury() public {
         vm.expectRevert(bytes("Function disabled"));
-        applicationAppManager.grantRole(RULE_BYPASS_ACCOUNT, user);
-        assertFalse(applicationAppManager.isRuleBypassAccount(user));
+        applicationAppManager.grantRole(TREASURY_ACCOUNT, user);
+        assertFalse(applicationAppManager.isTreasuryAccount(user));
     }
     // When grantRole is SUPER_ADMIN_ROLE called directly on the AppManager contract the transaction will be reverted.
     function invariant_GrantRoleDirectCallRevertsSuperAdmin() public {
@@ -80,15 +80,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddAppAdministratorEmitsEvent() public {
         switchToSuperAdmin();
         vm.expectEmit();
-        emit AD1467_AppAdministrator(user, true);
+        emit RoleGranted(APP_ADMIN_ROLE, user, superAdmin);
         applicationAppManager.addAppAdministrator(user);
     }
-    // When renounceAppAdministrator is called the AppAdministrator event will be emitted.
+    // When renounceRole is called with argument APP_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceAppAdministratorEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_AppAdministrator(appAdministrator, false);
-        applicationAppManager.renounceAppAdministrator();
+        emit RoleRevoked(APP_ADMIN_ROLE, appAdministrator, appAdministrator);
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
     }
 
     /** RULE ADMIN */
@@ -116,15 +116,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddRuleAdministratorEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RuleAdmin(user, true);
+        emit RoleGranted(RULE_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addRuleAdministrator(user);
     }
-    // When renounceRuleAdministrator is called the RuleAdministrator event will be emitted.
+    // When renounceRole is called with argument RULE_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceRuleAdministratorEmitsEvent() public {
         switchToRuleAdmin();
         vm.expectEmit();
-        emit AD1467_RuleAdmin(ruleAdmin, false);
-        applicationAppManager.renounceRuleAdministrator();
+        emit RoleRevoked(RULE_ADMIN_ROLE, ruleAdmin, ruleAdmin);
+        applicationAppManager.renounceRole(RULE_ADMIN_ROLE, ruleAdmin);
     }
 
     /** RISK ADMIN */
@@ -152,15 +152,15 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddRiskAdminEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RiskAdmin(user, true);
+        emit RoleGranted(RISK_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addRiskAdmin(user);
     }
-    // When renounceRiskAdmin is called the RiskAdmin event will be emitted.
+    // When renounceRole is called with argument RISK_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceRiskAdminEmitsEvent() public {
         switchToRiskAdmin();
         vm.expectEmit();
-        emit AD1467_RiskAdmin(riskAdmin, false);
-        applicationAppManager.renounceRiskAdmin();
+        emit RoleRevoked(RISK_ADMIN_ROLE, riskAdmin, riskAdmin);
+        applicationAppManager.renounceRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
     /** ACCESS LEVEL ADMIN */
@@ -188,51 +188,51 @@ contract ApplicationAppManagerRolesTest is TestCommonFoundry {
     function invariant_AddAccessLevelAdminEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_AccessLevelAdmin(user, true);
+        emit RoleGranted(ACCESS_LEVEL_ADMIN_ROLE, user, appAdministrator);
         applicationAppManager.addAccessLevelAdmin(user);
     }
-    // When renounceAccessLevelAdmin is called the AccessLevelAdmin event will be emitted.
+    // When renounceRole is called with argument ACCESS_LEVEL_ADMIN_ROLE the AccessControl.RoleRevoked event will be emitted.
     function invariant_RenounceAccessLevelAdminEmitsEvent() public {
         switchToAccessLevelAdmin();
         vm.expectEmit();
-        emit AD1467_AccessLevelAdmin(accessLevelAdmin, false);
-        applicationAppManager.renounceAccessLevelAdmin();
+        emit RoleRevoked(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin, accessLevelAdmin);
+        applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
-    /** RULE BYPASS  */
-    // When addRuleBypassAccount is called by an account other than the App Admin the transaction will be reverted.
-    function invariant_OnlyAppAdminCanAddRemoveRuleBypassAccount() public {
+    /** TREASURY ACCOUNT   */
+    // When addTreasuryAccount is called by an account other than the App Admin the transaction will be reverted.
+    function invariant_OnlyAppAdminCanAddRemoveTreasuryAccount() public {
         if (_seed%2==0){
             switchToAppAdministrator();
-            applicationAppManager.addRuleBypassAccount(user);
-            assertTrue(applicationAppManager.isRuleBypassAccount(user));
+            applicationAppManager.addTreasuryAccount(user);
+            assertTrue(applicationAppManager.isTreasuryAccount(user));
         } else{
             vm.expectRevert();
-            applicationAppManager.addRuleBypassAccount(user);
-            assertFalse(applicationAppManager.isRuleBypassAccount(user));
+            applicationAppManager.addTreasuryAccount(user);
+            assertFalse(applicationAppManager.isTreasuryAccount(user));
         }
         _seed++;
     }
-    // When addRuleBypassAccount is called with an address of 0 the transaction will be reverted.
-    function invariant_AddRuleBypassAccountrNoZeroAddress() public {
+    // When addTreasuryAccount is called with an address of 0 the transaction will be reverted.
+    function invariant_AddTreasuryAccountrNoZeroAddress() public {
         switchToAppAdministrator();
         vm.expectRevert();
         applicationAppManager.addRuleAdministrator(address(0));
         assertFalse(applicationAppManager.isRuleAdministrator(address(0)));
     }
-    // If addRuleBypassAccount is not reverted the RuleBypassAccount event will be emitted.
-    function invariant_AddRuleBypassAccountEmitsEvent() public {
+    // If addTreasuryAccount is not reverted the TreasuryAccount event will be emitted.
+    function invariant_AddTreasuryAccountEmitsEvent() public {
         switchToAppAdministrator();
         vm.expectEmit();
-        emit AD1467_RuleBypassAccount(user, true);
-        applicationAppManager.addRuleBypassAccount(user);
+        emit RoleGranted(TREASURY_ACCOUNT, user, appAdministrator);
+        applicationAppManager.addTreasuryAccount(user);
     }
-    // When renounceRuleBypassAccount is called the RuleBypassAccount event will be emitted.
-    function invariant_RenounceRuleBypassAccountEmitsEvent() public {
-        switchToRuleBypassAccount();
+    // When renounceRole is called with argument TREASURY_ACCOUNT the AccessControl.RoleRevoked event will be emitted.
+    function invariant_RenounceTreasuryAccountEmitsEvent() public {
+        switchToTreasuryAccount();
         vm.expectEmit();
-        emit AD1467_RuleBypassAccount(ruleBypassAccount, false);
-        applicationAppManager.renounceRuleBypassAccount();
+        emit RoleRevoked(TREASURY_ACCOUNT, treasuryAccount, treasuryAccount);
+        applicationAppManager.renounceRole(TREASURY_ACCOUNT, treasuryAccount);
     }
 
 }

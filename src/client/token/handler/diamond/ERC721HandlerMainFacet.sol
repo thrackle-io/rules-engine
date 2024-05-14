@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
-import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "../ruleContracts/NFTValuationLimit.sol";
 import "./ERC721TaggedRuleFacet.sol";
 import "./ERC721NonTaggedRuleFacet.sol";
@@ -13,8 +12,7 @@ import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 import "diamond-std/implementations/ERC173/ERC173.sol";
 
-contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
-
+contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
     /**
      * @dev Initializer params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -31,8 +29,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
-        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
-        data.lastPossibleAction = 4;
+        data.lastPossibleAction = 5;
         ini.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
@@ -83,8 +80,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
     function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId, ActionTypes _action) internal returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         
-        bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
-        bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
+        bool isFromTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_from);
+        bool isToTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_to);
         ActionTypes action;
         if (_action == ActionTypes.NONE){
             action = determineTransferAction(_from, _to, _sender);
@@ -92,8 +89,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             action = _action;
         }
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
-        /// standard tagged and non-tagged rules do not apply when either to or from is a rule bypass account
-        if (!isFromBypassAccount && !isToBypassAccount) {
+        /// standard tagged and non-tagged rules do not apply when either to or from is a Treasury account
+        if (!isFromTreasuryAccount && !isToTreasuryAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             callAnotherFacet(
                 0x36bd6ea7, 
@@ -118,12 +115,14 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
                     _tokenId
                 )
             );
-            if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) 
-                lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
-        } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
-                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
-                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
-            }
+        } else if (isFromTreasuryAccount || isToTreasuryAccount) {
+            emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
+        }
+        // if the current action is not a burn and MinHoldTime is active for any action, record ownership
+        if (action != ActionTypes.BURN && lib.tokenMinHoldTimeStorage().anyActionActive) {            
+            lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
+        }
+
         return true;
     }
 

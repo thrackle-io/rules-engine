@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -262,26 +262,6 @@ function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) extern
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier for rule arguments|
 |`_collateralizedTokenAmount`|`uint256`|total number of collateralized tokens to be swapped(this could be the "token in" or "token out" as the fees are always * assessed from the collateralized token)|
-
-
-### checkAdminMinTokenBalance
-
-that the function will revert if the check finds a violation of the rule, but won't give anything
-back if everything checks out.
-
-*Checks that an admin won't hold less tokens than promised until a certain date*
-
-
-```solidity
-function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule identifier for rule arguments|
-|`_currentBalance`|`uint256`|of tokens held by the admin|
-|`_amountToTransfer`|`uint256`|Number of tokens to be transferred|
 
 
 ### checkAccountMaxValueByRiskScore
@@ -625,22 +605,6 @@ function validateAccountMinMaxTokenBalance(ActionTypes[] memory _actions, uint32
 
 ```solidity
 function validateAccountMaxTradeSize(ActionTypes[] memory _actions, uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_actions`|`ActionTypes[]`||
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### validateAdminMinTokenBalance
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 

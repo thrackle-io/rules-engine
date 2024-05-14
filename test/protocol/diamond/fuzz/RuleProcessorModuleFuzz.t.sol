@@ -253,45 +253,6 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
         }
     }
 
-    /**************** AdminMinTokenBalance Rule Testing  ****************/
-    /**
-     * Preconditions: Rule Processor Diamond, App Manager, App Handler, ERC20 Token and Handler Deployed and connected.
-     * Super Admin role is set at contruction, App Admin and Rule Admins are set during test set up.
-     * Test first that only a rule admin role can set a rule within the protocol, Non zero params result in reversion and Zero params result in reversion
-     * When Sender is rule admin role: add two rules to the protocol and ensure the rule params match provided params
-     * Postconditions: If sender was rule admin, RuleProcessor has two rules added for the rule type.
-     */
-    function testProtocol_RuleProcessorModuleFuzz_AdminMinTokenBalanceAddFuzz(uint8 addressIndex, uint256 amountA, uint256 dateA, uint forward) public endWithStopPrank {
-        /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
-        forward = bound(forward, 1, uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
-        amountA = bound(amountA, 1, uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
-        dateA = bound(dateA, 1, block.timestamp);
-
-        switchToSuperAdmin();
-        applicationAppManager.addAppAdministrator(address(ruleProcessor));
-        assertEq(applicationAppManager.isAppAdministrator(address(ruleProcessor)), true);
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
-        vm.warp(forward);
-        if (sender != ruleAdmin) vm.expectRevert(0xd66c3008);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), amountA, dateA);
-        if (sender == ruleAdmin) {
-            assertEq(0, _index);
-            TaggedRules.AdminMinTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminMinTokenBalance(_index);
-            assertEq(rule.amount, amountA);
-            assertEq(rule.endTime, dateA);
-            /// add a second rule
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 666, block.timestamp + 1000);
-            assertEq(1, _index);
-            rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminMinTokenBalance(_index);
-            assertEq(rule.amount, 666);
-            assertEq(rule.endTime, block.timestamp + 1000);
-            /// Ensure both rules are added
-            assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAdminMinTokenBalance(), 2);
-        }
-    }
-
     /**
      * Preconditions: Rule Processor Diamond, App Manager, App Handler, ERC20 Token and Handler Deployed and connected.
      * Super Admin role is set at contruction, App Admin and Rule Admins are set during test set up.

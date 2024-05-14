@@ -8,6 +8,7 @@
 The protocol and an example application architecture can be deployed using the deployment scripts in the script directory. Run the following commands from the root of the repo to do the deployment:
 
 ```bash
+sh script/SetupProtocolDeploy.sh
 forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
 bash script/ParseProtocolDeploy.sh
 forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
@@ -27,7 +28,7 @@ bash script/ParseApplicationDeploy.sh 5
 
 (add the --rpc-url argument to the end of each of the forge commands to point the scripts to the chain you would like to deploy on)
 
-This process can be automated by running the [DeployExampleApplication.sh](../.././script/deploy/DeployExampleApplication.sh) script.
+This process can be automated by running the [DeployExampleApplication.sh](../../../script/deploy/DeployExampleApplication.sh) script.
 
 ### Contracts Deployed
 

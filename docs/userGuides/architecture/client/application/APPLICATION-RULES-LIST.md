@@ -12,7 +12,7 @@
 | [Account Max Value Out By Access Level](../../../rules/ACCOUNT-MAX-VALUE-OUT-BY-ACCESS-LEVEL.md) | The purpose of this rule is to provide limits on the amount of funds that an account can remove from the application's economy based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first performing other actions defined by the application. For example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set the most restrictive withdraw limit of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. |
 | [Pause Rule](../../../rules/PAUSE-RULE.md) | The purpose of the pause rule is to allow developers to pause the entirety of an application for maintenance, security or any other reason. Pausing the application means that no transfer of tokens is allowed at any level (with the few exceptions listed in the Role Applicability section).  |
 
-###### **Application Level Rules are set in the [App Handler](./APP-HANDLER.md) by a [Rule Administrator](../../../permissions/ADMIN-ROLES.md)**
+###### **Application Level Rules are set in the [App Handler](./APPLICATION-HANDLER.md) by a [Rule Administrator](../../../permissions/ADMIN-ROLES.md)**
 
 
 

@@ -1,5 +1,5 @@
 # RuleStoragePositionLib
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -51,13 +51,6 @@ bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_POSITION = bytes32(uint256(keccak256
 
 ```solidity
 bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("token-max-trading-volume")) - 1);
-```
-
-
-### ADMIN_MIN_TOKEN_BALANCE_POSITION
-
-```solidity
-bytes32 constant ADMIN_MIN_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("admin-min-token-balance")) - 1);
 ```
 
 
@@ -217,21 +210,6 @@ function tokenMaxTradingVolumeStorage() internal pure returns (IRuleStorage.Toke
 |Name|Type|Description|
 |----|----|-----------|
 |`ds`|`IRuleStorage.TokenMaxTradingVolumeS`|Data Storage of Max Trading Volume Rule|
-
-
-### adminMinTokenBalanceStorage
-
-*Function to store Admin Min Token Balance rules*
-
-
-```solidity
-function adminMinTokenBalanceStorage() internal pure returns (IRuleStorage.AdminMinTokenBalanceS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`IRuleStorage.AdminMinTokenBalanceS`|Data Storage of Admin Min Token Balance Rule|
 
 
 ### tokenMinTxSizePosition

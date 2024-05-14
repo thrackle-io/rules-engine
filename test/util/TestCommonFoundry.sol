@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/util/TestCommon.sol";
 import "test/util/EndWithStopPrank.sol";
 import "script/EnabledActionPerRuleArray.sol";
+import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 /**
  * @title Test Common Foundry
@@ -13,7 +14,7 @@ import "script/EnabledActionPerRuleArray.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActionPerRuleArray {
+abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActionPerRuleArray, AccessControl {
     modifier ifDeploymentTestsEnabled() {
         if (testDeployments) {
             _;
@@ -152,7 +153,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         // Register all facets.
         string[8] memory facets = [
             // diamond version
-            "VersionFacet",
+            "HandlerVersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // // Raw implementation facets.
@@ -205,7 +206,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         // Register all facets.
         string[7] memory facets = [
             // diamond version
-            "VersionFacet",
+            "HandlerVersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.
@@ -388,12 +389,12 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         // create the ERC20 and connect it to its handler
         applicationCoinHandlerSpecialOwner = _createERC20HandlerDiamond();
-        VersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
         switchToAppAdministrator();
         applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
         /// register the token
         applicationAppManager.registerToken("application2", address(applicationCoin));
+        HandlerVersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.1.0");
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20
@@ -500,8 +501,6 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
         switchToAppAdministrator();
-
-        applicationAppManager.registerTreasury(feeTreasury);
 
         switchToAppAdministrator();
         oracleApproved = _createOracleApproved();
@@ -625,46 +624,46 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, _applicationAppManager);
         handler = _createERC721HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(_applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         _applicationAppManager.registerToken(name, address(erc721));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721Min(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC721MinLegacy(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721Legacy erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = new MinimalERC721Legacy(name, symbol);
         handler = _createERC721HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
@@ -679,7 +678,6 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, _applicationAppManager);
         handler = _createERC20HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(_applicationAppManager), address(erc20));
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
@@ -687,28 +685,29 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         vm.expectEmit(true, true, false, false);
         emit AD1467_TokenRegistered(name, address(erc20));
         _applicationAppManager.registerToken(name, address(erc20));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20Min(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
-        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
+        HandlerVersionFacet(address(handler)).updateVersion("1.1.0");
     }
 
     /**
@@ -748,11 +747,11 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
     }
 
-    function switchToRuleBypassAccount() public {
+    function switchToTreasuryAccount() public {
         switchToAppAdministrator();
-        applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
+        applicationAppManager.addTreasuryAccount(treasuryAccount);
         vm.stopPrank();
-        vm.startPrank(ruleBypassAccount);
+        vm.startPrank(treasuryAccount);
     }
 
     function switchToRiskAdmin() public {

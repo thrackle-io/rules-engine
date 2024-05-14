@@ -7,23 +7,23 @@
 - When addAppAdministrator is called by an account other than the Super Admin the transaction will be reverted.
 - When addAppAdministrator is called with an address of 0 the transaction will be reverted.
 - If addAppAdministrator is not reverted the AppAdministrator event will be emitted. 
-- When renounceAppAdministrator is called the AppAdministrator event will be emitted.
+- When renounceRole is called with argument APP_ADMIN_ROLE the AppAdministrator event will be emitted.
 - When addRuleAdministrator is called by an account other other than an App Admin the transaction will be reverted.
 - When addRuleAdministrator is called with an address of 0 the transaction will be reverted.
 - If addRuleAdministrator is not reverted the RuleAdmin event will be emitted.
-- When renounceRuleAdministrator is called the RuleAdministrator event will be emitted.
+- When renounceRole is called with argument RULE_ADMIN_ROLE the RuleAdministrator event will be emitted.
 - When addRiskAdmin is called by an account other than an App Admin the transaction will be reverted.
 - When addRiskAdmin is called with an address of 0 the transaction will be reverted.
 - If addRiskAdmin is not reverted the RiskAdmin event will be emitted.
-- When renounceRiskAdmin is called the RiskAdmin event will be emitted.
-- When addRuleBypassAccount is called by an account other than an App Admin the transaction will be reverted.
-- When addRuleBypassAccount is called with an address of 0 the transaction will be reverted.
-- If addRuleBypassAccount is not reverted the RuleBypassAccount event will be emitted.
-- When renounceRuleBypassAccount is called the RuleBypassAccount event will be emitted.
+- When renounceRole is called with argument RISK_ADMIN_ROLE the RiskAdmin event will be emitted.
+- When addTreasuryAccount is called by an account other than an App Admin the transaction will be reverted.
+- When addTreasuryAccount is called with an address of 0 the transaction will be reverted.
+- If addTreasuryAccount is not reverted the TreasuryAccount event will be emitted.
+- When renounceRole is called with argument TREASURY_ACCOUNT the TreasuryAccount event will be emitted.
 - When addAccessLevelAdmin is called by an account other than an App Admin the transaction will be reverted.
 - When addAccessLevelAdmin is called with an address of 0 the transaction will be reverted.
 - If addAccessLevelAdmin is not reverted the AccessLevelAdmin event will be emitted.
-- When renounceAccessLevelAdmin is called the AccessLevelAdmin event will be emitted.
+- When renounceRole is called with argument ACCESS_LEVEL_ADMIN_ROLE the AccessLevelAdmin event will be emitted.
   
 
 ## [Access Level Invariants](../../../../../../test/client/application/invariant/ApplicationAppManagerData.t.i.sol)
@@ -69,20 +69,6 @@
 - If deregisterToken is called with the address of a token that is not registered, the transaction will be reverted. 
 - If deregisterToken is called by an account that is not an App Admin the transaction will be reverted.  
 - If deregisterToken is not reverted the RemoveFromRegistry event will be emitted.
-- If registerAMM is called with an address of 0 the transaction will be reverted. 
-
-## [AMM Registration](../../../../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
-- If registerAMM is called by an account that is not an App Admin the transaction will be reverted. 
-- If registerAMM is not reverted the AMMRegistered event will be emitted.
-- If deregisterAMM is called by an account that is not an App Admin the transaction will be reverted.
-- If deregisterAMM is called with the address of a token that is not registered, the transaction will be reverted. 
-- If registerTreasury is called with an address of 0 the transaction will be reverted.
-
-## [Treasury Registration](../../../../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
-- If registerTreasury is called by an account that is not an App Admin the transaction will be reverted.
-- If registerTreasury is not reverted the TreasuryRegistered event will be emitted.
-- If deregisterTreasury is called by an account that is not an App Admin the transaction will be reverted. 
-- If deregisterTreasury is called with an address that is not registered, the transaction will be reverted.
 
 ## [Trading Rule Allow List](../../../../../../test/client/application/invariant/ApplicationAppManager.t.i.sol)
 - If approveAddressToTradingRuleAllowlist is called by an account that is not an App Admin the transaction will be reverted.

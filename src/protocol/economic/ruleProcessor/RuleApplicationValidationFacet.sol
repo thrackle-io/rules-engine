@@ -85,24 +85,6 @@ contract RuleApplicationValidationFacet is ERC173 {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAdminMinTokenBalance(ActionTypes[] memory _actions, uint32 _ruleId) external view {
-        _ruleId.checkRuleExistence(getTotalAdminMinTokenBalance());
-        require(areActionsEnabledInRule(ADMIN_MIN_TOKEN_BALANCE, _actions), "Action Validation Failed");
-    }
-
-    /**
-     * @dev Function to get total Admin Min Token Balance rules
-     * @return adminMinTokenBalanceRules total length of array
-     */
-    function getTotalAdminMinTokenBalance() internal view returns (uint32) {
-        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
-        return data.adminMinTokenBalanceIndex;
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
     function validateTokenMinTxSize(ActionTypes[] memory _actions, uint32 _ruleId) external view {
         _ruleId.checkRuleExistence(getTotalTokenMinTxSize());
         require(areActionsEnabledInRule(TOKEN_MIN_TX_SIZE, _actions), "Action Validation Failed");

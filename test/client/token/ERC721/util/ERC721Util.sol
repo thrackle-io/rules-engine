@@ -29,22 +29,6 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleIdFull(actions, ruleIds);
     }
 
-    function setAdminMinTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
-        ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
-    }
-
-    function setAdminMinTokenBalanceRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(createActionTypeArray(action), ruleId);
-    }
-
-    function setAdminMinTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC721HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceIdFull(actions, ruleIds);
-    }
-
     function setTokenMaxDailyTradesRule(address assetHandler, uint32 ruleId) public endWithStopPrank endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BUY, ActionTypes.SELL, ActionTypes.MINT);
@@ -123,7 +107,7 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
 
     function setTokenMinHoldTimeRule(uint8 period) public endWithStopPrank {
         switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), period);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.MINT, ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), period);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), period);
     }
 

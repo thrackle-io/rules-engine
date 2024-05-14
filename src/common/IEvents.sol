@@ -21,18 +21,11 @@ interface IAppLevelEvents {
     event AD1467_AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event AD1467_DataContractsMigrated(address indexed ownerAddress);
     event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
-    event AD1467_RuleAdmin(address indexed admin, bool indexed add);
-    event AD1467_RiskAdmin(address indexed admin, bool indexed add);
-    event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
-    event AD1467_AppAdministrator(address indexed admin, bool indexed add); 
-    event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
-    event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
     event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
     event AD1467_TokenRegistered(string indexed _token, address indexed _address);
     event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
     event AD1467_AMMRegistered(address indexed _address);
-    event AD1467_TreasuryRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
     ///Tags
     event AD1467_TagProviderSet(address indexed _address);
@@ -60,11 +53,9 @@ interface IAppManagerAddressSet{
  * @notice Oracle Events Library
  */
 interface IOracleEvents{
-    event AD1467_ApprovedAddress(address indexed addr);
-    event AD1467_NotApprovedAddress(address indexed addr);
+    event AD1467_ApprovedAddress(address indexed addr, bool isApproved);
     event AD1467_ApproveListOracleDeployed();
-    event AD1467_DeniedAddress(address indexed addr);
-    event AD1467_NonDeniedAddress(address indexed addr);
+    event AD1467_DeniedAddress(address indexed addr, bool isDenied);
     event AD1467_DeniedListOracleDeployed();
     event AD1467_OracleListChanged(bool indexed add, address[] addresses); // new event
 }
@@ -80,7 +71,7 @@ interface IApplicationHandlerEvents {
     // Rule applied
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
-    event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] indexed action, uint32[] indexed ruleId);
+    event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);
     /// Pricing
     event AD1467_ERC721PricingAddressSet(address indexed _address);
     event AD1467_ERC20PricingAddressSet(address indexed _address);
@@ -97,8 +88,8 @@ interface ICommonApplicationHandlerEvents {
     /// Rule activated
     event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
     event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes[] actions);
-    //// Rule Bypassed Via Rule Bypass Account 
-    event AD1467_RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
+    //// Rule Bypassed Via Rule treasury Account 
+    event AD1467_RulesBypassedViaTreasuryAccount(address indexed treasuryAccount, address indexed appManager);
 }
 
 /**
@@ -127,6 +118,7 @@ interface IEconomicEvents {
  */
 interface IHandlerDiamondEvents {
     event AD1467_HandlerDeployed();
+    event AD1467_UpgradedToVersion(address indexed origin, string indexed version);
 }
 
 /**

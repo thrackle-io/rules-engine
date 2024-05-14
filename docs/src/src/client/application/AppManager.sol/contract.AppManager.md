@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -55,10 +55,10 @@ bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
 ```
 
 
-### RULE_BYPASS_ACCOUNT
+### TREASURY_ACCOUNT
 
 ```solidity
-bytes32 constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
+bytes32 constant TREASURY_ACCOUNT = keccak256("TREASURY_ACCOUNT");
 ```
 
 
@@ -195,52 +195,6 @@ mapping(address => uint256) tokenToIndex;
 
 ```solidity
 mapping(address => bool) isTokenRegistered;
-```
-
-
-### ammList
-AMM List (for token level rule exemptions)
-
-
-```solidity
-address[] ammList;
-```
-
-
-### ammToIndex
-
-```solidity
-mapping(address => uint256) ammToIndex;
-```
-
-
-### isAMMRegistered
-
-```solidity
-mapping(address => bool) isAMMRegistered;
-```
-
-
-### treasuryList
-Treasury List (for token level rule exemptions)
-
-
-```solidity
-address[] treasuryList;
-```
-
-
-### treasuryToIndex
-
-```solidity
-mapping(address => uint256) treasuryToIndex;
-```
-
-
-### isTreasuryRegistered
-
-```solidity
-mapping(address => bool) isTreasuryRegistered;
 ```
 
 
@@ -471,15 +425,6 @@ function addMultipleAppAdministrator(address[] memory _accounts) external onlyRo
 |`_accounts`|`address[]`|address array to be added|
 
 
-### renounceAppAdministrator
-
-*Remove oneself from the app administrator role.*
-
-
-```solidity
-function renounceAppAdministrator() external;
-```
-
 ### isRuleAdministrator
 
 -------------RULE ADMIN---------------
@@ -533,24 +478,15 @@ function addMultipleRuleAdministrator(address[] memory account) external onlyRol
 |`account`|`address[]`|address to be added as a rule admin|
 
 
-### renounceRuleAdministrator
+### isTreasuryAccount
 
-*Remove oneself from the rule admin role.*
+-------------TREASURY ACCOUNT ---------------
 
-
-```solidity
-function renounceRuleAdministrator() external;
-```
-
-### isRuleBypassAccount
-
--------------RULE BYPASS ACCOUNT ---------------
-
-*This function is where the rule bypass account role is actually checked*
+*This function is where the Treasury account role is actually checked*
 
 
 ```solidity
-function isRuleBypassAccount(address account) public view returns (bool);
+function isTreasuryAccount(address account) public view returns (bool);
 ```
 **Parameters**
 
@@ -562,62 +498,38 @@ function isRuleBypassAccount(address account) public view returns (bool);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`bool`|success true if RULE_BYPASS_ACCOUNT, false if not|
+|`<none>`|`bool`|success true if TREASURY_ACCOUNT, false if not|
 
 
-### addRuleBypassAccount
+### addTreasuryAccount
 
-*Add an account to the rule bypass account role. Restricted to app administrators.*
+*Add an account to the Treasury account role. Restricted to app administrators.*
 
 
 ```solidity
-function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE);
+function addTreasuryAccount(address account) public onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`account`|`address`|address to be added as a rule bypass account|
+|`account`|`address`|address to be added as a Treasury account|
 
 
-### addMultipleRuleBypassAccounts
+### addMultipleTreasuryAccounts
 
-*Add a list of accounts to the rule bypass account role. Restricted to app administrators.*
+*Add a list of accounts to the Treasury account role. Restricted to app administrators.*
 
 
 ```solidity
-function addMultipleRuleBypassAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE);
+function addMultipleTreasuryAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_accounts`|`address[]`|addresses to be added as a rule bypass account|
+|`_accounts`|`address[]`|addresses to be added as a Treasury account|
 
-
-### renounceRuleBypassAccount
-
-This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
-
-*Remove oneself from the rule bypass account role.*
-
-
-```solidity
-function renounceRuleBypassAccount() external nonReentrant;
-```
-
-### checkForAdminMinTokenBalanceCapable
-
-If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
-
-*Loop through all the registered tokens, if they are capable of admin min token balance, see if it's active. If so, revert*
-
-*ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules.*
-
-
-```solidity
-function checkForAdminMinTokenBalanceCapable() internal;
-```
 
 ### isAccessLevelAdmin
 
@@ -672,15 +584,6 @@ function addMultipleAccessLevelAdmins(address[] memory account) external onlyRol
 |`account`|`address[]`|address to be added as a access level|
 
 
-### renounceAccessLevelAdmin
-
-*Remove oneself from the access level role.*
-
-
-```solidity
-function renounceAccessLevelAdmin() external;
-```
-
 ### isRiskAdmin
 
 -------------RISK ADMIN---------------
@@ -733,15 +636,6 @@ function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_AD
 |----|----|-----------|
 |`account`|`address[]`|address to be added|
 
-
-### renounceRiskAdmin
-
-*Remove oneself from the risk admin role.*
-
-
-```solidity
-function renounceRiskAdmin() external;
-```
 
 ### addAccessLevel
 
@@ -1425,96 +1319,6 @@ function _addAddressWithMapping(
 |`_addressToIndex`|`mapping(address => uint256)`|mapping that keeps track of the indexes in the list by address|
 |`_registerFlag`|`mapping(address => bool)`|mapping that keeps track of the addresses that are members of the list|
 |`_address`|`address`|The address to add|
-
-
-### registerAMM
-
-*This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|Address for the AMM|
-
-
-### isRegisteredAMM
-
-*This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function isRegisteredAMM(address _AMMAddress) public view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|Address for the AMM|
-
-
-### deRegisterAMM
-
-*This function allows the devs to deregister an AMM contract address.*
-
-
-```solidity
-function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_AMMAddress`|`address`|The of the AMM to be de-registered|
-
-
-### isTreasury
-
-*This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function isTreasury(address _treasuryAddress) public view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_treasuryAddress`|`address`|Address for the treasury|
-
-
-### registerTreasury
-
-*This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions*
-
-
-```solidity
-function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_treasuryAddress`|`address`|Address for the treasury|
-
-
-### deRegisterTreasury
-
-*This function allows the devs to deregister an treasury address.*
-
-
-```solidity
-function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_treasuryAddress`|`address`|The of the AMM to be de-registered|
 
 
 ### approveAddressToTradingRuleAllowlist

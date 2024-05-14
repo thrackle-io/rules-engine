@@ -100,7 +100,9 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as an app administrator
         /// we renounce so there can be only one appAdmin
-        applicationAppManager.renounceAppAdministrator();
+        vm.startPrank(appAdministrator);
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
+        switchToSuperAdmin();
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
@@ -113,7 +115,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceAppAdministrator() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRole(APP_ADMIN_ROLE, appAdministrator);
         assertFalse(applicationAppManager.isAppAdministrator(appAdministrator));
     }
 
@@ -137,7 +139,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceRiskAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToRiskAdmin(); //interact as the created risk admin
-        applicationAppManager.renounceRiskAdmin();
+        applicationAppManager.renounceRole(RISK_ADMIN_ROLE, riskAdmin);
         assertFalse(applicationAppManager.isRiskAdmin(riskAdmin));
     }
 
@@ -171,7 +173,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_RenounceAccessLevelAdmin() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAccessLevelAdmin();
-        applicationAppManager.renounceAccessLevelAdmin();
+        applicationAppManager.renounceRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
         assertFalse(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin));
     }
 
@@ -371,6 +373,152 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         assertTrue(test.length == 3);
     }
 
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added out of order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 9);
+        applicationAppManager.removePauseRule(Blocktime + 1020, Blocktime + 1030);
+        vm.warp(Blocktime + 1800);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 0);
+    }
+
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose_Continued() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 6);
+        vm.warp(Blocktime + 150);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 3);
+        // Curent state: 3 rules still exist
+        vm.warp(Blocktime + 1001);
+        // Add more rules
+        applicationAppManager.addPauseRule(Blocktime + 1002, Blocktime + 1003);
+        applicationAppManager.addPauseRule(Blocktime + 1002, Blocktime + 1003);
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 5);
+        vm.warp(Blocktime + 1004);
+        test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 5);
+        applicationAppManager.addPauseRule(Blocktime + 1005, Blocktime + 1075);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 4);
+        /**
+        4 rules with end times of 1010, 1030, 1070, 1075
+        */
+        // add rules with end dates out of order 
+        applicationAppManager.addPauseRule(Blocktime + 1006, Blocktime + 1077);
+        applicationAppManager.addPauseRule(Blocktime + 1007, Blocktime + 1068);
+        applicationAppManager.addPauseRule(Blocktime + 1008, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1009, Blocktime + 1044);
+        vm.warp(Blocktime + 1010);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 8);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 7);
+        vm.warp(Blocktime + 1071);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 3);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1078);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1077);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1076);
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 6);
+        vm.warp(Blocktime + 1076);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 4);
+        vm.warp(Blocktime + 1077);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 2);
+        applicationAppManager.addPauseRule(Blocktime + 1079, Blocktime + 1092);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1099);
+        vm.warp(Blocktime + 1100);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        assertEq(test.length, 0);
+    }
+
+    function testApplication_ApplicationCommonTests_ManualCleaning_Verbose_Pt2() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added in date order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1065, Blocktime + 1080);
+        applicationAppManager.addPauseRule(Blocktime + 1070, Blocktime + 1085);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1085, Blocktime + 1100);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 15);
+        // remove a rule to check if this will unorder the data structure and prevent cleaning 
+        applicationAppManager.removePauseRule(Blocktime + 1020, Blocktime + 1030);
+        vm.warp(Blocktime + 1800);
+        applicationAppManager.cleanOutdatedRules();
+        test = applicationAppManager.getPauseRules();
+        // confirm all rules are cleaned after their end dates 
+        assertTrue(test.length == 0);
+    }
+
+    function testApplication_ApplicationCommonTests_AddPauseRuleCleansExpiredRules() public endWithStopPrank ifDeploymentTestsEnabled {
+        switchToRuleAdmin();
+        // ensure rules added in date order are cleaned after their end date 
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1015);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1035);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1075);
+        applicationAppManager.addPauseRule(Blocktime + 1065, Blocktime + 1080);
+        applicationAppManager.addPauseRule(Blocktime + 1070, Blocktime + 1085);
+        applicationAppManager.addPauseRule(Blocktime + 1075, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1095);
+        applicationAppManager.addPauseRule(Blocktime + 1085, Blocktime + 1100);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 15);
+
+        vm.warp(Blocktime + 1800);
+        uint256 gas_start = gasleft(); 
+        applicationAppManager.addPauseRule(Blocktime + 1885, Blocktime + 1900);
+        console.log(gas_start - gasleft());
+        test = applicationAppManager.getPauseRules();
+        // confirm all rules are cleaned after their end dates 
+        assertTrue(test.length == 1);
+    }
+
     function testApplication_ApplicationCommonTests_SetNewTagProvider() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         Tags dataMod = new Tags(address(applicationAppManager));
@@ -492,36 +640,36 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
     function testApplication_ApplicationCommonTests_RuleAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RuleAdmin(ruleAdmin, true);
-        applicationAppManager.addRuleAdministrator(ruleAdmin);
+        emit RoleGranted(RULE_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addRuleAdministrator(user);
     }
 
     function testApplication_ApplicationCommonTests_RiskAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RiskAdmin(riskAdmin, true);
-        applicationAppManager.addRiskAdmin(riskAdmin);
+        emit RoleGranted(RISK_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addRiskAdmin(user);
     }
 
     function testApplication_ApplicationCommonTests_AccessLevelAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_AccessLevelAdmin(accessLevelAdmin, true);
-        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
+        emit RoleGranted(ACCESS_LEVEL_ADMIN_ROLE, user, appAdministrator);
+        applicationAppManager.addAccessLevelAdmin(user);
     }
 
     function testApplication_ApplicationCommonTests_AppAdminEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToSuperAdmin();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_AppAdministrator(appAdministrator, true);
-        applicationAppManager.addAppAdministrator(appAdministrator);
+        emit RoleGranted(APP_ADMIN_ROLE, user, superAdmin);
+        applicationAppManager.addAppAdministrator(user);
     }
 
-    function testApplication_ApplicationCommonTests_RuleBypassAccountEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
+    function testApplication_ApplicationCommonTests_TreasuryAccountEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);
-        emit AD1467_RuleAdmin(ruleAdmin, true);
-        applicationAppManager.addRuleAdministrator(ruleAdmin);
+        emit RoleGranted(TREASURY_ACCOUNT, user, appAdministrator);
+        applicationAppManager.addTreasuryAccount(user);
     }
 
     function testApplication_ApplicationCommonTests_AppNameEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
@@ -530,22 +678,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         vm.expectEmit(true, false, false, false);
         emit AD1467_AppNameChanged(appName);
         applicationAppManager.setAppName(appName);
-    }
-
-    function testApplication_ApplicationCommonTests_RegisterAmmEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToAppAdministrator();
-        address amm = address(0x577777);
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_AMMRegistered(amm);
-        applicationAppManager.registerAMM(amm);
-    }
-
-    function testApplication_ApplicationCommonTests_RegisterTreasuryEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToAppAdministrator();
-        address appTreasury = address(0xAAAAA);
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_TreasuryRegistered(appTreasury);
-        applicationAppManager.registerTreasury(appTreasury);
     }
 
     function testApplication_ApplicationCommonTests_TradingRulesAddressAllowListEventEmission() public endWithStopPrank ifDeploymentTestsEnabled {
@@ -576,10 +708,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public view ifDeploymentTestsEnabled {
         assertTrue(applicationAppManager.isRuleAdministrator(ruleAdmin));
-    }
-
-    function testApplication_ApplicationCommonTests_VerifyTreasury() public view ifDeploymentTestsEnabled {
-        assertTrue(applicationAppManager.isTreasury(feeTreasury));
     }
 
     function testApplication_ApplicationCommonTests_VerifyTokensRegistered() public view ifDeploymentTestsEnabled {
@@ -752,7 +880,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
         ruleIds[1] = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 350);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL);
-        console.log("here!");
         // Apply the rules to all actions
         setAccountMaxValueOutByAccessLevelRuleFull(actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly

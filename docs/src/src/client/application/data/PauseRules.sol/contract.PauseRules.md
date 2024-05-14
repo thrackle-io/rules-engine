@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/application/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/application/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/client/application/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)
@@ -45,6 +45,8 @@ constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManag
 
 ### addPauseRule
 
+This function first cleans outdated rules, then checks if new pause rule will exceed the MAX_RULES limit (15)
+
 *Add the pause rule to the account. Restricted to the owner*
 
 
@@ -76,6 +78,9 @@ function _removePauseRule(uint256 i) internal;
 
 ### removePauseRule
 
+Function loops through pause rules while there is at least 1 stored rule. Then calls _removePauseRule() for all rules whose end date is less than or equal to block.timestamp.
+This loop will continue looping through (a maximum of 15 rules) until all rules are "swapped and popped" in order to remove outdated rules, even when not stored in dated order.
+
 *Remove the pause rule from the account. Restricted to the owner*
 
 
@@ -91,6 +96,9 @@ function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external virtual
 
 
 ### cleanOutdatedRules
+
+Function loops through pause rules and calls _removePauseRule() for all rules whose end date is less than or equal to block.timestamp
+This loop will continue looping through (a maximum of 15 rules) until all rules are "swapped and popped" in order to remove outdated rules, even when not stored in dated order.
 
 *Cleans up outdated pause rules by removing them from the mapping*
 

@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "src/common/IEvents.sol";
 
 // tests the shared functionality of the erc20 and erc721 combined together
 
@@ -11,6 +12,25 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
     function setUp() external {
         vm.warp(Blocktime);
         setUpProcotolAndCreateERC20AndDiamondHandler();
+    }
+
+    function test_versionUpgradeFacet() public {
+        bool success;
+
+        switchToAppAdministrator();
+
+        vm.expectEmit();
+        emit AD1467_UpgradedToVersion(appAdministrator, "1.2.0");
+        (success, ) = address(applicationCoinHandler).call(abi.encodeWithSignature("updateVersion(string)", "1.2.0"));
+        assertTrue(success);
+
+        vm.expectEmit();
+        emit AD1467_UpgradedToVersion(appAdministrator, "1.2.0");
+        (success, ) = address(applicationNFTHandler).call(abi.encodeWithSignature("updateVersion(string)", "1.2.0"));
+        assertTrue(success);
+
+        vm.assertEq(HandlerVersionFacet(address(applicationCoinHandler)).version(), "1.2.0");
+        vm.assertEq(HandlerVersionFacet(address(applicationNFTHandler)).version(), "1.2.0");
     }
 
     // note: make a test for get acc total valuation 

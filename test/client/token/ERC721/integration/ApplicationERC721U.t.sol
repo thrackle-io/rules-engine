@@ -360,44 +360,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, rich_user, 6);
     }
 
-    function testERC721_ApplicationERC721U_AdminMinTokenBalance_Negative() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        switchToRuleBypassAccount();
-        /// This one fails
-        bytes4 selector = bytes4(keccak256("UnderMinBalance()"));
-        vm.expectRevert(abi.encodeWithSelector(selector));
-        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
-    }
-
-    function testERC721_ApplicationERC721U_AdminMinTokenBalance_Upgrade() public endWithStopPrank {
-        // upgrade the NFT and make sure it still fails
-        _adminMinTokenBalanceSetup();
-        vm.startPrank(proxyOwner);
-        applicationNFT2 = new ApplicationERC721UpgAdminMint();
-        applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        switchToRuleBypassAccount();
-        bytes4 selector = bytes4(keccak256("UnderMinBalance()"));
-        vm.expectRevert(abi.encodeWithSelector(selector));
-        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
-    }
-
-    function testERC721_ApplicationERC721U_AdminMinTokenBalance_Period() public endWithStopPrank {
-        _adminMinTokenBalanceSetup();
-        vm.startPrank(proxyOwner);
-        applicationNFT2 = new ApplicationERC721UpgAdminMint();
-        applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        switchToRuleBypassAccount();
-
-        /// Move Time forward 366 days
-        vm.warp(Blocktime + 366 days);
-
-        /// Transfers and updating rules should now pass
-        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
-        switchToRuleAdmin();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), 0);
-    }
-
     function testERC721_ApplicationERC721U_UpgradeAppManager721u_FailZeroAddress() public endWithStopPrank {
         _upgradeAppManager721uSetup();
         /// Test fail scenarios
@@ -688,29 +650,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, user2, 3); ///User 3 has min limit of 3
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, user1, 1);
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user3), 3);
-    }
-
-    function _adminMinTokenBalanceSetup() public endWithStopPrank {
-        switchToAppAdministrator();
-        /// Mint TokenId 0-6 to admin
-        for (uint i; i < 7; i++) {
-            ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(ruleBypassAccount);
-        }
-        /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
-        setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
-        /// Set the rule in the handler
-        switchToRuleAdmin();
-
-        /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert(0x4ba7941c);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        vm.expectRevert(0x4ba7941c);
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
-        switchToRuleBypassAccount();
-        /// These transfers should pass
-        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 0);
-        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 1);
     }
 
     function _upgradeAppManager721uSetup() public endWithStopPrank {

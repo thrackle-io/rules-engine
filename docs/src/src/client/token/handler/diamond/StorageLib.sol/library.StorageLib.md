@@ -1,5 +1,5 @@
 # StorageLib
-[Git Source](https://github.com/thrackle-io/tron/blob/90c179d4a2d3d05eb80cb7a50ea4891339d7488e/src/client/token/handler/diamond/StorageLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/token/handler/diamond/StorageLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -44,14 +44,6 @@ bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base
 
 ```solidity
 bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
-```
-
-
-### ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION
-
-```solidity
-bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION =
-    bytes32(uint256(keccak256("admin-min-token-balance-position")) - 1);
 ```
 
 
@@ -123,7 +115,29 @@ bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION =
 ```
 
 
+### HANDLER_VERSION_POSITION
+
+```solidity
+bytes32 constant HANDLER_VERSION_POSITION = bytes32(uint256(keccak256("handler-version-position")) - 1);
+```
+
+
 ## Functions
+### handlerVersionStorage
+
+*Function to store the Initialized flag*
+
+
+```solidity
+function handlerVersionStorage() internal pure returns (HandlerVersionS storage ds);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ds`|`HandlerVersionS`|Data Storage of the Initialized flag|
+
+
 ### initializedStorage
 
 *Function to store the Initialized flag*
@@ -227,21 +241,6 @@ function tokenMaxDailyTradesStorage() internal pure returns (TokenMaxDailyTrades
 |Name|Type|Description|
 |----|----|-----------|
 |`ds`|`TokenMaxDailyTradesS`|Data Storage of Max Daily Trade Rule|
-
-
-### adminMinTokenBalanceStorage
-
-*Function to store Admin Min Token Balance rules*
-
-
-```solidity
-function adminMinTokenBalanceStorage() internal pure returns (AdminMinTokenBalanceS storage ds);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ds`|`AdminMinTokenBalanceS`|Data Storage of Admin Min Token Balance Rule|
 
 
 ### tokenMinTxSizeStorage

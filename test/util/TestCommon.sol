@@ -57,7 +57,6 @@ import "src/client/application/data/PauseRules.sol";
 import "src/client/application/data/AccessLevels.sol";
 import "src/client/application/data/RiskScores.sol";
 import "src/client/application/data/IDataModule.sol";
-import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol";
@@ -68,6 +67,7 @@ import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20Handl
 import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
 import "src/client/token/handler/diamond/FeesFacet.sol";
 import "src/client/token/handler/diamond/RuleStorage.sol";
+import {HandlerVersionFacet} from "src/client/token/handler/diamond/HandlerVersionFacet.sol";
 /// common imports
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
@@ -170,11 +170,12 @@ abstract contract TestCommon is
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
 
     bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
-    bytes32 public constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
+    bytes32 public constant TREASURY_ACCOUNT = keccak256("TREASURY_ACCOUNT");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 public constant ACCESS_LEVEL_ADMIN_ROLE = keccak256("ACCESS_LEVEL_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 public constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
+    bytes32 public constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     uint8 public constant MAX_ACTION_TYPES = 4;
 
     /**

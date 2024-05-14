@@ -79,8 +79,7 @@ applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 ###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccountMaxValueByRiskScore*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+- This rule doesn't apply when a **treasuryAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an treasury account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 
 ### Revert Message
 
@@ -207,7 +206,7 @@ This rule does not require any data to be recorded.
         - handlerAddress: the address of the application handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] indexed ruleIds);**:
+- **event AD1467_ApplicationRuleAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
         - ruleType: "BALANCE_BY_RISK".

@@ -16,7 +16,6 @@ library RuleStoragePositionLib {
     bytes32 constant BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
     bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_POSITION = bytes32(uint256(keccak256("token-max-price-volatility")) - 1);
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("token-max-trading-volume")) - 1);
-    bytes32 constant ADMIN_MIN_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("admin-min-token-balance")) - 1);
     bytes32 constant TOKEN_MIN_TX_SIZE_POSITION = bytes32(uint256(keccak256("token-min-tx-size")) - 1);
     bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance")) - 1);
     bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_POSITION = bytes32(uint256(keccak256("token-max-supply-volatility")) - 1);
@@ -79,17 +78,6 @@ library RuleStoragePositionLib {
      */
     function tokenMaxTradingVolumeStorage() internal pure returns (IRuleStorage.TokenMaxTradingVolumeS storage ds) {
         bytes32 position = TOKEN_MAX_TRADING_VOLUME_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Admin Min Token Balance rules
-     * @return ds Data Storage of Admin Min Token Balance Rule
-     */
-    function adminMinTokenBalanceStorage() internal pure returns (IRuleStorage.AdminMinTokenBalanceS storage ds) {
-        bytes32 position = ADMIN_MIN_TOKEN_BALANCE_POSITION;
         assembly {
             ds.slot := position
         }
