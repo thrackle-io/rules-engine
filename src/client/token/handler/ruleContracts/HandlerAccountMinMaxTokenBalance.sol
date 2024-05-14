@@ -30,6 +30,7 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ActionTypesA
     /**
      * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @notice This function does not check that the array length is greater than zero to allow for clearing out of the action types data
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions
      */
