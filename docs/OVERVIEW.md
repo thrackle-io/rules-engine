@@ -520,5 +520,5 @@ This repository utilized Foundary documentation generation for files using NatSp
 The root of the documentation can be found [here](./src/SUMMARY.md).
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron

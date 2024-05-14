@@ -11,7 +11,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_ERC20AndHandlerVersions() public view {
         string memory version = HandlerVersionFacet(address(applicationCoinHandler)).version();
-        assertEq(version, "1.1.0");
+        assertEq(version, "1.2.0");
     }
 
     function testERC20_ERC20CommonTests_DeregisterTokenEmission_Positive() public endWithStopPrank {
