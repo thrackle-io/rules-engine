@@ -56,6 +56,16 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
     }
 
+    function setAccountMaxTradeSizeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setAccountMaxTradeSizeIdFull(actions, ruleIds);
+    }
+
+    function setTokenMaxBuySellVolumeIdFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setTokenMaxBuySellVolumeIdFull(actions, ruleIds);
+    }
+
     function setAccountMinMaxTokenBalanceRuleSingleAction(ActionTypes action, address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(createActionTypeArray(action), ruleId);

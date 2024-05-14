@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "test/util/TestCommonFoundry.sol";
 import "../../TestTokenCommon.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
+import "src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
 
 abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     IERC20 testCaseToken;
@@ -1889,6 +1890,37 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
     }
 
+    function testERC20_ERC20CommonTests_AccountMinMaxTokenBalanceAtomicFull_ZeroLengthActions() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        bytes32[5] memory tags = [bytes32("Shane"), bytes32("RJ"), bytes32("Tayler"), bytes32("Michael"), bytes32("Gordon")];
+        for (uint i; i < ruleIds.length; i++) createAccountMinMaxTokenBalanceRule(createBytes32Array(tags[i]), createUint256Array(i + 1), createUint256Array((i + 1) * 1000));
+        
+        // Set up rules
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        
+        // Apply the rules to all actions
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+
+        // Verify that all the rule id's were set correctly and actions activated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(actions[i]), ruleIds[i]);
+            assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(actions[i]));
+        }
+        
+        // Create zero length arrays
+        ActionTypes[] memory actionsZero = new ActionTypes[](0);
+        uint32[] memory ruleIdsZero = new uint32[](0);
+
+        // Clear the rule data with zero length actions array
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actionsZero, ruleIdsZero);
+
+        // Verify that the old rules were cleared correctly and actions deactivated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(actions[i]), 0);
+            assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(actions[i]));
+        }
+    }
+
     /* AccountMaxTradeSize */
     function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFullSetSell() public {
         uint32[] memory ruleIds = new uint32[](1);
@@ -1946,6 +1978,36 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(ActionTypes.SELL));
     }
 
+    function testERC20_ERC20CommonTests_AccountMaxTradeSizeAtomicFull_ZeroLengthActions() public {
+        // Create rules
+        uint32[] memory ruleIds = new uint32[](2);
+        ruleIds[0] = createAccountMaxTradeSizeRule("Gordon", 100, 5);
+        ruleIds[1] = createAccountMaxTradeSizeRule("Tayler", 200, 5);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+
+        // Apply rules
+        setAccountMaxTradeSizeIdFull(address(applicationCoinHandler), actions, ruleIds);
+
+        // Verify that all the rule id's were set correctly and actions activated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(actions[i]), ruleIds[i]);
+            assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(actions[i]));
+        }
+
+        // Create zero length arrays
+        ActionTypes[] memory actionsZero = new ActionTypes[](0);
+        uint32[] memory ruleIdsZero = new uint32[](0);
+
+        // Apply new zero length rules
+        setAccountMaxTradeSizeIdFull(address(applicationCoinHandler), actionsZero, ruleIdsZero);
+
+        // Verify that all the rule id's were cleared correctly and actions deactivated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxTradeSizeId(actions[i]), 0);
+            assertFalse(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxTradeSizeActive(actions[i]));
+        }
+    }
+
     function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeBuyActionAtomicFullReSet() public {
         uint32 ruleId = createTokenMaxBuySellVolumeRule(10, 24, 0, Blocktime);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
@@ -1971,6 +2033,36 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(ActionTypes.BUY), ruleId);
         // Verify that all the rules were activated
         assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(ActionTypes.BUY));
+    }
+
+    function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeAtomicFull_ZeroLengthActions() public {
+        // Create rules
+        uint32[] memory ruleIds = new uint32[](2);
+        ruleIds[0] = createTokenMaxBuySellVolumeRule(10, 48, 0, Blocktime);
+        ruleIds[1] = createTokenMaxBuySellVolumeRule(20, 68, 0, Blocktime);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL);
+
+        // Apply rules
+        setTokenMaxBuySellVolumeIdFull(address(applicationCoinHandler), actions, ruleIds);
+
+        // Verify that all the rule id's were set correctly and actions activated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(actions[i]), ruleIds[i]);
+            assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(actions[i]));
+        }
+
+        // Create zero length arrays
+        uint32[] memory ruleIdsZero = new uint32[](0);
+        ActionTypes[] memory actionsZero = new ActionTypes[](0);
+
+        // Apply new zero length rules
+        setTokenMaxBuySellVolumeIdFull(address(applicationCoinHandler), actionsZero, ruleIdsZero);
+
+        // Verify that all the rule id's were cleared correctly and actions deactivated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuySellVolumeId(actions[i]), 0);
+            assertFalse(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuySellVolumeActive(actions[i]));
+        }
     }
 
     function testERC20_ERC20CommonTests_TokenMaxBuySellVolumeAtomicFullReSet() public {
@@ -2094,6 +2186,44 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         }
     }
 
+    function testERC20_ERC20CommonTests_AccountApproveDenyOracleAtomicFull_ZeroLengthActions() public {
+        uint32[] memory ruleIds = new uint32[](25);
+        ActionTypes[] memory actions = new ActionTypes[](25);
+
+        // Set up rules
+        uint256 actionIndex;
+        uint256 mainIndex;
+        for (uint i; i < 5; i++) {
+            for (uint j; j < 5; j++) {
+                actions[mainIndex] = ActionTypes(actionIndex);
+                ruleIds[mainIndex] = createAccountApproveDenyOracleRule(0);
+                mainIndex++;
+            }
+            actionIndex++;
+        }
+
+        // Apply the rules to all actions
+        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleIds);
+        
+        // Verify that all the rule id's were set correctly and are active
+        for (uint i; i < 5; i++) {
+            assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(actions[i])[i], ruleIds[i]);
+            assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(actions[i], ruleIds[i]));
+        }
+        // Create zero length arrays
+        uint32[] memory ruleIdsZero = new uint32[](0);
+        ActionTypes[] memory actionsZero = new ActionTypes[](0);
+
+        // Apply zero length arrays
+        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actionsZero, ruleIdsZero);
+
+        // Verify that all the rule ids were cleared and not active
+        for (uint i; i < 5; i++) {
+            assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(actions[i]).length, 0);
+            assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(actions[i], ruleIds[i]));
+        }
+    }
+
     /* TokenMinimumTransaction */
     function testERC20_ERC20CommonTests_TokenMinimumTransactionAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
@@ -2140,6 +2270,35 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.P2P_TRANSFER));
         assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.MINT));
         assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BURN));
+    }
+
+    function testERC20_ERC20CommonTests_TokenMinimumTransactionAtomicFull_ZeroLengthActions() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rules
+        for (uint i; i < 5; i++) ruleIds[i] = createTokenMinimumTransactionRule(i + 1);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+
+        // Apply the rules to all actions
+        setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
+
+        // Verify that all the rule id's were set correctly and actions activated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(actions[i]), ruleIds[i]);
+            assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(actions[i]));
+        }
+        
+        // Create zero length arrays
+        uint32[] memory ruleIdsZero = new uint32[](0);
+        ActionTypes[] memory actionsZero = new ActionTypes[](0);
+
+        // Apply the new zero length rules
+        setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actionsZero, ruleIdsZero);
+
+        // Verify that all the rule id's were cleared correctly and actions deacivated
+        for (uint i; i < ruleIds.length; ++i) {
+            assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(actions[i]), 0);
+            assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(actions[i]));
+        }
     }
 
     /// Utility Helper Functions

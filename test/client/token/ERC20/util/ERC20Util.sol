@@ -64,6 +64,16 @@ abstract contract ERC20Util is TokenUtils, DummyAMM {
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeId(actionTypes, ruleId);
     }
 
+    function setAccountMaxTradeSizeIdFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setAccountMaxTradeSizeIdFull(actions, ruleIds);
+    }
+
+    function setTokenMaxBuySellVolumeIdFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
+        switchToRuleAdmin();
+        TradingRuleFacet(address(assetHandler)).setTokenMaxBuySellVolumeIdFull(actions, ruleIds);
+    }
+
     function setTokenMaxTradingVolumeRuleSingleAction(ActionTypes _action, address assetHandler, uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(_action);
