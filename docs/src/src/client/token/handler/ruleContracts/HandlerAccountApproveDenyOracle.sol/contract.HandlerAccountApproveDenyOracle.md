@@ -1,5 +1,5 @@
 # HandlerAccountApproveDenyOracle
-[Git Source](https://github.com/thrackle-io/tron/blob/56352a4526d6a87b8ae2304732a66802674fba29/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4f1430717249c90fcbde9d9572fe2ac92dc2c5d4/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -37,6 +37,8 @@ function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _
 ### setAccountApproveDenyOracleIdFull
 
 that setting a rule will automatically activate it.
+
+This function does not check that the array length is greater than zero to allow for clearing out of the action types data
 
 *Set the AccountApproveDenyOracle suite. This function works differently since the rule allows multiples per action. The actions are repeated to account for multiple oracle rules per action. Restricted to rule administrators only.*
 
