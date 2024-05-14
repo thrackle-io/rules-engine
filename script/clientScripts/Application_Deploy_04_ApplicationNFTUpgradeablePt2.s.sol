@@ -48,7 +48,7 @@ contract DeployProtocolERC721Upgradeable is Script, DeployBase {
         applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
         /// Create NFT Handler
         createERC721HandlerDiamondPt2("Jekyll&Hyde", address(applicationNFTHandlerDiamond));
-        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(appConfigAdminAddress), address(nftupgradeable));
+        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
         vm.stopBroadcast();
 
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
