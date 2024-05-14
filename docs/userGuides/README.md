@@ -78,8 +78,12 @@ forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --f
 sh script/ParseApplicationDeploy.sh 2
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 sh script/ParseApplicationDeploy.sh 3
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
+# Optional: If you would like to run through tests using the upgradeable token
+# sh script/SubUpgradeableTokenForRegularToken.sh
 forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
 sh script/ParseApplicationDeploy.sh 4
 forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
