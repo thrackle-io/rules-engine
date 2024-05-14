@@ -30,11 +30,27 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Set short SHA
+      - name: Set container tags
         id: sha_short
         run: |
           echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}' >> $GITHUB_ENV
+          echo 'TRON_TEST_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-test' >> $GITHUB_ENV
+
+      - name: Build and export tron test image to docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: deploy-tron
+          load: true
+          tags: ${{ env.TRON_TEST_TAG }}
+          cache-from: type=registry,ref=foundry-base:latest
+          cache-to: type=inline
+
+      - name: Test Tron Deployment
+        run: |
+          docker run --rm ${{ env.TRON_TEST_TAG }} -ti ./docker-scripts/deploy-tron.sh --with-deploy-check
 
       - name: Build and push Anvil
         uses: docker/build-push-action@v5
@@ -47,7 +63,7 @@ jobs:
           cache-from: type=registry,ref=foundry-base:latest
           cache-to: type=inline
 
-      - name: Build and push Tron
+      - name: Build and push tron image
         uses: docker/build-push-action@v5
         with:
           context: .
