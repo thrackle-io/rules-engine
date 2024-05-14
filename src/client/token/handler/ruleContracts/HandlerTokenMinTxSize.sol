@@ -35,7 +35,6 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setTokenMinTxSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if (_actions.length == 0) revert InputArraysSizesNotValid();
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMinTxSize();
         for (uint i; i < _actions.length; ++i) {
