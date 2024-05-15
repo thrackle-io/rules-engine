@@ -16,7 +16,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-./foundry-version-check.sh
+#./foundry-version-check.sh
 
 if [ -n $FOUNDRY_PROFILE ]; then
   RPC_URL="local"
