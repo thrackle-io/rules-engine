@@ -28,6 +28,8 @@ RUN cargo install \
 	--profile local \
 	--locked forge cast chisel anvil
 
+
+
 ################################################
 #
 # `compile-tron` layer pulls all of the tron repo into the container
@@ -41,6 +43,8 @@ FROM foundry-base as compile-tron
 COPY . .
 RUN chmod -R a+x docker-scripts
 RUN ./docker-scripts/compile-tron.sh
+
+
 
 ################################################
 #
@@ -59,6 +63,23 @@ ENV RUST_LOG=backend,api,node,rpc=warn
 ENV CHAIN_ID=31337
 ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
+
+
+################################################
+#
+# Runs the tron docker deploy script in "deploy check"
+# mode, so that the results of the deploy can be parsed
+# and confirmed as having worked.
+#
+################################################
+
+FROM compile-tron as check-deploy
+ENV FOUNDRY_PROFILE=local
+CMD ["./docker-scripts/deploy-tron.sh", "--with-deploy-check"]
+
+
+
+
 ################################################
 #
 # `deploy-tron` layer runs the tron deploy scripts
@@ -76,6 +97,8 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 FROM compile-tron as deploy-tron
 ENV FOUNDRY_PROFILE=docker
 CMD ["./docker-scripts/deploy-tron.sh"]
+
+
 
 ################################################
 #
