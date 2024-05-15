@@ -2,10 +2,6 @@ name: Run Necessist
 
 on:
   workflow_dispatch:
-    inputs:
-      TEMP:
-        description: "Placeholder for now"
-        required: false
 
 env:
   AWS_REGION: us-east-1
@@ -20,6 +16,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -31,7 +30,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Configure AWS CLI
+      - name: Connect kubectl to universus
         run: |
           aws eks update-kubeconfig --name universus --region ${{ env.AWS_REGION }}
 
@@ -39,10 +38,16 @@ jobs:
         run: |
           echo "NECESSIST_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:necessist-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      - name: Build and push docker image
-        run: |
-          docker build -t ${{ env.NECESSIST_IMAGE_TAG }} -f Dockerfile.necessist . --build-arg AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }} --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }} --build-arg AWS_REGION=${{ env.AWS_REGION }}
-          docker push ${{ env.NECESSIST_IMAGE_TAG }}
+      - name: Build and push Necessist image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: tron-necessist
+          push: true
+          tags: ${{ env.NECESSIST_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:foundry-base
+          cache-to: type=inline
 
       - name: Update k8s manifest
         run: |

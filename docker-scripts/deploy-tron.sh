@@ -12,7 +12,7 @@ SCRIPT_MODE=${1:-0}
 ##
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
 	FOUNDRY_PROFILE=local
-  anvil --host 0.0.0.0 --chain-id 31337 &
+  anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
   sleep 2
 fi
 
