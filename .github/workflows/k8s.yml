@@ -38,6 +38,18 @@ jobs:
           echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_TEST_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-test' >> $GITHUB_ENV
+          echo 'FOUNDRY_BASE_TAG=${{ env.ECR_REPOSITORY }}:foundry-base' >> $GITHUB_ENV
+
+      - name: Build and push foundry-base
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: foundry-base
+          push: true
+          tags: ${{ env.FOUNDRY_BASE_TAG }}
+          cache-from: type=registry,ref=${{ env.FOUNDRY_BASE_TAG }}
+          cache-to: type=inline
 
       - name: Build and export tron test image to docker
         uses: docker/build-push-action@v5
@@ -47,7 +59,7 @@ jobs:
           target: deploy-tron
           load: true
           tags: ${{ env.TRON_TEST_TAG }}
-          cache-from: type=registry,ref=${{ env.TRON_TEST_TAG }}
+          cache-from: type=registry,ref=${{ env.FOUNDRY_BASE_TAG }}
           cache-to: type=inline
 
       - name: Test Tron Deployment
@@ -62,7 +74,7 @@ jobs:
           target: anvil
           push: true
           tags: ${{ env.ANVIL_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.ANVIL_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.FOUNDRY_BASE_TAG }}
           cache-to: type=inline
 
       - name: Build and push tron image
@@ -73,5 +85,5 @@ jobs:
           target: deploy-tron
           push: true
           tags: ${{ env.TRON_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.TRON_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.FOUNDRY_BASE_TAG }}
           cache-to: type=inline
