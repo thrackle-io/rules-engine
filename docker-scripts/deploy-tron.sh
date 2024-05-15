@@ -1,10 +1,15 @@
 #!/bin/bash
 set -e
 
-source ~/.bashrc
-
 SCRIPT_MODE=${1:-0}
 
+##
+# the --with-deploy-check flag is passed into this script by the main k8s.yml GH workflow,
+# so that it can confirm that the build will successfully deploy. Because that happens in GHA
+# in that case we override the FOUNDRY_PROFILE setting and start our own anvil service here
+# for it to deploy to and confirm success, and then GHA will just delete the whole test image
+# and push the tron and anvil builds to ECR. 
+##
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
 	FOUNDRY_PROFILE=local
   anvil --host 0.0.0.0 --chain-id 31337 &
