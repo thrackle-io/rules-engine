@@ -45,8 +45,8 @@ jobs:
           target: deploy-tron
           load: true
           tags: ${{ env.TRON_TEST_TAG }}
-          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache
-          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache,mode=max
+          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache
+          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache,mode=max
 
       - name: Test Tron Deployment
         run: |
@@ -60,8 +60,8 @@ jobs:
           target: anvil
           push: true
           tags: ${{ env.ANVIL_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache
-          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache,mode=max
+          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache
+          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache,mode=max
 
       - name: Build and push tron image
         uses: docker/build-push-action@v5
@@ -71,5 +71,5 @@ jobs:
           target: deploy-tron
           push: true
           tags: ${{ env.TRON_IMAGE_TAG }}
-          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache
-          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}/tron:cache,mode=max
+          cache-from: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache
+          cache-to: type=registry,ref=${{ env.ECR_REPOSITORY }}:cache,mode=max
