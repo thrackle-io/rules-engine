@@ -50,7 +50,7 @@ jobs:
 
       - name: Test Tron Deployment
         run: |
-          docker run --rm ${{ env.TRON_TEST_TAG }} -ti ./docker-scripts/deploy-tron.sh --with-deploy-check
+          docker run --rm ${{ env.TRON_TEST_TAG }} ./docker-scripts/deploy-tron.sh --with-deploy-check
 
       - name: Build and push Anvil
         uses: docker/build-push-action@v5
