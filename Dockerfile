@@ -20,13 +20,19 @@ RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-ven
 WORKDIR /usr/local/src/tron
 
 COPY foundry.lock .
+COPY get-foundry.sh .
+COPY docker-scripts/install-forge.sh docker-scripts/
+
+RUN chmod a+x get-foundry.sh docker-scripts/install-forge.sh
+RUN ./get-foundry.sh
+RUN ./docker-scripts/install-forge.sh
 
 # --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
-RUN cargo install \
-	--git https://github.com/foundry-rs/foundry \
-	--rev $(awk '$1~/^[^#]/' foundry.lock) \
-	--profile local \
-	--locked forge cast chisel anvil
+#RUN cargo install \
+#	--git https://github.com/foundry-rs/foundry \
+#	--rev $(awk '$1~/^[^#]/' foundry.lock) \
+#	--profile local \
+#	--locked forge cast chisel anvil
 
 ################################################
 #
