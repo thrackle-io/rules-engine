@@ -67,9 +67,9 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 ################################################
 #
-# Runs the tron docker deploy script in "deploy check"
-# mode, so that the results of the deploy can be parsed
-# and confirmed as having worked.
+# `check-deploy` layer runs the tron docker deploy script 
+# in "deploy check" mode, so that the results of the deploy 
+# can be parsed and confirmed as having worked.
 #
 ################################################
 

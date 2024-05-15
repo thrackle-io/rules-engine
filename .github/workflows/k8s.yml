@@ -33,7 +33,7 @@ jobs:
       - name: Set container tags
         run: |
           echo 'FOUNDRY_BASE_TAG=${{ env.ECR_REPOSITORY }}:foundry-base' >> $GITHUB_ENV
-          echo 'TRON_BASE_TAG=${{ env.ECR_REPOSITORY }}:tron-base-${{ github.ref_name }}' >> $GITHUB_ENV          
+          echo 'TRON_BASE_TAG=${{ env.ECR_REPOSITORY }}:tron-base-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}' >> $GITHUB_ENV
           echo 'TRON_TEST_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-test' >> $GITHUB_ENV

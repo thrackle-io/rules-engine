@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate new Image Tags
         run: |
-          echo 'TRON_BASE_TAG=${{ env.ECR_REPOSITORY }}:tron-base-${{ github.ref_name }}' >> $GITHUB_ENV          
+          echo 'TRON_BASE_TAG=${{ env.ECR_REPOSITORY }}:tron-base-${{ github.ref_name }}' >> $GITHUB_ENV
           echo "NECESSIST_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:necessist-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Build and push Necessist image
