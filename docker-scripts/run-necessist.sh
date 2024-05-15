@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source ~/.bashrc
+
 source .venv/bin/activate
 necessist --verbose --framework foundry -- --ffi
 

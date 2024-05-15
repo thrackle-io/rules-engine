@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source ~/.bashrc
+
 SCRIPT_MODE=${1:-0}
 
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-## Addint a comment to invalidate a cache layer for testing
+source ~/.bashrc
 
 python3 -m venv .venv
 source .venv/bin/activate
