@@ -128,6 +128,30 @@ if [[ $NUMBER == 3 ]]; then
   else
     sed -i 's/APPLICATION_ERC721_HANDLER=.*/APPLICATION_ERC721_HANDLER='$APPLICATION_ERC721_HANDLER'/g' $ENV_FILE 
   fi
+
+  # Retrive the Upgradeable ERC 721
+  APPLICATION_ERC721U_ADDRESS=$(parseContractAddress "ApplicationERC721UProxy" $CHAIN_ID 0 "Application_Deploy_04_ApplicationNFTUpgradeable.s.sol")
+  echo APPLICATION_ERC721U_ADDRESS=$APPLICATION_ERC721U_ADDRESS
+  echo
+
+  os=$(uname -a)
+  if [[ $os == *"Darwin"* ]]; then
+    sed -i '' 's/APPLICATION_ERC721U_ADDRESS=.*/APPLICATION_ERC721U_ADDRESS='$APPLICATION_ERC721U_ADDRESS'/g' $ENV_FILE
+  else
+    sed -i 's/APPLICATION_ERC721U_ADDRESS=.*/APPLICATION_ERC721U_ADDRESS='$APPLICATION_ERC721U_ADDRESS'/g' $ENV_FILE
+  fi
+
+    # Retrieve the ERC 721U Handler
+  APPLICATION_ERC721U_HANDLER=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 0 "Application_Deploy_04_ApplicationNFTUpgradeable.s.sol")
+  echo APPLICATION_ERC721U_HANDLER=$APPLICATION_ERC721U_HANDLER
+  echo
+
+  os=$(uname -a)
+  if [[ $os == *"Darwin"* ]]; then
+    sed -i '' 's/APPLICATION_ERC721U_HANDLER=.*/APPLICATION_ERC721U_HANDLER='$APPLICATION_ERC721U_HANDLER'/g' $ENV_FILE
+  else
+    sed -i 's/APPLICATION_ERC721U_HANDLER=.*/APPLICATION_ERC721U_HANDLER='$APPLICATION_ERC721U_HANDLER'/g' $ENV_FILE 
+  fi
 fi
 
 if [[ $NUMBER == 4 ]]; then

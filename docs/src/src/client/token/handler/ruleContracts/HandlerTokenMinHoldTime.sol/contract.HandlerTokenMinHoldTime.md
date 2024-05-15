@@ -1,5 +1,5 @@
 # HandlerTokenMinHoldTime
-[Git Source](https://github.com/thrackle-io/tron/blob/aa84a9fbaba8b03f46b7a3b0774885dc91a06fa5/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/1ba87bf9bb403411ce677f8e83126c3bf8cfa713/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -63,6 +63,8 @@ function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTim
 ### setTokenMinHoldTimeFull
 
 that setting a rule will automatically activate it.
+
+This function does not check that the array length is greater than zero to allow for clearing out of the action types data
 
 *Set the setTokenMinHoldTimeRule suite. Restricted to rule administrators only.*
 

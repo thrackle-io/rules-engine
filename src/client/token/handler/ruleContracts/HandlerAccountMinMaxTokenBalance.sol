@@ -30,11 +30,11 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ActionTypesA
     /**
      * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @notice This function does not check that the array length is greater than zero to allow for clearing out of the action types data
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions
      */
     function setAccountMinMaxTokenBalanceIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if (_actions.length == 0) revert InputArraysSizesNotValid();
         if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearMinMaxTokenBalance();
         for (uint i; i < _actions.length; ++i) {

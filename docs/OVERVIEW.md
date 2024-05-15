@@ -46,7 +46,7 @@
 
 ## Purpose
 
-This document offers a high level overview of the rules protocol - what it does and how it works. Read this to gain an initial understanding of the tron repo and the structure of the rules protocol.
+This document offers a high level overview of the rules protocol - what it does and how it works. Read this to gain an initial understanding of the repo and the structure of the rules protocol.
 
 ## Glossary
 
@@ -66,7 +66,7 @@ This document offers a high level overview of the rules protocol - what it does 
 
 ## Diamond Pattern
 
-Tron uses the _diamond_ pattern. The diamond pattern allows the handler to add new features and improvements through the use of an upgradable proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the handler to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing over time. The Handler Diamond follows ERC 2535 standards for storage and functions. 
+This protocol uses the _diamond_ pattern. The diamond pattern allows the handler to add new features and improvements through the use of an upgradable proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the handler to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing over time. The Handler Diamond follows ERC 2535 standards for storage and functions. 
 #### *[ERC 2535: Diamond Proxies](https://eips.ethereum.org/EIPS/eip-2535)*
 
 ## Architecture Overview
@@ -520,5 +520,5 @@ This repository utilized Foundary documentation generation for files using NatSp
 The root of the documentation can be found [here](./src/SUMMARY.md).
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
