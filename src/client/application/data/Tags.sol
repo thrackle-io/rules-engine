@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "./DataModule.sol";
 import "./ITags.sol";
 import {INoAddressToRemove} from "src/common/IErrors.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Tags Data Contract
@@ -11,7 +12,7 @@ import {INoAddressToRemove} from "src/common/IErrors.sol";
  * @dev Tags are stored as an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract Tags is DataModule, ITags, INoAddressToRemove {
+contract Tags is DataModule, ITags, INoAddressToRemove, IAppLevelEvents {
     mapping(address => bytes32[]) public tagRecords;
     mapping(address => mapping(bytes32 => uint)) tagToIndex;
     mapping(address => mapping(bytes32 => bool)) isTagRegistered;

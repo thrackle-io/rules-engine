@@ -8,7 +8,7 @@ import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
-import "src/client/application/AppManager.sol";
+import "src/client/application/IAppManager.sol";
 import "src/common/IProtocolERC721Pricing.sol";
 import "src/common/IProtocolERC20Pricing.sol";
 import "src/client/token/ITokenInterface.sol";
@@ -34,8 +34,8 @@ contract ProtocolApplicationHandler is
     IAppHandlerErrors,
     ProtocolApplicationHandlerCommon
 {
-    string private constant VERSION = "1.2.0";
-    AppManager immutable appManager;
+    string private constant VERSION = "1.2.1";
+    IAppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
 
@@ -68,7 +68,7 @@ contract ProtocolApplicationHandler is
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
         if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        appManager = AppManager(_appManagerAddress);
+        appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_appManagerAddress);
         emit AD1467_ApplicationHandlerDeployed(_appManagerAddress);

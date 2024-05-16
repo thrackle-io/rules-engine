@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "./DataModule.sol";
 import "./IAccessLevels.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Access Levels Contract
@@ -10,7 +11,7 @@ import "./IAccessLevels.sol";
  * @dev This contract stores and serves Access Levels via an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract AccessLevels is IAccessLevels, DataModule {
+contract AccessLevels is IAccessLevels, DataModule, IAppLevelEvents {
     mapping(address => uint8) public levels;
 
     /**

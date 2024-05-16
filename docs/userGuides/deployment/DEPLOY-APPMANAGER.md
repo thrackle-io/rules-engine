@@ -25,5 +25,5 @@
 
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron

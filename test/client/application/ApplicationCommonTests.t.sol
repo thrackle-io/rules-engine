@@ -523,7 +523,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToAppAdministrator();
         Tags dataMod = new Tags(address(applicationAppManager));
         applicationAppManager.proposeTagsProvider(address(dataMod));
-        dataMod.confirmDataProvider(IDataModule.ProviderType.TAG);
+        dataMod.confirmDataProvider(IDataEnum.ProviderType.TAG);
         assertEq(address(dataMod), applicationAppManager.getTagProvider());
     }
 
@@ -537,7 +537,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToAppAdministrator();
         AccessLevels dataMod = new AccessLevels(address(applicationAppManager));
         applicationAppManager.proposeAccessLevelsProvider(address(dataMod));
-        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCESS_LEVEL);
+        dataMod.confirmDataProvider(IDataEnum.ProviderType.ACCESS_LEVEL);
         assertEq(address(dataMod), applicationAppManager.getAccessLevelProvider());
     }
 
@@ -551,7 +551,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToAppAdministrator();
         RiskScores dataMod = new RiskScores(address(applicationAppManager));
         applicationAppManager.proposeRiskScoresProvider(address(dataMod));
-        dataMod.confirmDataProvider(IDataModule.ProviderType.RISK_SCORE);
+        dataMod.confirmDataProvider(IDataEnum.ProviderType.RISK_SCORE);
         assertEq(address(dataMod), applicationAppManager.getRiskScoresProvider());
     }
 
@@ -559,7 +559,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToAppAdministrator();
         PauseRules dataMod = new PauseRules(address(applicationAppManager));
         applicationAppManager.proposePauseRulesProvider(address(dataMod));
-        dataMod.confirmDataProvider(IDataModule.ProviderType.PAUSE_RULE);
+        dataMod.confirmDataProvider(IDataEnum.ProviderType.PAUSE_RULE);
         assertEq(address(dataMod), applicationAppManager.getPauseRulesProvider());
     }
 

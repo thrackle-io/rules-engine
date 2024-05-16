@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./IDataModule.sol";
 import {IAccessLevelErrors, IInputErrors} from "src/common/IErrors.sol";
 
 /**
@@ -10,7 +9,7 @@ import {IAccessLevelErrors, IInputErrors} from "src/common/IErrors.sol";
  * @dev Access Level storage and retrieval functions are defined here
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IAccessLevels is IDataModule, IAccessLevelErrors, IInputErrors {
+interface IAccessLevels is IAccessLevelErrors, IInputErrors {
     /**
      * @dev Add the Access Level to the account. Restricted to the owner
      * @param _address address of the account

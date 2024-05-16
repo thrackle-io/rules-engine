@@ -18,7 +18,7 @@ contract ERC721PricingTest is TestCommonFoundry {
 
     function testPricing_ERC721Pricing_PricerVersion() public view {
         string memory version = openOcean.version();
-        assertEq(version, "1.2.0");
+        assertEq(version, "1.2.1");
     }
 
     /// Testing setting the price for a single NFT under the right conditions

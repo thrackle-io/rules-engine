@@ -4,7 +4,7 @@
 
 This repository contains an EVM-based protocol designed to meet the unique needs of tokenized assets and on-chain economies. The protocol enables the creation and management of economic and compliance controls for your on-chain economy at the token level, allowing for maximum flexibility while maintaining the transparency and trustlessness of Web3.
 
-[version-image]: https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/tron
 
 ## Installation

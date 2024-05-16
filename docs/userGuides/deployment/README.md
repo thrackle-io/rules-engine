@@ -10,3 +10,18 @@ This is a step-by-step guide to protocol and protocol supported application depl
 6. (Optional) To see what's available in deployment of the scripts, see [Deployment scripts index](./DEPLOYMENT-SCRIPTS.md).
 
 Your application is ready to roll!
+
+
+NOTE: 
+When integrating the protocol as a library in your repo, there are certain configuration requirements that must be followed for compilation. The following four contract imports must be configured as: 
+```
+import {AppManger} from "tron/client/application/AppManager.sol";
+import "tron/client/application/ProtocolApplicationHandler.sol";
+```
+
+```
+import "tron/client/token/handler/diamond/HandlerDiamond.sol";
+import {RuleProcessorDiamond} from "tron/protocol/economic/ruleProcessor/ruleProcessorDiamond.sol";
+```
+
+When importing these contracts in the pairs above into the src directory of your repo it is essential that you follow this inheritance structure to ensure there are no compiler issues. 
