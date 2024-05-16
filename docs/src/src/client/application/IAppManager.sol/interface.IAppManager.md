@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/1ba87bf9bb403411ce677f8e83126c3bf8cfa713/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/a6e068f4bc8dd6e86015430d874759ac1519196d/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -395,12 +395,12 @@ function checkApplicationRules(
 
 
 ```solidity
-function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
+function confirmNewDataProvider(IDataEnum.ProviderType _providerType) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_providerType`|`IDataModule.ProviderType`|the type of data provider|
+|`_providerType`|`IDataEnum.ProviderType`|the type of data provider|
 
 

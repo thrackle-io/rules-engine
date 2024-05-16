@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/1ba87bf9bb403411ce677f8e83126c3bf8cfa713/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/a6e068f4bc8dd6e86015430d874759ac1519196d/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -16,7 +16,7 @@ This contract is the permissions contract
 ### VERSION
 
 ```solidity
-string private constant VERSION = "1.2.0";
+string private constant VERSION = "1.2.1";
 ```
 
 
@@ -1551,12 +1551,12 @@ function confirmDataContractMigration(address _oldAppManagerAddress) external no
 
 
 ```solidity
-function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
+function confirmNewDataProvider(IDataEnum.ProviderType _providerType) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_providerType`|`IDataModule.ProviderType`|the type of data provider|
+|`_providerType`|`IDataEnum.ProviderType`|the type of data provider|
 
 

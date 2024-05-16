@@ -8,7 +8,7 @@
         - [DataModule](src/client/application/data/DataModule.sol/abstract.DataModule.md)
         - [IAccessLevels](src/client/application/data/IAccessLevels.sol/interface.IAccessLevels.md)
         - [IAccounts](src/client/application/data/IAccounts.sol/interface.IAccounts.md)
-        - [IDataModule](src/client/application/data/IDataModule.sol/interface.IDataModule.md)
+        - [IDataEnum](src/client/application/data/IDataEnum.sol/interface.IDataEnum.md)
         - [IPauseRules](src/client/application/data/IPauseRules.sol/interface.IPauseRules.md)
         - [IRiskScores](src/client/application/data/IRiskScores.sol/interface.IRiskScores.md)
         - [ITags](src/client/application/data/ITags.sol/interface.ITags.md)
