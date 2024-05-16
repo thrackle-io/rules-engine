@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
-import "src/client/application/data/IDataModule.sol";
+
 
 /**
  * @title ApplicationAppManagerTest
@@ -184,7 +184,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.proposeTagsProvider(address(data));
         vm.expectEmit(address(applicationAppManager));
         emit AD1467_TagProviderSet(address(data)); 
-        data.confirmDataProvider(IDataModule.ProviderType.TAG);
+        data.confirmDataProvider(IDataEnum.ProviderType.TAG);
     }
     // When confirmNewDataProvider is called with a provider type of RISK_SCORE and is not reverted, the RiskProviderSet event will be emitted.
     function invariant_ConfirmNewDataProviderEmitsEventRiskScore() public {
@@ -193,7 +193,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.proposeRiskScoresProvider(address(data));
         vm.expectEmit(address(applicationAppManager));
         emit AD1467_RiskProviderSet(address(data)); 
-        data.confirmDataProvider(IDataModule.ProviderType.RISK_SCORE);
+        data.confirmDataProvider(IDataEnum.ProviderType.RISK_SCORE);
     }
     // When confirmNewDataProvider is called with a provider type of ACCESS_LEVEL and is not reverted, the AccessLevelProviderSet event will be emitted.
     function invariant_ConfirmNewDataProviderEmitsEventAccessLevel() public {
@@ -202,7 +202,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.proposeAccessLevelsProvider(address(data));
         vm.expectEmit(address(applicationAppManager));
         emit AD1467_AccessLevelProviderSet(address(data)); 
-        data.confirmDataProvider(IDataModule.ProviderType.ACCESS_LEVEL);
+        data.confirmDataProvider(IDataEnum.ProviderType.ACCESS_LEVEL);
     }
     // When confirmNewDataProvider is called with a provider type of PAUSE_RULE and is not reverted, the PauseRuleProviderSet event will be emitted.
     function invariant_ConfirmNewDataProviderEmitsEventPauseRule() public {
@@ -211,7 +211,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.proposePauseRulesProvider(address(data));
         vm.expectEmit(address(applicationAppManager));
         emit AD1467_PauseRuleProviderSet(address(data)); 
-        data.confirmDataProvider(IDataModule.ProviderType.PAUSE_RULE);
+        data.confirmDataProvider(IDataEnum.ProviderType.PAUSE_RULE);
     }
 
 /// DATA MIGRATION

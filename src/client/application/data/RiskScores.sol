@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "./DataModule.sol";
 import "./IRiskScores.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Risk Scores Data Contract
@@ -10,7 +11,7 @@ import "./IRiskScores.sol";
  * @dev This contract stores and serves risk scores via an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract RiskScores is IRiskScores, DataModule {
+contract RiskScores is IRiskScores, DataModule, IAppLevelEvents {
     mapping(address => uint8) public scores;
     uint8 constant MAX_RISK = 100;
 

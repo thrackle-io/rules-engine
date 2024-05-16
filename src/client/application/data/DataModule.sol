@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./IDataModule.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {IAppManager} from "src/client/application/IAppManager.sol";
+import {IAppManager, IDataEnum} from "src/client/application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
-import {IAppManager} from "src/client/application/IAppManager.sol";
 
 /**
  * @title Data Module
@@ -13,7 +11,11 @@ import {IAppManager} from "src/client/application/IAppManager.sol";
  * @dev Allows for proper permissioning for both internal and external data sources.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
+abstract contract DataModule is Ownable, IOwnershipErrors, IZeroAddressError {
+
+    error AppManagerNotConnected();
+    error NotAppAdministratorOrOwner();
+
     string private constant VERSION="1.2.0";
     address public immutable dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
@@ -61,7 +63,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager
      * @param _providerType the type of data provider
      */
-    function confirmDataProvider(ProviderType _providerType) external virtual appAdministratorOrOwnerOnly {
+    function confirmDataProvider(IDataEnum.ProviderType _providerType) external virtual appAdministratorOrOwnerOnly {
         IAppManager(dataModuleAppManagerAddress).confirmNewDataProvider(_providerType);
     }
 

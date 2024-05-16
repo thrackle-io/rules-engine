@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./IDataModule.sol";
 import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors} from "src/common/IErrors.sol";
 
 /**
@@ -10,7 +9,7 @@ import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors} 
  * @dev Tags storage retrieval functions are defined here
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface ITags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors {
+interface ITags is ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors {
     /**
      * @dev Add the tag. Restricted to owner.
      * @param _address user address

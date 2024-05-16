@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./IPauseRules.sol";
+import {IPauseRules, PauseRule} from "./IPauseRules.sol";
 import "./DataModule.sol";
-
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 /**
  * @title Pause Rules Data Contract
  * @notice Data contract to store Pause rules for the application
  * @dev This contract stores and serves pause rules via an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract PauseRules is IPauseRules, DataModule {
+contract PauseRules is IPauseRules, DataModule, IAppLevelEvents {
     PauseRule[] private pauseRules;
     uint8 constant MAX_RULES = 15;
 

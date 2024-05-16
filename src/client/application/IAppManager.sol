@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import "src/client/application/data/IDataModule.sol";
-import "src/client/application/data/IPauseRules.sol";
+import "./data/PauseRule.sol";
 import "src/client/token/HandlerTypeEnum.sol";
+import "./data/IDataEnum.sol";
 import {IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "src/common/IErrors.sol";
 
 /**
@@ -155,5 +155,5 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
      * @param _providerType the type of data provider
      */
-    function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
+    function confirmNewDataProvider(IDataEnum.ProviderType _providerType) external;
 }

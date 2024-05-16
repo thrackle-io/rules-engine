@@ -56,7 +56,7 @@ import "src/client/application/data/Tags.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/data/AccessLevels.sol";
 import "src/client/application/data/RiskScores.sol";
-import "src/client/application/data/IDataModule.sol";
+
 import "src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol";

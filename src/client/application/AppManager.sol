@@ -15,7 +15,7 @@ import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
 import "src/client/application/IAppManagerUser.sol";
-import "src/client/application/data/IDataModule.sol";
+
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
 import {IAppLevelEvents, IApplicationEvents} from "src/common/IEvents.sol";
@@ -864,10 +864,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _newOwner address of the new AppManager
      */
     function proposeDataContractMigration(address _newOwner) external nonReentrant onlyRole(APP_ADMIN_ROLE) {
-        accessLevels.proposeOwner(_newOwner);
-        riskScores.proposeOwner(_newOwner);
-        tags.proposeOwner(_newOwner);
-        pauseRules.proposeOwner(_newOwner);
+        DataModule(address(accessLevels)).proposeOwner(_newOwner);
+        DataModule(address(riskScores)).proposeOwner(_newOwner);
+        DataModule(address(tags)).proposeOwner(_newOwner);
+        DataModule(address(pauseRules)).proposeOwner(_newOwner);
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-events
@@ -883,10 +883,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         riskScores = RiskScores(oldAppManager.getRiskDataAddress());
         tags = Tags(oldAppManager.getTagsDataAddress());
         pauseRules = PauseRules(oldAppManager.getPauseRulesDataAddress());
-        accessLevels.confirmOwner();
-        riskScores.confirmOwner();
-        tags.confirmOwner();
-        pauseRules.confirmOwner();
+        DataModule(address(accessLevels)).confirmOwner();
+        DataModule(address(riskScores)).confirmOwner();
+        DataModule(address(tags)).confirmOwner();
+        DataModule(address(pauseRules)).confirmOwner();
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
         // applied to this function
         // slither-disable-next-line reentrancy-events
@@ -897,26 +897,26 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
      * @param _providerType the type of data provider
      */
-    function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
-        if (_providerType == IDataModule.ProviderType.TAG) {
+    function confirmNewDataProvider(IDataEnum.ProviderType _providerType) external {
+        if (_providerType == IDataEnum.ProviderType.TAG) {
             if (newTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             tags = ITags(newTagsProviderAddress);
             emit AD1467_TagProviderSet(newTagsProviderAddress);
             delete newTagsProviderAddress;
-        } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
+        } else if (_providerType == IDataEnum.ProviderType.RISK_SCORE) {
             if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             riskScores = IRiskScores(newRiskScoresProviderAddress);
             emit AD1467_RiskProviderSet(newRiskScoresProviderAddress);
             delete newRiskScoresProviderAddress;
-        } else if (_providerType == IDataModule.ProviderType.ACCESS_LEVEL) {
+        } else if (_providerType == IDataEnum.ProviderType.ACCESS_LEVEL) {
             if (newAccessLevelsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
             emit AD1467_AccessLevelProviderSet(newAccessLevelsProviderAddress);
             delete newAccessLevelsProviderAddress;
-        } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
+        } else if (_providerType == IDataEnum.ProviderType.PAUSE_RULE) {
             if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             pauseRules = IPauseRules(newPauseRulesProviderAddress);

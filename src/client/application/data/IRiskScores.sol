@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./IDataModule.sol";
 import {IRiskInputErrors, IInputErrors} from "src/common/IErrors.sol";
 
 /**
@@ -10,7 +9,7 @@ import {IRiskInputErrors, IInputErrors} from "src/common/IErrors.sol";
  * @dev This interface contains storage and retrieval function definitions
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IRiskScores is IDataModule, IRiskInputErrors, IInputErrors {
+interface IRiskScores is IRiskInputErrors, IInputErrors {
     /**
      * @dev Add the risk score to the account. Restricted to the owner
      * @param _address address of the account
