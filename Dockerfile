@@ -64,7 +64,6 @@ ENV CHAIN_ID=31337
 ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 
-
 ################################################
 #
 # `check-deploy` layer runs the tron docker deploy script 

@@ -15,3 +15,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: deploy-tron
+    entrypoint:
+      - /bin/sh
+      - -c
+    command:
+      - ./docker-scripts/deploy-tron.sh && /usr/bin/tail -f /dev/null

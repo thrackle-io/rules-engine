@@ -1,4 +1,4 @@
-name: K8s Build and Deploy
+name: Build and Push Tron Images
 
 on:
   workflow_dispatch:
@@ -71,7 +71,7 @@ jobs:
           cache-from: type=registry,ref=${{ env.TRON_BASE_TAG }}
           cache-to: type=inline
 
-      - name: Test Tron Deployment
+      - name: Run deploy-check and clean up
         run: |
           docker run --rm ${{ env.TRON_TEST_TAG }}
 

@@ -11,7 +11,7 @@ SCRIPT_MODE=${1:-0}
 # and push the tron and anvil builds to ECR. 
 ##
 if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
-	FOUNDRY_PROFILE=local
+  FOUNDRY_PROFILE=local
   anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
   sleep 2
 fi
@@ -78,9 +78,4 @@ if [ $SCRIPT_MODE = "--with-deploy-check" ]; then
     echo "✅ All tests passed."
     echo -e "\n\n!!! TODO in PR 3/3 !!!: GitHub Actions 'Deploy' workflow will run this in a step. This script will no longer invoke a deployment."
   fi
-else
-  # For a normal deploy, keep the tron container running so that tron devs can exec 
-  # into it and run forge tests and other forge/cast/etc commands against a populated 
-  # .env file
-  tail -f /dev/null
 fi
