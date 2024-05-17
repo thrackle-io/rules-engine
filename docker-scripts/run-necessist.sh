@@ -1,10 +1,7 @@
 #!/bin/bash
 set -e
 
-source ~/.bashrc
-source ~/.cargo/env
 source .venv/bin/activate
-cargo install necessist
 necessist --verbose --framework foundry -- --ffi
 
 date=$(date +"%Y-%m-%d")
