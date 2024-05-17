@@ -1,13 +1,10 @@
-# IProtocolERC721UMin
-[Git Source](https://github.com/thrackle-io/tron/blob/f3bd6a25d2a231a2f0551b95491d3fdfe01415dc/src/client/token/ERC721/upgradeable/IProtocolERC721UMin.sol)
-
-**Inherits:**
-IERC721EnumerableUpgradeable
+# IProtocolERC20UMin
+[Git Source](https://github.com/thrackle-io/tron/blob/f3bd6a25d2a231a2f0551b95491d3fdfe01415dc/src/client/token/ERC20/upgradeable/IProtocolERC20UMin.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-This is the base contract for all protocol ERC721Upgradeables
+This is the base contract for all protocol ERC20Upgradeables
 
 *Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer*
 
@@ -44,10 +41,10 @@ function connectHandlerToToken(address _deployedHandlerAddress) external;
 
 
 ## Events
-### HandlerConnected
+### AD1467_HandlerConnected
 
 ```solidity
-event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
+event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
 ```
 
 ## Errors

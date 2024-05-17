@@ -28,6 +28,8 @@
       - [ProtocolERC721Pricing](src/client/pricing/ProtocolERC721Pricing.sol/contract.ProtocolERC721Pricing.md)
     - [❱ token](src/client/token/README.md)
       - [❱ ERC20](src/client/token/ERC20/README.md)
+        - [❱ upgradeable](src/client/token/ERC20/upgradeable/README.md)
+          - [IProtocolERC20UMin](src/client/token/ERC20/upgradeable/IProtocolERC20UMin.sol/interface.IProtocolERC20UMin.md)
         - [IERC20Decimals](src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md)
         - [ProtocolERC20](src/client/token/ERC20/ProtocolERC20.sol/contract.ProtocolERC20.md)
       - [❱ ERC721](src/client/token/ERC721/README.md)
