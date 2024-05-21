@@ -49,6 +49,10 @@ jobs:
           tags: ${{ env.NECESSIST_IMAGE_TAG }}
           cache-from: type=registry,ref=${{ env.TRON_BASE_TAG }}
           cache-to: type=inline
+          build-args: |
+            AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION=${{ env.AWS_REGION }}
 
       - name: Update k8s manifest
         run: |
