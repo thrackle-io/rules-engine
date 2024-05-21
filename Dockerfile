@@ -74,7 +74,7 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 FROM compile-tron as check-deploy
 ENV FOUNDRY_PROFILE=local
-CMD ["./docker-scripts/deploy-tron.sh", "--with-deploy-check"]
+CMD ["./docker-scripts/check-deploy.sh"]
 
 
 
