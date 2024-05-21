@@ -1,8 +1,11 @@
 name: Build and Push Tron Images
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-
+      
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: ${{ secrets.K8S_AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/universus-tf
