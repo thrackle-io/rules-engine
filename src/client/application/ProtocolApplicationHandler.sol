@@ -329,7 +329,7 @@ contract ProtocolApplicationHandler is
     function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
-            emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
+            emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
         }
     }
 
@@ -345,7 +345,7 @@ contract ProtocolApplicationHandler is
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
-        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
+        emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
     }
 
     /**
@@ -385,9 +385,9 @@ contract ProtocolApplicationHandler is
             accountMaxValueByRiskScore[_actions[i]].active = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_RISK_SCORE, _actions);
         } else {
-            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_RISK_SCORE, _actions);
         }
     }
 
