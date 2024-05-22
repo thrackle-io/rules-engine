@@ -1,5 +1,5 @@
 # HandlerBase
-[Git Source](https://github.com/thrackle-io/tron/blob/eb8a3e1cf83581100fd90ef911919e537c2c55cb/src/client/token/handler/ruleContracts/HandlerBase.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/02db7a0f302d98149458dfe5cd5a62ffb6f478a7/src/client/token/handler/ruleContracts/HandlerBase.sol)
 
 **Inherits:**
 [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md)

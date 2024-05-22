@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/eb8a3e1cf83581100fd90ef911919e537c2c55cb/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/02db7a0f302d98149458dfe5cd5a62ffb6f478a7/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
