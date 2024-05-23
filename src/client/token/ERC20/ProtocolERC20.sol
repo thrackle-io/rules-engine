@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
-import "../ProtocolTokenCommon.sol";
+import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
-import "../handler/diamond/FeesFacet.sol";
-import "../handler/diamond/ERC20HandlerMainFacet.sol";
+import "src/client/token/handler/diamond/FeesFacet.sol";
+import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
 
 /**
  * @title ERC20 Base Contract

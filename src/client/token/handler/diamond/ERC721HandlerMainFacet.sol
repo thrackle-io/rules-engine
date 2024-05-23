@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../common/HandlerUtils.sol";
-import "../ruleContracts/HandlerBase.sol";
-import "../ruleContracts/NFTValuationLimit.sol";
-import "./ERC721TaggedRuleFacet.sol";
-import "./ERC721NonTaggedRuleFacet.sol";
-import "../../../application/IAppManager.sol";
-import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
+import "src/client/token/handler/common/HandlerUtils.sol";
+import "src/client/token/handler/ruleContracts/HandlerBase.sol";
+import "src/client/token/handler/ruleContracts/NFTValuationLimit.sol";
+import "src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol";
+import "src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol";
+import "src/client/application/IAppManager.sol";
+import {ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
-import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
+import {IHandlerDiamondErrors} from "src/common/IErrors.sol";
 import "diamond-std/implementations/ERC173/ERC173.sol";
 
 contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {

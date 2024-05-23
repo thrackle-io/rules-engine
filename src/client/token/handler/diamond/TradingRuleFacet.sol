@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import "../../../../protocol/economic/IRuleProcessor.sol";
-import {IHandlerDiamondErrors, IZeroAddressError} from "../../../../common/IErrors.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
-import {Rule} from "../common/DataStructures.sol";
+import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
+import "src/protocol/economic/IRuleProcessor.sol";
+import {IHandlerDiamondErrors, IZeroAddressError} from "src/common/IErrors.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import "../../../application/IAppManager.sol";
-import "./RuleStorage.sol";
-import "../ruleContracts/HandlerAccountMaxTradeSize.sol";
-import "../ruleContracts/HandlerTokenMaxBuySellVolume.sol";
-import "../../ERC20/IERC20Decimals.sol";
+import "src/client/application/IAppManager.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
+import "src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol";
+import "src/client/token/ERC20/IERC20Decimals.sol";
 
 contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellVolume, AppAdministratorOrOwnerOnlyDiamondVersion, IZeroAddressError, IHandlerDiamondErrors {
     

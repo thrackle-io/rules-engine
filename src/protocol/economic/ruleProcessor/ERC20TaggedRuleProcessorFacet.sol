@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "./RuleProcessorDiamondImports.sol";
-import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
+import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
 /**
  * @title ERC20 Tagged Rule Processor Facet

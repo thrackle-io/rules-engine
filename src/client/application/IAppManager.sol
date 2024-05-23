@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import "./data/PauseRule.sol";
+import "src/client/application/data/PauseRule.sol";
 import "src/client/token/HandlerTypeEnum.sol";
-import "./data/IDataEnum.sol";
+import "src/client/application/data/IDataEnum.sol";
 import {IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "src/common/IErrors.sol";
 
 /**

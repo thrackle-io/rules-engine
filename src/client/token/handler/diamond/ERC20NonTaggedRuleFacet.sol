@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./FacetsCommonImports.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
-import "./RuleStorage.sol";
-import "../../ITokenInterface.sol";
-import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
-import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
-import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
-import "../ruleContracts/HandlerTokenMinTxSize.sol";
+import "src/client/token/handler/diamond/FacetsCommonImports.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
+import "src/client/token/ITokenInterface.sol";
+import "src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
 
 contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
     /**

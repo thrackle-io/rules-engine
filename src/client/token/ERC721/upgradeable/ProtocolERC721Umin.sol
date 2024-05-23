@@ -4,8 +4,8 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "../../IProtocolTokenHandler.sol";
-import "../../ProtocolTokenCommonU.sol";
+import "src/client/token/IProtocolTokenHandler.sol";
+import "src/client/token/ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Minimal Protocol Contract

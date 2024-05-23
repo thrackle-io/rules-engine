@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import "../../../../protocol/economic/IRuleProcessor.sol";
-import {Rule} from "../common/DataStructures.sol";
+import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
+import "src/protocol/economic/IRuleProcessor.sol";
+import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import "../../../application/IAppManager.sol";
-import "./RuleStorage.sol";
-import "../../ITokenInterface.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
-import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
-import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
-import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
-import "../ruleContracts/HandlerTokenMinTxSize.sol";
-import "../ruleContracts/HandlerTokenMinHoldTime.sol";
-import "../ruleContracts/HandlerTokenMaxDailyTrades.sol";
+import "src/client/application/IAppManager.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
+import "src/client/token/ITokenInterface.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import "src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol";
+import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
 contract ERC721NonTaggedRuleFacet is
     AppAdministratorOrOwnerOnlyDiamondVersion,

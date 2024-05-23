@@ -2,12 +2,12 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/console.sol";
-import "./RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import "src/client/application/data/PauseRule.sol";
 import "src/client/application/IAppManager.sol";
-import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "./RuleDataFacet.sol";
-import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 
 /**
  * @title Rule Application Validation Facet Contract

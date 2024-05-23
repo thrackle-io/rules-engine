@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
-import "./IRuleStorage.sol";
+
+import "src/protocol/economic/ruleProcessor/IRuleStorage.sol";
 
 /**
  * @title Rules Storage Library

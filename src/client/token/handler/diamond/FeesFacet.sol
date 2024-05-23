@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import "src/protocol/economic/RuleAdministratorOnly.sol";
-import "../../../application/IAppManager.sol";
-import "../ruleContracts/Fees.sol";
+import "src/client/application/IAppManager.sol";
+import "src/client/token/handler/ruleContracts/Fees.sol";
 
 contract FeesFacet is RuleAdministratorOnly, Fees {
     

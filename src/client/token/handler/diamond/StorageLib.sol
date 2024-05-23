@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 // import "./IRuleStorage.sol";
-import "./RuleStorage.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
 
 /**
  * @title Rules Storage Library

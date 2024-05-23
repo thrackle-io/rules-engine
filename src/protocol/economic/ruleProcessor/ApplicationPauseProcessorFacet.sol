@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import "src/client/application/data/PauseRule.sol";
 import "src/client/application/IAppManager.sol";
 

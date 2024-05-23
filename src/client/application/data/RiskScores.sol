@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./DataModule.sol";
-import "./IRiskScores.sol";
+import "src/client/application/data/DataModule.sol";
+import "src/client/application/data/IRiskScores.sol";
 import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**

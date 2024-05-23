@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {IPauseRules, PauseRule} from "./IPauseRules.sol";
-import "./DataModule.sol";
+import {IPauseRules, PauseRule} from "src/client/application/data/IPauseRules.sol";
+import "src/client/application/data/DataModule.sol";
 import {IAppLevelEvents} from "src/common/IEvents.sol";
 /**
  * @title Pause Rules Data Contract

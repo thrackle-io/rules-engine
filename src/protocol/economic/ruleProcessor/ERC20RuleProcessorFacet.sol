@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import "src/common/IOracle.sol";
 import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 

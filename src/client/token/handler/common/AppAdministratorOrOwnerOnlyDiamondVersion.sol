@@ -5,8 +5,8 @@ pragma solidity ^0.8.24;
 import {IAppManager} from "src/client/application/IAppManager.sol";
 import {ERC173Lib} from "diamond-std/implementations/ERC173/ERC173Lib.sol";
 import "diamond-std/implementations/ERC173/ERC173.sol";
-import "../common/FacetUtils.sol";
-import "./RBACModifiersCommonImports.sol";
+import "src/client/token/handler/common/FacetUtils.sol";
+import "src/client/token/handler/common/RBACModifiersCommonImports.sol";
 
 /**
  * @title App Admin or Owner Permission module

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./RuleProcessorCommonLib.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol";
 import "src/common/IErrors.sol";
-import "./RuleCodeData.sol";
+import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
-import {RuleProcessorDiamondLib as processorDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IApplicationRules as ApplicationRuleStorage, INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IFeeRules as Fee} from "./RuleDataInterfaces.sol";
+import {RuleProcessorDiamondLib as processorDiamond, RuleDataStorage} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
+import {RuleStoragePositionLib as Storage} from "src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol";
+import {IRuleStorage as RuleS} from "src/protocol/economic/ruleProcessor/IRuleStorage.sol";
+import {IApplicationRules as ApplicationRuleStorage, INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IFeeRules as Fee} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {IEconomicEvents} from "src/common/IEvents.sol";
 
 
