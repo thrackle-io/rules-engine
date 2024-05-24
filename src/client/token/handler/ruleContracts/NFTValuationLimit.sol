@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./HandlerRuleContractsCommonImports.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import "src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 
 /**
  * @title nftValuationLimit variable setter and getter contract

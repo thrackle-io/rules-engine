@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./FacetsCommonImports.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
-import "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
-import "./TradingRuleFacet.sol";
+import "src/client/token/handler/diamond/FacetsCommonImports.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import "src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
+import "src/client/token/handler/diamond/TradingRuleFacet.sol";
 
 contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, AppAdministratorOrOwnerOnlyDiamondVersion{
 

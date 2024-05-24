@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "../RuleAdministratorOnly.sol";
-import "../AppAdministratorOnly.sol";
-import "./RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/RuleAdministratorOnly.sol";
+import "src/protocol/economic/AppAdministratorOnly.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 
 /**
  * @title Rule Data Facet

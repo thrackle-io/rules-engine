@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {HandlerDiamondLib, HandlerDiamondStorage} from "../diamond/HandlerDiamondLib.sol";
+import {HandlerDiamondLib, HandlerDiamondStorage} from "src/client/token/handler/diamond/HandlerDiamondLib.sol";
 
 contract FacetUtils{
 

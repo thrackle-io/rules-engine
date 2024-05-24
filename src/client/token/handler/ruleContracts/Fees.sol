@@ -4,9 +4,9 @@ pragma solidity ^0.8.24;
 import {IApplicationEvents, ICommonApplicationHandlerEvents, ITokenHandlerEvents} from "src/common/IEvents.sol";
 import {IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, IFeesErrors} from "src/common/IErrors.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
-import "./HandlerRuleContractsCommonImports.sol";
-import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import "../diamond/RuleStorage.sol";
+import "src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol";
+import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
 
 /**
  * @title Fees

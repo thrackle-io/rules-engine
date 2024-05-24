@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "./RuleDataInterfaces.sol";
-import "../../../common/ActionEnum.sol";
+import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
+import "src/common/ActionEnum.sol";
 
 /**
  * @title IRuleStorage

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {ActionTypes} from "src/common/ActionEnum.sol";
-import {Rule} from "../common/DataStructures.sol";
+import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 
 
 struct Fee {

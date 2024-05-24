@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./RuleProcessorDiamondImports.sol";
-import "../RuleAdministratorOnly.sol";
-import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/RuleAdministratorOnly.sol";
 
 /**
  * @title Application Rules Storage Facet

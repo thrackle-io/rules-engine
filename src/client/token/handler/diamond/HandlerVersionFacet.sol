@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {StorageLib as lib} from "./StorageLib.sol";
-import {IHandlerDiamondEvents} from "../../../../common/IEvents.sol";
-import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
+import {IHandlerDiamondEvents} from "src/common/IEvents.sol";
+import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 /**
  * @title Handler Version Facet 
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @VoR0220, @GordonPalmer

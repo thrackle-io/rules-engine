@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./RuleProcessorDiamondImports.sol";
+import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 
 /**
  * @title NFT Tagged Rule Processor Facet Contract

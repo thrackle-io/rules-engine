@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "./PauseRule.sol";
+import "src/client/application/data/PauseRule.sol";
 import {IPauseRuleErrors} from "src/common/IErrors.sol";
 
 /**

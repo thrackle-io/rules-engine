@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./HandlerRuleContractsCommonImports.sol";
+import "src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol";
 import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 /**

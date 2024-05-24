@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {IAppManager} from "src/client/application/IAppManager.sol";
-import "../../client/token/handler/common/RBACModifiersCommonImports.sol";
+import "src/client/token/handler/common/RBACModifiersCommonImports.sol";
 
 /**
  * @title Rule Administrators Only Modifier Contract
