@@ -74,16 +74,27 @@ if [ "$LOCAL" = "y" ]; then
 
 
     export ETH_RPC_URL=http://127.0.0.1:8545
-    sed -i '' 's/CONFIG_APP_ADMIN=.*/CONFIG_APP_ADMIN='$CONFIG_APP_ADMIN'/g' $ENV_FILE
-    sed -i '' 's/CONFIG_APP_ADMIN_KEY=.*/CONFIG_APP_ADMIN_KEY='$CONFIG_APP_ADMIN_KEY'/g' $ENV_FILE
-else
-    # Network Deployment (Mainnet or Testnet)
 
+    # Load the App Admin into the .env
+    sed -i '' 's/APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN_1'/g' $ENV_FILE
+    sed -i '' 's/APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
+    
+else
+
+    # Network Deployment (Mainnet or Testnet)
+    
     # Request App Admin Address and Key
     echo Please enter App Admin Address
     read APP_ADMIN_1
     echo Please enter App Admin Private Key
     read APP_ADMIN_1_KEY
+
+    # Request Rule Admin Address 
+    echo Please enter Rule Admin Address
+    read RULE_ADMIN_1
+    echo Please enter the Rule Admin Private Key
+    read LOCAL_RULE_ADMIN_KEY
+
     # Request and export ETH_RPC_URL
     echo Please enter RPC URL
     read ETH_RPC_URL
@@ -105,7 +116,7 @@ else
     # Request and export USER 2 address
     echo Please enter the USER 2 address. This is another test user
     read USER_2
-
+   
     echo "Is the Protocol already deployed (y or n)?"
     read ALREADY_DEPLOYED
 
@@ -122,22 +133,32 @@ else
     if [ "$ALREADY_DEPLOYED" = "y" ]; then
         echo "Pleast enter the RULE_PROCESSOR_DIAMOND address"
         read RULE_PROCESSOR_DIAMOND
-    fi
-
+    fi 
+    # load the env with the correct values from the user entry
+    sed -i '' 's/RULE_ADMIN=.*/RULE_ADMIN='$RULE_ADMIN_1'/g' $ENV_FILE
+    sed -i '' 's/LOCAL_RULE_ADMIN=.*/LOCAL_RULE_ADMIN='$RULE_ADMIN_1'/g' $ENV_FILE
+    sed -i '' 's/LOCAL_RULE_ADMIN_KEY=.*/LOCAL_RULE_ADMIN_KEY='$LOCAL_RULE_ADMIN_KEY'/g' $ENV_FILE
+    sed -i '' 's/CONFIG_APP_ADMIN=.*/CONFIG_APP_ADMIN='$CONFIG_APP_ADMIN'/g' $ENV_FILE
+    sed -i '' 's/CONFIG_APP_ADMIN_KEY=.*/CONFIG_APP_ADMIN_KEY='$CONFIG_APP_ADMIN_KEY'/g' $ENV_FILE
 fi
-
-sed -i '' 's/DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN_1'/g' $ENV_FILE
-sed -i '' 's/DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
 
 if [ "$ALREADY_DEPLOYED" = "y" ]; then
     echo "Protocol already deployed skipping Protocol Deployment Scripts"
 else
+    # Request Protocol Deployment Owner Address and Key
+    echo Please enter Protocol Deployment Owner Address. This should be different than other entered addresses.
+    read DEPLOYMENT_OWNER
+    echo Please enter Protocol Deployment Owner Private Key
+    read DEPLOYMENT_OWNER_KEY
+    sed -i '' 's/DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$DEPLOYMENT_OWNER'/g' $ENV_FILE
+    sed -i '' 's/DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$DEPLOYMENT_OWNER_KEY'/g' $ENV_FILE
 
     # Deploying the protocol
     echo "################################################################"
     echo Running Deploy Protocol scripts
     echo $ETH_RPC_URL
-    echo $APP_ADMIN_1
+    echo App Admin: $APP_ADMIN_1
+    echo Deployment Owner: $DEPLOYMENT_OWNER
     echo "################################################################"
     echo
 
@@ -148,7 +169,7 @@ else
     if [ "$LOCAL" = "y" ]; then
         RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
     else
-        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80002/run-latest.json)
+        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/$CHAIN_ID/run-latest.json)
     fi
     RULE_PROCESSOR_DIAMOND="${RULE_PROCESSOR_DIAMOND_UNCUT//\"}"
 
@@ -175,15 +196,19 @@ if [ "$LOCAL" = "y" ]; then
 else 
     APP_ADMIN=$APP_ADMIN_1
     APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_1_KEY
-fi
 
-os=$(uname -a)
-if [[ $os == *"Darwin"* ]]; then
-  sed -i '' 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
-  sed -i '' 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
-else
-  sed -i 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
-  sed -i 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+    os=$(uname -a)
+    if [[ $os == *"Darwin"* ]]; then
+        sed -i '' 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
+        sed -i '' 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+        sed -i '' 's/^DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN'/g' $ENV_FILE
+        sed -i '' 's/^DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+    else
+        sed -i 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
+        sed -i 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+        sed -i 's/^DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN'/g' $ENV_FILE
+        sed -i 's/^DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+    fi
 fi
 
 forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
@@ -191,7 +216,7 @@ forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi -
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
 else
-    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80002/run-latest.json)
+    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_APP_MANAGER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
@@ -201,7 +226,7 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
 else
-    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80002/run-latest.json)
+    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_HANDLER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
@@ -219,7 +244,7 @@ forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --f
 if [ "$LOCAL" = "y" ]; then 
     APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
+    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC20_1="${APPLICATION_ERC20_1_UNCUT//\"}"
 
@@ -229,7 +254,7 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
+    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC20_1_HANDLER="${APPLICATION_ERC20_1_HANDLER_UNCUT//\"}"
 
@@ -250,7 +275,7 @@ forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --f
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/80002/run-latest.json)
+    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC721_1="${APPLICATION_ERC721_1_UNCUT//\"}"
 
@@ -258,9 +283,9 @@ echo $APPLICATION_ERC721_1
 echo 
 
 if [ "$LOCAL" = "y" ]; then
-    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
+    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
+    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC721_1_HANDLER="${APPLICATION_ERC721_1_HANDLER_UNCUT//\"}"
 
@@ -280,7 +305,7 @@ forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --bro
 if [ "$LOCAL" = "y" ]; then
     ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80002/run-latest.json)
+    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
 fi
 ORACLE_1_HANDLER="${ORACLE_1_HANDLER_UNCUT//\"}"
 
@@ -290,7 +315,7 @@ echo
 if [ "$LOCAL" = "y" ]; then
     ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80002/run-latest.json)
+    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
 fi
 ORACLE_2_HANDLER="${ORACLE_2_HANDLER_UNCUT//\"}"
 
@@ -308,7 +333,7 @@ forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --br
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80002/run-latest.json)
+    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC20_PRICER="${APPLICATION_ERC20_PRICER_UNCUT//\"}"
 
@@ -318,7 +343,7 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80002/run-latest.json)
+    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/$CHAIN_ID/run-latest.json)
 fi
 APPLICATION_ERC721_PRICER="${APPLICATION_ERC721_PRICER_UNCUT//\"}"
 
@@ -409,4 +434,6 @@ ECHO "export USER_1=$USER_1"
 ECHO "export USER_2=$USER_2"
 ECHO "export APPLICATION_ERC20_1=$APPLICATION_ERC20_1"
 ECHO "export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER"
+ECHO "export APPLICATION_ERC721_1=$APPLICATION_ERC721_1"
+ECHO "export APPLICATION_ERC721_1_HANDLER=$APPLICATION_ERC721_1_HANDLER"
 rm ./transaction_output.txt
