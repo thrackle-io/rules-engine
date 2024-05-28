@@ -11,6 +11,7 @@ OUTPUTFILE="test_env"
 
 ENV_FILE=".env"
 
+
 # Updating foundry
 echo "################################################################"
 echo Running foundryUp
@@ -64,11 +65,18 @@ if [ "$LOCAL" = "y" ]; then
     IFS=' ' read -r -a array <<< "$ARRAY"
     USER_2="${array[1]//\"}"
 
+    ARRAY=$(cat anvil_output.txt | grep \(3\) | tr '\n' ' ')
+    echo $ARRAY
+    echo
+    IFS=' ' read -r -a array <<< "$ARRAY"
+    CONFIG_APP_ADMIN_KEY="${array[5]}"
+    CONFIG_APP_ADMIN="${array[1]//\"}"
+
 
     export ETH_RPC_URL=http://127.0.0.1:8545
+    sed -i '' 's/CONFIG_APP_ADMIN=.*/CONFIG_APP_ADMIN='$CONFIG_APP_ADMIN'/g' $ENV_FILE
+    sed -i '' 's/CONFIG_APP_ADMIN_KEY=.*/CONFIG_APP_ADMIN_KEY='$CONFIG_APP_ADMIN_KEY'/g' $ENV_FILE
 else
-    GAS_ARGUMENT=" --gas-price 10gwei"
-    GAS_ARGUMENT_SCRIPT=" --gas-price 10"
     # Network Deployment (Mainnet or Testnet)
 
     # Request App Admin Address and Key
@@ -77,8 +85,26 @@ else
     echo Please enter App Admin Private Key
     read APP_ADMIN_1_KEY
     # Request and export ETH_RPC_URL
-    echo please enter RPC URL
+    echo Please enter RPC URL
     read ETH_RPC_URL
+
+    # Request and export CHAIN_ID
+    echo Please enter desired chain ID
+    read CHAIN_ID
+
+    # Request and export GAS PRICE
+    echo Please enter desired gas price settings to be used in commands "(20 is a good starting point)"
+    read GAS_NUMBER
+    GAS_ARGUMENT=" --gas-price $GAS_NUMBERgwei"
+    GAS_ARGUMENT_SCRIPT=" --gas-price $GAS_NUMBER"
+
+    # Request and export USER 1 address
+    echo Please enter the USER 1 address. This is a test user
+    read USER_1
+
+    # Request and export USER 2 address
+    echo Please enter the USER 2 address. This is another test user
+    read USER_2
 
     echo "Is the Protocol already deployed (y or n)?"
     read ALREADY_DEPLOYED
@@ -111,6 +137,7 @@ else
     echo "################################################################"
     echo Running Deploy Protocol scripts
     echo $ETH_RPC_URL
+    echo $APP_ADMIN_1
     echo "################################################################"
     echo
 
@@ -121,7 +148,7 @@ else
     if [ "$LOCAL" = "y" ]; then
         RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
     else
-        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
+        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80002/run-latest.json)
     fi
     RULE_PROCESSOR_DIAMOND="${RULE_PROCESSOR_DIAMOND_UNCUT//\"}"
 
@@ -141,9 +168,14 @@ else
 
 fi
 
+if [ "$LOCAL" = "y" ]; then
 # Setup the APP_ADMIN address in the .env file before starting the Application specific deploy scripts.
-APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_1=//p' .env)
-APP_ADMIN_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_1=//p' .env) 
+    APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_1=//p' .env)
+    APP_ADMIN_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_1=//p' .env) 
+else 
+    APP_ADMIN=$APP_ADMIN_1
+    APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_1_KEY
+fi
 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
@@ -159,7 +191,7 @@ forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi -
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
 else
-    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80001/run-latest.json)
+    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80002/run-latest.json)
 fi
 APPLICATION_APP_MANAGER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
@@ -169,21 +201,25 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
 else
-    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80001/run-latest.json)
+    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80002/run-latest.json)
 fi
 APPLICATION_HANDLER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
 echo $APPLICATION_HANDLER
 echo 
 
-bash script/ParseApplicationDeploy.sh 1
+if [ "$LOCAL" = "y" ]; then
+    bash script/ParseApplicationDeploy.sh 1
+else
+    bash script/ParseApplicationDeploy.sh 1 --chainid $CHAIN_ID
+fi
 
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
 if [ "$LOCAL" = "y" ]; then 
     APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC20_1="${APPLICATION_ERC20_1_UNCUT//\"}"
 
@@ -193,14 +229,19 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC20_1_HANDLER="${APPLICATION_ERC20_1_HANDLER_UNCUT//\"}"
 
 echo $APPLICATION_ERC20_1_HANDLER
 echo 
 
-bash script/ParseApplicationDeploy.sh 2
+if [ "$LOCAL" = "y" ]; then
+    bash script/ParseApplicationDeploy.sh 2
+else
+    bash script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
+fi
+
 
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
@@ -209,7 +250,7 @@ forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --f
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/80001/run-latest.json)
+    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC721_1="${APPLICATION_ERC721_1_UNCUT//\"}"
 
@@ -219,14 +260,18 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC721_1_HANDLER="${APPLICATION_ERC721_1_HANDLER_UNCUT//\"}"
 
 echo $APPLICATION_ERC721_1_HANDLER
 echo 
 
-bash script/ParseApplicationDeploy.sh 3
+if [ "$LOCAL" = "y" ]; then
+    bash script/ParseApplicationDeploy.sh 3
+else
+    bash script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID
+fi
 
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
@@ -235,7 +280,7 @@ forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --bro
 if [ "$LOCAL" = "y" ]; then
     ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80001/run-latest.json)
+    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80002/run-latest.json)
 fi
 ORACLE_1_HANDLER="${ORACLE_1_HANDLER_UNCUT//\"}"
 
@@ -245,21 +290,25 @@ echo
 if [ "$LOCAL" = "y" ]; then
     ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80001/run-latest.json)
+    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80002/run-latest.json)
 fi
 ORACLE_2_HANDLER="${ORACLE_2_HANDLER_UNCUT//\"}"
 
 echo $ORACLE_2_HANDLER
 echo 
 
-bash script/ParseApplicationDeploy.sh 4
+if [ "$LOCAL" = "y" ]; then
+    bash script/ParseApplicationDeploy.sh 4
+else
+    bash script/ParseApplicationDeploy.sh 4 --chainid $CHAIN_ID
+fi
 
 forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80001/run-latest.json)
+    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC20_PRICER="${APPLICATION_ERC20_PRICER_UNCUT//\"}"
 
@@ -269,14 +318,18 @@ echo
 if [ "$LOCAL" = "y" ]; then
     APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
 else
-    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80001/run-latest.json)
+    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80002/run-latest.json)
 fi
 APPLICATION_ERC721_PRICER="${APPLICATION_ERC721_PRICER_UNCUT//\"}"
 
 echo $APPLICATION_ERC721_PRICER
 echo 
 
-bash script/ParseApplicationDeploy.sh 5
+if [ "$LOCAL" = "y" ]; then
+    bash script/ParseApplicationDeploy.sh 5
+else
+    bash script/ParseApplicationDeploy.sh 5 --chainid $CHAIN_ID
+fi
 
 echo $APPLICATION_ERC20_1
 echo 
