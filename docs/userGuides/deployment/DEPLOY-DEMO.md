@@ -103,3 +103,7 @@ _Note: `awk` in the above command is used to ignore comments in `foundry.lock`_
 ```	
     cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
 ```
+
+<!-- These are the header links -->
+[version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://github.com/thrackle-io/rules-protocol

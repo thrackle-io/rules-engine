@@ -46,68 +46,25 @@ And you are done!
 ## API 
 API documentation for the smart contract suite can be found [here](../src/src/README.md).
 
+---
+
 ## Deployment Scripts
 
 ### Demo Application
 
 A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./deployment/DEPLOY-DEMO.md)
 
-### Local Deployments
+---
+
+### Local Deployments(Protocol and/or Examples)
 
 For local deployments, there are two ways to deploy the protocol and application examples:
 
 1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-LOCAL-SCRIPTS.md)
 2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-LOCAL-SCRIPTS.md).
 
-```
-forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
-```
 
-To test the scripts for local deployments, open a dedicated terminal to run an Anvil local blockchain:
-
-```bash
-export FOUNDRY_PROFILE=local
-anvil
-```
-
-Then, in another terminal tab, deploy the whole protocol and a full application to the local blockchain:
-
-```bash
-sh script/SetupProtocolDeploy.sh
-forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseProtocolDeploy.sh
-forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseApplicationDeploy.sh 1
-forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseApplicationDeploy.sh 2
-forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseApplicationDeploy.sh 3
-forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-# Optional: If you would like to run through tests using the upgradeable token
-# sh script/SubUpgradeableTokenForRegularToken.sh
-forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseApplicationDeploy.sh 4
-forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-sh script/ParseApplicationDeploy.sh 5
-forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast --rpc-url http://127.0.0.1:8545
-```
-
-Make sure that all the srcipts ran successfully, and then:
-
-```bash 
-forge test --ffi --rpc-url http://127.0.0.1:8545 
-```
-
-
-##### Note: an ETH_RPC_URL can be found in the .env file.
-
-#### Deploy The Protocol
+#### Deploy The Protocol only
 
 Be sure to [set environmental variables](./deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free to run this script:
 
@@ -126,18 +83,23 @@ These scripts deploy the contracts that are specific for applications, emulating
 
 If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
+---
+
 ### Testnet Deployment
 
-### Demo Application
+For Testnet deployments, there are two ways to deploy the protocol and application examples:
 
-A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./demo/README.md)
+1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-TESTNET-SCRIPTS.md)
+2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-TESTNET-ALL.md).
+
+---
 
 ### Mainnet Deployment
 
-### Demo Application
+For Mainnet deployments, there are two ways to deploy the protocol and application examples:
 
-A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./demo/README.md)
-
+1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-MAINNET-SCRIPTS.md)
+2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-MAINNET-ALL.md).
 
 ---
 ## Test Scripts

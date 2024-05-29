@@ -31,18 +31,23 @@ sh script/clientScripts/Application_Deploy_Example.sh
 4. Enter the data requested by the script
 5. Results of the deployment(contract address and transaction receipts) can be found in the broadcast folder within the following subdirectories. 
 
-broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json 
-broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json 
-broadcast/DeployAllModulesPt3.s.sol/31337/run-latest.json 
-broadcast/DeployAllModulesPt4.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_02_ApplicationFT1Pt2.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_04_ApplicationNFTPt2.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json 
-broadcast/Application_Deploy_07_ApplicationAdminRoles.s.sol/31337/run-latest.json 
+```
+   broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json 
+   broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json 
+   broadcast/DeployAllModulesPt3.s.sol/31337/run-latest.json 
+   broadcast/DeployAllModulesPt4.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_02_ApplicationFT1Pt2.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_04_ApplicationNFTPt2.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json 
+   broadcast/Application_Deploy_07_ApplicationAdminRoles.s.sol/31337/run-latest.json 
+```
 
+<!-- These are the header links -->
+[version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://github.com/thrackle-io/rules-protocol
