@@ -48,9 +48,16 @@ API documentation for the smart contract suite can be found [here](../src/src/RE
 
 ## Deployment Scripts
 
+### Demo Application
+
+A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./deployment/DEPLOY-DEMO.md)
+
 ### Local Deployments
 
-For local deployments, use Anvil's local blockchain in combination with the deployment scripts. To run anvil simply do ` anvil` in a dedicated terminal window. then, in a separate terminal:
+For local deployments, there are two ways to deploy the protocol and application examples:
+
+1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-LOCAL-SCRIPTS.md)
+2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-LOCAL-SCRIPTS.md).
 
 ```
 forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
@@ -121,11 +128,16 @@ If anvil is not listening to the commands in the scripts, make sure you have exp
 
 ### Testnet Deployment
 
-coming soon...
+### Demo Application
+
+A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./demo/README.md)
 
 ### Mainnet Deployment
 
-coming soon...
+### Demo Application
+
+A script is provided to allow easy deployment of the protocol as well as additional sample assets. More information can be [here](./demo/README.md)
+
 
 ---
 ## Test Scripts
