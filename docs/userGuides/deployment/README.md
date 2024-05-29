@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This is a step-by-step guide to protocol and protocol supported application deployments. This guide is broken down into modules to make it easier to follow and is listed in the proper deployment order:
+This is a step-by-step guide to protocol and protocol supported application deployments. This guide is broken down into modules to make it easier to follow and is listed in the proper deployment order. Please review overall [documentation](../README.md) and deployment information prior to running individual deployment scripts.
 
 1. Deploy the protocol if it doesn't exist yet. Go to [Deploy Protocol](DEPLOY-PROTOCOL.md).
 2. Then, deploy your Application Manager. Go to [Deploy Appmanager](DEPLOY-APPMANAGER.md).
