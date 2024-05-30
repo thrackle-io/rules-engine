@@ -61,7 +61,7 @@ A script is provided to allow easy deployment of the protocol as well as additio
 For local deployments, there are two ways to deploy the protocol and application examples:
 
 1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-LOCAL-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-LOCAL-SCRIPTS.md).
+2. [Start an instance of anvil and run an all-in-one script that deploys the protocol and deploys example assets](./deployment/DEPLOY-LOCAL-SCRIPTS.md).
 
 
 #### Deploy The Protocol only
@@ -90,7 +90,7 @@ If anvil is not listening to the commands in the scripts, make sure you have exp
 For Testnet deployments, there are two ways to deploy the protocol and application examples:
 
 1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-TESTNET-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-TESTNET-ALL.md).
+2. [Start an instance of anvil and run an all-in-one that script deploys the protocol and deploys example assets](./deployment/DEPLOY-TESTNET-ALL.md).
 
 ---
 
@@ -99,7 +99,7 @@ For Testnet deployments, there are two ways to deploy the protocol and applicati
 For Mainnet deployments, there are two ways to deploy the protocol and application examples:
 
 1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-MAINNET-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one script deploys the protocol and deploys example assets](./deployment/DEPLOY-MAINNET-ALL.md).
+2. [Start an instance of anvil and run an all-in-one script that deploys the protocol and deploys example assets](./deployment/DEPLOY-MAINNET-ALL.md).
 
 ---
 ## Test Scripts
