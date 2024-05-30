@@ -8,9 +8,6 @@ pragma solidity ^0.8.24;
  * @dev Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer
  */
 interface IProtocolERC20UMin {
-    event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
-    error ZeroAddress();
-
     /**
      * @dev this function returns the handler address
      * @return handlerAddress

@@ -432,6 +432,19 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc20Pricer = _createERC20Pricing();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
+        switchToAppAdministrator();
+        minimalUCoin = _createERC20UMin();
+        applicationCoinProxy = _createERC20UpgradeableProxy(address(minimalUCoin), address(proxyOwner));
+
+        ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).initialize("UFRANKP", "UFRKP", address(applicationAppManager));
+        applicationCoinHandlerUMin = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerUMin)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinProxy));
+        switchToAppAdministrator();
+        ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).connectHandlerToToken(address(applicationCoinHandlerUMin));
+
+        /// register the token
+        applicationAppManager.registerToken("UFRANKP", address(applicationCoinProxy));
+
         /// create ERC721
         (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
         switchToAppAdministrator();

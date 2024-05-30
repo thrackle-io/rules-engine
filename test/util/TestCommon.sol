@@ -40,11 +40,14 @@ import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamo
 import "src/example/application/ApplicationAppManager.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
+import "src/example/ERC20/upgradeable/ApplicationERC20UMin.sol";
 
 import {ApplicationERC721AdminOrOwnerMint as ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "src/example/ERC20/upgradeable/ApplicationERC20UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
+import "src/example/ERC20/upgradeable/ApplicationERC20UMinUpgAdminMint.sol";
 import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 import "test/util/MinimalERC20.sol";
@@ -116,10 +119,14 @@ abstract contract TestCommon is
     // ApplicationAssetHandlerMod public newAssetHandler;
 
     MinimalERC20 public minimalCoin;
+    ApplicationERC20UMin public minimalUCoin;
+    ApplicationERC20UMin public minimalUCoin2;
     ApplicationERC20 public applicationCoin;
     ApplicationERC20 public applicationCoin2;
     HandlerDiamond public applicationCoinHandler;
     HandlerDiamond public applicationCoinHandler2;
+    HandlerDiamond public applicationCoinHandlerUMin;
+    HandlerDiamond public applicationCoinHandlerUMin2;
     HandlerDiamond public applicationNFTHandler;
     HandlerDiamond public applicationNFTHandler2;
     HandlerDiamond public applicationNFTHandlerv2;
@@ -138,6 +145,7 @@ abstract contract TestCommon is
     ApplicationERC721UExtra public applicationNFTExtra;
     ApplicationERC721UExtra2 public applicationNFTExtra2;
     ApplicationERC721UProxy public applicationNFTProxy;
+    ApplicationERC20UProxy public applicationCoinProxy;
 
     OracleApproved public oracleApproved;
     OracleDenied public oracleDenied;
@@ -233,6 +241,24 @@ abstract contract TestCommon is
      */
     function _createERC20Pricing() public returns (ApplicationERC20Pricing _pricer) {
         return new ApplicationERC20Pricing();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable
+     * @return _token token
+     */
+    function _createERC20UMin() public returns (ApplicationERC20UMinUpgAdminMint _token) {
+        return new ApplicationERC20UMinUpgAdminMint();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC20 Upgradeable Proxy
+     * @param _applicationCoinU logic contract
+     * @param _proxyOwner address of the proxy owner
+     * @return _proxy token
+     */
+    function _createERC20UpgradeableProxy(address _applicationCoinU, address _proxyOwner) public returns (ApplicationERC20UProxy _proxy) {
+        return new ApplicationERC20UProxy(address(_applicationCoinU), _proxyOwner, "");
     }
 
     /**
