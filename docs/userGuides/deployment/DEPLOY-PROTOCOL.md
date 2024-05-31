@@ -10,33 +10,13 @@ is an overview of this deployment process:
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
 
 1. Open a new terminal
-2. Create a fresh .env: `touch .env`
-3. Set the RPC URL
-   1. Choose the RPC URL that corresponds with the desired environment and chain.
-   2. Export it to zsh. The following is an example when working with a local blockchain in the localhost:
-        ````
-        export ETH_RPC_URL=http://localhost:8545
-        ````
-4. Set the Protocol Owner Private Key
-   1. This is the private key for the account that will "own" all the protocol contracts and has full permissions to upgrade. It is recommended that this address is a disposable address, and that the ownership of the protocol pass to a multi-signature wallet immediately after deployment. 
-   
-      *NOTE: This account needs to have sufficient funds to cover deployment costs and ownership transfer.*
-   2. Export it to zsh
-        ````
-        export DEPLOYMENT_OWNER_KEY=desired private key
-        ```` 
-5. Set the Protocol Owner Address
-   1. This is the account derived from the private key from step 3.
-   2. Export it to zsh
-        ````
-        export DEPLOYMENT_OWNER=<address derived from owner private key>
-        ````
-6. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
+2. [Set environmental variables](../deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free 
+3. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
    foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
    ````
 
-7. In the same terminal as above, navigate to the cloned repo directory and run the build script.
+4. In the same terminal as above, navigate to the cloned repo directory and run the build script.
    ````
 	bash script/deploy/DeployProtocol.sh
    ````
@@ -47,17 +27,17 @@ is an overview of this deployment process:
    export FOUNDRY_PROFILE=local
    ````
 
-8. The deployment script will add the output RuleProcessorDiamond address to your .env file. Source it for the future interactions with the protocol:
+5. The deployment script will add the output RuleProcessorDiamond address to your .env file. Source it for the future interactions with the protocol:
    ````
    source .env
    ````
-9. Set the version of the protocol:
+6. Set the version of the protocol:
    ```
    cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
    ```
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
-10. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
+7. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
       1. Export the multi-sig address to zsh:
          ```
          export MULTISIG_WALLET=<MULTI-SIG_ADDRESS>

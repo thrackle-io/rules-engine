@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This is a step-by-step guide to protocol and protocol supported application deployments. This guide is broken down into modules to make it easier to follow and is listed in the proper deployment order:
+This is a step-by-step guide to protocol and protocol supported application deployments. This guide is broken down into modules to make it easier to follow and is listed in the proper deployment order. Please review overall [documentation](../README.md) and deployment information prior to running individual deployment scripts. A [demo](./DEPLOY-DEMO.md) has also been provided which deploys the protocol and a fully configured example application.
 
 1. Deploy the protocol if it doesn't exist yet. Go to [Deploy Protocol](DEPLOY-PROTOCOL.md).
 2. Then, deploy your Application Manager. Go to [Deploy Appmanager](DEPLOY-APPMANAGER.md).
@@ -15,7 +15,7 @@ Your application is ready to roll!
 NOTE: 
 When integrating the protocol as a library in your repo, there are certain configuration requirements that must be followed for compilation. The following four contract imports must be configured as: 
 ```
-import {AppManger} from "tron/client/application/AppManager.sol";
+import {AppManager} from "tron/client/application/AppManager.sol";
 import "tron/client/application/ProtocolApplicationHandler.sol";
 ```
 

@@ -34,7 +34,7 @@ contract ApplicationDeployAppManagerAndAssetsScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", false);
+        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Dr. Frankenstein's Lab", false);
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");

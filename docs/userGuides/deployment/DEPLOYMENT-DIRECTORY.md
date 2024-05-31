@@ -3,9 +3,10 @@
 
 | Version | Environment     | Contract Name        | Contract Address |
 | :--- |:----------------|:---------------------| :--- | 
-| v1.0.1 | Ethereum Goerli | RuleProcessorDiamond | 0xf0319D73Db76b7B594D5Fd659bbE03502D97816E
-| v1.0.1 | Polygon Mumbai  | RuleProcessorDiamond | 0x26DB256496aCc3cAC7F4D7254F8f96A947AFaaAf
-| v0.0.3 | Polygon PoS     | RuleProcessorDiamond | TBD
+| v1.2.1 | Polygon Amoy    | RuleProcessorDiamond | 0xf0319D73Db76b7B594D5Fd659bbE03502D97816E
+| v1.2.1 | Base Sepolia    | RuleProcessorDiamond | 0x16221381d6a9709c893d45d0f6e86928381529f6
+| v1.2.1 | Ethereum Sepolia| RuleProcessorDiamond | 0x9a44e9a43642398afbc4953f03ee62e0ea052a48
+| v1.2.1 | Ethereum Mainnet| RuleProcessorDiamond | TBD
 <!-- These are the header links -->
 
 [version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor

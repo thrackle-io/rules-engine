@@ -40,8 +40,8 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /// Create NFT
-        new ApplicationERC721AdminOrOwnerMint("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Clyde");
+        new ApplicationERC721AdminOrOwnerMint("WolfMan", "WOLF", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("WolfMan");
 
         vm.stopBroadcast();
     }

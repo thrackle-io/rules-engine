@@ -47,7 +47,7 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         applicationCoinHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS")));
         ApplicationERC20 coin1 = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));
         /// Create ERC20 token 1
-        createERC20HandlerDiamondPt2("Frankenstine Coin", address(applicationCoinHandlerDiamond));
+        createERC20HandlerDiamondPt2("Frankenstein Coin", address(applicationCoinHandlerDiamond));
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
         appAdminAddress = vm.envAddress("APP_ADMIN");
