@@ -10,7 +10,7 @@ echo "################################################################"
 echo Deploy the AppManager and ApplicationHandler
 echo "################################################################"
 echo
-forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast
+forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
 
 echo "################################################################"
 echo Retrieve the contract info and set environment variables
@@ -22,7 +22,7 @@ echo "################################################################"
 echo Deploy the ApplicationERC20 and the Handler Diamond
 echo "################################################################"
 echo
-forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast 
+forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
 
 echo "################################################################"
 echo Retrieve the contract info and set environment variables
@@ -34,7 +34,7 @@ echo "################################################################"
 echo Deploy the ApplicationERC721 and the Handler Diamond
 echo "################################################################"
 echo
-forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
 
 echo "################################################################"
 echo Retrieve the contract info and set environment variables
@@ -47,7 +47,7 @@ echo "################################################################"
 echo Deploy the Oracle Contracts
 echo "################################################################"
 echo
-forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast 
+forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
 
 echo "################################################################"
 echo Retrieve the contract info and set environment variables
@@ -59,7 +59,7 @@ echo "################################################################"
 echo Deploy the Pricing Contracts
 echo "################################################################"
 echo
-forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast
+forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
 
 echo "################################################################"
 echo Retrieve the contract info and set environment variables

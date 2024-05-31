@@ -56,52 +56,20 @@ A script is provided to allow easy deployment of the protocol as well as additio
 
 ---
 
-### Local Deployments(Protocol and/or Examples)
+### Development and Production Deployments(Protocol and/or Examples)
 
-For local deployments, there are two ways to deploy the protocol and application examples:
+A [Deployment Guide][deploymentGuide-url] is provided and contains step by step directions to deploy the protocol, pricing modules, and create application rules in order to quickly get started. To quickly set up The Protocol and an example application, follow these guides:
 
-1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-LOCAL-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one script that deploys the protocol and deploys example assets](./deployment/DEPLOY-LOCAL-SCRIPTS.md).
+#### Deploy The Protocol 
 
+[Deploying The Protocol](./deployment/DEPLOY-PROTOCOL.md)
 
-#### Deploy The Protocol only
+#### Deploy Some Example Application Tokens
 
-Be sure to [set environmental variables](./deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free to run this script:
-
-`scripts/deploy/DeployProtocol.sh`
-This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
-
-#### Deploy Some Test Application Tokens
-
-`script/clientScripts/Application_Deploy_01_AppManager.s.sol`
-`script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol`
-`script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol`
-`script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol`
-`script/clientScripts/Application_Deploy_05_Oracle.s.sol`
-`script/clientScripts/Application_Deploy_06_Pricing.s.sol`
-These scripts deploy the contracts that are specific for applications, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
-
-If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
+[Deploying The Example Application](./deployment/DEPLOY-EXAMPLE.md)
 
 ---
 
-### Testnet Deployment
-
-For Testnet deployments, there are two ways to deploy the protocol and application examples:
-
-1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-TESTNET-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one that script deploys the protocol and deploys example assets](./deployment/DEPLOY-TESTNET-ALL.md).
-
----
-
-### Mainnet Deployment
-
-For Mainnet deployments, there are two ways to deploy the protocol and application examples:
-
-1. [Start an instance of anvil and run the individual scripts](./deployment/DEPLOY-MAINNET-SCRIPTS.md)
-2. [Start an instance of anvil and run an all-in-one script that deploys the protocol and deploys example assets](./deployment/DEPLOY-MAINNET-ALL.md).
-
----
 ## Test Scripts
 
 All tests are located inside the `test/` directory. To run a test, simply run in your terminal from inside the `Tron` directory:
