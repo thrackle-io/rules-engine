@@ -10,7 +10,7 @@ is an overview of this deployment process:
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
 
 1. Open a new terminal
-2. [Set environmental variables](./deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free 
+2. [Set environmental variables](../deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free 
 3. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
    foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
