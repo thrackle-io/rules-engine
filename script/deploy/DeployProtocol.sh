@@ -17,6 +17,7 @@ echo Retrieve the Rules Processor Diamond info and set environment variables
 echo "################################################################"
 echo
 bash script/ParseProtocolDeploy.sh --chainid $CHAIN_ID
+source .env
 
 echo "################################################################"
 echo Build, Deploy, and Add Facets Unit 1
