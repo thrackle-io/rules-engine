@@ -4,8 +4,8 @@
 | Version | Environment     | Contract Name        | Contract Address |
 | :--- |:----------------|:---------------------| :--- | 
 | v1.2.1 | Polygon Amoy    | RuleProcessorDiamond | 0xf0319D73Db76b7B594D5Fd659bbE03502D97816E
-| v1.2.1 | Base Sepolia    | RuleProcessorDiamond | 0x1c417Ab72cA648665E54663abC61aD3dB298C5CC
-| v1.2.1 | Ethereum Sepolia| RuleProcessorDiamond | TBD
+| v1.2.1 | Base Sepolia    | RuleProcessorDiamond | 0x16221381d6a9709c893d45d0f6e86928381529f6
+| v1.2.1 | Ethereum Sepolia| RuleProcessorDiamond | 0x9a44e9a43642398afbc4953f03ee62e0ea052a48
 | v1.2.1 | Ethereum Mainnet| RuleProcessorDiamond | TBD
 <!-- These are the header links -->
 
