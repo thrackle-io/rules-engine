@@ -137,7 +137,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OnlyTokenCanCallCheckAllRules() public endWithStopPrank {
-        address handler = IProtocolTokenMin(address(testCaseToken)).getHandlerAddress();
+        address handler = IProtocolERC20Min(address(testCaseToken)).getHandlerAddress();
         assertEq(handler, address(applicationCoinHandler));
         address owner = ERC173Facet(address(applicationCoinHandler)).owner();
         assertEq(owner, address(testCaseToken));
@@ -189,7 +189,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_ZeroAddressCheckERC20HandlerConnection() public {
         vm.expectRevert(0xba80c9e5);
-        IProtocolTokenMin(address(testCaseToken)).connectHandlerToToken(address(0));
+        IProtocolERC20Min(address(testCaseToken)).connectHandlerToToken(address(0));
     }
 
     /// Token Minimum Transaction Size Tests
