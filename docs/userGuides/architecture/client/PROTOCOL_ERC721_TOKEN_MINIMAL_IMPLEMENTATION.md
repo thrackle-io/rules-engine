@@ -1,12 +1,12 @@
-# Protocol Token Minimal Implementation
+# Protocol ERC721 Token Minimal Implementation
 
 ## Purpose
 
-The [IProtocolTokenMin](../../../../src/client/token/IProtocolTokenMin.sol) interface contains the minimal set of functions that must be implemented in order for a token (ERC20 or ERC721) to be compatible with the protocol.
+The [IProtocolER721Min](../../../../src/client/token/ERC721/IProtocolERC721Min.sol) interface contains the minimal set of functions that must be implemented in order for an ERC721 token to be compatible with the protocol.
 
 ## Function Overview
 
-The following functions have been defined in the IProtocolTokenMin interface and must be implemented:
+The following functions have been defined in the IProtocolERC721Min interface and must be implemented:
 
 - connectHandlerToToken: Used to connect a deployed Protocol Token Handler to the token.
 
@@ -28,7 +28,7 @@ Example:
 ```c
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
-        require(ERC20HandlerMainFacet(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        require(IProtocolTokenHandler(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 ```
