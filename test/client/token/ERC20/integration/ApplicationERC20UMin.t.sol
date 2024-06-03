@@ -18,10 +18,8 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         switchToAppAdministrator();
         /// Owner Mints new coins
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).mint(appAdministrator, 100);
-        console.log(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(appAdministrator));
         /// Owner Mints a second new coins
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).mint(appAdministrator, 200);
-        console.log(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(appAdministrator));
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(appAdministrator), 300);
     }
 

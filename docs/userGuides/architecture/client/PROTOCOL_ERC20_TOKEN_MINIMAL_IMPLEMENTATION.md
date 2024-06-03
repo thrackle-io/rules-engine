@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The [IProtocolERC20Min](src/client/token/ERC20/IProtocolERC20Min.sol) interface contains the minimal set of functions that must be implemented in order for an ERC20 token to be compatible with the protocol.
+The [IProtocolERC20Min](../../../../src/client/token/ERC20/IProtocolERC20Min.sol) interface contains the minimal set of functions that must be implemented in order for an ERC20 token to be compatible with the protocol.
 
 ## Function Overview
 

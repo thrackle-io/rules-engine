@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The [IProtocolER721Min](src/client/token/ERC721/IProtocolERC721Min.sol) interface contains the minimal set of functions that must be implemented in order for an ERC721 token to be compatible with the protocol.
+The [IProtocolER721Min](../../../../src/client/token/ERC721/IProtocolERC721Min.sol) interface contains the minimal set of functions that must be implemented in order for an ERC721 token to be compatible with the protocol.
 
 ## Function Overview
 
