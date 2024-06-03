@@ -1,4 +1,4 @@
 
 
 # Contents
-- [IProtocolERC20UMin](IProtocolERC20UMin.sol/interface.IProtocolERC20UMin.md)
+- [ProtocolERC20UMin](ProtocolERC20UMin.sol/contract.ProtocolERC20UMin.md)

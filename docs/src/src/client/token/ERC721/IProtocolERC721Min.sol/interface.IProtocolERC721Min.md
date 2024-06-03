@@ -1,5 +1,5 @@
-# IProtocolERC20UMin
-[Git Source](https://github.com/thrackle-io/tron/blob/703713c2070ab34d0f0fc0114244d5a3fa7ac84a/src/client/token/ERC20/upgradeable/IProtocolERC20UMin.sol)
+# IProtocolERC721Min
+[Git Source](https://github.com/thrackle-io/tron/blob/5c20e54658e3206ed81b54d70494bea2d0a0e5dd/src/client/token/ERC721/IProtocolERC721Min.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -39,18 +39,4 @@ function connectHandlerToToken(address _deployedHandlerAddress) external;
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
 
-
-## Events
-### AD1467_HandlerConnected
-
-```solidity
-event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
-```
-
-## Errors
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
 

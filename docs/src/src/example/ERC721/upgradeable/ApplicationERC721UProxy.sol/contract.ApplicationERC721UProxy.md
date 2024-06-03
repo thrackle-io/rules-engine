@@ -1,5 +1,5 @@
 # ApplicationERC721UProxy
-[Git Source](https://github.com/thrackle-io/tron/blob/703713c2070ab34d0f0fc0114244d5a3fa7ac84a/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5c20e54658e3206ed81b54d70494bea2d0a0e5dd/src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol)
 
 **Inherits:**
 ERC1967Proxy
@@ -116,7 +116,7 @@ function _admin() internal view virtual returns (address);
 
 ### _beforeFallback
 
-*Makes sure the admin cannot access the fallback function. See [Proxy-_beforeFallback](/lib/openzeppelin-contracts/contracts/proxy/Proxy.sol/abstract.Proxy.md#_beforefallback).*
+*Makes sure the admin cannot access the fallback function. See [Proxy-_beforeFallback](/src/example/ERC20/upgradeable/ApplicationERC20UProxy.sol/contract.ApplicationERC20UProxy.md#_beforefallback).*
 
 
 ```solidity
