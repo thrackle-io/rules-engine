@@ -34,7 +34,7 @@ contract ProtocolApplicationHandler is
     IAppHandlerErrors,
     ProtocolApplicationHandlerCommon
 {
-    string private constant VERSION = "1.2.1";
+    string private constant VERSION = "1.3.0";
     IAppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;

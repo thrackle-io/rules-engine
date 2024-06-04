@@ -72,5 +72,5 @@ If anvil is not listening to the commands in the scripts, make sure you have exp
 
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.2.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.3.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/rules-protocol

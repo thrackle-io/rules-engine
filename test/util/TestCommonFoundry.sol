@@ -394,7 +394,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
         /// register the token
         applicationAppManager.registerToken("application2", address(applicationCoin));
-        HandlerVersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.3.0");
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20
@@ -642,7 +642,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         _applicationAppManager.registerToken(name, address(erc721));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
@@ -652,7 +652,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721 erc721, HandlerDiamond handler) {
@@ -664,7 +664,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC721MinLegacy(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721Legacy erc721, HandlerDiamond handler) {
@@ -676,7 +676,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
@@ -698,7 +698,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         vm.expectEmit(true, true, false, false);
         emit AD1467_TokenRegistered(name, address(erc20));
         _applicationAppManager.registerToken(name, address(erc20));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
@@ -708,7 +708,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC20 erc20, HandlerDiamond handler) {
@@ -720,7 +720,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
-        HandlerVersionFacet(address(handler)).updateVersion("1.2.1");
+        HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
     /**

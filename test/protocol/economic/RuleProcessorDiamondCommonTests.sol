@@ -91,19 +91,19 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
     function testProtocol_RuleProcessorDiamond_RuleProcessorVersion2() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToSuperAdmin();
         // update version
-        VersionFacet(address(ruleProcessor)).updateVersion("1.2.1"); // upgrade_version script will replace this version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.3.0"); // upgrade_version script will replace this version
         string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version, "1.2.1");
+        assertEq(version, "1.3.0");
     }
 
     function testProtocol_RuleProcessorDiamond_RuleProcessorVersion_Negative() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToSuperAdmin();
         // update version
-        VersionFacet(address(ruleProcessor)).updateVersion("1.2.1"); // upgrade_version script will replace this version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.3.0"); // upgrade_version script will replace this version
         string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version, "1.2.1");
+        assertEq(version, "1.3.0");
         // test that no other than the owner can update the version
         vm.stopPrank();
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
