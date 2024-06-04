@@ -43,10 +43,6 @@ def main():
         print("Not Found")
         return
     enc = encode(["address[2]"], [[facet, diamond]])
-    # enc = encode(["(address,address)"], [(facet, diamond)])
-    # enc = encode(["address"], [facet])
-    # print(enc)
-    # print("0x01462DcB0DE6ea6b9Aee343C6c1280A17259969a","0x826149518A0D4Cf67b58fB8698b478CeaE96708E")
     print("0x" + enc.hex(), end="")
 
 if __name__ == "__main__":
