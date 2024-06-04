@@ -228,7 +228,7 @@ if [ "$LOCAL" = "y" ]; then
 else
     APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/$CHAIN_ID/run-latest.json)
 fi
-APPLICATION_HANDLER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
+APPLICATION_HANDLER="${APPLICATION_HANDLER_UNCUT//\"}"
 
 echo $APPLICATION_HANDLER
 echo 
@@ -303,23 +303,23 @@ forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol 
 forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
 if [ "$LOCAL" = "y" ]; then
-    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
+    ORACLE_APPROVED_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
+    ORACLE_APPROVED_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
 fi
-ORACLE_1_HANDLER="${ORACLE_1_HANDLER_UNCUT//\"}"
+ORACLE_APPROVED="${ORACLE_APPROVED_UNCUT//\"}"
 
-echo $ORACLE_1_HANDLER
+echo $ORACLE_APPROVED
 echo 
 
 if [ "$LOCAL" = "y" ]; then
-    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
+    ORACLE_DENIED_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
 else
-    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
+    ORACLE_DENIED_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/$CHAIN_ID/run-latest.json)
 fi
-ORACLE_2_HANDLER="${ORACLE_2_HANDLER_UNCUT//\"}"
+ORACLE_DENIED="${ORACLE_DENIED_UNCUT//\"}"
 
-echo $ORACLE_2_HANDLER
+echo $ORACLE_DENIED
 echo 
 
 if [ "$LOCAL" = "y" ]; then
@@ -395,7 +395,7 @@ echo
 
 # Comment the following line out to see the oracle rule fail
 
-cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_APPROVED "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule
@@ -425,7 +425,7 @@ cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt
 fi
-ECHO "export ETH_RPC_URL=http://127.0.0.1:8545"
+ECHO "export ETH_RPC_URL=$ETH_RPC_URL"
 ECHO "export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND"
 ECHO "export APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER"
 ECHO "export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY"
@@ -436,4 +436,6 @@ ECHO "export APPLICATION_ERC20_1=$APPLICATION_ERC20_1"
 ECHO "export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER"
 ECHO "export APPLICATION_ERC721_1=$APPLICATION_ERC721_1"
 ECHO "export APPLICATION_ERC721_1_HANDLER=$APPLICATION_ERC721_1_HANDLER"
+ECHO "export ORACLE_APPROVED=$ORACLE_APPROVED"
+ECHO "export ORACLE_DENIED=$ORACLE_DENIED"
 rm ./transaction_output.txt

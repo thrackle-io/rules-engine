@@ -29,6 +29,7 @@ contract UpgradeAHandlerFacet is Script, DeployBase {
     uint256 privateKey;
     string diamondToUpgrade;
     string facetToUpgrade;
+    address facetAddressToUpgrade;
     bool recordAllChains;
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
@@ -38,29 +39,15 @@ contract UpgradeAHandlerFacet is Script, DeployBase {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
         facetToUpgrade = vm.envString("FACET_TO_UPGRADE");
+        address facetAddress = vm.envAddress("FACET_ADDRESS_TO_UPGRADE");
         validateFacetToUpgrade(facetToUpgrade);
-        diamondToUpgrade = vm.envString("DIAMOND_TO_UPGRADE");
-        validateDiamondToUpgrade(diamondToUpgrade);
+        address diamondAddress = vm.envAddress("DIAMOND_ADDRESS_TO_UPGRADE");
         vm.startBroadcast(privateKey);
-        (address facetAddress, address diamondAddress) = getFacetAddressAndDiamond();
         removeOldSelectors(diamondAddress, getFacetSelectors(facetAddress, diamondAddress));
         deployNewFacet(diamondAddress);
         vm.stopBroadcast();
     }
-
-    function getFacetAddressAndDiamond() internal returns(address facetAddress, address diamondAddress){
-        string[] memory getFacetAddressInput = new string[](6);
-        getFacetAddressInput[0] = "python3";
-        getFacetAddressInput[1] = "script/python/get_latest_facet_address.py";
-        getFacetAddressInput[2] = diamondToUpgrade;
-        getFacetAddressInput[3] = facetToUpgrade;
-        getFacetAddressInput[4] = vm.toString(block.chainid);
-        getFacetAddressInput[5] = vm.toString(block.timestamp);
-        bytes memory res = vm.ffi(getFacetAddressInput);
-        address[2] memory addresses = abi.decode(res, (address[2]));
-        facetAddress = addresses[0]; 
-        diamondAddress = addresses[1];
-    }
+    
 
     function getFacetSelectors(address facetAddress, address diamondAddres ) internal view returns(bytes4[] memory selectors){
         selectors =  IDiamondLoupe(diamondAddres).facetFunctionSelectors(facetAddress);
@@ -114,12 +101,11 @@ contract UpgradeAHandlerFacet is Script, DeployBase {
         }
         console.log("Verified new selectors are in the blockchain");
 
-        /// we can now update the deployment record with the face
-        recordFacet(diamondToUpgrade, facetToUpgrade, newFacetAddress, recordAllChains);
-
-        /// we clear the env
+        /// we clear the env 
         setENVVariable("FACET_TO_UPGRADE", "");
+        setENVVariable("FACET_ADDRESS_TO_UPGRADE", "");
         setENVVariable("DIAMOND_TO_UPGRADE", "");
+        setENVVariable("DIAMOND_ADDRESS_TO_UPGRADE", "");
         setENVVariable("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS", "false");
         console.log("env file cleared for future safe deployments.");
 

@@ -9,45 +9,40 @@ _dir  = dotenv_values(".env")
 dir = Path(_dir["DEPLOYMENT_OUT_DIR"])
 file = Path(_dir["DEPLOYMENT_OUT_DIR"] + _dir["DIAMOND_DEPLOYMENT_OUT_FILE"])
 
-def get_latest_deployed_facet(args):
+def set_latest_deployed_facet(args):
     record = {}
     facet = None
-    diamond = None
+    result = 'false'
     with open(file, 'r') as openfile:
         record = json.load(openfile)
 
     sorted_records = sorted([date.fromisoformat(date_string) for date_string in record[args.chain_id][args.diamond].keys()], reverse=True)
     for deployment in sorted_records:
         if(args.facet in record[args.chain_id][args.diamond][deployment.isoformat()[:10]].keys()):
-            facet = record[args.chain_id][args.diamond][deployment.isoformat()[:10]][args.facet]
+            record[args.chain_id][args.diamond][deployment.isoformat()[:10]][args.facet] = args.facet_address 
+            with open(file, 'w') as f:
+                json.dump(record, f, indent=2)
+            result = 'true'
             break
-    for deployment in sorted_records:
-        if("diamond" in record[args.chain_id][args.diamond][deployment.isoformat()[:10]].keys()):
-            diamond = record[args.chain_id][args.diamond][deployment.isoformat()[:10]]["diamond"]
-            break
-    return (facet, diamond)
+
+    return result
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("diamond", type=str)
     parser.add_argument("facet", type=str)
+    parser.add_argument("facet_address", type=str)
     parser.add_argument("chain_id", type=str)
-    parser.add_argument("timestamp", type=str)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    (facet,diamond) = get_latest_deployed_facet(args)
-    if(not facet or not diamond):
+    result = set_latest_deployed_facet(args)
+    if(not result):
         print("Not Found")
         return
-    enc = encode(["address[2]"], [[facet, diamond]])
-    # enc = encode(["(address,address)"], [(facet, diamond)])
-    # enc = encode(["address"], [facet])
-    # print(enc)
-    # print("0x01462DcB0DE6ea6b9Aee343C6c1280A17259969a","0x826149518A0D4Cf67b58fB8698b478CeaE96708E")
-    print("0x" + enc.hex(), end="")
+    
 
 if __name__ == "__main__":
     main()
