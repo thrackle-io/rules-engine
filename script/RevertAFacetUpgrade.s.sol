@@ -65,6 +65,18 @@ contract RevertAFacetupgrade is Script, DeployBase {
         diamondAddress = addresses[1];
     }
 
+    function setFacetAddress(address newFacetAddress) internal {
+        string[] memory getFacetAddressInput = new string[](6);
+        getFacetAddressInput[0] = "python3";
+        getFacetAddressInput[1] = "script/python/set_latest_facet_address.py";
+        getFacetAddressInput[2] = diamond;
+        getFacetAddressInput[3] = facetNameToRevert;
+        getFacetAddressInput[4] = vm.toString(newFacetAddress);
+        getFacetAddressInput[5] = vm.toString(block.chainid);
+        bytes memory res = vm.ffi(getFacetAddressInput);
+        console.logBytes(res);
+    }
+
     function getFacetSelectors(address facetAddress, address diamondAddres ) internal view returns(bytes4[] memory selectors){
         selectors =  IDiamondLoupe(diamondAddres).facetFunctionSelectors(facetAddress);
     }
@@ -111,7 +123,7 @@ contract RevertAFacetupgrade is Script, DeployBase {
         console.log("Verified new selectors are in the blockchain");
 
         /// we can now update the deployment record with the facet
-        recordFacet(diamond, facetNameToRevert, revertToFacetAddress, recordAllChains);
+        setFacetAddress(revertToFacetAddress);
 
         /// we clear the env
         setENVVariable("FACET_NAME_TO_REVERT", "");

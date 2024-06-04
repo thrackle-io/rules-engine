@@ -53,9 +53,25 @@ contract UpgradeAProtocolFacet is Script, DiamondScriptUtil {
         getFacetAddressInput[4] = vm.toString(block.chainid);
         getFacetAddressInput[5] = vm.toString(block.timestamp);
         bytes memory res = vm.ffi(getFacetAddressInput);
+        console.logBytes(res);
+
         address[2] memory addresses = abi.decode(res, (address[2]));
         facetAddress = addresses[0]; 
         diamondAddress = addresses[1];
+        console.logAddress(facetAddress);
+        console.logAddress(diamondAddress);
+    }
+
+    function setFacetAddress(address newFacetAddress) internal {
+        string[] memory getFacetAddressInput = new string[](6);
+        getFacetAddressInput[0] = "python3";
+        getFacetAddressInput[1] = "script/python/set_latest_facet_address.py";
+        getFacetAddressInput[2] = "ProtocolProcessorDiamond";
+        getFacetAddressInput[3] = facetToUpgrade;
+        getFacetAddressInput[4] = vm.toString(newFacetAddress);
+        getFacetAddressInput[5] = vm.toString(block.chainid);
+        bytes memory res = vm.ffi(getFacetAddressInput);
+        console.logBytes(res);
     }
 
     function getFacetSelectors(address facetAddress, address diamondAddres ) internal view returns(bytes4[] memory selectors){
@@ -111,7 +127,7 @@ contract UpgradeAProtocolFacet is Script, DiamondScriptUtil {
         console.log("Verified new selectors are in the blockchain");
 
         /// we can now update the deployment record with the facet
-        recordFacet("ProtocolProcessorDiamond", facetToUpgrade, newFacetAddress, recordAllChains);
+        setFacetAddress(newFacetAddress);
 
     }
 

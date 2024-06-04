@@ -1,0 +1,13 @@
+{
+    "80002": {
+        "WolfManHandlerDiamond": {
+            "2024-06-04": {
+                "HandlerVersionFacet": "0xfEC317793Cb38434c145110d5D8f2659E4B29115",
+                "ProtocolNativeFacet": "0x9FBD4f8F3e5f9403726d5B63F9b0870b3E63A56C",
+                "ProtocolRawFacet": "0xf2319De4015Ee26C9Cf4C14020fF78846A1bd194",
+                "ERC721HandlerMainFacet": "0x8d06E0Ef89888E91F8083C1A7C4a0ccc73c139e0",
+                "diamond": "0xee615d6A3EAbe043404B7f5bC516a6bb9A355F9c"
+            }
+        }
+    }
+}

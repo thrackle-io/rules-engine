@@ -6,13 +6,13 @@ identifies the possible action types for the protocol. Rules can be enabled for 
 
 ## Enum
 
-|Name|
-|----|
-|`P2P_TRANSFER`|
-|`BUY`|
-|`SELL`|
-|`MINT`|
-|`BURN`|
+|uint8 value|Name|
+|----|----|
+|0|`P2P_TRANSFER`|
+|1|`BUY`|
+|2|`SELL`|
+|3|`MINT`|
+|4|`BURN`|
 
 ## P2P_TRANSFER
 
