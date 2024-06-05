@@ -1,8 +1,11 @@
 # Individual Rule Gas Comparison ERC721 and ERC20
+[![Project Version][version-image]][version-url]
+
+---
 
 ## Purpose
 
-The gas report is used to determine how individual active rules effect gas consumption of basic token actions.
+The gas report is used to determine how individual active rules affect gas consumption of basic token actions.
 
 ## Overview
 
@@ -49,7 +52,7 @@ function _applyTokenMaxBuySellVolumeSetUp(address _handler) public {
 
 ```
 
-Gas measuring helpers for individual actions are included for both ERC721 and ERC20. For this example, I want to test how the rule effects the gas used for an ERC721 burn action.
+Gas measuring helpers for individual actions are included for both ERC721 and ERC20. For this example, I want to test how the rule affects the gas used for an ERC721 burn action.
 
 This is the helper to start measuring gas consumption, burn an NFT, and stop measuring gas consumption. Once finished, it will output the label and gas used by the burn action.
 ```c
@@ -78,3 +81,7 @@ The output to the console will look like this when running this individual test.
 ```
 ERC721_TokenMaxBuySellVolume_Burn 90136
 ```
+
+<!-- These are the header links -->
+[version-image]: https://img.shields.io/badge/Version-1.3.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-url]: https://github.com/thrackle-io/Tron
