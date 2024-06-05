@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "test/util/GasReport/GasHelpers.sol";
+import "test/util/gasReport/GasHelpers.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
 import "test/util/RuleCreation.sol";
 
