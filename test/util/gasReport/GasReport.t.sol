@@ -579,32 +579,32 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
 
     function testERC20_TokenMaxTradingVolume_Mint() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationCoinHandler));
-        _erc20MintGasReport("ERC20_TokenMaxSupplyVolatility_Mint");
+        _erc20MintGasReport("ERC20_TokenMaxTradingVolume_Mint");
     }
 
     function testERC20_TokenMaxTradingVolume_Burn() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationCoinHandler));
-        _erc20BurnGasReport("ERC20_TokenMaxSupplyVolatility_Burn");
+        _erc20BurnGasReport("ERC20_TokenMaxTradingVolume_Burn");
     }
 
     function testERC20_TokenMaxTradingVolume_Transfer() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationCoinHandler));
-        _erc20TransferGasReport("ERC20_TokenMaxSupplyVolatility_Transfer");
+        _erc20TransferGasReport("ERC20_TokenMaxTradingVolume_Transfer");
     }
 
     function testERC721_TokenMaxTradingVolume_TransferFrom() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationNFTHandler));
-        _erc721TransferFromGasReport("ERC721_TokenMaxSupplyVolatility_TransferFrom");
+        _erc721TransferFromGasReport("ERC721_TokenMaxTradingVolume_TransferFrom");
     }
 
     function testERC721_TokenMaxTradingVolume_Burn() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationNFTHandler));
-        _erc721BurnGasReport("ERC721_TokenMaxSupplyVolatility_Burn");
+        _erc721BurnGasReport("ERC721_TokenMaxTradingVolume_Burn");
     }
 
     function testERC721_TokenMaxTradingVolume_SafeMint() public endWithStopPrank {
         _applyTokenMaxTradingVolumeSetUp(address(applicationNFTHandler));
-        _erc721SafeMintGasReport("ERC721_TokenMaxSupplyVolatility_SafeMint");
+        _erc721SafeMintGasReport("ERC721_TokenMaxTradingVolume_SafeMint");
     }
 
 /**********  Token Min Hold Time Gas Usage **********/
