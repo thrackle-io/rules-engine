@@ -28,7 +28,7 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IApplicationEvents, ReentrancyGuard {
-    string private constant VERSION = "1.2.1";
+    string private constant VERSION = "1.3.0";
     using ERC165Checker for address;
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
