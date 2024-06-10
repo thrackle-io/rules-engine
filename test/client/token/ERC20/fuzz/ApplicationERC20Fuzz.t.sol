@@ -116,7 +116,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMinimumTransactionRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         applicationCoin.transfer(_user2, _transferAmount - 1);
@@ -147,7 +147,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         applicationCoin.transfer(_user2, _transferAmount - 1);
@@ -177,7 +177,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         applicationCoin.mint(_user2, _transferAmount - 1);
@@ -193,7 +193,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         applicationCoin.transfer(_user1, _transferAmount + 1);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.burn(_transferAmount + 1);
         assertEq(applicationCoin.balanceOf(_user1), 0);
     }
@@ -207,7 +207,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         applicationCoin.transfer(_user1, _transferAmount - 1);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // now we check for proper failure
         vm.expectRevert(0x7a78c901);
         applicationCoin.burn(_transferAmount - 1);
@@ -223,7 +223,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         switchToRuleAdmin();
         uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin2.approve(address(amm), _transferAmount);
         /// Buy some applicationCoin
@@ -240,7 +240,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // Set the minimum as one more than the transfer amount
         uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount + 1);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin2.approve(address(amm), _transferAmount);
         // now we check for proper failure
@@ -257,7 +257,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         switchToRuleAdmin();
         uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin.approve(address(amm), _transferAmount);
         /// Sell some applicationCoin
@@ -274,7 +274,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // Set the minimum as one more than the transfer amount
         uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount + 1);
         setTokenMinimumTransactionRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin.approve(address(amm), _transferAmount);
         // now we check for proper failure
@@ -304,7 +304,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.transfer(_user2, minAmount);
         assertEq(applicationCoin.balanceOf(_user2), minAmount);
         assertEq(applicationCoin.balanceOf(_user1), maxAmount - minAmount);
@@ -328,7 +328,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.mint(_user1, minAmount);
         assertEq(applicationCoin.balanceOf(_user1), minAmount);
     }
@@ -354,7 +354,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.burn(maxAmount - minAmount);
         assertEq(applicationCoin.balanceOf(_user1), maxAmount - (maxAmount - minAmount));
     }
@@ -378,7 +378,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin2.approve(address(amm), minAmount);
         /// Buy some applicationCoin
@@ -405,7 +405,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin.approve(address(amm), minAmount);
         /// Buy some applicationCoin
@@ -434,7 +434,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.transfer(_user2, minAmount);
         assertEq(applicationCoin.balanceOf(_user2), minAmount);
         assertEq(applicationCoin.balanceOf(_user1), maxAmount - minAmount);
@@ -459,7 +459,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
             applicationAppManager.addTag(_user1, _tag); ///add tag
             applicationAppManager.addTag(_user2, _tag); ///add tag
             ///perform transfer that checks rule
-            vm.startPrank(_user1);
+            vm.startPrank(_user1, _user1);
             // make sure the minimum rules fail results in revert
             vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
             applicationCoin.transfer(_user2, maxAmount);
@@ -484,7 +484,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
             applicationAppManager.addTag(_user1, _tag); ///add tag
             applicationAppManager.addTag(_user2, _tag); ///add tag
             ///perform transfer that checks rule
-            vm.startPrank(_user1);
+            vm.startPrank(_user1, _user1);
             // make sure the minimum rules fail results in revert
             vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
             applicationCoin.transfer(_user2, maxAmount);
@@ -514,7 +514,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // make sure the minimum rules fail results in revert
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationCoin.burn(1);
@@ -540,7 +540,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // get the user's current balance
         uint256 balance = applicationCoin.balanceOf(_user1);
         console.log(balance);
@@ -640,7 +640,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         applicationCoin.mint(_user1, maxAmount+1);
     }
@@ -666,7 +666,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
         for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         ///perform transfer that checks rule
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin2.approve(address(amm), maxAmount);
         /// Buy some applicationCoin
@@ -695,7 +695,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // This one should pass
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.transfer(_user2, 10);
         assertEq(applicationCoin.balanceOf(_user2), 10);
     }
@@ -721,7 +721,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // This one should pass
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.transfer(_user2, 10);
         assertEq(applicationCoin.balanceOf(_user2), 10);
     }
@@ -741,7 +741,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // test that the oracle works
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.mint(_user1, 10);
         assertEq(applicationCoin.balanceOf(_user1), 10);
     }
@@ -764,7 +764,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // test that the oracle works
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.burn(10);
         assertEq(applicationCoin.balanceOf(_user1), 90);
     }
@@ -784,7 +784,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user2);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin2.approve(address(amm), transferAmount);
         /// Buy some applicationCoin
@@ -807,7 +807,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user2);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve transfer
         applicationCoin.approve(address(amm), transferAmount);
         /// Buy some applicationCoin
@@ -880,7 +880,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         badBoys.push(_user1);
         oracleDenied.addToDeniedList(badBoys);
         ///perform transfer that checks rule
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // This one should fail
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         applicationCoin.burn(10);
@@ -919,7 +919,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user1);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///perform transfer that checks rule
         /// Approve transfer
         applicationCoin2.approve(address(amm), transferAmount);
@@ -944,7 +944,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user1);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///perform transfer that checks rule
         /// Approve transfer
         applicationCoin.approve(address(amm), transferAmount);
@@ -1009,7 +1009,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user3);
+        vm.startPrank(_user3, _user3);
         ///perform transfer that checks rule
         // This one should fail
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
@@ -1029,7 +1029,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         switchToRuleAdmin();
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
-        vm.startPrank(_user3);
+        vm.startPrank(_user3, _user3);
         ///perform transfer that checks rule
         // This one should fail
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
@@ -1051,7 +1051,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user1);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///perform transfer that checks rule
         /// Approve transfer
         applicationCoin2.approve(address(amm), transferAmount);
@@ -1076,7 +1076,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         // add a blocked address
         badBoys.push(_user1);
         oracleDenied.addToDeniedList(badBoys);
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///perform transfer that checks rule
         /// Approve transfer
         applicationCoin.approve(address(amm), transferAmount);
@@ -1108,7 +1108,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.transfer(user2, 1 * (10 ** 18));
 
         /// let's go to the future in the middle of the period
@@ -1181,7 +1181,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.transfer(user2, 1 * (10 ** 18));
 
         /// let's go to the future in the middle of the period
@@ -1252,7 +1252,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.mint(user1, 1 * (10 ** 18));
 
         /// let's go to the future in the middle of the period
@@ -1325,7 +1325,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.burn(1 * (10 ** 18));
 
         /// let's go to the future in the middle of the period
@@ -1400,7 +1400,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// Buy some applicationCoin
@@ -1486,7 +1486,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Transfer 1 token to ensure valid transaction passes
         applicationCoin.transfer(user2, 1);
     }
@@ -1514,7 +1514,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Transfer 1 token to ensure valid transaction passes
         applicationCoin.transfer(user2, 1);
     }
@@ -1540,7 +1540,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Transfer 1 token to ensure valid transaction passes
         applicationCoin.mint(user1, 1);
     }
@@ -1568,7 +1568,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Transfer 1 token to ensure valid transaction passes
         applicationCoin.burn(1);
     }
@@ -1598,7 +1598,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// Transfer 1 token to ensure valid transaction passes
@@ -1631,7 +1631,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
         /// Transfer 1 token to ensure valid transaction passes
@@ -1662,7 +1662,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.transfer(user2, 1);
 
@@ -1739,7 +1739,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.transfer(user2, 1);
 
@@ -1814,7 +1814,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.mint(user1, 1);
 
@@ -1891,7 +1891,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.burn(1);
 
@@ -1970,7 +1970,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// first we send only 1 token which shouldn't trigger any risk check
@@ -2055,7 +2055,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
         /// first we send only 1 token which shouldn't trigger any risk check
@@ -2133,7 +2133,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         applicationCoin.transfer(user2, 1);
     }
@@ -2156,7 +2156,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         applicationCoin.transfer(user2, 1);
     }
@@ -2177,7 +2177,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         applicationCoin.mint(user1, 1);
     }
@@ -2200,7 +2200,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         applicationCoin.burn(1);
     }
@@ -2226,7 +2226,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
 
@@ -2255,7 +2255,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
 
@@ -2281,7 +2281,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         if (risk >= riskScores[2]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -2317,7 +2317,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         if (risk >= riskScores[2]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -2351,7 +2351,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         if (risk >= riskScores[2]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -2387,7 +2387,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         if (risk >= riskScores[2]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -2425,7 +2425,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         if (risk >= riskScores[2]) {
@@ -2466,7 +2466,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
         if (risk >= riskScores[2]) {
@@ -2516,7 +2516,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Max riskScore allows for single token balance
         applicationCoin.transfer(_user2, 1 * (10 ** 18));
     }
@@ -2550,7 +2550,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Max riskScore allows for single token balance
         applicationCoin.transfer(_user2, 1 * (10 ** 18));
     }
@@ -2580,7 +2580,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Max riskScore allows for single token balance
         applicationCoin.mint(_user1, 1 * (10 ** 18));
     }
@@ -2617,7 +2617,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         ///Max riskScore allows for single token balance
@@ -2655,7 +2655,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], _riskScore[i + 1]);
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Transfer more than Risk Score allows
         vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
         applicationCoin.transfer(_user2, riskBalance4 * (10 ** 18) + 1);
@@ -2695,7 +2695,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], _riskScore[i + 1]);
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Transfer more than Risk Score allows
         vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
         applicationCoin.transfer(_user2, riskBalance4 * (10 ** 18) + 1);
@@ -2732,7 +2732,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], _riskScore[i + 1]);
         ///Execute transfers
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         ///Transfer more than Risk Score allows
         vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
         applicationCoin.mint(_user2, riskBalance4 * (10 ** 18) + 1);
@@ -2775,7 +2775,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         ///Execute transfers
         {
             vm.stopPrank();
-            vm.startPrank(_user2);
+            vm.startPrank(_user2, _user2);
             /// Approve all the transfers
             applicationCoin2.mint(_user2,riskBalance4 * (10 ** 18) + 1);
             applicationCoin2.approve(address(amm), riskBalance4 * (10 ** 18) + 1);
@@ -2786,7 +2786,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         }
         {
             vm.stopPrank();
-            vm.startPrank(_user3);
+            vm.startPrank(_user3, _user3);
             /// Approve all the transfers
             applicationCoin2.mint(_user3,riskBalance3 * (10 ** 18) + 1);
             applicationCoin2.approve(address(amm), riskBalance3 * (10 ** 18) + 1);
@@ -2796,7 +2796,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         }
         {
             vm.stopPrank();
-            vm.startPrank(_user4);
+            vm.startPrank(_user4, _user4);
             /// Approve all the transfers
             applicationCoin2.mint(_user4,riskBalance1 * (10 ** 18) + 1);
             applicationCoin2.approve(address(amm), riskBalance1 * (10 ** 18) + 1);
@@ -2832,7 +2832,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// this one is within the limit and should pass
         applicationCoin.transfer(_user3, uint256(accessBalance4) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(_user3), uint256(accessBalance4) * (10 ** 18));
@@ -2864,7 +2864,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// this one is within the limit and should pass
         applicationCoin.transfer(_user3, uint256(accessBalance4) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(_user3), uint256(accessBalance4) * (10 ** 18));
@@ -2892,7 +2892,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// this one is within the limit and should pass
         applicationCoin.mint(_user3, uint256(accessBalance4) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(_user3), uint256(accessBalance4) * (10 ** 18));
@@ -2924,7 +2924,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user3);
+        vm.startPrank(_user3, _user3);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// this one is within the limit and should pass
@@ -2955,7 +2955,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.P2P_TRANSFER));
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         vm.expectRevert(0xaee8b993);
         applicationCoin.transfer(_user2, 1);
         assertEq(applicationCoin.balanceOf(_user2), 0);
@@ -2983,7 +2983,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.P2P_TRANSFER));
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         vm.expectRevert(0xaee8b993);
         applicationCoin.transfer(_user2, 1);
         assertEq(applicationCoin.balanceOf(_user2), 0);
@@ -3007,7 +3007,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         assertTrue(applicationHandler.isAccountMaxValueByAccessLevelActive(ActionTypes.MINT));
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         vm.expectRevert(0xaee8b993);
         applicationCoin.mint(_user1, 1);
         assertEq(applicationCoin.balanceOf(_user1), 0);
@@ -3034,7 +3034,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setAccountMaxValueByAccessLevelRuleSingleAction(ActionTypes.BUY, ruleId);
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         tradeAmount = 1;
@@ -3069,7 +3069,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// this one is over the limit and should fail
         vm.expectRevert(0xaee8b993);
         applicationCoin.transfer(_user3, uint256(accessBalance4) * (10 ** 18) + 1);
@@ -3101,7 +3101,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// this one is over the limit and should fail
         vm.expectRevert(0xaee8b993);
         applicationCoin.transfer(_user3, uint256(accessBalance4) * (10 ** 18) + 1);
@@ -3129,7 +3129,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user3);
+        vm.startPrank(_user3, _user3);
         /// this one is over the limit and should fail
         vm.expectRevert(0xaee8b993);
         applicationCoin.mint(_user3, uint256(accessBalance4) * (10 ** 18) + 1);
@@ -3161,7 +3161,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
-        vm.startPrank(_user3);
+        vm.startPrank(_user3, _user3);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// this one is over the limit and should fail
@@ -3203,7 +3203,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         applicationAppManager.addAccessLevel(_user4, 3);
 
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         draculaCoin.transfer(_user4, uint256(accessBalance3) * (10 ** 18) - 1 * (10 ** 18));
         uint256 beginningBalance = applicationCoin.balanceOf(_user1);
         /// perform transfer that checks user with AccessLevel and existing balances(should fail because of other balance)
@@ -3246,7 +3246,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         applicationAppManager.addAccessLevel(_user4, 3);
 
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         draculaCoin.transfer(_user4, uint256(accessBalance3) * (10 ** 18) - 1 * (10 ** 18));
         uint256 beginningBalance = applicationCoin.balanceOf(_user1);
         /// perform transfer that checks user with AccessLevel and existing balances(should fail because of other balance)
@@ -3280,7 +3280,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         applicationAppManager.addAccessLevel(_user4, 3);
 
         vm.stopPrank();
-        vm.startPrank(_user4);
+        vm.startPrank(_user4, _user4);
         draculaCoin.mint(_user4, uint256(accessBalance3) * (10 ** 18) - 1 * (10 ** 18));
         /// perform transfer that checks user with AccessLevel and existing balances(should fail because of other balance)
         vm.expectRevert(0xaee8b993);
@@ -3315,7 +3315,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         applicationAppManager.addAccessLevel(_user4, 3);
 
         vm.stopPrank();
-        vm.startPrank(_user4);
+        vm.startPrank(_user4, _user4);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         tradeAmount = uint256(accessBalance3) * (10 ** 18) - 1 * (10 ** 18);
@@ -3359,7 +3359,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         applicationAppManager.addTag(user1, tag1); ///add tag
         /// switch to the user
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// make sure a transfer that is acceptable will still pass within the freeze window.
         uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (minAmounts[0] - 1)) - 1;
         applicationCoin.transfer(user1, transferAmount);
@@ -3525,7 +3525,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// make sure that transfer under the threshold works
@@ -3546,7 +3546,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// make sure that transfer under the threshold works
@@ -3567,7 +3567,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// make sure that transfer under the threshold works
@@ -3589,7 +3589,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// determine the maximum transfer amount
@@ -3614,7 +3614,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
         /// determine the maximum transfer amount
@@ -3638,7 +3638,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// now violate the rule and ensure revert
@@ -3666,7 +3666,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.P2P_TRANSFER, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// now violate the rule and ensure revert
@@ -3692,7 +3692,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) * 10;
         /// now violate the rule and ensure revert
@@ -3722,7 +3722,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// Approve all the transfers
         applicationCoin2.approve(address(amm), supply);
         /// determine the maximum transfer amount
@@ -3749,7 +3749,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         uint32 ruleId = createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000);
         setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.SELL, address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         /// Approve all the transfers
         applicationCoin.approve(address(amm), supply);
         /// determine the maximum transfer amount
@@ -3782,7 +3782,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);
@@ -3812,7 +3812,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);
@@ -3841,7 +3841,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);
@@ -3868,7 +3868,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.MINT, address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);
@@ -3895,7 +3895,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);
@@ -3922,7 +3922,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         setTokenMaxSupplyVolatilityRuleSingleAction(ActionTypes.BURN, address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         console.log(initialSupply);
         console.log(volume);
         console.log(amount);

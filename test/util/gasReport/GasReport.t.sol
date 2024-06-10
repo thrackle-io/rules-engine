@@ -688,7 +688,7 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
         gasUsed = stopMeasuringGas();
         console.log(_label, gasUsed);
         // Transfer the NFT back to appAdmin so the full report works correctly 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationNFT.transferFrom(user1, appAdministrator, 0);
     }
 

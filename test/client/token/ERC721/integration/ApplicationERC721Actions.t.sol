@@ -135,7 +135,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_EOA() public {
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -145,7 +145,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_EOA_to_SCA() public {
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -276,7 +276,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         marketplace.listItem(address(applicationNFTv2), 0, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.approve(address(marketplace), 1 * ATTO);
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.BUY));
@@ -290,7 +290,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         vm.skip(true);
         NftMarketplace marketplace = new NftMarketplace();
 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationNFTv2.approve(address(marketplace), 1);
         marketplace.listItem(address(applicationNFTv2), 1, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
@@ -309,12 +309,12 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         vm.skip(true);
         NftMarketplace marketplace = new NftMarketplace();
 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationNFTv2.approve(address(marketplace), 1);
         marketplace.listItem(address(applicationNFTv2), 1, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         applicationCoin.approve(address(marketplace), 1 * ATTO);
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.BUY));

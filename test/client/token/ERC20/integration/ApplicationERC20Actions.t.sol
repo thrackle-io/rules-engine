@@ -248,7 +248,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -267,7 +267,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -282,7 +282,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -341,7 +341,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // Set up amm for buy and sell tests
         DummyStaking staking = initializeERC20Stake(address(applicationCoin));
         // first test standard EOA stake
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.approve(address(staking), 50000);
         vm.expectEmit();
         emit Action(uint8(ActionTypes.SELL));

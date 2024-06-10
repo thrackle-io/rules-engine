@@ -49,7 +49,7 @@ contract RuleProcessingAccountMaxSellSizeMultiTest is RuleProcessingInvariantCom
                 if (i % 3 == 0) testAppManager.addTag(address(actor), "tagA");
                 if (i % 3 != 2) testAppManager.addTag(address(actor), "tagB");
                 testCoin.mint(address(actor), 1_000_000 * ATTO);
-                vm.startPrank(address(actor));
+                vm.startPrank(address(actor), address(actor));
                 testCoin.approve(address(amm), 1_000_000 * ATTO);
             }
             actors.push(tempActors);

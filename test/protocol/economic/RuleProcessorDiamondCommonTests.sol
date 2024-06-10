@@ -107,7 +107,7 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         // test that no other than the owner can update the version
         vm.stopPrank();
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            vm.startPrank(user1);
+            vm.startPrank(user1, user1);
         } else {
             switchToAppAdministrator();
         }
@@ -1005,7 +1005,7 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         applicationNFT.transferFrom(user, user2, 0);
         assertEq(applicationNFT.balanceOf(user2), 1);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         applicationNFT.transferFrom(user2, user1, 0);
         assertEq(applicationNFT.balanceOf(user2), 0);
     }
@@ -1023,11 +1023,11 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationNFT.transferFrom(user1, user2, 0);
         assertEq(applicationNFT.balanceOf(user2), 1);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         applicationNFT.transferFrom(user2, user1, 0);
         assertEq(applicationNFT.balanceOf(user2), 0);
         // set to a tag that only allows 1 transfer
@@ -1036,11 +1036,11 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
         // perform 1 transfer
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationNFT.transferFrom(user1, user2, 1);
         assertEq(applicationNFT.balanceOf(user2), 1);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
         applicationNFT.transferFrom(user2, user1, 1);
@@ -1063,15 +1063,15 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         // add a day to the time
         vm.warp(block.timestamp + 1 days);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         applicationNFT.transferFrom(user2, user1, 5);
         assertEq(applicationNFT.balanceOf(user2), 0);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // first one should pass
         applicationNFT.transferFrom(user1, user2, 2);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
         applicationNFT.transferFrom(user2, user1, 2);

@@ -783,7 +783,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
 
     function switchToUser() public {
         vm.stopPrank(); //stop interacting as the previous admin
-        vm.startPrank(user); //interact as the user
+        vm.startPrank(user, user); //interact as the user
     }
 
     /**

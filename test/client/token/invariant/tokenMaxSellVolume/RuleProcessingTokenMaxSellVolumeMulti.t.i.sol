@@ -54,7 +54,7 @@ contract RuleProcessingTokenMaxSellVolumeMultiTest is RuleProcessingInvariantCom
             for (uint i; i < AMOUNT_ACTORS; i++) {
                 switchToAppAdministrator();
                 testCoin.mint(address(actors[j][i]), 1_000 * ATTO);
-                vm.startPrank(address(actors[j][i]));
+                vm.startPrank(address(actors[j][i]), address(actors[j][i]));
                 testCoin.approve(address(amm), 1_000 * ATTO);
             }
             assertEq(testCoin.totalSupply(), TOTAL_SUPPLY);

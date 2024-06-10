@@ -21,7 +21,7 @@ contract ApplicationERC20MintBurnInvariantTest is ApplicationERC20Common {
         if(!(balance_sender > 0))return;
         uint256 burn_amount = amount % (balance_sender + 1);
 
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationCoin.burn(burn_amount);
         assertEq(
             applicationCoin.balanceOf(USER1),

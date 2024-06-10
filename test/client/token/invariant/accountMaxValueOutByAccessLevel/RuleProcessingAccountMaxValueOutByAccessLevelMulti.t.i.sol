@@ -35,7 +35,7 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
                 tempActors[i] = actor;
                 switchToAppAdministrator();
                 testCoin.mint(address(actor), 2_000 * ATTO);
-                vm.startPrank(address(actor));
+                vm.startPrank(address(actor), address(actor));
                 testCoin.approve(address(amm), 2_000 * ATTO);
                 switchToAccessLevelAdmin();
                 applicationAppManager.addAccessLevel(address(actor), uint8(i / 2));

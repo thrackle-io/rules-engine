@@ -33,7 +33,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
 
     // Any user can get the contract's version
     function invariant_ERC721_external_VersionCanBeCalledByAnyUser() public {
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         bytes memory version = bytes(VersionFacet(address(applicationNFTHandler)).version());
         assertEq(version, "1.3.0"); 
     }
@@ -53,7 +53,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
 
     // A non-appAdmin can never connect a handler to the contract
     function invariant_ERC721_external_UserCannotConnectHandler() public {
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
         applicationNFT.connectHandlerToToken(address(0xAAA));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler)); 
@@ -61,16 +61,16 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
 
     // Any account can retrieve handler address
     function invariant_ERC721_external_AnyUserCanRetrieveHandler() public {
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         address user1Handler = applicationNFT.getHandlerAddress();
-        vm.startPrank(USER2);
+        vm.startPrank(USER1, USER1);
         address user2Handler = applicationNFT.getHandlerAddress();
         assertEq(user1Handler, user2Handler); 
     }
 
     // Any account can retrieve App Manager address
     function invariant_ERC721_external_AnyUserCanRetrieveAppManager() public {
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         address user1AppManagerAddress = applicationNFT.getAppManagerAddress();
         assertEq(user1AppManagerAddress, address(applicationAppManager)); 
     }
@@ -93,7 +93,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
     // Only an App Admin can propose a new AppManager
     function invariant_ERC721_external_ProposeAppManager_OnlyAppAdmin() public {
         address newAppManagerAddress = address(0x7775);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
         applicationNFT.proposeAppManagerAddress(newAppManagerAddress); 
         switchToAppAdministrator();
@@ -126,7 +126,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
         selectors[0] = newAppManagerAddress.confirmAppManager.selector;
         targetSelector(FuzzSelector({addr: address(newAppManagerAddress), selectors: selectors}));
         vm.stopPrank();
-        vm.startPrank(USER2);
+        vm.startPrank(USER2, USER2);
         vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(address(USER2)), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         newAppManagerAddress.confirmAppManager(address(applicationNFT)); 
     }
