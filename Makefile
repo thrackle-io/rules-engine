@@ -8,7 +8,7 @@
 
 # Create a Account Min Max Token Balance rule. To use a specific string for the tag use the following syntax:
 # make setRule INPUT=tag
-# otherwise if INOUT is not specified, "Test" will be used for the tag.
+# otherwise if INPUT is not specified, "Test" will be used for the tag.
 # Output is parsed and the created rule id is given as output to the make call
 createRule: createRuleCastSend
 	@echo $(shell sh ./script/makefile-tools/parseRuleID.sh)
