@@ -88,7 +88,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: tx.origin, _to: address(amm), _sender: address(amm)})));
 
         // test Buys
         assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));

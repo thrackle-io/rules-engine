@@ -80,7 +80,6 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         address to;
         address sender;
         address user1 = address(1);
-        address user2 = address(2);
 
         // sell
         sender = address(this);
@@ -110,7 +109,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: tx.origin, _to: address(amm), _sender: address(amm)})));
 
         // test Buys
         assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
