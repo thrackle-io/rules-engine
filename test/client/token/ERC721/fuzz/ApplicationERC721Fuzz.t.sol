@@ -200,7 +200,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
     ) internal endWithStopPrank returns (address randomUser, address richGuy, address _user1, address _user2, address _user3) {
         (randomUser, richGuy, _user1, _user2, _user3) = _buildMinMaxTokenBalanceTransfer(_addressIndex, action);
         // we burn max allowed from rich guy:
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         for (uint i = 6; i < 10; i++) applicationNFT.burn(i);
         applicationNFT.burn(1);
     }
@@ -217,7 +217,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(_user1, _user1);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.burn(4);
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.burn(0);
         (_user2, _user3, randomUser);
@@ -241,7 +241,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         _ammAddress = address(_amm);
         vm.startPrank(_user3, _user3);
         for (uint i = 11; i < 11 + 6; i++) _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, true);
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         for (uint i = 21; i < 21 + 4; i++) _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, i, true);
         (_user1, _amm);
     }
@@ -259,7 +259,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(_user3, _user3);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 18, true);
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 18, true);
         (randomUser, _user1, _user2);
@@ -278,7 +278,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(_user1, _user1);
         applicationNFT.setApprovalForAll(_ammAddress, true);
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 3, false);
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         applicationNFT.setApprovalForAll(_ammAddress, true);
         _amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 1, false);
     }
@@ -296,7 +296,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(_user1, _user1);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 4, false);
-        vm.startPrank(richGuy);
+        vm.startPrank(richGuy, richGuy);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         __amm.dummyTrade(address(applicationCoin), address(applicationNFT), 0, 0, false);
         (randomUser, _user2, _user3);
@@ -2224,7 +2224,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
         /// at vol limit
         vm.stopPrank();
-        vm.startPrank(_rich_user);
+        vm.startPrank(_rich_user, _rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.burn(9);
@@ -2258,7 +2258,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_updatedPercent) / 1000;
         console.log(maxSize);
-        vm.startPrank(_rich_user);
+        vm.startPrank(_rich_user, _rich_user);
         /// make sure that transfer under the threshold works
         if (maxSize > 1) {
             for (uint i = 0; i < maxSize - 1; i++) {
@@ -2289,7 +2289,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// determine the maximum transfer amount 
         uint256 maxSize = uint256(_updatedPercent) / 1000;
         console.log(maxSize);
-        vm.startPrank(_rich_user);
+        vm.startPrank(_rich_user, _rich_user);
         /// make sure that transfer under the threshold works
         if (maxSize > 1) {
             for (uint i = 0; i < maxSize - 1; i++) {
@@ -2382,7 +2382,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_updatedPercent) / 1000;
         console.log(maxSize);
-        vm.startPrank(_rich_user);
+        vm.startPrank(_rich_user, _rich_user);
         applicationNFT.setApprovalForAll(address(_amm), true);
         if (maxSize > 1) {
             for (uint i = 0; i < maxSize - 1; i++) {

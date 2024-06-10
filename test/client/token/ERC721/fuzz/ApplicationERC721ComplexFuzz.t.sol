@@ -948,7 +948,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         }
         /// at vol limit
         vm.stopPrank();
-        vm.startPrank(_rich_user);
+        vm.startPrank(_rich_user, _rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.burn(9);
@@ -958,13 +958,13 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
             switchToAppAdministrator();
             applicationNFT.safeMint(_rich_user); // token 10
             vm.stopPrank();
-            vm.startPrank(_rich_user);
+            vm.startPrank(_rich_user, _rich_user);
             applicationNFT.burn(10);
             vm.stopPrank();
             switchToAppAdministrator();
             applicationNFT.safeMint(_rich_user);
             vm.stopPrank();
-            vm.startPrank(_rich_user);
+            vm.startPrank(_rich_user, _rich_user);
             applicationNFT.burn(11);
         }
     }

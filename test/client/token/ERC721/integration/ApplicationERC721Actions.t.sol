@@ -42,7 +42,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -74,7 +74,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -112,7 +112,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         vm.expectEmit();
         emit Action(uint8(ActionTypes.BURN));
@@ -125,7 +125,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Transfer_SCA_to_EOA() public {        
         vm.skip(true);
         // test transfers 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // from SCA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -161,7 +161,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         // Set up amm for buy and sell tests
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));
         // test Sells 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationNFTv2.approve(address(amm), 0);
 
         // test Sell should issue two events: 1. sell for applicationNFTv2, 2. buy for applicationCoin
@@ -178,7 +178,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         // Set up amm for buy and sell tests
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));
         // test Buys 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationCoin.approve(address(amm), 1 * ATTO);
 
         // test Buys should issue two events: 1. sell for applicationCoin, 2. buy for applicationNFTv2
@@ -198,7 +198,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         address eoa = address(1);
         vm.startPrank(eoa);
         vm.stopPrank();
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
@@ -213,7 +213,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         address eoa = address(1);
         vm.startPrank(eoa);
         vm.stopPrank();
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to SCA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: address(wallet), _sender: address(wallet)})));
@@ -234,7 +234,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         applicationNFTv2.safeMint(user1);
 
         vm.stopPrank();
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         vm.expectEmit();
@@ -271,7 +271,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         applicationCoin.mint(user1, 10 * ATTO);
         vm.stopPrank();
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationNFTv2.approve(address(marketplace), 0);
         marketplace.listItem(address(applicationNFTv2), 0, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
@@ -295,7 +295,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
         marketplace.listItem(address(applicationNFTv2), 1, address(applicationCoin), 1 * ATTO);
         vm.stopPrank();
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationCoin.approve(address(marketplace), 1 * ATTO);
         vm.expectEmit(true,false,false,false,applicationNFTv2.getHandlerAddress());
         emit Action(uint8(ActionTypes.BUY));
