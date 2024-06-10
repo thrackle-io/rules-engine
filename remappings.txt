@@ -3,3 +3,6 @@ ds-test/=lib/forge-std/lib/ds-test/src/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 diamond-std/=lib/diamond-std/
+seaport-types=lib/seaport-types/src/
+
+
