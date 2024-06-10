@@ -26,13 +26,16 @@ contract HandlerUtils{
         } else if(_to == address(0)){
             action = ActionTypes.BURN;
             emit Action(uint8(ActionTypes.BURN));
-        } else if(!(_sender == _from)){ 
-            action = ActionTypes.SELL;
-            emit Action(uint8(ActionTypes.SELL));
-        } else if(isContract(_from)) {
-            action = ActionTypes.BUY;
-            emit Action(uint8(ActionTypes.BUY));
+        } else if(isContract(_sender) ){
+            if (tx.origin == _from) {
+                action = ActionTypes.SELL;
+                emit Action(uint8(ActionTypes.SELL));
+            } else {
+                action = ActionTypes.BUY;
+                emit Action(uint8(ActionTypes.BUY));
+            } 
         } else {
+            // action = ActionTypes.P2P_TRANSFER; default is 0
             emit Action(uint8(ActionTypes.P2P_TRANSFER));
         }
     } 
