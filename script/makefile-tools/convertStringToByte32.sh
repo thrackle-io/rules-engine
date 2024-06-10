@@ -1,26 +1,6 @@
   #!/bin/bash
 
-  INPUT="Test"
-  
-  for var in "$@"
-  do
-    if [[ "$var" = "-s" ]]
-    then
-      settingInput=true
-    elif $settingInput;
-    then
-      INPUT="$var"
-      settingInput=false
-    elif [[ "$var" = "--help" ]]
-    then
-      echo "--------------------------------------------------"
-      echo "Possible Arguments:"
-      echo "-s: The string to convert"
-      echo "--------------------------------------------------"
-      exit
-    fi
-  done
-
+INPUT=${1:-'Test'}
 CONVERTED=$(echo $INPUT | xxd -p)
 TRUNCATED=$(echo ${CONVERTED:0:8})
 DIGITS=$(echo "${#TRUNCATED}")

@@ -18,7 +18,7 @@ createRuleCastSend:
 	@if [ -z "$(INPUT)" ]; then \
 		cast send ${RULE_PROCESSOR_DIAMOND} "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" ${APPLICATION_APP_MANAGER} [0x5465737400000000000000000000000000000000000000000000000000000000] [10] [1000] [2] 0 --private-key ${APP_ADMIN_PRIVATE_KEY} --from ${APP_ADMIN} --rpc-url http://127.0.0.1:8545 > makefile_output.txt; \
 	else \
-		cast send ${RULE_PROCESSOR_DIAMOND} "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" ${APPLICATION_APP_MANAGER} [$(shell sh ./script/makefile-tools/convertStringToByte32.sh -s ${INPUT})] [10] [1000] [2] 0 --private-key ${APP_ADMIN_PRIVATE_KEY} --from ${APP_ADMIN} --rpc-url http://127.0.0.1:8545 > makefile_output.txt; \
+		cast send ${RULE_PROCESSOR_DIAMOND} "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" ${APPLICATION_APP_MANAGER} [$(shell sh ./script/makefile-tools/convertStringToByte32.sh ${INPUT})] [10] [1000] [2] 0 --private-key ${APP_ADMIN_PRIVATE_KEY} --from ${APP_ADMIN} --rpc-url http://127.0.0.1:8545 > makefile_output.txt; \
 	fi
 
 # To set the rule with a specific id and action types use the following syntax:
