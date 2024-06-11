@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingAccountMaxValueOutByAccessLevelActor} from "./RuleProcessingAccountMaxValueOutByAccessLevelActor.sol";
 import "./RuleProcessingAccountMaxValueOutByAccessLevelActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingAccountMaxValueOutByAccessLevelMultiTest
@@ -12,7 +13,7 @@ import "./RuleProcessingAccountMaxValueOutByAccessLevelActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single rule is shared by all
  * the applications and tokens in this invariant test.
  */
-contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingAccountMaxValueOutByAccessLevelActorManager[] actorManagers;
     RuleProcessingAccountMaxValueOutByAccessLevelActor[][] actors;
     HandlerDiamond[] appHandlers;
@@ -34,11 +35,12 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
                 RuleProcessingAccountMaxValueOutByAccessLevelActor actor = new RuleProcessingAccountMaxValueOutByAccessLevelActor(ruleProcessor);
                 tempActors[i] = actor;
                 switchToAppAdministrator();
-                testCoin.mint(address(actor), 2_000 * ATTO);
-                vm.startPrank(address(actor), address(actor));
+                address eoa = _convertActorAddressToEOA(address(actor));
+                testCoin.mint(eoa, 2_000 * ATTO);
+                vm.startPrank(eoa, eoa);
                 testCoin.approve(address(amm), 2_000 * ATTO);
                 switchToAccessLevelAdmin();
-                applicationAppManager.addAccessLevel(address(actor), uint8(i / 2));
+                applicationAppManager.addAccessLevel(eoa, uint8(i / 2));
             }
             actors.push(tempActors);
             RuleProcessingAccountMaxValueOutByAccessLevelActorManager actorManager = new RuleProcessingAccountMaxValueOutByAccessLevelActorManager(tempActors, address(testCoin), address(amm));

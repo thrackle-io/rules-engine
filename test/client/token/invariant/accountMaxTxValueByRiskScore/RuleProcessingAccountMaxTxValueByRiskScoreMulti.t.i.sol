@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingAccountMaxTxValueByRiskScoreActor} from "./RuleProcessingAccountMaxTxValueByRiskScoreActor.sol";
 import "./RuleProcessingAccountMaxTxValueByRiskScoreActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingAccountMaxTxValueByRiskScoreMultiTest
@@ -12,12 +13,12 @@ import "./RuleProcessingAccountMaxTxValueByRiskScoreActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single rule is shared by all
  * the applications and tokens in this invariant test.
  */
-contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingAccountMaxTxValueByRiskScoreActorManager[] actorManagers;
     RuleProcessingAccountMaxTxValueByRiskScoreActor[][] actors;
     HandlerDiamond[] appHandlers;
     uint8 constant AMOUNT_ACTORS = 8;
-    uint8 constant AMOUNT_MANAGERS = 1;//must only be one manager with no more than 8 addresses. TODO: increase actor capability
+    uint8 constant AMOUNT_MANAGERS = 1; //must only be one manager with no more than 8 addresses. TODO: increase actor capability
 
     function setUp() public {
         prepRuleProcessingInvariant();
@@ -40,7 +41,8 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
                 RuleProcessingAccountMaxTxValueByRiskScoreActor actor = new RuleProcessingAccountMaxTxValueByRiskScoreActor(ruleProcessor, ADDRESSES[i]);
                 tempActors[i] = actor;
                 switchToAppAdministrator();
-                testCoin.mint(address(actor), 2_000 * ATTO);
+                address eoa = _convertActorAddressToEOA(address(actor));
+                testCoin.mint(eoa, 2_000 * ATTO);
                 switchToRiskAdmin();
                 applicationAppManager.addRiskScore(ADDRESSES[i], uint8(i * 10));
             }

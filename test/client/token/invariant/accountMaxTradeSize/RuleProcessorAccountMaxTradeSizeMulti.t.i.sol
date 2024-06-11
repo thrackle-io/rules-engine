@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingAccountMaxTradeSizeActor} from "./RuleProcessingAccountMaxTradeSizeActor.sol";
 import "./RuleProcessingAccountMaxTradeSizeActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingAccountMaxTradeSizeMultiTest
@@ -12,7 +13,7 @@ import "./RuleProcessingAccountMaxTradeSizeActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single
  * rule is shared by all the applications and tokens in this invariant test.
  */
-contract RuleProcessingAccountMaxTradeSizeMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingAccountMaxTradeSizeMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingAccountMaxTradeSizeActorManager[] actorManagers;
     RuleProcessingAccountMaxTradeSizeActor[][] actors;
     HandlerDiamond[] tokenHandlers;
@@ -38,7 +39,7 @@ contract RuleProcessingAccountMaxTradeSizeMultiTest is RuleProcessingInvariantCo
             );
             switchToAppAdministrator();
             tokenHandlers.push(testCoinHandler);
-            
+
             testCoin.mint(address(amm), TOTAL_SUPPLY);
 
             RuleProcessingAccountMaxTradeSizeActor[] memory tempActors = new RuleProcessingAccountMaxTradeSizeActor[](AMOUNT_ACTORS);
@@ -47,12 +48,13 @@ contract RuleProcessingAccountMaxTradeSizeMultiTest is RuleProcessingInvariantCo
                 RuleProcessingAccountMaxTradeSizeActor actor = new RuleProcessingAccountMaxTradeSizeActor(ruleProcessor);
                 tempActors[i] = actor;
                 switchToAppAdministrator();
+                address eoa = _convertActorAddressToEOA(address(actor));
                 /// actors 0, 3, 6 and 9 will have TagA. actors 0,1,3,4,6,7,9 will have tagB
                 /// Therefore, all actors that have tag A also have tagB. actors 2, 5, and 8 won't have any tag
-                if (i % 3 == 0) testAppManager.addTag(address(actor), "tagA");
-                if (i % 3 != 2) testAppManager.addTag(address(actor), "tagB");
-                testCoin.mint(address(actor), 1_000_000 * ATTO);
-                vm.startPrank(address(actor), address(actor));
+                if (i % 3 == 0) testAppManager.addTag(eoa, "tagA");
+                if (i % 3 != 2) testAppManager.addTag(eoa, "tagB");
+                testCoin.mint(eoa, 1_000_000 * ATTO);
+                vm.startPrank(eoa, eoa);
                 testCoin.approve(address(amm), 1_000_000 * ATTO);
             }
             actors.push(tempActors);
