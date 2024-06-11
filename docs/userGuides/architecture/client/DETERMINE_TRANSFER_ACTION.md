@@ -10,21 +10,20 @@ The determine transfer action function will asses the `_from`, `_to`, and `_send
 
 ```c
 function determineTransferAction(address _from, address _to, address _sender) internal returns (ActionTypes action)
-├── if no conditionals are met
-│ ├── it will determine the action is a P2P Transfer 
-│ └── it will emit Action event with P2P Transfer action type 
+
 ├── if _from address is address(0)
 │ ├── it will determine the action is a Mint
 │ └── it will emit Action event with mint action type
-├── if _to address is address(0)
-│ ├── it will determine the action is a Burn
-│ └── it will emit Action event with burn action type
-├── if _sender address is equal to _from address
-│ ├── it will determine the action is a Sell
-│ └── it will emit Action event with sell action type
-├── if _from address is a contract address
-│ ├── it will determine the action is a Buy
-│ └── it will emit Action event with buy action type
+├── if msg.sender is a contract
+│ └── if tx.origin is equal to the _from address
+|    ├── it will determine the action is a Sell
+│    └── it will emit Action event with sell action type
+│       └── else
+|          ├── it will determine the action is a Buy
+│          └── it will emit Action event with buy action type
+├── else 
+│ ├── it will determine the action is a P2P Transfer 
+│ └── it will emit Action event with P2P Transfer action type
 └── when the action has been determined 
     └── the function will return the action type 
 ```

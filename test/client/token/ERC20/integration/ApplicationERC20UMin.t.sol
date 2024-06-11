@@ -75,7 +75,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20UMin_AccountMinMaxTokenBalanceRule_Minimum() public endWithStopPrank {
         /// make sure the minimum rules fail results in revert
         _accountMinMaxTokenBalanceRuleSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user1), 50);
         vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 50);
@@ -103,7 +103,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
 
     function testERC20_ApplicationERC20UMin_AccountDenyOracle_Negative() public endWithStopPrank {
         _accountDenyOracleSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
 
         ///perform transfer that checks rule
         // This one should fail
@@ -114,7 +114,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
 
     function testERC20_ApplicationERC20UMin_AccountApproveOracle_Negative() public endWithStopPrank {
         _accountApproveOracleSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // This one should fail
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(address(88), 3);
@@ -128,7 +128,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
 
     function testERC20_ApplicationERC20UMin_PauseRulesViaAppManager_Negative() public endWithStopPrank {
         _pauseRulesViaAppManagerSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         bytes4 selector = bytes4(keccak256("ApplicationPaused(uint256,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, Blocktime + 1000, Blocktime + 1500));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(address(59), 2);
@@ -140,7 +140,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(proxyOwner);
         minimalUCoin2 = new ApplicationERC20UMinUpgAdminMint();
         applicationCoinProxy.upgradeTo(address(minimalUCoin2));
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         bytes4 selector = bytes4(keccak256("ApplicationPaused(uint256,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, Blocktime + 1000, Blocktime + 1500));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(address(59), 2);
@@ -149,7 +149,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20UMin_AccountMaxTransactionValueByRiskScore_Negative() public endWithStopPrank {
         ///Fail cases
         _accountMaxTransactionValueByRiskScoreSetup();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 40, 1000000000000000000));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 70 * ATTO);
@@ -162,7 +162,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         vm.expectRevert(abi.encodeWithSelector(selector, 40, 1000000000000000000));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 50 * ATTO);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 40, 1000000000000000000));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 40 * ATTO);
@@ -175,7 +175,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
 
         erc20Pricer.setSingleTokenPrice(address(applicationCoinProxy), 10 * ATTO);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 1);
 
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -194,19 +194,19 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(proxyOwner);
         minimalUCoin2 = new ApplicationERC20UMinUpgAdminMint();
         applicationCoinProxy.upgradeTo(address(minimalUCoin2));
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 40, 1000000000000000000));
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 40 * ATTO);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 1);
     }
 
     function testERC20_ApplicationERC20UMin_AccountDenyForNoAccessLevel_Negative() public endWithStopPrank {
         // transfers should not work for addresses without AccessLevel
         _accountDenyForNoAccessLevelInCoinSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
     }
@@ -217,7 +217,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(proxyOwner);
         minimalUCoin2 = new ApplicationERC20UMinUpgAdminMint();
         applicationCoinProxy.upgradeTo(address(minimalUCoin2));
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
     }
@@ -227,7 +227,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         _accountDenyForNoAccessLevelInCoinSetup();
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d); /// user 1 accessLevel is still 0 so tx reverts
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
     }
@@ -237,7 +237,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user1, 1);
         applicationAppManager.addAccessLevel(user2, 1);
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user2), 1);
     }
@@ -245,21 +245,21 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20UMin_AccountMinMaxTokenBalance_Negative() public endWithStopPrank {
         /// Transfers failing (below min value limit)
         _accountMinMaxTokenBalanceSetup();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 400); ///User 1 has min limit of 100
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 400);
         vm.expectRevert(0xa7fb7b4b);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 101);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user1), 200);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 400); ///User 2 has min limit of 200
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 300);
         vm.expectRevert(0xa7fb7b4b);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 101);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user2), 300);
 
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 400); ///User 3 has min limit of 300
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 200);
         vm.expectRevert(0xa7fb7b4b);
@@ -273,7 +273,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(proxyOwner);
         minimalUCoin2 = new ApplicationERC20UMinUpgAdminMint();
         applicationCoinProxy.upgradeTo(address(minimalUCoin2));
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         vm.expectRevert(0xa7fb7b4b);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 701); ///User 3 has min limit of 300
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user3), 1000);
@@ -288,13 +288,13 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         /// Expire time restrictions for users and transfer below rule
         vm.warp(Blocktime + 17525 hours);
 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 999);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 999);
 
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(rich_user, 999);
     }
 
@@ -355,7 +355,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         applicationAppManager.addTag(user3, "Gordon"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Gordon"));
         ///perform transfer that checks rule
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 50);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user1), 50);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user2), 50);
@@ -384,7 +384,7 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 10);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user2), 10);
     }
@@ -404,8 +404,9 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         // add an approved address
         switchToAppAdministrator();
         goodBoys.push(address(59));
+        goodBoys.push(user1);
         oracleApproved.addToApprovedList(goodBoys);
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // This one should pass
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(address(59), 2);
     }
@@ -446,13 +447,13 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
 
         ///Transfer coins
         ///Positive cases
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 1);
 
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user1, 1);
 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
     }
 
@@ -498,17 +499,17 @@ contract ApplicationEC20UMinTest is TestCommonFoundry, ERC20Util {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
 
         /// Transfers passing (above min value limit)
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 1);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user1), 998);
 
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user1, 1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user3, 1);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user2), 999);
 
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user2, 1);
         ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).transfer(user1, 1);
         assertEq(ApplicationERC20UMinUpgAdminMint(address(applicationCoinProxy)).balanceOf(user3), 1000);

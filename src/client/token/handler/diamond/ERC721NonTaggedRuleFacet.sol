@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
+import "src/client/token/handler/common/HandlerUtils.sol";
 import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/client/application/IAppManager.sol";
@@ -19,6 +20,7 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 contract ERC721NonTaggedRuleFacet is
     AppAdministratorOrOwnerOnlyDiamondVersion,
     HandlerAccountApproveDenyOracle,
+    HandlerUtils,
     HandlerTokenMaxSupplyVolatility,
     HandlerTokenMaxTradingVolume,
     HandlerTokenMinTxSize,
@@ -76,12 +78,15 @@ contract ERC721NonTaggedRuleFacet is
     function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionTypes action, address handlerBase) internal view {
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         /// The action type determines if the _to or _from is checked by the oracle
-        /// _from address is checked for Burn and Sell action types
-        if (action == ActionTypes.BURN || action == ActionTypes.SELL){
+        /// _from address is checked for Burn
+        if (action == ActionTypes.BURN){
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
-        } 
-        /// _to address is checked  for Mint, Buy, Transfer actions 
-        if (action == ActionTypes.MINT || action == ActionTypes.BUY || action == ActionTypes.P2P_TRANSFER){
+        } else if (action == ActionTypes.MINT){
+            /// _to address is checked  for Mint
+            IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        } else {
+            /// _from and _to address are checked for BUY, SELL, and P2P_TRANSFER
+            IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         }
     }

@@ -56,7 +56,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
 
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.approve(address(this), tokenId2);
         applicationNFT.transferFrom(USER1, target, tokenId2);
         
@@ -73,7 +73,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         if(!(target != address(0)))return;
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         try applicationNFT.transferFrom(USER1, target, tokenId2) {
             assertEq(applicationNFT.ownerOf(tokenId2),target);
         } catch {
@@ -98,7 +98,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         if(!(selfBalance > 0))return; 
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         vm.expectRevert("ERC721: transfer to the zero address");
         applicationNFT.transferFrom(USER1, address(0), tokenId2);
 
@@ -109,7 +109,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
 
         try applicationNFT.transferFrom(USER1, USER1, tokenId2) {
             assertTrue(applicationNFT.ownerOf(tokenId2) == USER1);
@@ -127,7 +127,7 @@ contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
         if(!(applicationNFT.ownerOf(tokenId2) == USER1))return;
 
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.approve(address(this), tokenId2);
 
         applicationNFT.transferFrom(USER1, USER1, tokenId2);

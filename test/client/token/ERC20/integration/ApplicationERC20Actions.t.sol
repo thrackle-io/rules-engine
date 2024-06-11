@@ -80,12 +80,11 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         address to;
         address sender;
         address user1 = address(1);
-        address user2 = address(2);
 
         // sell
-        sender = user2;
+        sender = address(this);
         to = user1;
-        from = user1;
+        from = tx.origin;
         assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction(from, to, sender)));
     }
 
@@ -96,7 +95,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -110,7 +109,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
 
         // test Sells 
-        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: user1, _to: address(amm), _sender: address(amm)})));
+        assertEq(uint8(ActionTypes.SELL), uint8(determineTransferAction({_from: tx.origin, _to: address(amm), _sender: address(amm)})));
 
         // test Buys
         assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction({_from: address(amm), _to: user1, _sender: address(amm)})));
@@ -127,7 +126,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -159,7 +158,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -192,7 +191,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.deal(address(wallet), 10 ether);
         assertEq(10 * ATTO, wallet.getWalletBalance());
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         assertEq(uint8(ActionTypes.BURN), uint8(determineTransferAction({_from: address(wallet), _to: address(0), _sender: address(wallet)})));
         // test Mints 
@@ -220,7 +219,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
     function testERC20_SmartContractWalletWithProtocolSupportedAssets_Mint() public {
         SCAWallet wallet = new SCAWallet();
         
-        vm.startPrank(address(wallet));        
+        vm.startPrank(address(wallet), address(wallet));        
         // test Mints
         vm.expectEmit();
         emit Action(uint8(ActionTypes.MINT));
@@ -233,7 +232,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test Burns 
         vm.expectEmit();
         emit Action(uint8(ActionTypes.BURN));
@@ -248,7 +247,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -267,7 +266,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to EOA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -282,7 +281,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin2.mint(user1, 10 * ATTO);
         
         // test transfers 
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // from EOA to SCA
         vm.expectEmit();
         emit Action(uint8(ActionTypes.P2P_TRANSFER));
@@ -298,7 +297,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // Set up amm for buy and sell tests
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
         // test Sells 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationCoin2.approve(address(amm), 50000);
         applicationCoin.approve(address(amm), 50000);
 
@@ -319,7 +318,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // Set up amm for buy and sell tests
         DummyAMM amm = initializeERC20AMM(address(applicationCoin), address(applicationCoin2));
         // test Sells 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationCoin2.approve(address(amm), 50000);
         applicationCoin.approve(address(amm), 50000);
 
@@ -341,7 +340,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         // Set up amm for buy and sell tests
         DummyStaking staking = initializeERC20Stake(address(applicationCoin));
         // first test standard EOA stake
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.approve(address(staking), 50000);
         vm.expectEmit();
         emit Action(uint8(ActionTypes.SELL));
@@ -361,7 +360,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         DummyStaking staking = initializeERC20Stake(address(applicationCoin));
         SCAWallet wallet = new SCAWallet();
         applicationCoin.mint(address(wallet), 10 * ATTO);
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         applicationCoin.approve(address(staking), 50000);
         vm.expectEmit();
         emit Action(uint8(ActionTypes.SELL));
@@ -379,7 +378,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.skip(true);
         SCAWallet wallet = new SCAWallet();
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: user1, _sender: address(wallet)})));
@@ -393,7 +392,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         vm.skip(true);
         SCAWallet wallet = new SCAWallet();
 
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to SCA(comes back as BUY)
         assertEq(uint8(ActionTypes.P2P_TRANSFER), uint8(determineTransferAction({_from: address(wallet), _to: address(wallet), _sender: address(wallet)})));
@@ -411,7 +410,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to EOA(comes back as BUY)
         vm.expectEmit();
@@ -432,7 +431,7 @@ contract ApplicationERC20HandlerTest is ERC20Util, HandlerUtils{
         applicationCoin.mint(address(wallet), 10 * ATTO);
         applicationCoin.mint(user1, 10 * ATTO);
         
-        vm.startPrank(address(wallet));
+        vm.startPrank(address(wallet), address(wallet));
         // test transfers 
         // from SCA to SCA(comes back as BUY)
         vm.expectEmit();

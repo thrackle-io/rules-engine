@@ -4,13 +4,14 @@ pragma solidity ^0.8.17;
 import {RuleProcessingInvariantActorCommon} from "test/client/token/invariant/util/RuleProcessingInvariantActorCommon.sol";
 import "test/client/token/invariant/util/DummySingleTokenAMM.sol";
 import "test/util/TestCommonFoundry.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingTokenMaxSellVolumeActor
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
  * @dev This is the rule processing actor for the TokenMaxSellVolume rule.
  */
-contract RuleProcessingTokenMaxSellVolumeActor is TestCommonFoundry, RuleProcessingInvariantActorCommon {
+contract RuleProcessingTokenMaxSellVolumeActor is TestCommonFoundry, RuleProcessingInvariantActorCommon, InvariantUtils {
     constructor(RuleProcessorDiamond _processor) {
         processor = _processor;
         testStartsAtTime = block.timestamp;
@@ -19,7 +20,9 @@ contract RuleProcessingTokenMaxSellVolumeActor is TestCommonFoundry, RuleProcess
     /**
      * @dev test the rule
      */
-    function checkTokenMaxSellVolume(uint256 _amount, address amm, address _token) public {
+    function checkTokenMaxSellVolume(uint256 _amount, address amm, address _token) public endWithStopPrank {
+        address eoa = _convertActorAddressToEOA(address(this));
+        vm.startPrank(eoa, eoa);
         DummySingleTokenAMM(amm).sell(_amount, _token);
     }
 }

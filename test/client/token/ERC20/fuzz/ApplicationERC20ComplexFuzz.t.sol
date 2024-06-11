@@ -32,7 +32,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         // This one should pass
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         applicationCoin.transfer(_user2, 10);
         assertEq(applicationCoin.balanceOf(_user2), 10);
         ///perform transfer that checks rule
@@ -47,9 +47,10 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         switchToAppAdministrator();
         // add an approved address
         goodBoys.push(_user4);
+        goodBoys.push(_user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
-        vm.startPrank(_user1);
+        vm.startPrank(_user1, _user1);
         // This one should pass
         applicationCoin.transfer(_user4, 10);
         // This one should fail
@@ -80,7 +81,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.transfer(user2, 1);
 
@@ -153,7 +154,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we start making transfers
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
 
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationCoin.transfer(user1, 1 * (10 ** 18));
@@ -232,7 +233,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         if (user1 != treasuryAccount) {
             if (amount > initialSupply - volume) {
                 vm.expectRevert(0xc406d470);
@@ -255,7 +256,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
             vm.warp(Blocktime + 36 hours);
 
             vm.stopPrank();
-            vm.startPrank(user1);
+            vm.startPrank(user1, user1);
             uint256 transferAmount = uint256(volLimit) * (10 * (10 ** 18));
             applicationCoin.mint(user1, (transferAmount - (1 * (10 ** 18))));
             vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
@@ -273,7 +274,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         ruleId = createTokenMaxSupplyVolatilityRule(volatilityLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.mint(user1, 5 * (10 ** 18));
         applicationCoin.mint(user1, 4 * (10 ** 18));
         applicationCoin.mint(user1, 1 * (10 ** 18));
@@ -291,7 +292,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         ruleId = createTokenMaxSupplyVolatilityRule(newVolatilityLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         applicationCoin.mint(user1, 450000 * (10 ** 18));
         applicationCoin.mint(user1, 50000 * (10 ** 18));
         applicationCoin.burn(50000 * (10 ** 18));

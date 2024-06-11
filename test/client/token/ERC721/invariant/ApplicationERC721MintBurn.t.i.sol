@@ -18,7 +18,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if((selfBalance == 0))return;
         uint256 oldTotalSupply = applicationNFT.totalSupply();
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
 
         for(uint256 i; i < selfBalance; i++) {
             uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
@@ -35,7 +35,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         if(!(selfBalance > 0))return;
 
         uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.burn(tokenId2);
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.transferFrom(USER1, target, tokenId2);
@@ -47,7 +47,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         if(!(selfBalance > 0))return;
 
         uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.burn(tokenId2);
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.approve(USER1, tokenId2);
@@ -59,7 +59,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         if(!(selfBalance > 0))return;
 
         uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.burn(tokenId2);
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.getApproved(tokenId2);
@@ -71,7 +71,7 @@ contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
         if(!(selfBalance > 0))return;
 
         uint256 tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
-        vm.startPrank(USER1);
+        vm.startPrank(USER1, USER1);
         applicationNFT.burn(tokenId2);
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.ownerOf(tokenId2);

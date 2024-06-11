@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingTokenMaxBuySellVolumeActor} from "./RuleProcessingTokenMaxBuySellVolumeActor.sol";
 import "./RuleProcessingTokenMaxBuySellVolumeActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingTokenMaxBuySellVolumeMultiTest
@@ -12,7 +13,7 @@ import "./RuleProcessingTokenMaxBuySellVolumeActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single rule
  * is shared by all the applications and tokens in this invariant test.
  */
-contract RuleProcessingTokenMaxBuySellVolumeMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingTokenMaxBuySellVolumeMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingTokenMaxBuySellVolumeActorManager[] actorManagers;
     RuleProcessingTokenMaxBuySellVolumeActor[][] actors;
     HandlerDiamond[] tokenHandlers;
@@ -53,8 +54,9 @@ contract RuleProcessingTokenMaxBuySellVolumeMultiTest is RuleProcessingInvariant
             /// split loop to avoid stack too deep
             for (uint i; i < AMOUNT_ACTORS; i++) {
                 switchToAppAdministrator();
-                testCoin.mint(address(actors[j][i]), 1_000 * ATTO);
-                vm.startPrank(address(actors[j][i]));
+                address eoa = _convertActorAddressToEOA(address(actors[j][i]));
+                testCoin.mint(eoa, 1_000 * ATTO);
+                vm.startPrank(eoa, eoa);
                 testCoin.approve(address(amm), 1_000 * ATTO);
             }
             assertEq(testCoin.totalSupply(), TOTAL_SUPPLY);
@@ -72,7 +74,7 @@ contract RuleProcessingTokenMaxBuySellVolumeMultiTest is RuleProcessingInvariant
      * exceed the maximum of the TokenMaxBuySellVolume applied for the asset. The total supply can be given live or stored as a hard coded value
      * in the rule itself.
      */
-    function invariant_amountSoldCanNeverExceedRulesMaxPctOfTotalSupply() public view {
+    function invariant_volumeSoldCanNeverExceedRulesMaxPctOfTotalSupply() public view {
         for (uint j; j < actors.length; j++) assertLe((actorManagers[j].totalSoldInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuySellVolumeRuleA.tokenPercentage);
     }
 
@@ -89,7 +91,7 @@ contract RuleProcessingTokenMaxBuySellVolumeMultiTest is RuleProcessingInvariant
      * the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the
      * maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
      */
-    function invariant_amountBoughtCanNeverExceedRulesMaxPctOfTotalSupply() public view {
+    function invariant_volumeBoughtCanNeverExceedRulesMaxPctOfTotalSupply() public view {
         for (uint j; j < actors.length; j++) assertLe((actorManagers[j].totalBoughtInPeriod() * 10000) / (TOTAL_SUPPLY), tokenMaxBuySellVolumeRuleA.tokenPercentage);
     }
 

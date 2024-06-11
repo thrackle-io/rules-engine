@@ -133,7 +133,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 3);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
         assertEq(minimalNFTLegacy.balanceOf(user1), 1);
@@ -143,7 +143,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3e237976);
         minimalNFTLegacy.transferFrom(user1, user3, 4);
 
@@ -160,7 +160,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeMint(user2);
         // transfer to user1 to exceed limit
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert(0x1da56a44);
         minimalNFTLegacy.transferFrom(user2, user1, 3);
 
@@ -198,19 +198,19 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         switchToAppAdministrator();
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 3);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
         assertEq(minimalNFTLegacy.balanceOf(user1), 1);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3e237976);
         minimalNFTLegacy.transferFrom(user1, user3, 4);
 
         ///make sure the maximum rule fail results in revert
         vm.stopPrank();
-        vm.startPrank(rich_user);
+        vm.startPrank(rich_user, rich_user);
         minimalNFTLegacy.transferFrom(rich_user, user1, 5);
         assertEq(minimalNFTLegacy.balanceOf(user1), 2);
         minimalNFTLegacy.transferFrom(rich_user, user1, 6);
@@ -240,7 +240,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // This one should pass
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 0);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
         ///perform transfer that checks rule
@@ -254,9 +254,10 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
+        goodBoys.push(user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // This one should pass
         minimalNFTLegacy.transferFrom(user1, address(59), 2);
         // This one should fail
@@ -272,7 +273,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         /// swap to user and burn
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.burn(4);
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
@@ -283,7 +284,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         oracleDenied.addToDeniedList(badBoys);
         /// user attempts burn
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x2767bda4);
         minimalNFTLegacy.burn(3);
     }
@@ -304,7 +305,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         vm.warp(Blocktime + 1001);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert();
         minimalNFTLegacy.transferFrom(user1, address(59), 2);
     }
@@ -330,11 +331,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 0);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.transferFrom(user2, user1, 0);
         assertEq(minimalNFTLegacy.balanceOf(user2), 0);
 
@@ -344,11 +345,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         applicationAppManager.addTag(address(minimalNFTLegacy), "BoredGrape"); ///add tag
         // perform 1 transfer
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 1);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(0x09a92f2d);
         minimalNFTLegacy.transferFrom(user2, user1, 1);
@@ -362,11 +363,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         switchToAppAdministrator();
         applicationAppManager.addTag(address(minimalNFTLegacy), "DiscoPunk"); ///add tag
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // first one should pass
         minimalNFTLegacy.transferFrom(user1, user2, 2);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(0x09a92f2d);
         minimalNFTLegacy.transferFrom(user2, user1, 2);
@@ -393,12 +394,12 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // ensure standard transfer works by transferring 1 to user2 
         ///perform transfer that checks rule
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 0);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(0x09a92f2d);
         minimalNFTLegacy.transferFrom(user2, user1, 0);
@@ -443,21 +444,21 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         ///Transfer NFT's
         ///Positive cases
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user3, 0);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         minimalNFTLegacy.safeTransferFrom(user3, user1, 0);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 4);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 1);
 
         ///Fail cases
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert();
         minimalNFTLegacy.safeTransferFrom(user2, user3, 7);
 
@@ -468,7 +469,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user2, user3, 5);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert();
         minimalNFTLegacy.safeTransferFrom(user2, user3, 4);
 
@@ -480,7 +481,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         erc721Pricer.setSingleNFTPrice(address(minimalNFTLegacy), 7, 9 * ATTO); // in dollars
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 7);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 6);
 
@@ -488,7 +489,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user2, user3, 5);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 4);
 
         /// set price of token 5 below limit of user 2
@@ -499,11 +500,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         /// test burning with this rule active
         /// transaction valuation must remain within risk limit for sender
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.burn(5);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         vm.expectRevert();
         minimalNFTLegacy.burn(4);
         vm.expectRevert();
@@ -546,17 +547,17 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         ///Transfer NFT's
         ///Positive cases
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user3, 0);
 
         vm.warp(block.timestamp + 25 hours);
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         minimalNFTLegacy.safeTransferFrom(user3, user1, 0);
 
         vm.warp(block.timestamp + 25 hours * 2);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 4);
         vm.warp(block.timestamp + 25 hours * 3);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 1);
@@ -564,7 +565,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         vm.warp(block.timestamp + 25 hours * 4);
         ///Fail cases
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert();
         minimalNFTLegacy.safeTransferFrom(user2, user3, 7);
 
@@ -575,7 +576,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user2, user3, 5);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert();
         minimalNFTLegacy.safeTransferFrom(user2, user3, 4);
 
@@ -588,7 +589,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         vm.warp(block.timestamp + 25 hours * 5);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 7);
         vm.warp(block.timestamp + 25 hours * 6);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 6);
@@ -598,7 +599,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         vm.warp(block.timestamp + 25 hours * 7);
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user3, 4);
 
         vm.warp(block.timestamp + 25 hours * 8);
@@ -610,11 +611,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         /// test burning with this rule active
         /// transaction valuation must remain within risk limit for sender
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.burn(5);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         vm.expectRevert();
         minimalNFTLegacy.burn(4);
         vm.expectRevert();
@@ -623,7 +624,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         /// negative cases in multiple steps
         vm.warp(block.timestamp + 25 hours * 9);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
         vm.expectRevert();
         minimalNFTLegacy.safeTransferFrom(user1, user2, 1);
@@ -648,21 +649,21 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         createAccountDenyForNoAccessLevelRule();
         // transfers should not work for addresses without AccessLevel
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d);
         minimalNFTLegacy.transferFrom(user1, user2, 0);
         // set AccessLevel and try again
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d); /// still fails since user 1 is accessLevel0
         minimalNFTLegacy.transferFrom(user1, user2, 0);
 
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user1, 1);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 0);
         assertEq(minimalNFTLegacy.balanceOf(user2), 1);
     }
@@ -708,26 +709,26 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0); ///User 1 has min limit of 1
         minimalNFTLegacy.safeTransferFrom(user1, user3, 1);
         assertEq(minimalNFTLegacy.balanceOf(user1), 1);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user1, 0); ///User 2 has min limit of 2
         minimalNFTLegacy.safeTransferFrom(user2, user3, 3);
         assertEq(minimalNFTLegacy.balanceOf(user2), 2);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         minimalNFTLegacy.safeTransferFrom(user3, user2, 3); ///User 3 has min limit of 3
         minimalNFTLegacy.safeTransferFrom(user3, user1, 1);
         assertEq(minimalNFTLegacy.balanceOf(user3), 3);
 
         /// Transfers failing (below min value limit)
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, rich_user, 0); ///User 1 has min limit of 1
         minimalNFTLegacy.safeTransferFrom(user1, rich_user, 1);
         vm.expectRevert(0xa7fb7b4b);
@@ -735,14 +736,14 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         assertEq(minimalNFTLegacy.balanceOf(user1), 1);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, rich_user, 3); ///User 2 has min limit of 2
         vm.expectRevert(0xa7fb7b4b);
         minimalNFTLegacy.safeTransferFrom(user2, rich_user, 4);
         assertEq(minimalNFTLegacy.balanceOf(user2), 2);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         vm.expectRevert(0xa7fb7b4b);
         minimalNFTLegacy.safeTransferFrom(user3, rich_user, 6); ///User 3 has min limit of 3
         assertEq(minimalNFTLegacy.balanceOf(user3), 3);
@@ -751,15 +752,15 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         vm.warp(Blocktime + 17525 hours);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, rich_user, 2);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, rich_user, 4);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(user3, user3);
         minimalNFTLegacy.safeTransferFrom(user3, rich_user, 6);
     }
     
@@ -783,7 +784,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
         // should fail since it puts user1 below min of 1
         vm.expectRevert(0xa7fb7b4b); 
@@ -800,7 +801,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         uint32 ruleId = createTokenMaxTradingVolumeRule(200, 2, Blocktime, 100);
         setTokenMaxTradingVolumeRule(address(applicationNFTHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // transfer under the threshold
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
         // transfer one that hits the percentage
@@ -830,7 +831,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         uint32 ruleId = createTokenMaxTradingVolumeRule(200, 2, Blocktime, 100);
         setTokenMaxTradingVolumeRule(address(applicationNFTHandler), ruleId);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // transfer under the threshold
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
         //transfer one that hits the percentage
@@ -859,7 +860,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // mint 1 nft to non admin user(this should set their ownership start time)
         minimalNFTLegacy.safeMint(user1);
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         // transfer should fail
         vm.expectRevert(0x5f98112f);
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
@@ -869,7 +870,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user1, user2, 0);
         // the original owner was able to transfer but the new owner should not be able to because the time resets
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert(0x5f98112f);
         minimalNFTLegacy.safeTransferFrom(user2, user1, 0);
         // move forward under the threshold and ensure it fails
@@ -881,7 +882,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(2); 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user1, 0);
     }
 
@@ -913,11 +914,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         applicationAppManager.addAccessLevel(user2, 1);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 1);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.transferFrom(user2, user1, 1);
 
         /// switch to rule admin to deactive rule for set up 
@@ -964,11 +965,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         /// retest rule to ensure proper valuation totals
         /// user 2 has access level 1 and can hold balance of 1
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 1);
         /// user 1 has access level of 2 and can hold balance of 10 (currently above this after admin transfers)
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert(0xaee8b993);
         minimalNFTLegacy.transferFrom(user2, user1, 1);
         /// increase user 1 access level to allow for balance of $50 USD
@@ -982,7 +983,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         9 PudgeyPenguins ($9USD) + 40 ToughTurtles ((37 * $1USD) + (1 * $100USD) + (1 * $50USD) + (1 * $25USD) = $221USD)
          */
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         minimalNFTLegacy.transferFrom(user2, user1, 1);
 
         /// adjust nft valuation limit to ensure we revert back to individual pricing
@@ -990,11 +991,11 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(50);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.transferFrom(user1, user2, 1);
         /// fails because valuation now prices each individual token so user 1 has $221USD account value
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(user2, user2);
         vm.expectRevert(0xaee8b993);
         minimalNFTLegacy.transferFrom(user2, user1, 1);
 
@@ -1002,7 +1003,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.burn(1);
         /// test burns with user 1
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(user1, user1);
         minimalNFTLegacy.burn(3);
         _applicationNFT2.burn(36);
     }
