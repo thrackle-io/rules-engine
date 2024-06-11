@@ -47,6 +47,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
         switchToAppAdministrator();
         // add an approved address
         goodBoys.push(_user4);
+        goodBoys.push(_user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(_user1, _user1);

@@ -199,6 +199,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
 
     function testERC20_ApplicationERC20Handler_AccountApproveOracleERC20Handler_Positive() public endWithStopPrank {
         _accountApproveOracleERC20HandlerSetup();
+        switchToAppAdministrator();
+        // add an approved address
+        goodBoys.push(user1);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.startPrank(address(applicationCoin));
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);

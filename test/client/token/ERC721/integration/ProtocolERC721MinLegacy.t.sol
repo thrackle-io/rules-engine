@@ -254,6 +254,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
+        goodBoys.push(user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1, user1);

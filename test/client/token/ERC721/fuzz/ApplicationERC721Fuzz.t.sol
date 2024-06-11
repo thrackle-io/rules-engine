@@ -460,6 +460,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Transfer_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
         (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        goodBoys.push(_user1);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.startPrank(_user1, _user1);
         applicationNFT.transferFrom(_user1, randomUser, 2);
         console.log(richGuy, _user2, _user3);
@@ -541,6 +544,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
     function testERC721_ApplicationERC721Fuzz_AccountApproveDenyOracle_Buy_ApprovePositive(uint8 _addressIndex) public endWithStopPrank {
         (address randomUser, address richGuy, address _user1, address _user2, address _user3) = _buildAccountApproveDenyOracleApprove(_addressIndex, ActionTypes.BUY);
         DummyNFTAMM _amm = _setupAMM();
+        switchToAppAdministrator();
+        goodBoys.push(address(_amm));
+        oracleApproved.addToApprovedList(goodBoys);
         uint initialBalance = applicationNFT.balanceOf(randomUser);
         uint nft = applicationNFT.tokenOfOwnerByIndex(address(_amm), 0);
         vm.startPrank(randomUser);

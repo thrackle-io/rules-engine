@@ -626,6 +626,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         // add approved addresses
         goodBoys.push(address(59));
         goodBoys.push(address(user5));
+        goodBoys.push(address(user1));
         oracleApproved.addToApprovedList(goodBoys);
         vm.startPrank(user1, user1);
         // This one should pass
@@ -650,6 +651,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// first mint to user
         switchToAppAdministrator();
         goodBoys.push(address(user5));
+        goodBoys.push(appAdministrator);
         oracleApproved.addToApprovedList(goodBoys);
         switchToAppAdministrator();
         testCaseToken.transfer(user5, 10000);

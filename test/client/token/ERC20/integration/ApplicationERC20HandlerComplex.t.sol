@@ -96,6 +96,7 @@ contract ApplicationERC20HandlerComplexTest is TestCommonFoundry, ERC20Util {
         // add an allowed address
         goodBoys.push(address(59));
         goodBoys.push(address(68));
+        goodBoys.push(user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));

@@ -474,6 +474,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         // add an approved address
         switchToAppAdministrator();
         goodBoys.push(address(59));
+        goodBoys.push(user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.startPrank(user1, user1);
         // This one should pass

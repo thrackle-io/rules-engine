@@ -131,8 +131,9 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
         switchToAppAdministrator();
-        // add an allowed address
+        // add an allowed address(both must be on the list)
         goodBoys.push(randomUser);
+        goodBoys.push(_user1);
         oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(_user1, _user1);

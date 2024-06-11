@@ -290,6 +290,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Burn() public endWithStopPrank {
         _accountApproveDenyOracleSetup(false);
+        switchToAppAdministrator();
+        goodBoys.push(address(user2));
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user2, user2); 
         ERC721Burnable(address(testCaseNFT)).burn(0);
@@ -297,13 +300,19 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Mint() public endWithStopPrank {
         _accountApproveDenyOracleSetup(false);
-        switchToAppAdministrator(); 
+        switchToAppAdministrator();
+        goodBoys.push(address(user2));
+        oracleApproved.addToApprovedList(goodBoys);
         ProtocolERC721(address(testCaseNFT)).safeMint(user2);
     }
 
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Buy() public endWithStopPrank {
         _setUpNFTAMMForRuleChecks();
         _accountApproveDenyOracleSetupNoMints(false);
+        switchToAppAdministrator();
+        goodBoys.push(user);
+        goodBoys.push(address(amm));
+        oracleApproved.addToApprovedList(goodBoys);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -325,6 +334,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Sell() public endWithStopPrank {
         _setUpNFTAMMForRuleChecks();
         _accountApproveDenyOracleSetupNoMints(false);
+        switchToAppAdministrator();
+        goodBoys.push(address(amm));
+        oracleApproved.addToApprovedList(goodBoys);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -2647,8 +2659,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             // add an allowed address
             switchToAppAdministrator();
+            goodBoys.push(address(user1));
             goodBoys.push(address(user2));
-             goodBoys.push(address(user));
+            goodBoys.push(address(user));
             oracleApproved.addToApprovedList(goodBoys);
         }
         vm.startPrank(user1, user1);
