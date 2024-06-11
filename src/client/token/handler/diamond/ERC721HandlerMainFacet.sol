@@ -19,24 +19,23 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
      */
-    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner{
+    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner {
         InitializedS storage ini = lib.initializedStorage();
-        if(ini.initialized) revert AlreadyInitialized();
+        if (ini.initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
-        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
-            revert ZeroAddress();
+        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
         data.lastPossibleAction = 5;
         ini.initialized = true;
-        callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
+        callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)", _assetAddress));
     }
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.
-     * @notice This function is called without passing in an action type. 
+     * @notice This function is called without passing in an action type.
      * @param balanceFrom token balance of sender address
      * @param balanceTo token balance of recipient address
      * @param _from sender address
@@ -45,7 +44,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
      * @param _tokenId id of the NFT being transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _tokenId) external onlyOwner returns (bool) {
         return _checkAllRules(balanceFrom, balanceTo, _from, _to, _sender, _tokenId, ActionTypes.NONE);
     }
 
@@ -61,8 +60,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
      * @return Success equals true if all checks pass
      */
     function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
-        _action = ActionTypes.P2P_TRANSFER;// This hard-coded setting is for the legacy clients. When this is no longer needed, this line can be removed giving clients the option of setting their own action
-        _amount;// legacy parameter
+        _action = ActionTypes.P2P_TRANSFER; // This hard-coded setting is for the legacy clients. When this is no longer needed, this line can be removed giving clients the option of setting their own action
+        _amount; // legacy parameter
         return _checkAllRules(_balanceFrom, _balanceTo, _from, _to, address(0), _tokenId, _action);
     }
 
@@ -77,13 +76,13 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
      * @param _action the client determined action, if NONE then the action is dynamically determined
      * @return true if all checks pass
      */
-    function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId, ActionTypes _action) internal returns (bool) {
+    function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _tokenId, ActionTypes _action) internal returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        
+
         bool isFromTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_from);
         bool isToTreasuryAccount = IAppManager(handlerBaseStorage.appManager).isTreasuryAccount(_to);
         ActionTypes action;
-        if (_action == ActionTypes.NONE){
+        if (_action == ActionTypes.NONE) {
             action = determineTransferAction(_from, _to, _sender);
         } else {
             action = _action;
@@ -91,40 +90,26 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is a Treasury account
         if (!isFromTreasuryAccount && !isToTreasuryAccount) {
-            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
-            callAnotherFacet(
-                0x36bd6ea7, 
-                abi.encodeWithSignature(
-                    "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
-                    balanceFrom, 
-                    balanceTo, 
-                    _from, 
-                    _to, 
-                    _amount, 
-                    action
-                )
+            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(
+                address(msg.sender),
+                _from,
+                _to,
+                _amount,
+                lib.nftValuationLimitStorage().nftValuationLimit,
+                _tokenId,
+                action,
+                HandlerTypes.ERC721HANDLER
             );
-            callAnotherFacet(
-                0x9466093a, 
-                abi.encodeWithSignature(
-                    "checkNonTaggedRules(uint8,address,address,uint256,uint256)",
-                    action,
-                    _from, 
-                    _to, 
-                    _amount, 
-                    _tokenId
-                )
-            );
+            callAnotherFacet(0x36bd6ea7, abi.encodeWithSignature("checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)", balanceFrom, balanceTo, _from, _to, _amount, action));
+            callAnotherFacet(0x9466093a, abi.encodeWithSignature("checkNonTaggedRules(uint8,address,address,uint256,uint256)", action, _from, _to, _amount, _tokenId));
         } else if (isFromTreasuryAccount || isToTreasuryAccount) {
-            emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
+            emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager);
         }
         // if the current action is not a burn and MinHoldTime is active for any action, record ownership
-        if (action != ActionTypes.BURN && lib.tokenMinHoldTimeStorage().anyActionActive) {            
+        if (action != ActionTypes.BURN && lib.tokenMinHoldTimeStorage().anyActionActive) {
             lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         }
 
         return true;
     }
-
-    
 }

@@ -11,7 +11,7 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.s
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
 
-contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, HandlerUtils, HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
+contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize {
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual rule checks.
      * @param _from address of the from account
@@ -21,7 +21,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
      */
     function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external onlyOwner {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        address handlerBase = handlerBaseStorage.ruleProcessor; 
+        address handlerBase = handlerBaseStorage.ruleProcessor;
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) {
             _checkTokenMinTxSizeRule(_amount, action, handlerBase);
         }
@@ -30,12 +30,12 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
             _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
         }
         if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
-            _checkTokenMaxSupplyVolatilityRule(_to, _amount,handlerBase);
+            _checkTokenMaxSupplyVolatilityRule(_to, _amount, handlerBase);
         }
     }
 
     /**
-     * @dev Internal function to check the Token Min Transaction Size rule 
+     * @dev Internal function to check the Token Min Transaction Size rule
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      * @param handlerBase address of the handler proxy
@@ -45,7 +45,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
     }
 
     /**
-     * @dev Internal function to check the Account Approve Deny Oracle Rules 
+     * @dev Internal function to check the Account Approve Deny Oracle Rules
      * @param _from address of the from account
      * @param _to address of the to account
      * @param action if selling or buying (of ActionTypes type)
@@ -55,9 +55,9 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         /// The action type determines if the _to or _from is checked by the oracle
         /// _from address is checked for Burn
-        if (action == ActionTypes.BURN){
+        if (action == ActionTypes.BURN) {
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
-        } else if (action == ActionTypes.MINT){
+        } else if (action == ActionTypes.MINT) {
             /// _to address is checked  for Mint
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         } else {
@@ -68,7 +68,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
     }
 
     /**
-     * @dev Internal function to check the Token Max Trading Volume rule 
+     * @dev Internal function to check the Token Max Trading Volume rule
      * @param _amount number of tokens transferred
      * @param handlerBase address of the handler proxy
      */
@@ -85,7 +85,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
     }
 
     /**
-     * @dev Internal function to check the Token Max Supply Volatility rule 
+     * @dev Internal function to check the Token Max Supply Volatility rule
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      * @param handlerBase address of the handler proxy

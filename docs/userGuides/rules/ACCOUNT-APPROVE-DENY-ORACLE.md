@@ -69,7 +69,9 @@ The rule will be evaluated with the following logic (this logic will be evaluate
 5. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
 - Action types of Mint: check if the receiver address is an approved address. If the address is not on the approved list the transaction will revert. 
 - Action types of Burn: check if the sender is a denied address. If the address is denied the transaction will revert.
-- Action types of Transfer, Sell, Buy: check if the sender or receiver is a denied address. If either address is denied the transaction will revert. 
+- Action types of Transfer, Sell, Buy: 
+    - Deny Oracle: check if the sender or receiver is a denied address. If either address is denied the transaction will revert.
+    - Approve Oracle: check if the sender or receiver is an approved address. If neither address is approved the transaction will revert.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

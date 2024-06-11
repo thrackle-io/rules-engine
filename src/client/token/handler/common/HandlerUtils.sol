@@ -36,7 +36,7 @@ contract HandlerUtils {
                 emit Action(uint8(ActionTypes.BUY));
             }
         } else {
-            // action = ActionTypes.P2P_TRANSFER; default is 0
+            // the default value for the ActionTypes enum is the P2P transfer, so no need to set it here.
             emit Action(uint8(ActionTypes.P2P_TRANSFER));
         }
     }
