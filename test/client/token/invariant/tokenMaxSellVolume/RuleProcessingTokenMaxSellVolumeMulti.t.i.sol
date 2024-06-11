@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingTokenMaxSellVolumeActor} from "./RuleProcessingTokenMaxSellVolumeActor.sol";
 import "./RuleProcessingTokenMaxSellVolumeActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingTokenMaxSellVolumeMultiTest
@@ -12,7 +13,7 @@ import "./RuleProcessingTokenMaxSellVolumeActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single rule
  * is shared by all the applications and tokens in this invariant test.
  */
-contract RuleProcessingTokenMaxSellVolumeMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingTokenMaxSellVolumeMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingTokenMaxSellVolumeActorManager[] actorManagers;
     RuleProcessingTokenMaxSellVolumeActor[][] actors;
     HandlerDiamond[] tokenHandlers;
@@ -53,8 +54,9 @@ contract RuleProcessingTokenMaxSellVolumeMultiTest is RuleProcessingInvariantCom
             /// split loop to avoid stack too deep
             for (uint i; i < AMOUNT_ACTORS; i++) {
                 switchToAppAdministrator();
-                testCoin.mint(address(actors[j][i]), 1_000 * ATTO);
-                vm.startPrank(address(actors[j][i]), address(actors[j][i]));
+                address eoa = _convertActorAddressToEOA(address(actors[j][i]));
+                testCoin.mint(eoa, 1_000 * ATTO);
+                vm.startPrank(eoa, eoa);
                 testCoin.approve(address(amm), 1_000 * ATTO);
             }
             assertEq(testCoin.totalSupply(), TOTAL_SUPPLY);
