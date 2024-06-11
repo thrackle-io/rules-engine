@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/client/token/invariant/util/RuleProcessingInvariantCommon.sol";
 import {RuleProcessingTokenMaxTradingVolumeActor} from "./RuleProcessingTokenMaxTradingVolumeActor.sol";
 import "./RuleProcessingTokenMaxTradingVolumeActorManager.sol";
+import {InvariantUtils} from "test/client/token/invariant/util/InvariantUtils.sol";
 
 /**
  * @title RuleProcessingTokenMaxTradingVolumeMultiTest
@@ -12,7 +13,7 @@ import "./RuleProcessingTokenMaxTradingVolumeActorManager.sol";
  * own application and set of tokens which will be tested through their own set of actors. The same single rule
  * is shared by all the applications and tokens in this invariant test.
  */
-contract RuleProcessingTokenMaxTradingVolumeMultiTest is RuleProcessingInvariantCommon {
+contract RuleProcessingTokenMaxTradingVolumeMultiTest is RuleProcessingInvariantCommon, InvariantUtils {
     RuleProcessingTokenMaxTradingVolumeActorManager[] actorManagers;
     RuleProcessingTokenMaxTradingVolumeActor[][] actors;
     HandlerDiamond[] tokenHandlers;
