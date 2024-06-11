@@ -1,5 +1,5 @@
 # ApplicationERC20UMin
-[Git Source](https://github.com/thrackle-io/tron/blob/bcd51b65303028319f618c7ac3ded4f0d5f7d964/src/example/ERC20/upgradeable/ApplicationERC20UMin.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/50727ee9211084f05b8690e3435981873338f44e/src/example/ERC20/upgradeable/ApplicationERC20UMin.sol)
 
 **Inherits:**
 [ProtocolERC20UMin](/src/client/token/ERC20/upgradeable/ProtocolERC20UMin.sol/contract.ProtocolERC20UMin.md)
@@ -12,7 +12,7 @@
 
 
 ```solidity
-function initialize(string memory _name, string memory _symbol, address appManagerAddress) public initializer;
+function initialize(string memory _name, string memory _symbol, address _appManagerAddress) public initializer;
 ```
 **Parameters**
 
@@ -20,7 +20,7 @@ function initialize(string memory _name, string memory _symbol, address appManag
 |----|----|-----------|
 |`_name`|`string`|Name of the token|
 |`_symbol`|`string`|Symbol of the token|
-|`appManagerAddress`|`address`|Address of App Manager|
+|`_appManagerAddress`|`address`|Address of App Manager|
 
 
 ### mint
