@@ -91,6 +91,8 @@ contract ProtocolApplicationHandler is
 
     /**
      * @dev Check Application Rules for valid transaction.
+     * @param _tokenAddress address of the token
+     * @param _sender address of the calling account passed through from the token 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount amount of tokens to be transferred
@@ -101,6 +103,7 @@ contract ProtocolApplicationHandler is
      */
     function checkApplicationRules(
         address _tokenAddress,
+        address _sender,
         address _from,
         address _to,
         uint256 _amount,
@@ -125,10 +128,10 @@ contract ProtocolApplicationHandler is
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
         if (accountMaxValueByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active) {
-            _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation, _action);
+            _checkAccessLevelRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
         }
         if (accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active) {
-            _checkRiskRules(_from, _to, balanceValuation, transferValuation, _action);
+            _checkRiskRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
         }
     }
 
@@ -136,11 +139,12 @@ contract ProtocolApplicationHandler is
      * @dev This function consolidates all the Risk rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
+     * @param _sender address of the caller
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      * @param _action the current user action
      */
-    function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
+    function _checkRiskRules(address _from, address _to, address _sender, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountMaxValueByRiskScore[_action].active) {
@@ -150,51 +154,48 @@ contract ProtocolApplicationHandler is
             if (_action == ActionTypes.P2P_TRANSFER) {
                 _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
-            }
-            if (_action == ActionTypes.MINT) {
-                _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
-            }
-            if (_action == ActionTypes.BURN) {
-                _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
-            }
-            if (_action == ActionTypes.BUY) {
-                /// If the msg.snder is a contract, we check both _to and _from addresses for non custodial markteplace transfers 
-                if (isContract(msg.sender)){
-                    _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+            } else if (_action == ActionTypes.BUY || _action == ActionTypes.SELL) {
+                if (isContract(_sender)){
+                    _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
                     _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
-                }
-                /// Otherwise check _to address
+                } else {
+                    _checkAccountMaxTxValueByRiskScore(_action, (_action == ActionTypes.BUY ? _to : _from), (_action == ActionTypes.BUY ? riskScoreTo : riskScoreFrom), _transferValuation);
+                } 
+            } else if (_action == ActionTypes.MINT) {
                 _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
-            }
-            if (_action == ActionTypes.SELL) {
-                /// If the msg.snder is a contract, we check both _to and _from addresses for non custodial markteplace transfers
-                if (isContract(msg.sender)){
-                    _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
-                    _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
-                }
-                /// Otherwise check _to address
+            } else if (_action == ActionTypes.BURN) {
                 _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
-            }
+            } 
         }
     }
 
     /**
      * @dev This function consolidates all the Access Level rule checks.
+     * @param _from address of the from account
      * @param _to address of the to account
+     * @param _sender address of the to caller
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      * @param _action the current user action
      */
-    function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
+    function _checkAccessLevelRules(address _from, address _to, address _sender, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
         if (accountDenyForNoAccessLevel[_action].active) {
-            if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-            if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
             if (_action == ActionTypes.P2P_TRANSFER) {
                 ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-            }
+            } else if (_action == ActionTypes.BUY || _action == ActionTypes.SELL ) {
+                if (isContract(_sender)){
+                    ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+                    ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                } else {
+                    ruleProcessor.checkAccountDenyForNoAccessLevel((_action == ActionTypes.BUY ? score : fromScore));
+                }
+            } else if (_action == ActionTypes.MINT) {
+                ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+            } else if (_action == ActionTypes.BURN) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            
         }
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
@@ -786,7 +787,7 @@ contract ProtocolApplicationHandler is
     /**
      * @dev Check if the addresss is a contract
      * @param account address to check
-     * @return contract yes/no
+     * @return bool
      */
     function isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize/address.code.length, which returns 0
