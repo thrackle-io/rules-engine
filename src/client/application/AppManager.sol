@@ -608,6 +608,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     /**
      * @dev Check Application Rules for valid transactions.
      * @param _tokenAddress address of the token calling the rule check
+     * @param _sender address of the calling account passed through from the token 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens to be transferred
@@ -618,6 +619,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      */
     function checkApplicationRules(
         address _tokenAddress,
+        address _sender,
         address _from,
         address _to,
         uint256 _amount,
@@ -627,7 +629,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         HandlerTypes _handlerType
     ) external onlyHandler {
         if (applicationHandler.requireApplicationRulesChecked(_action)) {
-            applicationHandler.checkApplicationRules(_tokenAddress, _from, _to, _amount, _nftValuationLimit, _tokenId, _action, _handlerType);
+            applicationHandler.checkApplicationRules(_tokenAddress, _sender, _from, _to, _amount, _nftValuationLimit, _tokenId, _action, _handlerType);
         }
     }
 

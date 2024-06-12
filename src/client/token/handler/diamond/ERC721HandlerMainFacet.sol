@@ -92,6 +92,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         if (!isFromTreasuryAccount && !isToTreasuryAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(
                 address(msg.sender),
+                address(_sender),
                 _from,
                 _to,
                 _amount,
