@@ -44,7 +44,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     // If isRegisteredHandler returns false for an address, calling checkApplicationRules from the address will result in the transaction being reverted.
     function invariant_CheckApplicationRulesOnlyRegisteredHandler() public {
         vm.expectRevert(abi.encodeWithSignature("NotRegisteredHandler(address)", address(this)));
-        applicationAppManager.checkApplicationRules(msgSender, user, user, 1, 15, 0, ActionTypes.BURN, HandlerTypes.ERC721HANDLER);
+        applicationAppManager.checkApplicationRules(msgSender, msgSender, user, user, 1, 15, 0, ActionTypes.BURN, HandlerTypes.ERC721HANDLER);
     }
 
     // If registerToken is called with an address of 0 the transaction will be reverted.
