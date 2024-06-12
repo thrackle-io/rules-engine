@@ -32,9 +32,27 @@ forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_R
 forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 sh script/ParseApplicationDeploy.sh 1 --chainid $CHAIN_ID
-forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-sh script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
-forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+echo "Do you already have an ERC20 deployed (y or n)?"
+read DEPLOYED
+DEPLOYED=$(echo "$DEPLOYED" | tr '[:upper:]' '[:lower:]')  
+while [ "y" != "$DEPLOYED" ] && [ "n" != "$DEPLOYED" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you already have an ERC20 deployed (y or n)?"
+  read DEPLOYED
+  DEPLOYED=$(echo "$DEPLOYED" | tr '[:upper:]' '[:lower:]')  
+done
+if [ "$DEPLOYED" = "y" ]; then
+    forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+else 
+    forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    sh script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
+    forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+fi
+
+forge script script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+sh script/ParseApplicationDeploy.sh 6 --chainid $CHAIN_ID
+forge script script/clientScripts/Application_Deploy_03_ApplicationFT2Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID

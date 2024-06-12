@@ -62,6 +62,16 @@ contract DiamondScriptUtil is Script {
         vm.ffi(setENVInput);
     }
 
+    function setENVAddress(string memory variable, string memory value) internal {
+        /// we clear the value of the RULE_PROCESSOR_DIAMOND in the env file
+        string[] memory setENVInput = new string[](4);
+        setENVInput[0] = "python3";
+        setENVInput[1] = "script/python/set_env_address.py";
+        setENVInput[2] = variable;
+        setENVInput[3] = value;
+        vm.ffi(setENVInput);
+    }
+
     function replace(string memory subject, string memory search, string memory replacement)
         internal
         pure
