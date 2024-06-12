@@ -151,10 +151,28 @@ contract ProtocolApplicationHandler is
                 _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
             }
-            if (_action == ActionTypes.MINT || _action == ActionTypes.BUY) {
+            if (_action == ActionTypes.MINT) {
                 _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
             }
-            if (_action == ActionTypes.BURN || _action == ActionTypes.SELL) {
+            if (_action == ActionTypes.BURN) {
+                _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
+            }
+            if (_action == ActionTypes.BUY) {
+                /// If the msg.snder is a contract, we check both _to and _from addresses for non custodial markteplace transfers 
+                if (isContract(msg.sender)){
+                    _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+                    _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
+                }
+                /// Otherwise check _to address
+                _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
+            }
+            if (_action == ActionTypes.SELL) {
+                /// If the msg.snder is a contract, we check both _to and _from addresses for non custodial markteplace transfers
+                if (isContract(msg.sender)){
+                    _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+                    _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
+                }
+                /// Otherwise check _to address
                 _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
             }
         }
@@ -763,5 +781,17 @@ contract ProtocolApplicationHandler is
      */
     function version() external pure returns (string memory) {
         return VERSION;
+    }
+
+    /**
+     * @dev Check if the addresss is a contract
+     * @param account address to check
+     * @return contract yes/no
+     */
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
+        return account.code.length > 0;
     }
 }
