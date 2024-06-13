@@ -20,11 +20,11 @@ The protocol defines a peer to peer transfer as any transfer that does not meet 
 
 ## BUY
 
-The protocol defines a buy as as any transfer where the from address is a contract, the originating sender equals the from address, to address is not the zero address, and from address is not the zero address. 
+The protocol defines a buy as as any transfer where the from address is a contract, the originating sender equals the from address, to address is not the zero address, and from address is not the zero address. Please note that within this action, there are two different common techniques: custodial style and non-custodial style. Non-custodial style, like OpenSea, uses a contract to perform the trade, but the token is transferferred directly from the buyer and seller. Custodial style, like NFT AMM's, uses a contract to perform the trade, but the marketplace(or pool) owns the token to purchase so it is transferred directly from the marketplace(or pool) contract. 
 
 ## SELL
 
-The protocol defines a sell as any transfer where the originating sender is not the from address, to address is not the zero address, and from address is not the zero address.
+The protocol defines a sell as any transfer where the originating sender is not the from address, to address is not the zero address, and from address is not the zero address. Please note that within this action, there are two different common techniques: custodial style and non-custodial style. Non-custodial style, like OpenSea, uses a contract to perform the trade, but the token is transferferred directly from the buyer and seller. Custodial style, like NFT AMM's, use a contract to perform the trade, but the marketplace(or pool) owns the token to sell so it is transferred directly to the marketplace(or pool) contract. 
 
 ## MINT
 

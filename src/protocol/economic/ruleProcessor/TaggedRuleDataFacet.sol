@@ -114,7 +114,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         // slither-disable-next-line timestamp
         if (_startTime == 0) _startTime = uint64(block.timestamp);
         for (uint256 i; i < _accountTypes.length; ++i) {
-            if (_min[i] == 0 || _max[i] == 0) revert ZeroValueNotPermited();
             if (_min[i] > _max[i]) revert InvertedLimits();
             if (_periods.length > 0 && _periods[i] == 0) revert CantMixPeriodicAndNonPeriodic();
             data.accountMinMaxTokenBalanceRules[index][_accountTypes[i]] = TaggedRules.AccountMinMaxTokenBalance(_min[i], _max[i], _periods.length == 0 ? 0 : _periods[i]);

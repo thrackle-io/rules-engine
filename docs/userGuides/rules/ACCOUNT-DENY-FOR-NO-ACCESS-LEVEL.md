@@ -41,10 +41,27 @@ bool private accountDenyForNoAccessLevelRuleActive;
 The rule will be evaluated with the following logic:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
-2. The application manager sends to the protocol's rule processor the the access level of the `to` account in the transaction.
-3. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
-4. The application manager sends to the procotol's rule processor the access level of the `from` account in the transaction.
-5. The processor checks that the access level is greater than 0. If the access level is equal to zero, then the transaction reverts.
+2. Rule processing differs for each [ACTION_TYPE](./ACTION-TYPES.md)
+   1. [Mint](./ACTION-TYPES.md#mint)
+      1. Check that the mint recipient address's access level is greater than 0.
+   2. [Burn](./ACTION-TYPES.md#burn) 
+      1. Check that the burning address's access level is greater than 0.
+   3. [Peer To Peer Transfer](./ACTION-TYPES.md#p2p_transfer)
+      1. Check that the sender address's access level is greater than 0.
+      2. Check the recipient address's access level is greater than 0.
+   4. [Buy](./ACTION-TYPES.md#buy) 
+      1. For non-custodial style buys:
+         1. Check the buyer address's access level is greater than 0.
+         2. When the [Sell](./ACTION-TYPES.md#sell) action is also active, check that the seller address's access level is greater than 0.
+      2. For custodial style buys:
+         1. Check the buyer address's access level is greater than 0. 
+   5. [Sell](./ACTION-TYPES.md#sell) 
+      1.  For non-custodial style sells:
+         1. Check the seller address's access level is greater than 0.
+         2. When the [Buy](./ACTION-TYPES.md#buy) action is also active, check that the buyer address's access level is greater than 0.
+      2. For custodial style sells:
+         1. Check the seller address's access level is greater than 0.    
+3. If the pertinent check fails, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccountDenyForNoAccessLevel*
 

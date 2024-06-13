@@ -78,7 +78,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
      * @param _actions the action type
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function activateTokenMinTxSize(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ++i) {
             lib.tokenMinTxSizeStorage().tokenMinTxSize[_actions[i]].active = _on;
         }
