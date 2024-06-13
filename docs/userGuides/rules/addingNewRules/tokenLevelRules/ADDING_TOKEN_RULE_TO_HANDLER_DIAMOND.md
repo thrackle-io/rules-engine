@@ -41,7 +41,7 @@ The following function uses the ruleId we received when we created the instance 
 The following function is used to activate/deactivate the instance of the rule that's already set in the diamond for the list of passed in actions:
 
 ```c
-    function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
+    function activateTokenMinTxSize(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
 ```
 
 The following function is used to retrieve the rule id for the Minimum Transaction Size Rule currently set on the diamond (for the specified action):

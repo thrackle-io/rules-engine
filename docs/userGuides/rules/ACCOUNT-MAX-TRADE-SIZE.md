@@ -87,18 +87,41 @@ The rule will be evaluated with the following logic:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The token handler decides if the transfer is a Purchase or a Sell (user perspective). If it is, it continues with the next steps.
-3. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
-4. The processor receives these tags along with the ID of the account-max-trade-size rule set in the token handler for the determined action type. 
-5. The processor retrieves the sub-rule associated with each tag.
-6. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative value.
-7. The processor evaluates whether the current time is within a new period.
-   -If it is a new period and action type is buy, the processor sets the cumulative buys to the current buy amount.
-   -If it is not a new period, the processor adds the current buy amount to the accrued buy amount for the rule period. 
-   -If it is a new period and the action type is sell, the processor sets the cumulative sells to the current sell amount.
-   -If it is not a new period, the processor adds the current sell amount to the accrued sell amount for the rule period. 
-8. The processor checks if the cumulative amount is greater than the `maxSize` defined in the rule. If true, the transaction reverts.
-9. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
-10. Returns the cumulative amount.
+3. Rule processing differs for the buy/sell type:
+   1. [Buy](./ACTION-TYPES.md#buy) 
+      1. For non-custodial style buys:
+         1. Check the buyer address's access level is greater than 0.
+         2. Check that the seller address's access level is greater than 0.
+      2. For custodial style buys:
+         1. Check the buyer address's access level is greater than 0. 
+   2. [Sell](./ACTION-TYPES.md#sell) 
+      1.  For non-custodial style sells:
+         1. Check the seller address's access level is greater than 0.
+         2. Check that the buyer address's access level is greater than 0.
+      2. For custodial style sells:
+         1. Check the seller address's access level is greater than 0. 
+4. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
+5. The processor receives these tags along with the ID of the account-max-trade-size rule set in the token handler for the determined action type. 
+6. The processor retrieves the sub-rule associated with each tag.
+7. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative value.
+8. The processor evaluates whether the current time is within a new period.
+   1. If it is a new period, the processor sets the cumulative buys/sells to the current buy amount.
+   2. If it is not a new period, the processor adds the current buy/sell amount to the accrued buy amount for the rule period.
+   3. If it's a [Buy](./ACTION-TYPES.md#buy) 
+      1. For non-custodial style buys:
+         1. Check the cumulative buy amount is greater than `maxSize` defined in the rule.
+         2. When the [Sell](./ACTION-TYPES.md#sell) action is also active, check the cumulative sell amount is greater than `maxSize` defined in the rule.
+      2. For custodial style buys:
+         1. Check the cumulative buy amount is greater than `maxSize` defined in the rule.
+   4. If it's a [Sell](./ACTION-TYPES.md#sell) 
+      1. For non-custodial style sells:
+         1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, Check the cumulative buy amount is greater than `maxSize` defined in the rule.
+         2. Check the cumulative sell amount is greater than `maxSize` defined in the rule.
+      2. For custodial style sells:
+         1. Check the cumulative sell amount is greater than `maxSize` defined in the rule.  
+9.  The processor checks if the cumulative amount is greater than the `maxSize` defined in the rule. If true, the transaction reverts.
+10. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
+11. Returns the cumulative amount.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

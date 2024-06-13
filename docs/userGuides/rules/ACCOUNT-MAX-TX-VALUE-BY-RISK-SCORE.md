@@ -91,6 +91,10 @@ The rule will be evaluated with the following logic:
     - **If it is a new period, or no period enabled**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
 5. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
+6. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 1-5 for from address.
+7. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 1-5 for to address.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
