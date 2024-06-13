@@ -179,7 +179,7 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isAccountAllowDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool);
+        function isAccountApproveDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool);
         ```
     - Function to get the rule Ids for the supplied action from an asset handler:
         ```c
