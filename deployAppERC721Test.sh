@@ -41,6 +41,7 @@ if [[ -z $RPC_URL ]]; then
 fi
 
 # prompt for APPLICATION_ERC721_ADDRESS_1 address if it's blank
+echo $APPLICATION_ERC721_ADDRESS_1
 if [[ -z "$APPLICATION_ERC721_ADDRESS_1" ]]; then
   while true; do
     promptForInput "APPLICATION_ERC721_ADDRESS_1"
@@ -56,7 +57,7 @@ if [[ -z "$APPLICATION_ERC721_ADDRESS_1" ]]; then
 fi
 
 ###########################################################
-echo "...Checking to make sure it is deployed..."
+echo "...Checking to make sure ERC721 is deployed..."
 if [ $RPC_URL == "local" ]; then
   cast call $APPLICATION_ERC721_ADDRESS_1 "getHandlerAddress()(address)" 1> /dev/null
 else
@@ -110,7 +111,7 @@ fi
 
 echo "...Checking to make sure the pricing modules are set within the ERC721's Handler..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)')  
+  APP_MANAGER=$(cast call $HANDLER_ERC721 'getAppManagerAddress()(address)')  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)')
   HANDLER_PRICER=$(cast call $APP_HANDLER 'nftPricingAddress()(address)')  
 else
@@ -159,5 +160,5 @@ else
 fi
 
 # This line will only be reached if all the commands above succeed
-echo -e "$GREEN SUCCESS$NC - AppManager is successfully deployed and configured"
+echo -e "$GREEN SUCCESS$NC - Protocol Supported ERC721 is successfully deployed and configured"
 exit 0

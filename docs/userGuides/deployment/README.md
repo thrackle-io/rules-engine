@@ -3,7 +3,7 @@
 This is a step-by-step guide to protocol and protocol supported application deployments. This guide is broken down into modules to make it easier to follow and is listed in the proper deployment order. Please review overall [documentation](../README.md) and deployment information prior to running individual deployment scripts. A [demo](./DEPLOY-DEMO.md) has also been provided which deploys the protocol and a fully configured example application.
 
 1. Deploy the protocol if it doesn't exist yet. Go to [Deploy Protocol](DEPLOY-PROTOCOL.md).
-2. Then, deploy your Application Manager. Go to [Deploy Appmanager](DEPLOY-APPMANAGER.md).
+2. Then, deploy your Application Manager. Go to [Deploy Application Manager](DEPLOY-APPMANAGER.md).
 3. Optionally, setup the pricing module for your application. Go to [Deploy Pricing](../pricing/DEPLOY-PRICING.md).
 4. Now you can start deploying your application tokens. Go to [Deploy Tokens and Token Handlers](./DEPLOY-TOKENS-AND-TOKEN-HANDLERS.md).
 5. Once you have your application and your tokens deployed, you can start creating and applying rules to your application and tokens. Go to [Create App Rules](../rules/CREATE-APP-RULES.md) and [Create NFT Rules](CREATE-NFT-RULES.md).

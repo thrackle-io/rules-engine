@@ -12,6 +12,8 @@ source .venv/bin/activate
 test_commands=(
   "forge test --ffi -vv --match-contract RuleProcessorDiamondTest"
   "forge test --ffi -vv --match-contract ApplicationDeploymentTest"
+  "bash deployProtocolTest.sh"
+  "bash deployAppManagerTest.sh"
   "bash deployAppERC20Test.sh"
   "bash deployAppERC721Test.sh"
   "node abi-aggregator.mjs --branch \"$GITHUB_BRANCH_NAME\""

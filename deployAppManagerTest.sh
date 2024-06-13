@@ -9,7 +9,7 @@ promptForInput() {
 }
 
 # Get the environment variables
-source .env.deployTest
+source .env
 # Set the colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,8 +18,11 @@ NC='\033[0m' # No Color
 
 ./foundry-version-check.sh
 
+if [ -n $FOUNDRY_PROFILE ]; then
+  RPC_URL="local"
+fi
 ##### VALIDATE and RETRIEVE Entry variables
-
+echo $RPC_URL
 # prompt for rpc-url if it's blank
 if test -z "$RPC_URL"; then
 while true; do
@@ -37,13 +40,14 @@ done
 fi
 
 # prompt for processor address if it's blank
-if test -z "$PROCESSOR_ADDRESS"; then
+echo $RULE_PROCESSOR_DIAMOND
+if test -z "$RULE_PROCESSOR_DIAMOND"; then
 while true; do
-  promptForInput "PROCESSOR_ADDRESS"
+  promptForInput "RULE_PROCESSOR_DIAMOND"
 
   if test -z "$var1"
   then    
-    printf "PROCESSOR_ADDRESS cannot be blank\n"
+    printf "RULE_PROCESSOR_DIAMOND cannot be blank\n"
   else
     PROCESSOR_ADDRESS="$var1"
     break
@@ -51,16 +55,17 @@ while true; do
 done
 fi
 
-# prompt for APP_MANAGER address if it's blank
-if test -z "$APP_MANAGER"; then
+# prompt for APPLICATION_APP_MANAGER address if it's blank
+echo $APPLICATION_APP_MANAGER
+if test -z "$APPLICATION_APP_MANAGER"; then
 while true; do
-  promptForInput "APP_MANAGER"
+  promptForInput "APPLICATION_APP_MANAGER"
 
   if test -z "$var1"
   then    
-    printf "APP_MANAGER cannot be blank\n"
+    printf "APPLICATION_APP_MANAGER cannot be blank\n"
   else
-    APP_MANAGER="$var1"
+    APPLICATION_APP_MANAGER="$var1"
     break
   fi
 done
@@ -69,9 +74,9 @@ fi
 ###########################################################
 echo "...Checking to make sure AppManager is deployed"
 if [ $RPC_URL == "local" ]; then
-  cast call $APP_MANAGER "version()(string)" 1> /dev/null
+  cast call $APPLICATION_APP_MANAGER "version()(string)" 1> /dev/null
 else
-  cast call $APP_MANAGER "version()(string)" --rpc-url $RPC_URL 1> /dev/null
+  cast call $APPLICATION_APP_MANAGER "version()(string)" --rpc-url $RPC_URL 1> /dev/null
 fi
 ret_code=$?
 if [ $ret_code == 1 ]; then
@@ -86,14 +91,14 @@ fi
 
 echo "...Checking to make sure the AppManager has a handler"
 if [ $RPC_URL == "local" ]; then
-  HANDLER=$(cast call $APP_MANAGER 'applicationHandler()(address)')  
+  HANDLER=$(cast call $APPLICATION_APP_MANAGER 'applicationHandler()(address)')  
 else
-  HANDLER=$(cast call $APP_MANAGER 'applicationHandler()(address)' --rpc-url $RPC_URL) 
+  HANDLER=$(cast call $APPLICATION_APP_MANAGER 'applicationHandler()(address)' --rpc-url $RPC_URL) 
 fi
 if test -z "$HANDLER"; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - No ApplicationHandler set in AppManager: "
-    TEXT+=$APP_MANAGER
+    TEXT+=$APPLICATION_APP_MANAGER
     echo -e $TEXT
     exit 1
 else
@@ -102,14 +107,16 @@ fi
 
 echo "...Checking to make sure the handler is connected back to the AppManager"
 if [ $RPC_URL == "local" ]; then
-  HANDLER_APP_MANAGER=$(cast call $HANDLER 'appManagerAddress()(address)')  
+  HANDLER_APPLICATION_APP_MANAGER=$(cast call $HANDLER 'appManagerAddress()(address)')  
 else
-  HANDLER_APP_MANAGER=$(cast call $HANDLER 'appManagerAddress()(address)' --rpc-url $RPC_URL) 
+  HANDLER_APPLICATION_APP_MANAGER=$(cast call $HANDLER 'appManagerAddress()(address)' --rpc-url $RPC_URL) 
 fi
-if [ "$HANDLER_APP_MANAGER" != "$APP_MANAGER" ]; then
+COMP_HANDLER_APPLICATION_APP_MANAGER=$(echo "$HANDLER_APPLICATION_APP_MANAGER" | tr '[:lower:]' '[:upper:]')
+COMP_APPLICATION_APP_MANAGER=$(echo "$APPLICATION_APP_MANAGER" | tr '[:lower:]' '[:upper:]')
+if [ "$COMP_HANDLER_APPLICATION_APP_MANAGER" != "$COMP_APPLICATION_APP_MANAGER" ]; then
     echo -e "$RED                 FAIL $NC"
     TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct AppManager. Create a new ApplicationHandler and connect it to AppManager: " 
-    TEXT+=$APP_MANAGER
+    TEXT+=$COMP_APPLICATION_APP_MANAGER
     echo -e $TEXT
     exit 1
 else

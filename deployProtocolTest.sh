@@ -9,7 +9,7 @@ promptForInput() {
 }
 
 # Get the environment variables
-source .env.deployTest
+source .env
 # Set the colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,9 +18,14 @@ NC='\033[0m' # No Color
 
 ./foundry-version-check.sh
 
+if [ -n $FOUNDRY_PROFILE ]; then
+  RPC_URL="local"
+fi
+
 ##### VALIDATE and RETRIEVE Entry variables
 
 # prompt for rpc-url if it's blank
+echo $RPC_URL
 if test -z "$RPC_URL"; then
 while true; do
   promptForInput "RPC_URL"
@@ -37,15 +42,16 @@ done
 fi
 
 # prompt for processor address if it's blank
-if test -z "$PROCESSOR_ADDRESS"; then
+echo $RULE_PROCESSOR_DIAMOND
+if test -z "$RULE_PROCESSOR_DIAMOND"; then
 while true; do
-  promptForInput "PROCESSOR_ADDRESS"
+  promptForInput "RULE_PROCESSOR_DIAMOND"
 
   if test -z "$var1"
   then    
-    printf "PROCESSOR_ADDRESS cannot be blank\n"
+    printf "RULE_PROCESSOR_DIAMOND cannot be blank\n"
   else
-    PROCESSOR_ADDRESS="$var1"
+    RULE_PROCESSOR_DIAMOND="$var1"
     break
   fi
 done
@@ -54,9 +60,9 @@ fi
 ###########################################################
 echo "...Check to make sure the rule processor diamond is deployed and functional..."
 if [ $RPC_URL == "local" ]; then
-  cast call $PROCESSOR_ADDRESS "version()(string)" 1> /dev/null
+  cast call $RULE_PROCESSOR_DIAMOND "version()(string)" 1> /dev/null
 else
-  cast call $PROCESSOR_ADDRESS "version()(string)"  --rpc-url $RPC_URL 1> /dev/null
+  cast call $RULE_PROCESSOR_DIAMOND "version()(string)"  --rpc-url $RPC_URL 1> /dev/null
 fi
 ret_code=$?
 if [ $ret_code == 1 ]; then
