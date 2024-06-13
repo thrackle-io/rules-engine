@@ -950,7 +950,6 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _accountDenyForNoAccessLevelInNFTSetup();
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user, 1);
-        applicationAppManager.addAccessLevel(address(amm), 4);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -3243,10 +3242,10 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ERC721TaggedRuleFacet erc721TaggedTestFacet = new ERC721TaggedRuleFacet(); 
         switchToUser();
         vm.expectRevert("UNAUTHORIZED");
-        erc721TaggedTestFacet.checkTaggedAndTradingRules(10, 10, user1, user, 10, ActionTypes.P2P_TRANSFER);
+        erc721TaggedTestFacet.checkTaggedAndTradingRules(10, 10, user1, user, user, 10, ActionTypes.P2P_TRANSFER);
         /// test that users cannot call the facets directly through the proxy address 
         vm.expectRevert("UNAUTHORIZED");
-        ERC721TaggedRuleFacet(address(applicationNFTHandler)).checkTaggedAndTradingRules(10, 10, user1, user, 10, ActionTypes.P2P_TRANSFER);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).checkTaggedAndTradingRules(10, 10, user1, user, user, 10, ActionTypes.P2P_TRANSFER);
     }
 
     function testERC721_ERC721CommonTests_FacetOwnershipModifiers_TradingRulesFacet_Negative() public {

@@ -185,14 +185,14 @@ contract ProtocolApplicationHandler is
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         } else if (_action == ActionTypes.BUY) {
-            if (isContract(_sender)){
+            if (isContract(_sender) && _to == _sender){
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
                 if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
             } else {
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
         } else if (_action == ActionTypes.SELL ) {
-            if (isContract(_sender)){
+            if (isContract(_sender) && _from == _sender){
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             } else {

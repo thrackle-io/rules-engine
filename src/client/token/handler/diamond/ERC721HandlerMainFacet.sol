@@ -92,7 +92,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
         if (!isFromTreasuryAccount && !isToTreasuryAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(
                 address(msg.sender),
-                address(_sender),
+                _sender,
                 _from,
                 _to,
                 _amount,
@@ -101,7 +101,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
                 action,
                 HandlerTypes.ERC721HANDLER
             );
-            callAnotherFacet(0x36bd6ea7, abi.encodeWithSignature("checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)", balanceFrom, balanceTo, _from, _to, _amount, action));
+            callAnotherFacet(0xcf2eaa37, abi.encodeWithSignature("checkTaggedAndTradingRules(uint256,uint256,address,address,address,uint256,uint8)", balanceFrom, balanceTo, _from, _to, _sender, _amount, action));
             callAnotherFacet(0x9466093a, abi.encodeWithSignature("checkNonTaggedRules(uint8,address,address,uint256,uint256)", action, _from, _to, _amount, _tokenId));
         } else if (isFromTreasuryAccount || isToTreasuryAccount) {
             emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager);
