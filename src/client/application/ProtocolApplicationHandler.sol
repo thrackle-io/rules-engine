@@ -181,22 +181,29 @@ contract ProtocolApplicationHandler is
     function _checkAccessLevelRules(address _from, address _to, address _sender, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (accountDenyForNoAccessLevel[_action].active) {
-            if (_action == ActionTypes.P2P_TRANSFER) {
-                ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-                ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-            } else if (_action == ActionTypes.BUY || _action == ActionTypes.SELL ) {
-                if (isContract(_sender)){
-                    ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-                    ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-                } else {
-                    ruleProcessor.checkAccountDenyForNoAccessLevel((_action == ActionTypes.BUY ? score : fromScore));
-                }
-            } else if (_action == ActionTypes.MINT) {
-                ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-            } else if (_action == ActionTypes.BURN) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-            
+        if (_action == ActionTypes.P2P_TRANSFER) {
+            if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+        } else if (_action == ActionTypes.BUY) {
+            if (isContract(_sender)){
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+                if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            } else {
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+            }
+        } else if (_action == ActionTypes.SELL ) {
+            if (isContract(_sender)){
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+            } else {
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            }
+        } else if (_action == ActionTypes.MINT) {
+            if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+        } else if (_action == ActionTypes.BURN) {
+            if (accountDenyForNoAccessLevel[_action].active)ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         }
+
         if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
         if (accountMaxValueOutByAccessLevel[_action].active) {
