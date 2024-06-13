@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "src/client/token/handler/common/HandlerUtils.sol";
 import "src/client/token/handler/ruleContracts/HandlerBase.sol";
 import "src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol";
@@ -86,16 +85,17 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
         }
         /// standard rules do not apply when either to or from is a treasury account
         if (!isFromTreasuryAccount && !isToTreasuryAccount) {
-            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
+            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _sender, _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
             callAnotherFacet(
-                // function selector is for checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)
-                0x36bd6ea7, 
+                // function selector is for checkTaggedAndTradingRules(uint256,uint256,address,address,address,uint256,uint8)
+                0xcf2eaa37, 
                 abi.encodeWithSignature(
-                    "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
+                    "checkTaggedAndTradingRules(uint256,uint256,address,address,address,uint256,uint8)",
                     balanceFrom, 
                     balanceTo, 
                     _from, 
                     _to, 
+                    _sender,
                     _amount, 
                     action
                 )
