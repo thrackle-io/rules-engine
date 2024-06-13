@@ -2778,7 +2778,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         ERC20TaggedRuleFacet erc20TaggedTestFacet = new ERC20TaggedRuleFacet(); 
         switchToUser();
         vm.expectRevert("UNAUTHORIZED");
-        erc20TaggedTestFacet.checkTaggedAndTradingRules(10, 10, user1, user, 10, ActionTypes.P2P_TRANSFER);
+        erc20TaggedTestFacet.checkTaggedAndTradingRules(10, 10, user1, user, user, 10, ActionTypes.P2P_TRANSFER);
         /// test that users cannot call the facets directly through the proxy address 
         vm.expectRevert("UNAUTHORIZED");
         ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).checkNonTaggedRules(user1, user, 10, ActionTypes.P2P_TRANSFER);
