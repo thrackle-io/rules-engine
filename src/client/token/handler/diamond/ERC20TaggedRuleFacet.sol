@@ -54,19 +54,19 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, HandlerUtils,
             /// check both _from and _to addresses and their tags for transfer action types. Check both Min and Max Token Balance
             if (accountMinMaxTokenBalance[action].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
         } else if (action == ActionTypes.BUY) {
-            if (isContract(_sender)) {
+            if (isContract(_sender) && _from != _sender){ /// non custodial buy 
                 if (accountMinMaxTokenBalance[action].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[action].ruleId);
                 /// switch action to SELL to check other side of non custodial trades 
                 if (accountMinMaxTokenBalance[ActionTypes.SELL].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[ActionTypes.SELL].ruleId);
-            } else {
+            } else { /// custodial buy 
                 if (accountMinMaxTokenBalance[action].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[action].ruleId);
             }
         } else if (action == ActionTypes.SELL) {
-            if (isContract(_sender)) {
+            if (isContract(_sender)&& _to != _sender){ /// non custodial sell 
                 if (accountMinMaxTokenBalance[action].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
                 /// switch action to BUY to check other side of non custodial trades 
                 if (accountMinMaxTokenBalance[ActionTypes.BUY].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMaxTokenBalance(_balanceTo, toTags, _amount, accountMinMaxTokenBalance[ActionTypes.BUY].ruleId);
-            } else {
+            } else { /// custodial sell
                 if (accountMinMaxTokenBalance[action].active) IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinTokenBalance(_balanceFrom, fromTags, _amount, accountMinMaxTokenBalance[action].ruleId);
             }
         } else if (action == ActionTypes.MINT) {
