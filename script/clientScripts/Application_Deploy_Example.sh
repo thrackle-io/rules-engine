@@ -20,11 +20,14 @@ echo Please enter RPC URL
 read ETH_RPC_URL
 echo Please enter the chain id
 read CHAIN_ID
+echo "Is this deployment local? (y or n)"
+read LOCAL
 echo Please enter the gas price
 read GAS_NUMBER
 
-
-sh script/SetupProtocolDeploy.sh --chainid $CHAIN_ID
+if [ "$LOCAL" = "y" ]; then
+  sh script/SetupProtocolDeploy.sh --chainid $CHAIN_ID
+fi
 forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 sh script/ParseProtocolDeploy.sh --chainid $CHAIN_ID
 forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
