@@ -2786,9 +2786,9 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         TradingRuleFacet tradeRuleTestFacet = new TradingRuleFacet();
         switchToUser();
         vm.expectRevert("UNAUTHORIZED");
-        tradeRuleTestFacet.checkTradingRules(user1, user, createBytes32Array("Oscar"), createBytes32Array("Shane"), 10, ActionTypes.P2P_TRANSFER);
+        tradeRuleTestFacet.checkTradingRules(user1, user, user, createBytes32Array("Oscar"), createBytes32Array("Shane"), 10, ActionTypes.P2P_TRANSFER);
         /// test that users cannot call the facets directly through the proxy address 
         vm.expectRevert("UNAUTHORIZED");
-        TradingRuleFacet(address(applicationCoinHandler)).checkTradingRules(user1, user, createBytes32Array("Tayler"), createBytes32Array("Michael"), 10, ActionTypes.P2P_TRANSFER);
+        TradingRuleFacet(address(applicationCoinHandler)).checkTradingRules(user1, user, user, createBytes32Array("Tayler"), createBytes32Array("Michael"), 10, ActionTypes.P2P_TRANSFER);
     }
 }
