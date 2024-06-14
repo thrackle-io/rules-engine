@@ -79,11 +79,12 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, HandlerUtils,
 
         if(mustCheckBuyRules || mustCheckSellRules)
             callAnotherFacet(
-                0xd874686f, 
+                0xb49c9636, 
                 abi.encodeWithSignature(
-                    "checkTradingRules(address,address,bytes32[],bytes32[],uint256,uint8)",
+                    "checkTradingRules(address,address,address,bytes32[],bytes32[],uint256,uint8)",
                     _from, 
                     _to, 
+                    _sender,
                     fromTags, 
                     toTags, 
                     _amount, 
