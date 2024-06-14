@@ -1,33 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {StorageLib as lib} from "src/client/token/handler/diamond/StorageLib.sol";
-import "src/protocol/economic/IRuleProcessor.sol";
 import {IHandlerDiamondErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import "src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
-import {Rule} from "src/client/token/handler/common/DataStructures.sol";
-import {ActionTypes} from "src/common/ActionEnum.sol";
+import "src/client/token/handler/diamond/FacetsCommonImports.sol";
 import "src/client/application/IAppManager.sol";
-import "src/client/token/handler/diamond/RuleStorage.sol";
 import "src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol";
 import "src/client/token/ERC20/IERC20Decimals.sol";
 
-contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerTokenMaxBuySellVolume, AppAdministratorOrOwnerOnlyDiamondVersion, IZeroAddressError, IHandlerDiamondErrors {
+contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTokenMaxBuySellVolume, AppAdministratorOrOwnerOnlyDiamondVersion, IZeroAddressError, IHandlerDiamondErrors {
     
     /**
      * @dev This function consolidates all the trading rules.
      * @param _from address of the from account
      * @param _to address of the to account
+     * @param _sender address of the caller 
      * @param fromTags tags of the from account
      * @param toTags tags of the from account
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkTradingRules(address _from, address _to, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action) external onlyOwner {
+    function checkTradingRules(address _from, address _to, address _sender, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action) external onlyOwner {
         if(action == ActionTypes.BUY){
+            if (isContract(_sender) && _from != _sender){ /// non custodial buy
+                _checkTradeRulesBuyAction(_to, toTags, _amount, action);
+                _checkTradeRulesSellAction(_from, fromTags, _amount, action);
+            }
             _checkTradeRulesBuyAction(_to, toTags, _amount, action);
         } else if(action == ActionTypes.SELL) {
+            if (isContract(_sender)&& _to != _sender){ /// non custodial sell 
+                _checkTradeRulesBuyAction(_to, toTags, _amount, action);
+                _checkTradeRulesSellAction(_from, fromTags, _amount, action);
+            }
             _checkTradeRulesSellAction(_from, fromTags, _amount, action);
         }
     }
