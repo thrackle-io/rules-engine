@@ -46,7 +46,19 @@ while [ "y" != "$DEPLOYED" ] && [ "n" != "$DEPLOYED" ] ; do
   DEPLOYED=$(echo "$DEPLOYED" | tr '[:upper:]' '[:lower:]')  
 done
 if [ "$DEPLOYED" = "y" ]; then
-    forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    echo "Is the deployed ERC20 already protocol enabled (connected to a handler) (y or n)?"
+    read CONNECTED_ALREADY
+    CONNECTED_ALREADY=$(echo "$CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
+    while [ "y" != "$CONNECTED_ALREADY" ] && [ "n" != "$CONNECTED_ALREADY" ] ; do
+    echo
+    echo "Not a valid answer (y or n)"
+    echo "Is the deployed ERC20 already protocol enabled (connected to a handler) (y or n)?"
+    read DEPLOYED
+    CONNECTED_ALREADY=$(echo "$CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
+    done
+    if [ "$CONNECTED_ALREADY" = "n" ]; then
+      forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    fi
 else 
     forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
