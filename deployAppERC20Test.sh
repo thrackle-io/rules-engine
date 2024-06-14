@@ -41,6 +41,7 @@ if [[ -z $RPC_URL ]]; then
 fi
 
 # prompt for APPLICATION_ERC20_ADDRESS address if it's blank
+echo $APPLICATION_ERC20_ADDRESS
 if [[ -z "$APPLICATION_ERC20_ADDRESS" ]]; then
   while true; do
     promptForInput "APPLICATION_ERC20_ADDRESS"
@@ -56,7 +57,7 @@ if [[ -z "$APPLICATION_ERC20_ADDRESS" ]]; then
 fi
 
 ###########################################################
-echo "...Checking to make sure it is deployed..."
+echo "...Checking to make sure ERC20 is deployed..."
 if [ $RPC_URL == "local" ]; then
   cast call $APPLICATION_ERC20_ADDRESS "getHandlerAddress()(address)" 1> /dev/null
 else
@@ -106,18 +107,18 @@ fi
 
 echo "...Checking to make sure the pricing modules are set within the ERC20's Handler..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)')  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)')  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)')
   HANDLER_PRICER=$(cast call $APP_HANDLER 'erc20PricingAddress()(address)')  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)
   HANDLER_PRICER=$(cast call $APP_HANDLER 'erc20PricingAddress()(address)' --rpc-url $RPC_URL) 
 fi
 
 if test -z "$HANDLER_PRICER"; then
     echo -e "$RED                 FAIL $NC"
-    TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC20Pricing module set. Set it in ERC20: ""$APPLICATION_ERC20_ADDRESS"" with function, setERC20PricingAddress(address)"
+    TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC20Pricing module set. Set it in ERC20 Handler: ""$HANDLER_ERC20"" with function, setERC20PricingAddress(address)"
     echo -e $TEXT
     exit 1
 else
@@ -126,10 +127,10 @@ fi
 
 echo "...Checking to make sure the ERC20 is registered with the AppManager..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)')  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)')  
   REGISTERED=$(cast call $APP_MANAGER 'getTokenID(address)(string)' $APPLICATION_ERC20_ADDRESS)  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER --rpc-url $RPC_URL) 
 fi
 if test -z "$REGISTERED"; then
@@ -157,5 +158,5 @@ else
 fi
 
 # This line will only be reached if all the commands above succeed
-echo -e "$GREEN SUCCESS$NC - AppManager is successfully deployed and configured"
+echo -e "$GREEN SUCCESS$NC - Protocol Supported ERC20 is successfully deployed and configured"
 exit 0

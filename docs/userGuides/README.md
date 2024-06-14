@@ -96,7 +96,7 @@ Deployments may be tested using the provided bash scripts. These scripts will te
 - Protocol Supported ERC721
    - `deployAppERC721Test.sh`
 
-All the deployment scripts can be found in the root directory and all use '.env.deployTest' for environment specific variables but they can be left blank. If left blank, the scripts will prompt for entry of the necessary variables. 
+All the deployment scripts can be found in the root directory and all use '.env' for environment specific variables but they can be left blank. If left blank, the scripts will prompt for entry of the necessary variables. 
 
 To run, open a terminal in the root directory and run the following command:
 ```

@@ -14,6 +14,7 @@
     ```
 4. The deployer of the Application Manager is granted the [super admin role](../permissions/ADMIN-ROLES.md). 
 5. [Create additional administrators][createAdminRole-url] (Optional)
+6. [Test The Application Manager Deployment](../README.md#deployment-test-scripts) (Optional)
 
 
 
