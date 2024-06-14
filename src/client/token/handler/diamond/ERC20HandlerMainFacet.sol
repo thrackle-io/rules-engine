@@ -102,11 +102,12 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplicationH
             );
             callAnotherFacet(
                 // function selector is for checkNonTaggedRules(address,address,uint256,uint8)
-                0x6f43d91d, 
+                0x18026f00, 
                 abi.encodeWithSignature(
-                    "checkNonTaggedRules(address,address,uint256,uint8)",
+                    "checkNonTaggedRules(address,address,address,uint256,uint8)",
                     _from, 
                     _to, 
+                    _sender,
                     _amount, 
                     action
                 )
