@@ -102,7 +102,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
                 HandlerTypes.ERC721HANDLER
             );
             callAnotherFacet(0xcf2eaa37, abi.encodeWithSignature("checkTaggedAndTradingRules(uint256,uint256,address,address,address,uint256,uint8)", balanceFrom, balanceTo, _from, _to, _sender, _amount, action));
-            callAnotherFacet(0x9466093a, abi.encodeWithSignature("checkNonTaggedRules(uint8,address,address,uint256,uint256)", action, _from, _to, _amount, _tokenId));
+            callAnotherFacet(0x6c163628, abi.encodeWithSignature("checkNonTaggedRules(uint8,address,address,address,uint256,uint256)", action, _from, _to, _sender, _amount, _tokenId));
         } else if (isFromTreasuryAccount || isToTreasuryAccount) {
             emit AD1467_RulesBypassedViaTreasuryAccount(address(msg.sender), lib.handlerBaseStorage().appManager);
         }
