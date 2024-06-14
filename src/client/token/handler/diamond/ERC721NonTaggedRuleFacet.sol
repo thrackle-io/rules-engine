@@ -29,12 +29,14 @@ contract ERC721NonTaggedRuleFacet is
 {
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual rule checks.
+     * @param action if selling or buying (of ActionTypes type)
      * @param _from address of the from account
      * @param _to address of the to account
+     * @param _sender address of the caller 
+     * @param _amount number of tokens transferred
      * @param _tokenId id of the NFT being transferred
-     * @param action if selling or buying (of ActionTypes type)
      */
-    function checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 _tokenId) external onlyOwner {
+    function checkNonTaggedRules(ActionTypes action, address _from, address _to, address _sender, uint256 _amount, uint256 _tokenId) external onlyOwner {
         _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         address handlerBase = handlerBaseStorage.ruleProcessor;
@@ -42,7 +44,7 @@ contract ERC721NonTaggedRuleFacet is
             _checkTokenMinTxSizeRule(_amount, action, handlerBase);
         }
 
-        _checkAccountApproveDenyOraclesRule(_from, _to, action, handlerBase);
+        _checkAccountApproveDenyOraclesRule(_from, _to, _sender, action, handlerBase);
 
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
             _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
@@ -72,10 +74,11 @@ contract ERC721NonTaggedRuleFacet is
      * @dev Internal function to check the Account Approve Deny Oracle Rules 
      * @param _from address of the from account
      * @param _to address of the to account
+     * @param _sender address of the caller 
      * @param action if selling or buying (of ActionTypes type)
      * @param handlerBase address of the handler proxy
      */
-    function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionTypes action, address handlerBase) internal view {
+    function _checkAccountApproveDenyOraclesRule(address _from, address _to, address _sender, ActionTypes action, address handlerBase) internal view {
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         /// The action type determines if the _to or _from is checked by the oracle
         /// _from address is checked for Burn
@@ -84,10 +87,26 @@ contract ERC721NonTaggedRuleFacet is
         } else if (action == ActionTypes.MINT){
             /// _to address is checked  for Mint
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
-        } else {
+        } else if (action == ActionTypes.P2P_TRANSFER){
             /// _from and _to address are checked for BUY, SELL, and P2P_TRANSFER
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        } else if (action == ActionTypes.BUY){
+            if (isContract(_sender) && _from != _sender){ /// non custodial buy 
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[ActionTypes.SELL], _from);
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+            } else { /// custodial buy 
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+            }
+        } else if (action == ActionTypes.SELL){
+            if (isContract(_sender) && _from != _sender){ /// non custodial sell 
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[ActionTypes.BUY], _to);
+            } else { /// custodial sell 
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
+                IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+            }
         }
     }
 

@@ -3231,10 +3231,10 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ERC721NonTaggedRuleFacet erc721NonTaggedTestFacet = new ERC721NonTaggedRuleFacet(); 
         switchToUser();
         vm.expectRevert("UNAUTHORIZED");
-        erc721NonTaggedTestFacet.checkNonTaggedRules(ActionTypes.P2P_TRANSFER, user1, user, 10, 0);
+        erc721NonTaggedTestFacet.checkNonTaggedRules(ActionTypes.P2P_TRANSFER, user1, user, user, 10, 0);
         /// test that users cannot call the facets directly through the proxy address 
         vm.expectRevert("UNAUTHORIZED");
-        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).checkNonTaggedRules(ActionTypes.P2P_TRANSFER, user1, user, 10, 0);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).checkNonTaggedRules(ActionTypes.P2P_TRANSFER, user1, user, user, 10, 0);
     }
 
     function testERC721_ERC721CommonTests_FacetOwnershipModifiers_ERC721TaggedRuleFacet_Negative() public {
