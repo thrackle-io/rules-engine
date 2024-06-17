@@ -755,4 +755,86 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         vm.stopPrank();
         // from here all you should have to do is call sellItem with user2 and it should pass
     }
+
+    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace() public endWithStopPrank() {
+        uint8[] memory riskScores = new uint8[](2);
+        riskScores[0] = 25;
+        riskScores[1] = 50;
+        uint48[] memory txLimits = new uint48[](2);
+        txLimits[0] = uint48(buyPrice);
+        txLimits[1] = uint48(99);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, txLimits);
+
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+        vm.stopPrank();
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[1]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        vm.stopPrank();
+        
+        uint snapshot = vm.snapshot();
+
+        // test that buy fails
+        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+
+        vm.startPrank(user2, user2);
+        console.log("Part 1");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IRiskErrors.OverMaxTxValueByRiskScore.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+        vm.stopPrank();
+
+        vm.revertTo(snapshot);
+        // // test that sell fails
+        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.SELL, ruleId);
+        console.log(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes.SELL));
+        vm.startPrank(user2, user2);
+        console.log("Part 2");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IRiskErrors.OverMaxTxValueByRiskScore.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+        vm.stopPrank();
+
+        vm.revertTo(snapshot);
+
+        // test that rules on and activated but within proper risk score this works
+        console.log("Part 3");
+
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 18)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 18)); //setting at $1,000,000,000
+        vm.stopPrank();
+
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        actionTypes[0] = ActionTypes.SELL;
+        actionTypes[1] = ActionTypes.BUY;
+        uint32[] memory ruleIds = new uint32[](2);
+        ruleIds[0] = ruleId;
+        ruleIds[1] = ruleId;
+        setAccountMaxTxValueByRiskRuleFull(actionTypes, ruleIds);
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[0]);
+        vm.stopPrank();
+
+        vm.startPrank(user2, user2);
+        vm.expectEmit(address(marketplace));
+        emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), NFT_ID_1, buyPrice);
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+
+    }
 }
