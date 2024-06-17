@@ -62,9 +62,9 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
         _applyAccountMaxTradeSizeSetUp(address(applicationCoinHandler));
         _applyAccountMaxTradeSizeSetUp(address(applicationNFTHandler));
 
-        _erc20MintGasReport("ERC20_AccountDenyForNoAccessLevel_Mint");
-        _erc20BurnGasReport("ERC20_AccountDenyForNoAccessLevel_Burn");
-        _erc20TransferGasReport("ERC20_AccountDenyForNoAccessLevel_Transfer");
+        _erc20MintGasReport("ERC20_AccountMaxTradeSize_Mint");
+        _erc20BurnGasReport("ERC20_AccountMaxTradeSize_Burn");
+        _erc20TransferGasReport("ERC20_AccountMaxTradeSize_Transfer");
 
         console.log(" ");
 
