@@ -628,7 +628,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         ActionTypes _action,
         HandlerTypes _handlerType
     ) external onlyHandler {
-        if (applicationHandler.requireApplicationRulesChecked(_action)) {
+        if (applicationHandler.requireApplicationRulesChecked(_action, _sender)) {
             applicationHandler.checkApplicationRules(_tokenAddress, _sender, _from, _to, _amount, _nftValuationLimit, _tokenId, _action, _handlerType);
         }
     }
