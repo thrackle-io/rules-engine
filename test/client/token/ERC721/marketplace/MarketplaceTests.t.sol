@@ -59,12 +59,12 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         createAccountDenyForNoAccessLevelRuleFull(actionTypes);
         
         uint snapshot = vm.snapshot();
-        vm.prank(user1);
+        vm.startPrank(user1, user1);
         console.log("Part 1");
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
-                address(applicationCoin), 
+                address(applicationNFTv2), 
                 IAccessLevelErrors.NotAllowedForAccessLevel.selector
             )
         );
@@ -79,7 +79,7 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         createAccountDenyForNoAccessLevelRuleFull(actionTypes);
 
         console.log("Part 2");
-        vm.prank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
@@ -95,7 +95,7 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         createAccountDenyForNoAccessLevelRuleFull(actionTypes);
 
         console.log("Part 3");
-        vm.prank(user1);
+        vm.startPrank(user1, user1);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
@@ -108,9 +108,10 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         // give them access level
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
+        applicationAppManager.addAccessLevel(user1, 1);
         vm.stopPrank();
         console.log("Part 4");
-        vm.prank(user1);
+        vm.startPrank(user1, user1);
         vm.expectEmit(address(marketplace));
         emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), 0, buyPrice);
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
@@ -396,6 +397,7 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         console.log("Part 3: Apply min/max to ERC721");
 
         switchToAppAdministrator();
+        applicationNFTv2.safeMint(user2);
         applicationAppManager.addTag(user1, "ERC721_NOMIN_SOLIDMAX");
         applicationAppManager.addTag(user2, "ERC721_SOLIDMIN_SOLIDMAX");
         vm.stopPrank();
@@ -468,24 +470,61 @@ contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
         actionTypes[1] = ActionTypes.BUY;
         uint16 tokenPercentage = 10;
         uint16 period = 2;
-        uint256 totalSupply = applicationCoin.totalSupply();
+        uint256 ERC20TotalSupply = applicationCoin.totalSupply();
+        uint256 ERC721TotalSupply = applicationNFTv2.totalSupply();
         uint64 startTime = uint64(block.timestamp); 
         
+        uint snapshotId = vm.snapshot();
+
         switchToRuleAdmin();
-        uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, totalSupply, startTime);
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC20TotalSupply, startTime);
         setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
-        setTokenMaxBuySellVolumeRule(address(applicationNFTHandler), actionTypes, ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandlerv2), actionTypes, ruleId);
 
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.OverMaxVolume.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+        vm.stopPrank();
 
-        vm.prank(user1);
+        vm.revertTo(snapshotId);
+
+        switchToRuleAdmin();
+        ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC721TotalSupply, startTime);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandlerv2), actionTypes, ruleId);
+
+        vm.startPrank(user1, user1);
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
                 address(applicationNFTv2), 
-                ITagRuleErrors.UnderMinBalance.selector
+                IERC20Errors.OverMaxVolume.selector
             )
         );
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+        vm.stopPrank();
+
+        vm.revertTo(snapshotId);
+
+        switchToRuleAdmin();
+        ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC20TotalSupply, startTime);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.OverMaxVolume.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+        vm.stopPrank();
 
     }
 

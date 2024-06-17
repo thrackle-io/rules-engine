@@ -5,6 +5,7 @@ import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import "src/common/IOracle.sol";
 import {Rule} from "src/client/token/handler/common/DataStructures.sol";
 
+import "forge-std/console.sol";
 /**
  * @title ERC20 Handler Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -236,6 +237,10 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ? amountToTransfer + totalWithinPeriod : amountToTransfer;
         uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply : rule.totalSupply;
         uint16 percentOfTotalSupply = 0;
+        console.log("total supply: ", totalSupply);
+        console.log("total for period: ", totalForPeriod);
+        console.log("percent of total supply: ", percentOfTotalSupply);
+        console.log("rule percentage: ", rule.tokenPercentage);
         if (totalSupply > 0){
             percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
         }
