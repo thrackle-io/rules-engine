@@ -162,6 +162,11 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
         // test that rules on and activated but within proper risk score this works
         console.log("Part 3");
 
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 18)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 18)); //setting at $1,000,000,000
+        vm.stopPrank();
+
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.SELL;
         actionTypes[1] = ActionTypes.BUY;
