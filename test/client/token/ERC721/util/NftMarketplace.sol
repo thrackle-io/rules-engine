@@ -20,6 +20,7 @@ error NotOwner();
 error NotApprovedForMarketplace();
 error PriceMustBeAboveZero();
 error TransferFailed(address tokenAddress, bytes4 underlyingError);
+error NoOffer(address nftAddress, uint256 tokenId);
 
 // Error thrown for isNotOwner modifier
 // error IsNotOwner()
@@ -29,6 +30,12 @@ contract NftMarketplace is ReentrancyGuard {
         uint256 price;
         address erc20Address;
         address seller;
+        Offer offer;
+    }
+
+    struct Offer {
+        address buyer;
+        uint256 price;
     }
 
     event ItemListed(
@@ -69,6 +76,14 @@ contract NftMarketplace is ReentrancyGuard {
         Listing memory listing = s_listings[nftAddress][tokenId];
         if (listing.price <= 0) {
             revert NotListed(nftAddress, tokenId);
+        }
+        _;
+    }
+
+    modifier hasOffer(address nftAddress, uint256 tokenId) {
+        Listing memory listing = s_listings[nftAddress][tokenId];
+        if (listing.offer.buyer == address(0)) {
+            revert NoOffer(nftAddress, tokenId);
         }
         _;
     }
@@ -189,7 +204,39 @@ contract NftMarketplace is ReentrancyGuard {
         emit ItemBought(msg.sender, nftAddress, tokenId, listedItem.price);
     }
 
-    // if (isUser(from) && isUser(to) && !isUser(msg.sender )) {
+    function sellItem(address nftAddress, uint256 tokenId)
+        external
+        payable
+        isListed(nftAddress, tokenId) 
+        hasOffer(nftAddress, tokenId) {
+            Listing memory listedItem = s_listings[nftAddress][tokenId];
+            IERC721 nft = IERC721(nftAddress);
+            if (nft.ownerOf(tokenId) != msg.sender) {
+                revert NotOwner();
+            }
+
+            delete (s_listings[nftAddress][tokenId]);
+
+            // This is added purely so we can gather custom errors and why it fails in testing
+            try IERC721(nftAddress).transferFrom(listedItem.seller, listedItem.offer.buyer, tokenId) {}
+            catch (bytes memory reason) {
+                console.log("Did we hit here");
+                console.log("application coin: ", listedItem.erc20Address);
+                console.logBytes(reason);
+                bytes4 selector = bytes4(reason);
+                console.logBytes4(selector);
+                revert TransferFailed(listedItem.erc20Address, selector);
+            }
+            try IERC20(listing.erc20Address).safeTransferFrom(listedItem.offer.buyer, msg.sender, listedItem.offer.price) {}
+            catch (bytes memory reason) {
+                bytes4 selector = bytes4(reason);
+                revert TransferFailed(nftAddress, selector);
+            }
+            emit ItemBought(listedItem.offer.buyer, nftAddress, tokenId, listedItem.offer.price);
+        }
+    }
+    
+    
 
 
 
