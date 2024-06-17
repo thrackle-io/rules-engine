@@ -261,11 +261,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 ruleId: justSellRuleIdERC721,
                 actionTypes: justSell,
                 handler: address(applicationNFTHandlerv2),
-                expectedError: abi.encodeWithSelector(
-                    TransferFailed.selector, 
-                    address(applicationNFTv2), 
-                    ITagRuleErrors.OverMaxSize.selector
-                )
+                expectedError: bytes("")
             });
         } else if (i == 4) {
             uint32 buyAndSellRuleIdERC20 = createAccountMaxTradeSizeRule(buyAndSellTag, maxTradeSizeERC20, period);
@@ -276,7 +272,11 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 ruleId: buyAndSellRuleIdERC20,
                 actionTypes: buyAndSell,
                 handler: address(applicationCoinHandler),
-                expectedError: bytes("")
+                expectedError: abi.encodeWithSelector(
+                    TransferFailed.selector, 
+                    address(applicationCoin), 
+                    ITagRuleErrors.OverMaxSize.selector
+                )
             });
         } else if (i == 5) {
             uint32 buyAndSellRuleIdERC721 = createAccountMaxTradeSizeRule(buyAndSellTag, maxTradeSizeERC721, period);
@@ -289,7 +289,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 handler: address(applicationNFTHandlerv2),
                 expectedError: abi.encodeWithSelector(
                     TransferFailed.selector, 
-                    address(applicationCoin), 
+                    address(applicationNFTv2), 
                     ITagRuleErrors.OverMaxSize.selector
                 )
             });
@@ -320,6 +320,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
             vm.stopPrank();
 
             vm.startPrank(user1, user1);
+            //marketplace.buyItem(address(applicationNFTv2), NFT_ID_2); // need to buy atleast 1 first to trigger the bad outcome
             if (test.expectedError.length > 0) {
                 vm.expectRevert(
                     test.expectedError
