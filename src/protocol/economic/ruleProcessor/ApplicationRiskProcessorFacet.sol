@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
+import "forge-std/console.sol";
 
 /**
  * @title Risk Score Processor Facet
@@ -100,6 +101,9 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
         
         if (_riskScore >= rule.riskScore[0]) {
             ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxValue);
+            console.log("ruleMaxSize: ", ruleMaxSize);
+            console.log("amountTransactedInPeriod: ", amountTransactedInPeriod);
+            console.log("rule.maxValue: ", _riskScore);
             if (amountTransactedInPeriod > ruleMaxSize) revert OverMaxTxValueByRiskScore(_riskScore, ruleMaxSize);
             return amountTransactedInPeriod;
         } else {

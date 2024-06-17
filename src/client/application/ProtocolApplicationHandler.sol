@@ -17,6 +17,7 @@ import {IZeroAddressError, IAppHandlerErrors} from "src/common/IErrors.sol";
 import "src/client/application/ProtocolApplicationHandlerCommon.sol";
 import "src/client/common/ActionTypesArray.sol";
 
+import "forge-std/console.sol";
 /**
  * @title Protocol Application Handler Contract
  * @notice This contract is the rules handler for all application level rules. It is implemented via the AppManager
@@ -74,12 +75,7 @@ contract ProtocolApplicationHandler is
         emit AD1467_ApplicationHandlerDeployed(_appManagerAddress);
     }
 
-    /**
-     * @dev checks if any of the Application level rules are active
-     * @param _action the current action type
-     * @return true if one or more rules are active
-     */
-    function requireApplicationRulesChecked(ActionTypes _action) public view returns (bool) {
+    function _checkWhichApplicationRulesActive(ActionTypes _action) internal view returns (bool) {
         return
             pauseRuleActive ||
             accountMaxValueByRiskScore[_action].active ||
@@ -87,6 +83,28 @@ contract ProtocolApplicationHandler is
             accountMaxValueByAccessLevel[_action].active ||
             accountMaxValueOutByAccessLevel[_action].active ||
             accountDenyForNoAccessLevel[_action].active;
+    }
+
+    function _checkNonCustodialRules(ActionTypes _action) internal view returns (bool) {
+        if (_action == ActionTypes.BUY) {
+            return _checkWhichApplicationRulesActive(ActionTypes.SELL);
+        } else if (_action == ActionTypes.SELL) {
+            return _checkWhichApplicationRulesActive(ActionTypes.BUY);
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @dev checks if any of the Application level rules are active
+     * @param _action the current action type
+     * @return true if one or more rules are active
+     */
+    function requireApplicationRulesChecked(ActionTypes _action, address _sender) public view returns (bool) {
+        _sender;
+        return _checkWhichApplicationRulesActive(_action);
+        // return _checkWhichApplicationRulesActive(_action) ? true 
+        //     : isContract(_sender) ? _checkNonCustodialRules(_action)
+        //     : false;
     }
 
     /**
@@ -130,6 +148,9 @@ contract ProtocolApplicationHandler is
         if (accountMaxValueByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active) {
             _checkAccessLevelRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
         }
+        console.log("we are checking that accountMaxTXValueByRiskScore is active");
+        console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
+        console.log("What action do we currently have?: ", uint8(_action));
         if (accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active) {
             _checkRiskRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
         }
@@ -147,6 +168,8 @@ contract ProtocolApplicationHandler is
     function _checkRiskRules(address _from, address _to, address _sender, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
+        console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
+        console.log("Transfer valuation: ", _transferValuation);
         if (accountMaxValueByRiskScore[_action].active) {
             ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
