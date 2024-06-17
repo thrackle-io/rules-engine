@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
+import "forge-std/console.sol";
 /**
  * @title ERC20 Tagged Rule Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett

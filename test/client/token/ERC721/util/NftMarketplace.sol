@@ -19,6 +19,7 @@ error NoProceeds();
 error NotOwner();
 error NotApprovedForMarketplace();
 error PriceMustBeAboveZero();
+error TransferFailed(address tokenAddress, bytes4 underlyingError);
 
 // Error thrown for isNotOwner modifier
 // error IsNotOwner()
@@ -160,10 +161,6 @@ contract NftMarketplace is ReentrancyGuard {
         // isNotOwner(nftAddress, tokenId, msg.sender)
         nonReentrant
     {
-        // Challenge - How would you refactor this contract to take:
-        // 1. Abitrary tokens as payment? (HINT - Chainlink Price Feeds!)
-        // 2. Be able to set prices in other currencies?
-        // 3. Tweet me @PatrickAlphaC if you come up with a solution!
         Listing memory listedItem = s_listings[nftAddress][tokenId];
         IERC20 fungibleToken = IERC20(listedItem.erc20Address);
 
@@ -173,8 +170,22 @@ contract NftMarketplace is ReentrancyGuard {
         // Could just send the money...
         // https://fravoll.github.io/solidity-patterns/pull_over_push.html
         delete (s_listings[nftAddress][tokenId]);
-        IERC20(listedItem.erc20Address).transferFrom(msg.sender, listedItem.seller, listedItem.price);
-        IERC721(nftAddress).safeTransferFrom(listedItem.seller, msg.sender, tokenId);
+
+        // This is added purely so we can gather custom errors and why it fails in testing
+        try IERC20(listedItem.erc20Address).transferFrom(msg.sender, listedItem.seller, listedItem.price) {}
+        catch (bytes memory reason) {
+            console.log("Did we hit here");
+            console.log("application coin: ", listedItem.erc20Address);
+            console.logBytes(reason);
+            bytes4 selector = bytes4(reason);
+            console.logBytes4(selector);
+            revert TransferFailed(listedItem.erc20Address, selector);
+        }
+        try IERC721(nftAddress).safeTransferFrom(listedItem.seller, msg.sender, tokenId) {}
+        catch (bytes memory reason) {
+            bytes4 selector = bytes4(reason);
+            revert TransferFailed(nftAddress, selector);
+        }
         emit ItemBought(msg.sender, nftAddress, tokenId, listedItem.price);
     }
 

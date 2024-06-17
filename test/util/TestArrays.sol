@@ -45,6 +45,14 @@ abstract contract TestArrays {
         array[2] = arg3;
     }
 
+    function createUint256Array(uint256 arg1, uint256 arg2, uint256 arg3, uint256 arg4) public pure returns (uint256[] memory array) {
+        array = new uint256[](4);
+        array[0] = arg1;
+        array[1] = arg2;
+        array[2] = arg3;
+        array[3] = arg4;
+    }
+
     /****************** UINT192 ARRAY CREATION ******************
     /**
     * @dev This function creates a uint192 array to be used in tests 
@@ -370,7 +378,7 @@ abstract contract TestArrays {
      * @return array bytes32[]
      */
     function createBytes32Array(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns (bytes32[] memory array) {
-        array = new bytes32[](3);
+        array = new bytes32[](4);
         array[0] = arg1;
         array[1] = arg2;
         array[2] = arg3;
