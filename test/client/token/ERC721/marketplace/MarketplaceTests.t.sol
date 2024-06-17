@@ -755,7 +755,7 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         // from here all you should have to do is call sellItem with user2 and it should pass
     }
 
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace() public endWithStopPrank() {
+    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_Sell() public endWithStopPrank() {
         uint8[] memory riskScores = new uint8[](2);
         riskScores[0] = 25;
         riskScores[1] = 50;
@@ -776,8 +776,8 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         
         uint snapshot = vm.snapshot();
 
-        // test that buy fails
-        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+        // test that sell fails
+        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.SELL, ruleId);
 
         vm.startPrank(user2, user2);
         console.log("Part 1");
@@ -793,8 +793,8 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
 
         vm.revertTo(snapshot);
         // // test that sell fails
-        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.SELL, ruleId);
-        console.log(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes.SELL));
+        setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+        console.log(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes.BUY));
         vm.startPrank(user2, user2);
         console.log("Part 2");
         vm.expectRevert(
@@ -920,7 +920,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
             )
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
-
         // test 3 - Test Buy side of ERC721 Transaction fails if buyer is not approved 
         vm.revertTo(snapshot);
         switchToAppAdministrator();
@@ -941,7 +940,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
         // test 4 - Test Sell side of ERC20 Transaction fails if buyer is not approved 
-
         vm.revertTo(snapshot);
         switchToAppAdministrator();
         goodBoys.push(address(user1));
@@ -961,7 +959,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
             )
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
-
         // all passing 
         vm.revertTo(snapshot);
         switchToAppAdministrator();
@@ -984,9 +981,7 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         // ERC721 Approve Oracle 
         uint32 newRuleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationNFTHandlerv2), newRuleId);
-
         uint snapshot = vm.snapshot();
-
         // test 1 - Test Buy side of ERC20 Transaction fails if buyer is not approved 
         vm.startPrank(user2, user2);
         vm.expectRevert(
@@ -997,7 +992,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
             )
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
-
         // test 2 - Test Sell side of ERC20 Transaction fails if seller is not approved 
         vm.revertTo(snapshot);
         switchToAppAdministrator();
@@ -1013,7 +1007,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
             )
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
-
         // test 3 - Test Buy side of ERC721 Transaction fails if buyer is not approved 
         vm.revertTo(snapshot);
         switchToAppAdministrator();
@@ -1034,7 +1027,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
         // test 4 - Test Sell side of ERC20 Transaction fails if buyer is not approved 
-
         vm.revertTo(snapshot);
         switchToAppAdministrator();
         goodBoys.push(address(user1));
@@ -1054,7 +1046,6 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
             )
         );
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
-
         // all passing 
         vm.revertTo(snapshot);
         switchToAppAdministrator();
@@ -1062,11 +1053,147 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
         goodBoys.push(address(user2));
         oracleApproved.addToApprovedList(goodBoys);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-
-
         // Both oracle rules active 
         // users approved and no users denied 
         vm.startPrank(user2, user2);
         marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMinMaxTokenBalance_inOperatorMarketplace_Sell() public endWithStopPrank() {
+        bytes32[] memory accsERC20 = createBytes32Array("ERC20_SOLIDMIN_SOLIDMAX", "ERC20_SOLIDMIN_NOMAX");
+        bytes32[] memory accsERC721 = createBytes32Array("ERC721_NOMIN_SOLIDMAX", "ERC721_SOLIDMIN_SOLIDMAX");
+        uint256[] memory minAmountsERC20 = createUint256Array(buyPrice, 250_000);
+        uint256[] memory minAmountsERC721 = createUint256Array(0, 1);
+        uint256[] memory maxAmountsERC20 = createUint256Array(buyPrice * 10, type(uint256).max);
+        uint256[] memory maxAmountsERC721 = createUint256Array(1, 3);
+
+        switchToRuleAdmin();
+        uint32 ruleIdERC20 = createAccountMinMaxTokenBalanceRule(accsERC20, minAmountsERC20, maxAmountsERC20);
+        uint32 ruleIdERC721 = createAccountMinMaxTokenBalanceRule(accsERC721, minAmountsERC721, maxAmountsERC721);
+
+        setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleIdERC20);
+        setAccountMinMaxTokenBalanceRule(address(applicationNFTHandlerv2), ruleIdERC721);
+        vm.warp(Blocktime + 15);
+
+        uint snapshotId = vm.snapshot();
+
+        console.log("Part 1: Apply Min to ERC20");
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user1, "ERC20_SOLIDMIN_SOLIDMAX");
+        applicationAppManager.addTag(user2, "NOMIN_NOMAX");
+        vm.stopPrank();
+
+        vm.prank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                ITagRuleErrors.UnderMinBalance.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+
+        vm.revertTo(snapshotId);
+
+        console.log("Part 2: Apply Max to ERC20");
+        switchToAppAdministrator();
+        applicationCoin.mint(user1, buyPrice * 10 + 1);
+        applicationAppManager.addTag(user2, "ERC20_SOLIDMIN_NOMAX");
+        applicationAppManager.addTag(user1, "ERC20_SOLIDMIN_SOLIDMAX");
+        vm.stopPrank();
+
+        vm.startPrank(user2, user2);
+        marketplace.updateListing(address(applicationNFTv2), NFT_ID_1, buyPrice * 10 + 1);
+        applicationCoin.approve(address(marketplace), buyPrice * 10 + 1);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                ITagRuleErrors.OverMaxBalance.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+
+        // TODO Uncomment and refactor for sell 
+
+        // vm.stopPrank();
+
+        // vm.revertTo(snapshotId);
+
+        // console.log("Part 3: Apply min/max to ERC721");
+
+        // switchToAppAdministrator();
+        // applicationNFTv2.safeMint(user2);
+        // applicationAppManager.addTag(user1, "ERC721_NOMIN_SOLIDMAX");
+        // applicationAppManager.addTag(user2, "ERC721_SOLIDMIN_SOLIDMAX");
+        // vm.stopPrank();
+
+        // vm.startPrank(user2);
+        // applicationNFTv2.approve(address(marketplace), NFT_ID_2);
+        // marketplace.updateListing(address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        // marketplace.listItem(address(applicationNFTv2), NFT_ID_2, address(applicationCoin), buyPrice / 2);
+        // vm.stopPrank();
+
+        // uint snapshotId2 = vm.snapshot();
+        // // expect the first buy to go through, fail on the second due to max balance
+        // vm.startPrank(user1);
+        // vm.expectEmit(address(marketplace));
+        // emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        // marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);  
+        // vm.expectRevert(
+        //     abi.encodeWithSelector(
+        //         TransferFailed.selector, 
+        //         address(applicationNFTv2), 
+        //         ITagRuleErrors.OverMaxBalance.selector
+        //     )
+        // );
+        // marketplace.buyItem(address(applicationNFTv2), NFT_ID_2);
+
+        // TODO Uncomment and refactor for sell 
+
+        // vm.stopPrank();
+
+        // console.log("Part 4: Max of ERC721 testing");
+        // vm.revertTo(snapshotId2);
+        // // now test that the min is being followed
+        // switchToAppAdministrator();
+        // applicationAppManager.removeTag(user1, "ERC721_NOMIN_SOLIDMAX");
+        // applicationAppManager.addTag(user2, "ERC721_SOLIDMIN_SOLIDMAX");
+        // vm.stopPrank();
+
+        // vm.startPrank(user1);
+        // vm.expectEmit(address(marketplace));
+        // emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        // marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+        // vm.expectRevert(
+        //     abi.encodeWithSelector(
+        //         TransferFailed.selector, 
+        //         address(applicationNFTv2), 
+        //         ITagRuleErrors.UnderMinBalance.selector
+        //     )
+        // );
+        // marketplace.buyItem(address(applicationNFTv2), NFT_ID_2);
+
+        // TODO Uncomment and refactor for sell 
+        
+        // vm.stopPrank();
+
+        // vm.revertTo(snapshotId);
+
+        // console.log("Part 5"); // test that it's still allowed to go through happy path
+
+        // switchToAppAdministrator();
+        // applicationAppManager.addTag(user1, "ERC721_NOMIN_SOLIDMAX");
+        // applicationAppManager.addTag(user2, "ERC20_SOLIDMIN_SOLIDMAX");
+        // vm.stopPrank();
+
+        // vm.prank(user2);
+        // marketplace.updateListing(address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+
+        // vm.prank(user1);
+        // vm.expectEmit(address(marketplace));
+        // emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        // marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 }
