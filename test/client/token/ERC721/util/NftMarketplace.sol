@@ -143,7 +143,7 @@ contract NftMarketplace is ReentrancyGuard {
         if (nft.getApproved(tokenId) != address(this)) {
             revert NotApprovedForMarketplace();
         }
-        s_listings[nftAddress][tokenId] = Listing(price, erc20Address, msg.sender);
+        s_listings[nftAddress][tokenId] = Listing(price, erc20Address, msg.sender, Offer(address(0), 0));
         emit ItemListed(msg.sender, nftAddress, tokenId, price);
     }
 
@@ -218,7 +218,7 @@ contract NftMarketplace is ReentrancyGuard {
             delete (s_listings[nftAddress][tokenId]);
 
             // This is added purely so we can gather custom errors and why it fails in testing
-            try IERC721(nftAddress).transferFrom(listedItem.seller, listedItem.offer.buyer, tokenId) {}
+            try IERC721(nftAddress).safeTransferFrom(listedItem.seller, listedItem.offer.buyer, tokenId) {}
             catch (bytes memory reason) {
                 console.log("Did we hit here");
                 console.log("application coin: ", listedItem.erc20Address);
@@ -227,14 +227,13 @@ contract NftMarketplace is ReentrancyGuard {
                 console.logBytes4(selector);
                 revert TransferFailed(listedItem.erc20Address, selector);
             }
-            try IERC20(listing.erc20Address).safeTransferFrom(listedItem.offer.buyer, msg.sender, listedItem.offer.price) {}
+            try IERC20(listedItem.erc20Address).transferFrom(listedItem.offer.buyer, msg.sender, listedItem.offer.price) {}
             catch (bytes memory reason) {
                 bytes4 selector = bytes4(reason);
                 revert TransferFailed(nftAddress, selector);
             }
             emit ItemBought(listedItem.offer.buyer, nftAddress, tokenId, listedItem.offer.price);
         }
-    }
     
     
 

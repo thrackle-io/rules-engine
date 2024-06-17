@@ -259,7 +259,12 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 period: period,
                 ruleId: justSellRuleIdERC721,
                 actionTypes: justSell,
-                handler: address(applicationCoinHandler)
+                handler: address(applicationCoinHandler),
+                expectedError: abi.encodeWithSelector(
+                    TransferFailed.selector, 
+                    address(applicationCoin), 
+                    ITagRuleErrors.OverMaxSize.selector
+                )
             });
         } else if (i == 4) {
             uint32 buyAndSellRuleIdERC20 = createAccountMaxTradeSizeRule(buyAndSellTag, maxTradeSizeERC20, period);
@@ -269,7 +274,12 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 period: period,
                 ruleId: buyAndSellRuleIdERC20,
                 actionTypes: buyAndSell,
-                handler: address(applicationCoinHandler)
+                handler: address(applicationCoinHandler),
+                expectedError: abi.encodeWithSelector(
+                    TransferFailed.selector, 
+                    address(applicationCoin), 
+                    ITagRuleErrors.OverMaxSize.selector
+                )
             });
         } else if (i == 5) {
             uint32 buyAndSellRuleIdERC721 = createAccountMaxTradeSizeRule(buyAndSellTag, maxTradeSizeERC721, period);
@@ -279,7 +289,12 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 period: period,
                 ruleId: buyAndSellRuleIdERC721,
                 actionTypes: buyAndSell,
-                handler: address(applicationNFTHandlerv2)
+                handler: address(applicationNFTHandlerv2),
+                expectedError: abi.encodeWithSelector(
+                    TransferFailed.selector, 
+                    address(applicationCoin), 
+                    ITagRuleErrors.OverMaxSize.selector
+                )
             });
         } else {
             revert("Invalid i");
@@ -306,7 +321,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
             vm.stopPrank();
 
             vm.startPrank(user1, user1);
-            if (test.expectedError != bytes("")) {
+            if (test.expectedError.length > 0) {
                 vm.expectRevert(
                     test.expectedError
                 );
