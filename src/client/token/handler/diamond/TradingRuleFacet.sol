@@ -9,6 +9,8 @@ import "src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol";
 import "src/client/token/ERC20/IERC20Decimals.sol";
 
+import "forge-std/console.sol";
+
 contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTokenMaxBuySellVolume, AppAdministratorOrOwnerOnlyDiamondVersion, IZeroAddressError, IHandlerDiamondErrors {
     
     /**
@@ -29,7 +31,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
             }
             _checkTradeRulesBuyAction(_to, toTags, _amount, action);
         } else if(action == ActionTypes.SELL) {
-            if (isContract(_sender)&& _to != _sender){ /// non custodial sell 
+            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
                 _checkTradeRulesBuyAction(_to, toTags, _amount, action);
                 _checkTradeRulesSellAction(_from, fromTags, _amount, action);
             }
@@ -45,6 +47,8 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
      * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256 _amount, ActionTypes action) internal {
+        console.log("check trade rules buy action active", lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active);
+        console.log("the above is for action: ", uint8(action));
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
             // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
@@ -81,6 +85,8 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
      * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, uint256 _amount, ActionTypes action) internal {
+        console.log("check trade rules sell action active", lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active);
+        console.log("the above is for action: ", uint8(action));
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
             // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
