@@ -233,8 +233,16 @@ contract NftMarketplace is ReentrancyGuard {
                 revert TransferFailed(nftAddress, selector);
             }
             emit ItemBought(listedItem.offer.buyer, nftAddress, tokenId, listedItem.offer.price);
-        }
+    }
     
+    function createOffer(address nftAddress, uint256 tokenId, uint256 price) external isListed(nftAddress, tokenId) {
+        Listing memory listing = s_listings[nftAddress][tokenId];
+
+        require(IERC20(listing.erc20Address).allowance(msg.sender, address(this)) >= price, "Insufficient balance");
+        if (price > listing.offer.price) {
+            s_listings[nftAddress][tokenId].offer = Offer(msg.sender, price);
+        }
+    }
     
 
 
