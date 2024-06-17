@@ -225,12 +225,12 @@ contract NftMarketplace is ReentrancyGuard {
                 console.logBytes(reason);
                 bytes4 selector = bytes4(reason);
                 console.logBytes4(selector);
-                revert TransferFailed(listedItem.erc20Address, selector);
+                revert TransferFailed(nftAddress, selector);
             }
             try IERC20(listedItem.erc20Address).transferFrom(listedItem.offer.buyer, msg.sender, listedItem.offer.price) {}
             catch (bytes memory reason) {
                 bytes4 selector = bytes4(reason);
-                revert TransferFailed(nftAddress, selector);
+                revert TransferFailed(listedItem.erc20Address, selector);
             }
             emit ItemBought(listedItem.offer.buyer, nftAddress, tokenId, listedItem.offer.price);
     }

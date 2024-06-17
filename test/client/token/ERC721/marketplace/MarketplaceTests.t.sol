@@ -247,7 +247,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 handler: address(applicationNFTHandlerv2),
                 expectedError: abi.encodeWithSelector(
                     TransferFailed.selector, 
-                    address(applicationCoin), 
+                    address(applicationNFTv2), 
                     ITagRuleErrors.OverMaxSize.selector
                 )
             });
@@ -259,10 +259,10 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 period: period,
                 ruleId: justSellRuleIdERC721,
                 actionTypes: justSell,
-                handler: address(applicationCoinHandler),
+                handler: address(applicationNFTHandlerv2),
                 expectedError: abi.encodeWithSelector(
                     TransferFailed.selector, 
-                    address(applicationCoin), 
+                    address(applicationNFTv2), 
                     ITagRuleErrors.OverMaxSize.selector
                 )
             });
@@ -275,11 +275,7 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
                 ruleId: buyAndSellRuleIdERC20,
                 actionTypes: buyAndSell,
                 handler: address(applicationCoinHandler),
-                expectedError: abi.encodeWithSelector(
-                    TransferFailed.selector, 
-                    address(applicationCoin), 
-                    ITagRuleErrors.OverMaxSize.selector
-                )
+                expectedError: bytes("")
             });
         } else if (i == 5) {
             uint32 buyAndSellRuleIdERC721 = createAccountMaxTradeSizeRule(buyAndSellTag, maxTradeSizeERC721, period);
@@ -304,10 +300,12 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
 
     function test_accountMaxTradeSize_inOperatorMarketplace() public endWithStopPrank() {
         vm.warp(Blocktime);
+        switchToAppAdministrator();
         applicationNFTv2.safeMint(user2); // give them a 2nd NFT
-        marketplace.listItem(address(applicationNFTv2), NFT_ID_2, address(applicationCoin), 1);
+        vm.stopPrank();
         vm.startPrank(user2);
         applicationNFTv2.approve(address(marketplace), NFT_ID_2);
+        marketplace.listItem(address(applicationNFTv2), NFT_ID_2, address(applicationCoin), 1);
         vm.stopPrank();
         uint snapshotId = vm.snapshot();
 
