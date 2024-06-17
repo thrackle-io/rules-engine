@@ -712,7 +712,7 @@ contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
 
         vm.startPrank(user1);
         applicationCoin.approve(address(marketplace), buyPrice);
-        marketplace.createOffer(address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        marketplace.createOffer(address(applicationNFTv2), NFT_ID_1, buyPrice);
         vm.stopPrank();
         // from here all you should have to do is call sellItem with user2 and it should pass
     }
