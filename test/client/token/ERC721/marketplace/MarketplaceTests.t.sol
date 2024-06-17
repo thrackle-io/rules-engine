@@ -17,7 +17,7 @@ import "src/common/IErrors.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55, @VoR0220
  * @dev This is to test rule functionality with the operator style marketplace.
  */
-contract MarketplaceTests is TokenUtils, ERC721Util {
+contract MarketplaceTestsErc20SellsNftBuys is TokenUtils, ERC721Util {
     NftMarketplace public marketplace;
     uint constant buyPrice = 100_000_000_000;
     uint constant NFT_ID_1 = 0;
@@ -678,4 +678,42 @@ contract MarketplaceTests is TokenUtils, ERC721Util {
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
+}
+
+contract MarketplaceTestsErc20BuysNftSells is TokenUtils, ERC721Util {
+    NftMarketplace public marketplace;
+    uint constant buyPrice = 100_000_000_000;
+    uint constant NFT_ID_1 = 0;
+    uint constant NFT_ID_2 = 1;
+
+    // made as an attempt to get around a stack too deep error in the testing
+    struct MaxTradeSizeTest {
+        bytes32 tag;
+        uint240 maxTradeSize;
+        uint16 period;
+        uint32 ruleId;
+        ActionTypes[] actionTypes;
+        address handler;
+        bytes expectedError;
+    }
+
+    function setUp() public {
+        marketplace = new NftMarketplace();
+        setUpProcotolAndCreateERC721MinLegacyAndDiamondHandler();
+        switchToAppAdministrator();
+        applicationCoin.mint(user1, buyPrice + 1);
+        applicationNFTv2.safeMint(user2);
+        vm.stopPrank();
+
+        vm.startPrank(user2);
+        applicationNFTv2.approve(address(marketplace), NFT_ID_1);
+        marketplace.listItem(address(applicationNFTv2), NFT_ID_1, address(applicationCoin), buyPrice);
+        vm.stopPrank();
+
+        vm.startPrank(user1);
+        applicationCoin.approve(address(marketplace), buyPrice);
+        marketplace.createOffer(address(applicationNFTv2), NFT_ID_1, buyPrice / 2);
+        vm.stopPrank();
+        // from here all you should have to do is call sellItem with user2 and it should pass
+    }
 }
