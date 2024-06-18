@@ -213,19 +213,26 @@ contract ProtocolApplicationHandler is
                 ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
         } else if (_action == ActionTypes.BUY) {
+            console.log("isContract(_sender): ", isContract(_sender));
+            console.log("_from: ", _from);
+            console.log("_sender: ", _sender);
             if (isContract(_sender) && _from != _sender){ /// Non custodial buy
-                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+                console.log("accountDenyForNoAccessLevel[ActionTypes.SELL].active: ", accountDenyForNoAccessLevel[ActionTypes.SELL].active);
+                console.log("fromScore: ", fromScore);
                 if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-            } else { /// custodial buys 
-                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
+            console.log("accountDenyForNoAccessLevel[ActionTypes.BUY].active: ", accountDenyForNoAccessLevel[ActionTypes.BUY].active);
+            console.log("score: ", score);
+            if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         } else if (_action == ActionTypes.SELL ) {
             if (isContract(_sender) && _to != _sender){ /// Non custodial sell 
-                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                console.log("accountDenyForNoAccessLevel[ActionTypes.BUY].active: ", accountDenyForNoAccessLevel[ActionTypes.BUY].active);
+                console.log("score: ", score);
                 if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-            } else { /// custodial sell 
-                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
             }
+            console.log("accountDenyForNoAccessLevel[_action].active: ", accountDenyForNoAccessLevel[_action].active);
+            console.log("fromScore: ", fromScore);
+            if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         } else if (_action == ActionTypes.MINT) {
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         } else if (_action == ActionTypes.BURN) {
