@@ -144,9 +144,6 @@ contract ProtocolApplicationHandler is
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
         _checkAccessLevelRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
-        console.log("we are checking that accountMaxTXValueByRiskScore is active");
-        console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
-        console.log("What action do we currently have?: ", uint8(_action));
         _checkRiskRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
     }
 
@@ -162,8 +159,6 @@ contract ProtocolApplicationHandler is
     function _checkRiskRules(address _from, address _to, address _sender, uint128 _balanceValuation, uint128 _transferValuation, ActionTypes _action) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
-        console.log("Transfer valuation: ", _transferValuation);
         if (accountMaxValueByRiskScore[_action].active) {
             ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
@@ -213,25 +208,14 @@ contract ProtocolApplicationHandler is
                 ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
         } else if (_action == ActionTypes.BUY) {
-            console.log("isContract(_sender): ", isContract(_sender));
-            console.log("_from: ", _from);
-            console.log("_sender: ", _sender);
             if (isContract(_sender) && _from != _sender){ /// Non custodial buy
-                console.log("accountDenyForNoAccessLevel[ActionTypes.SELL].active: ", accountDenyForNoAccessLevel[ActionTypes.SELL].active);
-                console.log("fromScore: ", fromScore);
                 if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
             }
-            console.log("accountDenyForNoAccessLevel[ActionTypes.BUY].active: ", accountDenyForNoAccessLevel[ActionTypes.BUY].active);
-            console.log("score: ", score);
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         } else if (_action == ActionTypes.SELL ) {
             if (isContract(_sender) && _to != _sender){ /// Non custodial sell 
-                console.log("accountDenyForNoAccessLevel[ActionTypes.BUY].active: ", accountDenyForNoAccessLevel[ActionTypes.BUY].active);
-                console.log("score: ", score);
                 if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
-            console.log("accountDenyForNoAccessLevel[_action].active: ", accountDenyForNoAccessLevel[_action].active);
-            console.log("fromScore: ", fromScore);
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         } else if (_action == ActionTypes.MINT) {
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);

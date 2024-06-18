@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "src/protocol/economic/ruleProcessor/RuleProcessorDiamondImports.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
-import "forge-std/console.sol";
 /**
  * @title ERC20 Tagged Rule Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -187,11 +186,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         uint64 startTime = getAccountMaxTradeSizeStart(ruleId);
         uint256 cumulativeTotal = 0;
         
-        console.log("Rule ID: ", ruleId);
-        console.log("startTime: ", startTime);
-        console.log("block.timestamp: ", block.timestamp);
-        console.log("transactedInPeriod: ", transactedInPeriod);
-        console.log("amount: ", amount);
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
@@ -200,17 +194,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                 toTags = new bytes32[](1);
                 toTags[0] = BLANK_TAG;
             }
-            console.log("toTags length: ", toTags.length);
             for (uint i = 0; i < toTags.length; ++i) {
-                console.log("toTags[i]: ");
-                console.logBytes32(toTags[i]);
                 TaggedRules.AccountMaxTradeSize memory rule = getAccountMaxTradeSize(ruleId, toTags[i]);
                 if (rule.period > 0 && rule.maxSize > 0) {
                     if (startTime.isWithinPeriod(rule.period, lastTransactionTime)) cumulativeTotal = transactedInPeriod + amount;
                     else cumulativeTotal = amount;
-
-                    console.log("CumulativeTotal: ", cumulativeTotal);
-                    console.log("Max Size rule: ", rule.maxSize);
                     if (cumulativeTotal > rule.maxSize) revert OverMaxSize();
                 }
             }
