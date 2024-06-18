@@ -189,11 +189,7 @@ contract NftMarketplace is ReentrancyGuard {
         // This is added purely so we can gather custom errors and why it fails in testing
         try IERC20(listedItem.erc20Address).transferFrom(msg.sender, listedItem.seller, listedItem.price) {}
         catch (bytes memory reason) {
-            console.log("Did we hit here");
-            console.log("application coin: ", listedItem.erc20Address);
-            console.logBytes(reason);
             bytes4 selector = bytes4(reason);
-            console.logBytes4(selector);
             revert TransferFailed(listedItem.erc20Address, selector);
         }
         try IERC721(nftAddress).safeTransferFrom(listedItem.seller, msg.sender, tokenId) {}
@@ -220,11 +216,7 @@ contract NftMarketplace is ReentrancyGuard {
             // This is added purely so we can gather custom errors and why it fails in testing
             try IERC721(nftAddress).safeTransferFrom(listedItem.seller, listedItem.offer.buyer, tokenId) {}
             catch (bytes memory reason) {
-                console.log("Did we hit here");
-                console.log("application coin: ", listedItem.erc20Address);
-                console.logBytes(reason);
                 bytes4 selector = bytes4(reason);
-                console.logBytes4(selector);
                 revert TransferFailed(nftAddress, selector);
             }
             try IERC20(listedItem.erc20Address).transferFrom(listedItem.offer.buyer, msg.sender, listedItem.offer.price) {}
