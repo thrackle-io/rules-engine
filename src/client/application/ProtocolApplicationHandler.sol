@@ -143,15 +143,11 @@ contract ProtocolApplicationHandler is
             balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
-        if (accountMaxValueByAccessLevel[_action].active || accountDenyForNoAccessLevel[_action].active || accountMaxValueOutByAccessLevel[_action].active) {
-            _checkAccessLevelRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
-        }
+        _checkAccessLevelRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
         console.log("we are checking that accountMaxTXValueByRiskScore is active");
         console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
         console.log("What action do we currently have?: ", uint8(_action));
-        if (accountMaxValueByRiskScore[_action].active || accountMaxTxValueByRiskScore[_action].active) {
-            _checkRiskRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
-        }
+        _checkRiskRules(_from, _to, _sender, balanceValuation, transferValuation, _action);
     }
 
     /**
