@@ -51,7 +51,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         vm.stopPrank();
     }
 
-    function test_accountDenyForNoAccessLevel_inOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
+    function test_accountDenyForNoAccessLevel_inBuyersOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
         vm.stopPrank();
@@ -71,7 +71,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountDenyForNoAccessLevel_inOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
+    function test_accountDenyForNoAccessLevel_inBuyersOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
         vm.stopPrank();
@@ -91,7 +91,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountDenyForNoAccessLevel_inOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
+    function test_accountDenyForNoAccessLevel_inBuyersOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user1, 1);
         vm.stopPrank();
@@ -111,9 +111,9 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountDenyForNoAccessLevel_inOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
+    function test_accountDenyForNoAccessLevel_inBuyersOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
         switchToAccessLevelAdmin();
-        applicationAppManager.addAccessLevel(user1, 1);
+        applicationAppManager.addAccessLevel(user2, 1);
         vm.stopPrank();
         // create rule for buy only
         ActionTypes[] memory actionTypes = new ActionTypes[](1);
@@ -131,7 +131,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountDenyForNoAccessLevel_inOperatorMarketplace_HappyPath() public endWithStopPrank() {
+    function test_accountDenyForNoAccessLevel_inBuyersOperatorMarketplace_HappyPath() public endWithStopPrank() {
         // give them access level
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
@@ -151,13 +151,13 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
 
     function _riskScoreHelper() internal returns (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) {
-        uint8[] memory riskScores = new uint8[](2);
+        riskScores = new uint8[](2);
         riskScores[0] = 25;
         riskScores[1] = 50;
-        uint48[] memory txLimits = new uint48[](2);
+        txLimits = new uint48[](2);
         txLimits[0] = uint48(buyPrice);
         txLimits[1] = uint48(99);
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, txLimits);
+        ruleId = createAccountMaxTxValueByRiskRule(riskScores, txLimits);
 
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
@@ -171,15 +171,12 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
 
     // expecting it to revert on erc20 sell
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
-        (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) = _riskScoreHelper();
+    function test_accountMaxTxValueByRiskScore_inBuyersOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
+        (, , uint32 ruleId) = _riskScoreHelper();
 
         setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.SELL, ruleId);
-        console.log(applicationHandler.isAccountMaxTxValueByRiskScoreActive(ActionTypes.SELL));
-        console.log("Part 2");
-        
+
         vm.startPrank(user1, user1);
-    
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
@@ -192,14 +189,21 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
 
     // expecting it to revert on erc721 buy
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
-        (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) = _riskScoreHelper();
+    function test_accountMaxTxValueByRiskScore_inBuyersOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
+        (, , uint32 ruleId) = _riskScoreHelper();
 
         // test that buy fails
         setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+        
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 18)); //setting at $1
+        vm.stopPrank();
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, 25);
+        vm.stopPrank();
 
         vm.startPrank(user1, user1);
-        console.log("Part 1");
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
@@ -212,8 +216,8 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
     
     // expecting it to revert on erc20 buy
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
-        (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) = _riskScoreHelper();
+    function test_accountMaxTxValueByRiskScore_inBuyersOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
+        (, , uint32 ruleId) = _riskScoreHelper();
 
         setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
 
@@ -230,12 +234,19 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
 
     // expecting it to revert on erc721 sell
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
-        (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) = _riskScoreHelper();
+    function test_accountMaxTxValueByRiskScore_inBuyersOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
+        (, , uint32 ruleId) = _riskScoreHelper();
         setAccountMaxTxValueByRiskRuleSingleAction(ActionTypes.SELL, ruleId);
+                
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 18)); //setting at $1
+        vm.stopPrank();
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, 25);
+        vm.stopPrank();
 
         vm.startPrank(user1, user1);
-        console.log("Part 1");
         vm.expectRevert(
             abi.encodeWithSelector(
                 TransferFailed.selector, 
@@ -248,8 +259,8 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
     }
 
         // expecting it to revert on erc721 sell
-    function test_accountMaxTxValueByRiskScore_inOperatorMarketplace_HappyPath() public endWithStopPrank() {
-        (uint8[] memory riskScores, uint48[] memory txLimits, uint32 ruleId) = _riskScoreHelper();
+    function test_accountMaxTxValueByRiskScore_inBuyersOperatorMarketplace_HappyPath() public endWithStopPrank() {
+        (uint8[] memory riskScores, , uint32 ruleId) = _riskScoreHelper();
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 18)); //setting at $1
         erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 18)); //setting at $1,000,000,000
@@ -278,11 +289,17 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         vm.warp(Blocktime);
         switchToAppAdministrator();
         applicationNFTv2.safeMint(user2); // give them a 2nd NFT
+        applicationCoin.mint(user1, 2);
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFTv2.approve(address(marketplace), NFT_ID_2);
         marketplace.listItem(address(applicationNFTv2), NFT_ID_2, address(applicationCoin), 1);
         vm.stopPrank();
+
+        vm.startPrank(user1, user1);
+        applicationCoin.approve(address(marketplace), applicationCoin.balanceOf(user1));
+        vm.stopPrank();
+
         bytes32 justBuyTag = "JUSTBUY";
         bytes32 justSellTag = "JUSTSELL";
         bytes32 buyAndSellTag = "BUYANDSELL";
@@ -389,7 +406,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         }
     }
 
-    function test_accountMaxTradeSize_inOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
+    function test_accountMaxTradeSize_inBuyersOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
         MaxTradeSizeTest memory test = getRuleForMaxTradeSize(0);
         setAccountMaxTradeSizeRule(test.handler, test.actionTypes, test.ruleId);
         switchToAppAdministrator();
@@ -407,7 +424,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), 0);
     }
 
-    function test_accountMaxTradeSize_inOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
+    function test_accountMaxTradeSize_inBuyersOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
         MaxTradeSizeTest memory test = getRuleForMaxTradeSize(1);
         setAccountMaxTradeSizeRule(test.handler, test.actionTypes, test.ruleId);
         switchToAppAdministrator();
@@ -425,7 +442,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), 0);
     }
 
-    function test_accountMaxTradeSize_inOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
+    function test_accountMaxTradeSize_inBuyersOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
         MaxTradeSizeTest memory test = getRuleForMaxTradeSize(2);
         setAccountMaxTradeSizeRule(test.handler, test.actionTypes, test.ruleId);
         switchToAppAdministrator();
@@ -443,7 +460,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), 0);
     }
 
-    function test_accountMaxTradeSize_inOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
+    function test_accountMaxTradeSize_inBuyersOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
         MaxTradeSizeTest memory test = getRuleForMaxTradeSize(3);
         setAccountMaxTradeSizeRule(test.handler, test.actionTypes, test.ruleId);
         switchToAppAdministrator();
@@ -492,7 +509,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         vm.stopPrank();
     }
 
-    function test_accountMinMaxTokenBalance_inOperatorMarketplace_ERC20Under() public endWithStopPrank() {
+    function test_accountMinMaxTokenBalance_inBuyersOperatorMarketplace_ERC20Under() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
         switchToAppAdministrator();
         applicationAppManager.addTag(user1, "ERC20_SOLIDMIN_SOLIDMAX");
@@ -510,7 +527,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountMinMaxTokenBalance_inOperatorMarketplace_ERC20Over() public endWithStopPrank() {
+    function test_accountMinMaxTokenBalance_inBuyersOperatorMarketplace_ERC20Over() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
         switchToAppAdministrator();
         applicationCoin.mint(user1, buyPrice * 10 + 1);
@@ -535,7 +552,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_accountMinMaxTokenBalance_inOperatorMarketplace_ERC721Under() public endWithStopPrank() {
+    function test_accountMinMaxTokenBalance_inBuyersOperatorMarketplace_ERC721Under() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
         _accountMinMaxTokenBalance_ERC721Initializer();
 
@@ -560,7 +577,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         vm.stopPrank();
     }
 
-    function test_accountMinMaxTokenBalance_inOperatorMarketplace_ERC721Over() public endWithStopPrank() {
+    function test_accountMinMaxTokenBalance_inBuyersOperatorMarketplace_ERC721Over() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
         _accountMinMaxTokenBalance_ERC721Initializer();
 
@@ -579,7 +596,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         vm.stopPrank();
     }
 
-    function test_accountMinMaxTokenBalance_inOperatorMarketplace_HappyPath() public endWithStopPrank() {
+    function test_accountMinMaxTokenBalance_inBuyersOperatorMarketplace_HappyPath() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
 
         switchToAppAdministrator();
@@ -613,7 +630,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         startTime = uint64(block.timestamp); 
     }
 
-    function test_MaxBuySellVolume_inOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
+    function test_MaxBuySellVolume_inBuyersOperatorMarketplace_ERC20Sell() public endWithStopPrank() {
         (ActionTypes[] memory actionTypes, uint16 tokenPercentage, uint16 period, uint256 ERC20TotalSupply, , uint64 startTime) = _maxBuySellVolumeSetup();
         uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC20TotalSupply, startTime);
         setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
@@ -629,14 +646,10 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_MaxBuySellVolume_inOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
+    function test_MaxBuySellVolume_inBuyersOperatorMarketplace_ERC20Buy() public endWithStopPrank() {
         (ActionTypes[] memory actionTypes, uint16 tokenPercentage, uint16 period, uint256 ERC20TotalSupply, , uint64 startTime) = _maxBuySellVolumeSetup();
         actionTypes[0] = ActionTypes.BUY;
-        console.log("action types length: ", actionTypes.length);
-        console.log("action type: ", uint8(actionTypes[0]));
-        console.log("token percentage: ", tokenPercentage);
-        console.log("period: ", period);
-        console.log("ERC20TotalSupply: ", ERC20TotalSupply);
+
         uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC20TotalSupply, startTime);
         setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
 
@@ -651,7 +664,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_MaxBuySellVolume_inOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
+    function test_MaxBuySellVolume_inBuyersOperatorMarketplace_ERC721Sell() public endWithStopPrank() {
         (ActionTypes[] memory actionTypes, uint16 tokenPercentage, uint16 period, , uint256 ERC721TotalSupply, uint64 startTime) = _maxBuySellVolumeSetup();
         uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC721TotalSupply, startTime);
         setTokenMaxBuySellVolumeRule(address(applicationNFTHandlerv2), actionTypes, ruleId);
@@ -667,7 +680,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_MaxBuySellVolume_inOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
+    function test_MaxBuySellVolume_inBuyersOperatorMarketplace_ERC721Buy() public endWithStopPrank() {
         (ActionTypes[] memory actionTypes, uint16 tokenPercentage, uint16 period, , uint256 ERC721TotalSupply, uint64 startTime) = _maxBuySellVolumeSetup();
         actionTypes[0] = ActionTypes.BUY;
         uint32 ruleId = createTokenMaxBuySellVolumeRule(tokenPercentage, period, ERC721TotalSupply, startTime);
@@ -684,12 +697,31 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    // function test_MaxBuySellVolume_inOperatorMarketplace_HappyPath() public endWithStopPrank() {
-    //     (ActionTypes[] memory actionTypes, uint16 tokenPercentage, uint16 period, uint256 ERC20TotalSupply, uint256 ERC721TotalSupply, uint64 startTime) = _maxBuySellVolumeSetup();
-    //     // todo: make the supply of tokens on both ends larger to user3 so that it doesn't affect the volume
-    // }
+    function test_MaxBuySellVolume_inBuyersOperatorMarketplace_HappyPath() public endWithStopPrank() {
+        (ActionTypes[] memory actionTypes, , uint16 period, , , uint64 startTime) = _maxBuySellVolumeSetup();
+        actionTypes = new ActionTypes[](2);
+        actionTypes[0] = ActionTypes.BUY;
+        actionTypes[1] = ActionTypes.SELL;
 
-    function test_inOperatorMarketplace_AccountApproveDenyOracleRules_ApproveAndDenyOracle() public endWithStopPrank() {
+        switchToAppAdministrator();
+        for (uint i = 0; i < 10; ++i) {
+            applicationCoin.mint(user3, buyPrice); // just multiply the amount in an elegant way
+            applicationNFTv2.safeMint(user3);
+        }
+        vm.stopPrank();
+
+        uint32 ruleId = createTokenMaxBuySellVolumeRule(1110, period, applicationCoin.totalSupply(), startTime);
+        uint32 ruleId2 = createTokenMaxBuySellVolumeRule(1110, period, applicationNFTv2.totalSupply(), startTime);
+        setTokenMaxBuySellVolumeRule(address(applicationCoinHandler), actionTypes, ruleId);
+        setTokenMaxBuySellVolumeRule(address(applicationNFTHandlerv2), actionTypes, ruleId2);
+
+        vm.startPrank(user1, user1);
+        vm.expectEmit(address(marketplace));
+        emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), 0, buyPrice);
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inBuyersOperatorMarketplace_AccountApproveDenyOracleRules_ApproveAndDenyOracle() public endWithStopPrank() {
         // create oracle rule and set users to approve list 
         switchToRuleAdmin();
         // ERC20 Approve Oracle 
@@ -782,7 +814,7 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-    function test_inOperatorMarketplace_AccountApproveDenyOracleRules_DenyAndApproveOracle() public endWithStopPrank() {
+    function test_inBuyersOperatorMarketplace_AccountApproveDenyOracleRules_DenyAndApproveOracle() public endWithStopPrank() {
         // create oracle rule and set users to approve list 
         switchToRuleAdmin();
         // ERC20 Deny Oracle 
