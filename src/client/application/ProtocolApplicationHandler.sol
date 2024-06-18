@@ -100,11 +100,9 @@ contract ProtocolApplicationHandler is
      * @return true if one or more rules are active
      */
     function requireApplicationRulesChecked(ActionTypes _action, address _sender) public view returns (bool) {
-        _sender;
-        return _checkWhichApplicationRulesActive(_action);
-        // return _checkWhichApplicationRulesActive(_action) ? true 
-        //     : isContract(_sender) ? _checkNonCustodialRules(_action)
-        //     : false;
+        return _checkWhichApplicationRulesActive(_action) ? true 
+            : isContract(_sender) ? _checkNonCustodialRules(_action)
+            : false;
     }
 
     /**
