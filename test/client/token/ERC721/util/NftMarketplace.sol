@@ -239,7 +239,7 @@ contract NftMarketplace is ReentrancyGuard {
         Listing memory listing = s_listings[nftAddress][tokenId];
 
         require(IERC20(listing.erc20Address).allowance(msg.sender, address(this)) >= price, "Insufficient balance");
-        if (price > listing.offer.price) {
+        if (price > listing.offer.price || msg.sender == listing.offer.buyer) {
             s_listings[nftAddress][tokenId].offer = Offer(msg.sender, price);
         }
     }
