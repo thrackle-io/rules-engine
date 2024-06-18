@@ -26,14 +26,12 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
     function checkTradingRules(address _from, address _to, address _sender, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action) external onlyOwner {
         if(action == ActionTypes.BUY){
             if (isContract(_sender) && _from != _sender){ /// non custodial buy
-                _checkTradeRulesBuyAction(_to, toTags, _amount);
                 _checkTradeRulesSellAction(_from, fromTags, _amount);
             }
             _checkTradeRulesBuyAction(_to, toTags, _amount);
         } else if(action == ActionTypes.SELL) {
             if (isContract(_sender) && _to != _sender){ /// non custodial sell 
                 _checkTradeRulesBuyAction(_to, toTags, _amount);
-                _checkTradeRulesSellAction(_from, fromTags, _amount);
             }
             _checkTradeRulesSellAction(_from, fromTags, _amount);
         }
@@ -44,11 +42,8 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
      * @param _to address of the to account
      * @param toTags tags of the from account
      * @param _amount number of tokens transferred
-     * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256 _amount) internal {
-        console.log("check trade rules buy action active", lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active);
-        console.log("the above is for action: ", uint8(action));
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[ActionTypes.BUY].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
             // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
@@ -57,7 +52,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
                 delete maxTradeSize.lastPurchaseTime[_to];
             }
             maxTradeSize.boughtInPeriod[_to] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxTradeSize(
-                maxTradeSize.accountMaxTradeSize[action].ruleId, 
+                maxTradeSize.accountMaxTradeSize[ActionTypes.BUY].ruleId, 
                 maxTradeSize.boughtInPeriod[_to], 
                 _amount, 
                 toTags, 
@@ -82,11 +77,8 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
      * @param _from address of the from account
      * @param fromTags tags of the from account
      * @param _amount number of tokens transferred
-     * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, uint256 _amount) internal {
-        console.log("check trade rules sell action active", lib.accountMaxTradeSizeStorage().accountMaxTradeSize[action].active);
-        console.log("the above is for action: ", uint8(action));
         if (lib.accountMaxTradeSizeStorage().accountMaxTradeSize[ActionTypes.SELL].active) {
             AccountMaxTradeSizeS storage maxTradeSize = lib.accountMaxTradeSizeStorage();
             // If the rule has been modified after transaction data was recorded, clear the accumulated transaction data.
@@ -95,7 +87,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
                 delete maxTradeSize.lastSellTime[_from];
             }
             maxTradeSize.salesInPeriod[_from] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxTradeSize(
-                maxTradeSize.accountMaxTradeSize[action].ruleId,  
+                maxTradeSize.accountMaxTradeSize[ActionTypes.SELL].ruleId,  
                 maxTradeSize.salesInPeriod[_from],  
                 _amount,  
                 fromTags,  
@@ -106,7 +98,7 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
         if(lib.tokenMaxBuySellVolumeStorage().tokenMaxBuySellVolume[ActionTypes.SELL].active){
             TokenMaxBuySellVolumeS storage maxVolume = lib.tokenMaxBuySellVolumeStorage();
             maxVolume.salesInPeriod = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkTokenMaxBuySellVolume(
-                maxVolume.tokenMaxBuySellVolume[action].ruleId, 
+                maxVolume.tokenMaxBuySellVolume[ActionTypes.SELL].ruleId, 
                 IERC20Decimals(msg.sender).totalSupply(),  
                 _amount,  
                 maxVolume.lastSellTime,  
