@@ -18,8 +18,9 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
      * @return totalTokenMaxSupplyVolatilityId rule id
      */
     function getTokenMaxSupplyVolatilityId(ActionTypes _action) external view returns (uint32) {
-        _action;
-        return lib.tokenMaxSupplyVolatilityStorage().ruleId;
+        // since a single rule id is shared for all the actions, only return if active.
+        if (!isTokenMaxSupplyVolatilityActive(_action)) return 0;
+        else return lib.tokenMaxSupplyVolatilityStorage().ruleId;
     }
 
     /**
@@ -37,14 +38,45 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
     }
 
     /**
+     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleId Rule Id corresponding to the actions
+     */
+    function setTokenMaxSupplyVolatilityIdFull(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        clearTokenMaxSupplyVolatility(); 
+        for (uint i; i < _actions.length; ) {
+            setTokenMaxSupplyVolatilityIdUpdate(_actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        } 
+        uint32[] memory _ruleIds = new uint32[](1);
+        _ruleIds[0] = _ruleId;
+        emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_SUPPLY_VOLATILITY, _actions, _ruleIds);
+    }
+
+    /**
      * @dev Clear the rule data structure
      */
     function clearTokenMaxSupplyVolatility() internal {
         TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
-        delete data.ruleId;
+        clearTokenMaxSupplyVolatilityAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxSupplyVolatility[ActionTypes(i)];
         }
+    }
+
+    /**
+     * @dev Clear the rule data accumulators
+     */
+    function clearTokenMaxSupplyVolatilityAccumulators() internal {
+        TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
+        delete data.ruleId;
+        delete data.lastSupplyUpdateTime;
+        delete data.volumeTotalForPeriod;
+        delete data.totalSupplyForPeriod;
     }
 
     /**
@@ -83,7 +115,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
      * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isTokenMaxSupplyVolatilityActive(ActionTypes _action) external view returns (bool) {
+    function isTokenMaxSupplyVolatilityActive(ActionTypes _action) public view returns (bool) {
         return lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[_action];
     }
 }
