@@ -17,14 +17,6 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-import "forge-std/console.sol";
->>>>>>> 2534dbbf2 (fixed tests)
-
->>>>>>> 25edcf225 (cleanup)
 contract ERC721NonTaggedRuleFacet is
     AppAdministratorOrOwnerOnlyDiamondVersion,
     HandlerAccountApproveDenyOracle,
