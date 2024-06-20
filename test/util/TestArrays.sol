@@ -245,9 +245,9 @@ abstract contract TestArrays {
 
     /****************** UINT32 ARRAY CREATION ******************
     /**
-    * @dev This function creates a uint16 array to be used in tests 
-    * @notice This function creates a uint16 array size of 1 
-    * @return array uint16[] 
+    * @dev This function creates a uint32 array to be used in tests 
+    * @notice This function creates a uint32 array size of 1 
+    * @return array uint32[] 
     */
     function createUint32Array(uint32 arg1) public pure returns (uint32[] memory array) {
         array = new uint32[](1);
