@@ -168,35 +168,49 @@ contract ProtocolApplicationHandler is
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         console.log("accountMaxTxValueByRiskScore[_action].active: ", accountMaxTxValueByRiskScore[_action].active);
         console.log("Transfer valuation: ", _transferValuation);
-        if (accountMaxValueByRiskScore[_action].active) {
-            ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
-        }
 
         if (_action == ActionTypes.P2P_TRANSFER) {
             if (accountMaxTxValueByRiskScore[_action].active) {
                 _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
             }
+            if (accountMaxValueByRiskScore[_action].active) {
+                ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+            }
         } else if (_action == ActionTypes.BUY) {
             if (isContract(_sender) && _from != _sender){ /// non custodial buy 
                 if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
                 if (accountMaxTxValueByRiskScore[ActionTypes.SELL].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
+                if (accountMaxValueByRiskScore[_action].active) {
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+                }
             } else { /// custodial buy 
                 if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to,riskScoreTo, _transferValuation);
+                if (accountMaxValueByRiskScore[_action].active) {
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+                }
             } 
         } else if (_action == ActionTypes.SELL) {
             if (isContract(_sender) && _to != _sender){ /// non custodial sell 
                 if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 if (accountMaxTxValueByRiskScore[ActionTypes.BUY].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+                if (accountMaxValueByRiskScore[ActionTypes.BUY].active) {
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _from, riskScoreFrom, _balanceValuation, _transferValuation);
+                }
             } else { /// custodial sell
                 if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action,_from, riskScoreFrom, _transferValuation);
+                if (accountMaxValueByRiskScore[ActionTypes.BUY].active) {
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _from, riskScoreFrom, _balanceValuation, _transferValuation);
+                }
             } 
         } else if (_action == ActionTypes.MINT) {
-            if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
+            if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+            if (accountMaxValueByRiskScore[_action].active) {
+                ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+            }
         } else if (_action == ActionTypes.BURN) {
             if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation); 
         } 
-
     }
 
     /**
@@ -216,35 +230,108 @@ contract ProtocolApplicationHandler is
                 ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             }
+            if (accountMaxValueByAccessLevel[_action].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                accountMaxValueByAccessLevel[_action].ruleId, 
+                score, 
+                _balanceValuation,
+                _transferValuation
+            );
+            if (accountMaxValueOutByAccessLevel[_action].active) {
+                usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                    accountMaxValueOutByAccessLevel[_action].ruleId,
+                    fromScore,
+                    usdValueTotalWithrawals[_from],
+                    _transferValuation
+                );
+            }
         } else if (_action == ActionTypes.BUY) {
             if (isContract(_sender) && _from != _sender){ /// Non custodial buy
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
                 if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                if (accountMaxValueByAccessLevel[_action].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                    accountMaxValueByAccessLevel[_action].ruleId, 
+                    score, 
+                    _balanceValuation,
+                    _transferValuation
+                );
+                if (accountMaxValueOutByAccessLevel[ActionTypes.SELL].active) {
+                    usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                        accountMaxValueOutByAccessLevel[_action].ruleId,
+                        fromScore,
+                        usdValueTotalWithrawals[_from],
+                        _transferValuation
+                    );
+                }
             } else { /// custodial buys 
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+                if (accountMaxValueByAccessLevel[_action].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                    accountMaxValueByAccessLevel[_action].ruleId, 
+                    score, 
+                    _balanceValuation,
+                    _transferValuation
+                );
+                if (accountMaxValueOutByAccessLevel[ActionTypes.SELL].active) {
+                    usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                        accountMaxValueOutByAccessLevel[ActionTypes.SELL].ruleId,
+                        fromScore,
+                        usdValueTotalWithrawals[_from],
+                        _transferValuation
+                    );
+                }
             }
         } else if (_action == ActionTypes.SELL ) {
             if (isContract(_sender) && _to != _sender){ /// Non custodial sell 
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+                if (accountMaxValueByAccessLevel[ActionTypes.BUY].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                    accountMaxValueByAccessLevel[ActionTypes.BUY].ruleId, 
+                    score, 
+                    _balanceValuation, 
+                    _transferValuation
+                );
+                if (accountMaxValueOutByAccessLevel[_action].active) {
+                    usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                        accountMaxValueOutByAccessLevel[_action].ruleId,
+                        fromScore,
+                        usdValueTotalWithrawals[_from],
+                        _transferValuation
+                    );
+                }
             } else { /// custodial sell 
                 if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+                if (accountMaxValueByAccessLevel[ActionTypes.BUY].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                    accountMaxValueByAccessLevel[ActionTypes.BUY].ruleId, 
+                    score, 
+                    _balanceValuation, 
+                    _transferValuation
+                );
+                if (accountMaxValueOutByAccessLevel[_action].active) {
+                    usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                        accountMaxValueOutByAccessLevel[_action].ruleId,
+                        fromScore,
+                        usdValueTotalWithrawals[_from],
+                        _transferValuation
+                    );
+                }
             }
         } else if (_action == ActionTypes.MINT) {
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-        } else if (_action == ActionTypes.BURN) {
-            if (accountDenyForNoAccessLevel[_action].active)ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-        }
-
-        if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
-            ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
-        if (accountMaxValueOutByAccessLevel[_action].active) {
-            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
-                accountMaxValueOutByAccessLevel[_action].ruleId,
-                fromScore,
-                usdValueTotalWithrawals[_from],
+            if (accountMaxValueByAccessLevel[_action].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
+                accountMaxValueByAccessLevel[_action].ruleId, 
+                score, 
+                _balanceValuation, 
                 _transferValuation
             );
+        } else if (_action == ActionTypes.BURN) {
+            if (accountDenyForNoAccessLevel[_action].active)ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+            if (accountMaxValueOutByAccessLevel[_action].active) {
+                usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                    accountMaxValueOutByAccessLevel[_action].ruleId,
+                    fromScore,
+                    usdValueTotalWithrawals[_from],
+                    _transferValuation
+                );
+            }
         }
     }
 
