@@ -18,7 +18,11 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import "forge-std/console.sol";
+>>>>>>> 2534dbbf2 (fixed tests)
 
 >>>>>>> 25edcf225 (cleanup)
 contract ERC721NonTaggedRuleFacet is
@@ -61,7 +65,7 @@ contract ERC721NonTaggedRuleFacet is
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
            _checkTokenMaxDailyTradesRule(action, _tokenId);
         }
-        _checkSimpleRules(action, _tokenId, handlerBase, _sender);
+        _checkSimpleRules(action, _tokenId, handlerBase, _from, _to, _sender);
     }
 
     /**
@@ -181,7 +185,8 @@ contract ERC721NonTaggedRuleFacet is
      * @param _tokenId the specific token to check 
      * @param handlerBase address of the handler proxy 
      */
-    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _sender) internal {
+
+    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _from, address _to, address _sender) internal {
         TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
 
         ActionTypes potentialOppositeAction;
@@ -190,11 +195,13 @@ contract ERC721NonTaggedRuleFacet is
         
         if (minHoldTime.tokenMinHoldTime[_action].active && minHoldTime.ownershipStart[_tokenId] > 0)
             IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[_action].period, minHoldTime.ownershipStart[_tokenId]);
-        
-        if (_action == ActionTypes.BUY) {
+
+        if (_action == ActionTypes.BUY && _from != _sender) {
             potentialOppositeAction = ActionTypes.SELL;
-        } else if (_action == ActionTypes.SELL) {
+        } else if (_action == ActionTypes.SELL && _to != _sender) {
             potentialOppositeAction = ActionTypes.BUY;
+        } else {
+            return;
         }
 
         if (isContract(_sender) && minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
