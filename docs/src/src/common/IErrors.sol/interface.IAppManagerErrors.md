@@ -1,5 +1,5 @@
 # IAppManagerErrors
-[Git Source](https://github.com/thrackle-io/tron/blob/ad4d24a5f2b61a5f8e2561806bd722c0cc64e81a/src/common/IErrors.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/162302962dc6acd8eb4a5fadda6be1dbd5a16028/src/common/IErrors.sol)
 
 **Inherits:**
 [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md)
