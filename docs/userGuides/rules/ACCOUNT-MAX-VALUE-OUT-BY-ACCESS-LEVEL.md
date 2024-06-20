@@ -13,7 +13,7 @@ The purpose of this rule is to provide limits on the amount of funds that an acc
 ## Applies To Actions:
 
 - [ ] MINT
-- [ ] BURN
+- [X] BURN
 - [ ] BUY
 - [x] SELL
 - [x] TRANSFER(Peer to Peer)
