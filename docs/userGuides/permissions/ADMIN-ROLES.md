@@ -190,7 +190,7 @@ Keccak256: 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a
 ---
 
 ## TREASURY ACCOUNT
-Treasury Account can be granted at any time by the app admin. This role is exempt from all economic rules. This role cannot be revoked or renounce their role while this rule is active. Functions with the modifier onlyRole(TREASURY_ACCOUNT) can only be called by this role. 
+Treasury Account can be granted at any time by the app admin. This role is exempt from all economic rules. Any transactions involving a treasury account will bypass rule checks for all parties involved. This role cannot be revoked or renounce their role while this rule is active. Functions with the modifier onlyRole(TREASURY_ACCOUNT) can only be called by this role. 
 
 ### Add Command
 The following is an example of the command used to add an treasury account:

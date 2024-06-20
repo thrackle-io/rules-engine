@@ -2226,6 +2226,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         }
     }
 
+    
     /* TokenMinimumTransaction */
     function testERC20_ERC20CommonTests_TokenMinimumTransactionAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);

@@ -19,8 +19,9 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
      * @return tokenMaxTradingVolumeRuleId rule id
      */
     function getTokenMaxTradingVolumeId(ActionTypes _action) external view returns (uint32) {
-        _action;
-        return lib.tokenMaxTradingVolumeStorage().ruleId;
+        // since a single rule id is shared for all the actions, only return if active.
+        if (!isTokenMaxTradingVolumeActive(_action)) return 0;
+        else return lib.tokenMaxTradingVolumeStorage().ruleId;
     }
 
     /**
@@ -38,11 +39,30 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
     }
 
     /**
+     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleId Rule Id corresponding to the actions
+     */
+    function setTokenMaxTradingVolumeIdFull(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        clearTokenMaxTradingVolume(); 
+        for (uint i; i < _actions.length; ) {
+            setTokenMaxTradingVolumeIdUpdate(_actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        } 
+        uint32[] memory _ruleIds = new uint32[](1);
+        _ruleIds[0] = _ruleId;
+        emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);
+    }
+
+    /**
      * @dev Clear the rule data structure
      */
     function clearTokenMaxTradingVolume() internal {
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
-        delete data.ruleId;
         clearTokenMaxTradingVolumeAccumulators();
         for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ++i) {
             delete data.tokenMaxTradingVolume[ActionTypes(i)];
@@ -54,6 +74,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
      */
     function clearTokenMaxTradingVolumeAccumulators() internal {
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
+        delete data.ruleId;
         delete data.transferVolume;
         delete data.lastTransferTime;
     }
@@ -105,7 +126,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
      * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isTokenMaxTradingVolumeActive(ActionTypes _action) external view returns (bool) {
+    function isTokenMaxTradingVolumeActive(ActionTypes _action) public view returns (bool) {
         return lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[_action];
     }
 }
