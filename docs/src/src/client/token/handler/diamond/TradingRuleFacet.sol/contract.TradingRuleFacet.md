@@ -1,8 +1,8 @@
 # TradingRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/token/handler/diamond/TradingRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/token/handler/diamond/TradingRuleFacet.sol)
 
 **Inherits:**
-[HandlerAccountMaxTradeSize](/src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol/contract.HandlerAccountMaxTradeSize.md), [HandlerTokenMaxBuySellVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol/contract.HandlerTokenMaxBuySellVolume.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)
+[HandlerAccountMaxTradeSize](/src/client/token/handler/ruleContracts/HandlerAccountMaxTradeSize.sol/contract.HandlerAccountMaxTradeSize.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [HandlerTokenMaxBuySellVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxBuySellVolume.sol/contract.HandlerTokenMaxBuySellVolume.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)
 
 
 ## Functions
@@ -15,6 +15,7 @@
 function checkTradingRules(
     address _from,
     address _to,
+    address _sender,
     bytes32[] memory fromTags,
     bytes32[] memory toTags,
     uint256 _amount,
@@ -27,6 +28,7 @@ function checkTradingRules(
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the caller|
 |`fromTags`|`bytes32[]`|tags of the from account|
 |`toTags`|`bytes32[]`|tags of the from account|
 |`_amount`|`uint256`|number of tokens transferred|
@@ -35,12 +37,14 @@ function checkTradingRules(
 
 ### _checkTradeRulesBuyAction
 
+non custodial buy
+non custodial sell
+
 *This function checks the trading rules for Buy actions*
 
 
 ```solidity
-function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256 _amount, ActionTypes action)
-    internal;
+function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256 _amount) internal;
 ```
 **Parameters**
 
@@ -49,7 +53,6 @@ function _checkTradeRulesBuyAction(address _to, bytes32[] memory toTags, uint256
 |`_to`|`address`|address of the to account|
 |`toTags`|`bytes32[]`|tags of the from account|
 |`_amount`|`uint256`|number of tokens transferred|
-|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 
 
 ### _checkTradeRulesSellAction
@@ -60,8 +63,7 @@ update with new blockTime if rule check is successful
 
 
 ```solidity
-function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, uint256 _amount, ActionTypes action)
-    internal;
+function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, uint256 _amount) internal;
 ```
 **Parameters**
 
@@ -70,6 +72,5 @@ function _checkTradeRulesSellAction(address _from, bytes32[] memory fromTags, ui
 |`_from`|`address`|address of the from account|
 |`fromTags`|`bytes32[]`|tags of the from account|
 |`_amount`|`uint256`|number of tokens transferred|
-|`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 
 

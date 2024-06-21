@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -1138,6 +1138,7 @@ function getAccessLevelProvider() external view returns (address);
 ```solidity
 function checkApplicationRules(
     address _tokenAddress,
+    address _sender,
     address _from,
     address _to,
     uint256 _amount,
@@ -1152,6 +1153,7 @@ function checkApplicationRules(
 |Name|Type|Description|
 |----|----|-----------|
 |`_tokenAddress`|`address`|address of the token calling the rule check|
+|`_sender`|`address`|address of the calling account passed through from the token|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|number of tokens to be transferred|

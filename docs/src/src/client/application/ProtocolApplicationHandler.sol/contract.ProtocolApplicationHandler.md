@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
@@ -157,19 +157,34 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 
 
+### _checkWhichApplicationRulesActive
+
+
+```solidity
+function _checkWhichApplicationRulesActive(ActionTypes _action) internal view returns (bool);
+```
+
+### _checkNonCustodialRules
+
+
+```solidity
+function _checkNonCustodialRules(ActionTypes _action) internal view returns (bool);
+```
+
 ### requireApplicationRulesChecked
 
 *checks if any of the Application level rules are active*
 
 
 ```solidity
-function requireApplicationRulesChecked(ActionTypes _action) public view returns (bool);
+function requireApplicationRulesChecked(ActionTypes _action, address _sender) public view returns (bool);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_action`|`ActionTypes`|the current action type|
+|`_sender`|`address`||
 
 **Returns**
 
@@ -186,6 +201,7 @@ function requireApplicationRulesChecked(ActionTypes _action) public view returns
 ```solidity
 function checkApplicationRules(
     address _tokenAddress,
+    address _sender,
     address _from,
     address _to,
     uint256 _amount,
@@ -199,7 +215,8 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenAddress`|`address`||
+|`_tokenAddress`|`address`|address of the token|
+|`_sender`|`address`|address of the calling account passed through from the token|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|amount of tokens to be transferred|
@@ -220,6 +237,7 @@ Based on the Handler Type retrieve pricing valuations
 function _checkRiskRules(
     address _from,
     address _to,
+    address _sender,
     uint128 _balanceValuation,
     uint128 _transferValuation,
     ActionTypes _action
@@ -231,12 +249,16 @@ function _checkRiskRules(
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the caller|
 |`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
 |`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 |`_action`|`ActionTypes`|the current user action|
 
 
 ### _checkAccessLevelRules
+
+non custodial buy
+non custodial sell
 
 *This function consolidates all the Access Level rule checks.*
 
@@ -245,6 +267,7 @@ function _checkRiskRules(
 function _checkAccessLevelRules(
     address _from,
     address _to,
+    address _sender,
     uint128 _balanceValuation,
     uint128 _transferValuation,
     ActionTypes _action
@@ -254,14 +277,18 @@ function _checkAccessLevelRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_from`|`address`||
+|`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the to caller|
 |`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
 |`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 |`_action`|`ActionTypes`|the current user action|
 
 
 ### _checkAccountMaxTxValueByRiskScore
+
+Non custodial buy
+Non custodial sell
 
 *This function consolidates the MaxTXValueByRiskScore rule checks for the from address.*
 
@@ -1082,5 +1109,26 @@ function version() external pure returns (string memory);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`string`|VERSION|
+
+
+### isContract
+
+*Check if the addresss is a contract*
+
+
+```solidity
+function isContract(address account) internal view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to check|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|bool|
 
 

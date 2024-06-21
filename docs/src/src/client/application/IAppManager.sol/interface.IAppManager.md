@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -366,6 +366,7 @@ function isTradingRuleBypasser(address _address) external view returns (bool);
 ```solidity
 function checkApplicationRules(
     address _tokenAddress,
+    address _sender,
     address _from,
     address _to,
     uint256 _amount,
@@ -380,6 +381,7 @@ function checkApplicationRules(
 |Name|Type|Description|
 |----|----|-----------|
 |`_tokenAddress`|`address`|address of the token calling the rule check|
+|`_sender`|`address`|address of the calling account passed through from the token|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|amount of tokens to be transferred|

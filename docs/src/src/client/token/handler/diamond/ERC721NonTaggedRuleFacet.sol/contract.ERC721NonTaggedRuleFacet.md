@@ -1,5 +1,5 @@
 # ERC721NonTaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
 
 **Inherits:**
 [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md), [HandlerTokenMinHoldTime](/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol/contract.HandlerTokenMinHoldTime.md), [HandlerTokenMaxDailyTrades](/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol/contract.HandlerTokenMaxDailyTrades.md)
@@ -12,9 +12,14 @@
 
 
 ```solidity
-function checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 _tokenId)
-    external
-    onlyOwner;
+function checkNonTaggedRules(
+    ActionTypes action,
+    address _from,
+    address _to,
+    address _sender,
+    uint256 _amount,
+    uint256 _tokenId
+) external onlyOwner;
 ```
 **Parameters**
 
@@ -23,7 +28,8 @@ function checkNonTaggedRules(ActionTypes action, address _from, address _to, uin
 |`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_amount`|`uint256`||
+|`_sender`|`address`|address of the caller|
+|`_amount`|`uint256`|number of tokens transferred|
 |`_tokenId`|`uint256`|id of the NFT being transferred|
 
 
@@ -50,9 +56,13 @@ function _checkTokenMinTxSizeRule(uint256 _amount, ActionTypes action, address h
 
 
 ```solidity
-function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionTypes action, address handlerBase)
-    internal
-    view;
+function _checkAccountApproveDenyOraclesRule(
+    address _from,
+    address _to,
+    address _sender,
+    ActionTypes action,
+    address handlerBase
+) internal view;
 ```
 **Parameters**
 
@@ -60,6 +70,7 @@ function _checkAccountApproveDenyOraclesRule(address _from, address _to, ActionT
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the caller|
 |`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 |`handlerBase`|`address`|address of the handler proxy|
 
@@ -70,6 +81,10 @@ The action type determines if the _to or _from is checked by the oracle
 _from address is checked for Burn
 _to address is checked  for Mint
 _from and _to address are checked for BUY, SELL, and P2P_TRANSFER
+non custodial buy
+custodial buy
+non custodial sell
+custodial sell
 
 *Internal function to check the Token Max Trading Volume rule*
 

@@ -1,8 +1,8 @@
 # ERC20TaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol)
 
 **Inherits:**
-[HandlerAccountMinMaxTokenBalance](/src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol/contract.HandlerAccountMinMaxTokenBalance.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md)
+[HandlerAccountMinMaxTokenBalance](/src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol/contract.HandlerAccountMinMaxTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md)
 
 
 ## Functions
@@ -17,6 +17,7 @@ function checkTaggedAndTradingRules(
     uint256 _balanceTo,
     address _from,
     address _to,
+    address _sender,
     uint256 _amount,
     ActionTypes action
 ) external onlyOwner;
@@ -29,6 +30,7 @@ function checkTaggedAndTradingRules(
 |`_balanceTo`|`uint256`|token balance of recipient address|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the caller|
 |`_amount`|`uint256`|number of tokens transferred|
 |`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 
@@ -44,6 +46,7 @@ function _checkTaggedIndividualRules(
     uint256 _balanceTo,
     address _from,
     address _to,
+    address _sender,
     uint256 _amount,
     ActionTypes action
 ) internal;
@@ -56,6 +59,7 @@ function _checkTaggedIndividualRules(
 |`_balanceTo`|`uint256`|token balance of recipient address|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
+|`_sender`|`address`|address of the caller|
 |`_amount`|`uint256`|number of tokens transferred|
 |`action`|`ActionTypes`|if selling or buying (of ActionTypes type)|
 
