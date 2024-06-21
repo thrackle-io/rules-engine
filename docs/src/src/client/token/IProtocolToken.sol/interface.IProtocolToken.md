@@ -1,10 +1,10 @@
-# IProtocolERC20Min
-[Git Source](https://github.com/thrackle-io/tron/blob/1e4e061752cea9c86408a9ccfc7ebc0d0de4bb9a/src/client/token/ERC20/IProtocolERC20Min.sol)
+# IProtocolToken
+[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/client/token/IProtocolToken.sol)
 
 **Author:**
-@ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+@ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
 
-This is the base contract for all protocol ERC20Upgradeables
+This is the base contract for all protocol tokens
 
 *Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer*
 
@@ -39,4 +39,11 @@ function connectHandlerToToken(address _deployedHandlerAddress) external;
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
 
+
+## Events
+### HandlerConnected
+
+```solidity
+event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
+```
 

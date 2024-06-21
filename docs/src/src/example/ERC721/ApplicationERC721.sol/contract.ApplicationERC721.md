@@ -1,13 +1,15 @@
-# ProtocolERC721
-[Git Source](https://github.com/thrackle-io/tron/blob/1e4e061752cea9c86408a9ccfc7ebc0d0de4bb9a/src/client/token/ERC721/ProtocolERC721.sol)
+# ApplicationERC721
+[Git Source](https://github.com/thrackle-io/tron/blob/e8b36a3b12094b00c1b143dd36d9acbc1f486a67/src/example/ERC721/ApplicationERC721.sol)
 
 **Inherits:**
-ERC721Burnable, ERC721URIStorage, ERC721Enumerable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), ReentrancyGuard
+ERC721, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, ERC721Burnable, ERC721Enumerable
 
 **Author:**
-@ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+@ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
 
-This is the base contract for all protocol ERC721s
+This is an example implementation that App Devs should use.
+
+*During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor*
 
 
 ## State Variables
@@ -15,6 +17,27 @@ This is the base contract for all protocol ERC721s
 
 ```solidity
 Counters.Counter internal _tokenIdCounter;
+```
+
+
+### TOKEN_ADMIN_ROLE
+
+```solidity
+bytes32 constant TOKEN_ADMIN_ROLE = keccak256("TOKEN_ADMIN_ROLE");
+```
+
+
+### handlerAddress
+
+```solidity
+address private handlerAddress;
+```
+
+
+### handler
+
+```solidity
+IProtocolTokenHandler private handler;
 ```
 
 
@@ -30,26 +53,24 @@ string public baseUri;
 ## Functions
 ### constructor
 
-*Constructor sets the name, symbol and base URI of NFT along with the App Manager Address*
+*Constructor sets params*
 
 
 ```solidity
-constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri)
-    ERC721(_nameProto, _symbolProto);
+constructor(string memory _name, string memory _symbol, address _tokenAdmin, string memory _baseUri)
+    ERC721(_name, _symbol);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_nameProto`|`string`|Name of NFT|
-|`_symbolProto`|`string`|Symbol for the NFT|
-|`_appManagerAddress`|`address`|Address of App Manager|
-|`_baseUri`|`string`|URI for the base token|
+|`_name`|`string`|Name of the token|
+|`_symbol`|`string`|Symbol of the token|
+|`_tokenAdmin`|`address`|Token Manager address|
+|`_baseUri`|`string`||
 
 
 ### _baseURI
-
-setters and getters for rules  *********
 
 *Function to return baseUri for contract*
 
@@ -72,34 +93,13 @@ this is called in the constructor and can be called to update URI metadata point
 
 
 ```solidity
-function setBaseURI(string memory _baseUri) public virtual appAdministratorOrOwnerOnly(appManagerAddress);
+function setBaseURI(string memory _baseUri) public virtual onlyRole(TOKEN_ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_baseUri`|`string`|URI to the metadata file(s) for the contract|
-
-
-### tokenURI
-
-*Function to set URI for specific token*
-
-
-```solidity
-function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`tokenId`|`uint256`|Id of token to update|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`string`|tokenURI new URI for token Id|
 
 
 ### safeMint
@@ -111,7 +111,7 @@ Function is payable for child contracts to override with priced mint function.
 
 
 ```solidity
-function safeMint(address to) public payable virtual appAdministratorOrOwnerOnly(appManagerAddress);
+function safeMint(address to) public payable virtual onlyRole(TOKEN_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -141,34 +141,6 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 |`batchSize`|`uint256`|the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will represent the first id to start the batch.|
 
 
-### _burn
-
-The following functions are overrides required by Solidity.
-
-*Function to burn or remove token from circulation*
-
-
-```solidity
-function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`tokenId`|`uint256`|Id of token to be burned|
-
-
-### withdraw
-
-*Function to withdraw Ether sent to contract*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function withdraw() public payable virtual appAdministratorOnly(appManagerAddress);
-```
-
 ### supportsInterface
 
 *Returns true if this contract implements the interface defined by
@@ -182,7 +154,7 @@ This function call must use less than 30 000 gas.*
 function supportsInterface(bytes4 interfaceId)
     public
     view
-    override(ERC721, ERC721Enumerable, ERC721URIStorage)
+    override(AccessControl, ERC721, ERC721Enumerable)
     returns (bool);
 ```
 
@@ -200,4 +172,30 @@ function getHandlerAddress() external view override returns (address);
 |----|----|-----------|
 |`<none>`|`address`|handlerAddress|
 
+
+### connectHandlerToToken
+
+*Function to connect Token to previously deployed Handler contract*
+
+
+```solidity
+function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+
+
+### withdraw
+
+*Function to withdraw Ether sent to contract*
+
+*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
+
+
+```solidity
+function withdraw() public payable virtual onlyRole(TOKEN_ADMIN_ROLE);
+```
 

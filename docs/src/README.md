@@ -19,8 +19,6 @@ npm i @thrackle-io/rules-protocol-client
 
 This package requires `@openzeppelin/contracts` version 4.9.6 and `@openzeppelin/contracts-upgradeable` version 4.9.6.
 
-*For this example, ApplicationERC20 uses OpenZeppelin's AccessControl contract to restrict certain functions*
-
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
 ```c
@@ -47,64 +45,37 @@ To use the package simply import the files you are interested in. Here is an exa
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "@thrackle-io/rules-protocol-client/src/example/ERC20/ApplicationERC20.sol";
+import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
 
 /**
  * @title Example ERC20 ApplicationERC20
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55, @Palmerg4
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett @mpetersoCode55
  * @notice This is an example implementation that App Devs should use.
- * @dev During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor
+ * @dev During deployment _tokenName _tokenSymbol _appManagerAddress _handlerAddress are set in constructor
  */
-contract ExampleApplicationERC20 is ApplicationERC20 {
+contract ApplicationERC20 is ProtocolERC20 {
     /**
      * @dev Constructor sets params
      * @param _name Name of the token
      * @param _symbol  Symbol of the token
-     * @param _tokenAdmin App Manager address
+     * @param _appManagerAddress App Manager address
      */
     constructor(
         string memory _name,
         string memory _symbol,
-        address _tokenAdmin
-    ) ApplicationERC20(_name, _symbol, _tokenAdmin) {}
+        address _appManagerAddress
+    ) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
 
 }
 ```
 
-As you can see, the ApplicationERC20 inherits the IProtocolToken interface which includes two functions:
+As you can see, everything is already encapsulated inside the:
 
 ```c
-function getHandlerAddress() external view returns (address);
-
-function connectHandlerToToken(address _deployedHandlerAddress) external;
+import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
 ```
 
-ApplicationERC20 also includes the rule processor module check:
-
-```c
-function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
-        /// Rule Processor Module Check
-        require(IProtocolTokenHandler(handlerAddress).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
-        super._beforeTokenTransfer(from, to, amount);
-    }
-```
-
-As well as implementation of the IProtocolToken interface functions:
-
-```c
-function getHandlerAddress() external view override returns (address) {
-        return handlerAddress;
-    }
-
-function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
-    if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
-    handlerAddress = _deployedHandlerAddress;
-    handler = IProtocolTokenHandler(handlerAddress);
-    emit HandlerConnected(_deployedHandlerAddress, address(this));
-}
-```
-
-All you need to do is to inherit the right contract and implement any necessary functions.
+All you need to do is to inherit the right contract and implement any necessary function. In this case, the `mint` function.
 
 ## Contributing
 
