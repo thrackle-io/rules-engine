@@ -70,6 +70,7 @@ contract RuleStorageAccountMaxTradeSizeMultiTest is RuleStorageInvariantCommon {
     function invariant_rulesTotalAccountMaxTradeSizeIncrementsByOne() public {
         uint256 previousTotal = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTradeSize();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(
             previousTotal,
             TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(

@@ -64,6 +64,7 @@ contract RuleStorageTokenMaxTradingVolumeMultiTest is RuleStorageInvariantCommon
     function invariant_rulesTotalTokenMaxTradingVolumeIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMaxTradingVolume();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(applicationAppManager), 666, 24, uint64(block.timestamp), 0));
     }
 

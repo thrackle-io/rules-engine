@@ -64,6 +64,7 @@ contract RuleStorageTokenMaxSupplyVolatilityMultiTest is RuleStorageInvariantCom
     function invariant_rulesTotalTokenMaxSupplyVolatilityIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMaxSupplyVolatility();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), 666, 24, uint64(block.timestamp), 0));
     }
 

@@ -68,6 +68,7 @@ contract RuleStorageAccountMaxValueOutByAccessLevelMultiTest is RuleStorageInvar
     function invariant_rulesTotalAccountMaxValueOutByAccessLevelIncrementsByOne() public {
         uint256 previousTotal = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccountMaxValueOutByAccessLevel();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueOutByAccessLevel(address(applicationAppManager), createUint48Array(666, 667, 668, 669, 670)));
     }
 

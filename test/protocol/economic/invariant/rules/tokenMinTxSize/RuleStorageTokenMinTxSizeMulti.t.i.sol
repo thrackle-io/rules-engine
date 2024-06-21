@@ -22,9 +22,9 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
             ApplicationAppManager actorAppManager = _createAppManager();
             switchToSuperAdmin();
             actorAppManager.addAppAdministrator(appAdministrator);
+            vm.startPrank(appAdministrator);
             actors.push(new RuleStorageTokenMinTxSizeActor(ruleProcessor, actorAppManager));
             if (i % 2 == 0) {
-                vm.startPrank(appAdministrator);
                 actorAppManager.addRuleAdministrator(address(actors[actors.length - 1]));
             }
         }
@@ -64,6 +64,7 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     function invariant_rulesTotalMinTxSizeIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1));
     }
 
