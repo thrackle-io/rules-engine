@@ -167,7 +167,8 @@ contract ProtocolApplicationHandler is
                 ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
             }
         } else if (_action == ActionTypes.BUY) {
-            if (isContract(_sender) && _from != _sender){ /// non custodial buy 
+            if (_from != _sender){ /// non custodial buy 
+                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
                 if (accountMaxTxValueByRiskScore[ActionTypes.SELL].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 if (accountMaxValueByRiskScore[_action].active) {
                     ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[_action].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
@@ -179,15 +180,16 @@ contract ProtocolApplicationHandler is
                 }
             } 
         } else if (_action == ActionTypes.SELL) {
-            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
+            if (_to != _sender){ /// non custodial sell 
+                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 if (accountMaxTxValueByRiskScore[ActionTypes.BUY].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
                 if (accountMaxValueByRiskScore[ActionTypes.BUY].active) {
-                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _from, riskScoreFrom, _balanceValuation, _transferValuation);
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
                 }
             } else { /// custodial sell
                 if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action,_from, riskScoreFrom, _transferValuation);
                 if (accountMaxValueByRiskScore[ActionTypes.BUY].active) {
-                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _from, riskScoreFrom, _balanceValuation, _transferValuation);
+                    ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScore[ActionTypes.BUY].ruleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
                 }
             } 
         } else if (_action == ActionTypes.MINT) {
@@ -232,7 +234,8 @@ contract ProtocolApplicationHandler is
                 );
             }
         } else if (_action == ActionTypes.BUY) {
-            if (isContract(_sender) && _from != _sender){ /// Non custodial buy
+            if (_from != _sender){ /// Non custodial buy
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
                 if (accountDenyForNoAccessLevel[ActionTypes.SELL].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 if (accountMaxValueByAccessLevel[_action].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
                     accountMaxValueByAccessLevel[_action].ruleId, 
@@ -267,7 +270,8 @@ contract ProtocolApplicationHandler is
             }
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         } else if (_action == ActionTypes.SELL ) {
-            if (isContract(_sender) && _to != _sender){ /// Non custodial sell 
+            if (_to != _sender){ /// Non custodial sell 
+                if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
                 if (accountDenyForNoAccessLevel[ActionTypes.BUY].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
                 if (accountMaxValueByAccessLevel[ActionTypes.BUY].active && _to != address(0)) ruleProcessor.checkAccountMaxValueByAccessLevel(
                     accountMaxValueByAccessLevel[ActionTypes.BUY].ruleId, 
