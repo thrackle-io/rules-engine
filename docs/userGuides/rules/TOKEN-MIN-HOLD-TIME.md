@@ -55,6 +55,7 @@ The rule will be evaluated with the following logic:
 2. The handler evaluates the account's `ownershipStart` to check that it is greater than zero.
 3. The handler passes the account's `ownershipStart` and `period` to the processor. 
 4. The Processor evaluates if the current time minus `ownershipStart` is less than `period`. If it is the transaction reverts.
+5. Rule processing differs slightly for the `BUY` and `SELL` type. If it is determined that the msg.sender is a contract, both `BUY` and `SELL` rules are checked if they are active and if they are the rule is applied to the transaction.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

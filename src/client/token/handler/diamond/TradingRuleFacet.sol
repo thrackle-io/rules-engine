@@ -25,12 +25,12 @@ contract TradingRuleFacet is HandlerAccountMaxTradeSize, HandlerUtils, HandlerTo
      */
     function checkTradingRules(address _from, address _to, address _sender, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action) external onlyOwner {
         if(action == ActionTypes.BUY){
-            if (isContract(_sender) && _from != _sender){ /// non custodial buy
+            if (_from != _sender){ /// non custodial buy
                 _checkTradeRulesSellAction(_from, fromTags, _amount);
             }
             _checkTradeRulesBuyAction(_to, toTags, _amount);
         } else if(action == ActionTypes.SELL) {
-            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
+            if (_to != _sender){ /// non custodial sell 
                 _checkTradeRulesBuyAction(_to, toTags, _amount);
             }
             _checkTradeRulesSellAction(_from, fromTags, _amount);

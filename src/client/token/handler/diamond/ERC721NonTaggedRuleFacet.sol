@@ -17,7 +17,6 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
-
 contract ERC721NonTaggedRuleFacet is
     AppAdministratorOrOwnerOnlyDiamondVersion,
     HandlerAccountApproveDenyOracle,
@@ -58,7 +57,7 @@ contract ERC721NonTaggedRuleFacet is
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
            _checkTokenMaxDailyTradesRule(action, _tokenId);
         }
-        _checkSimpleRules(action, _tokenId, handlerBase);
+        _checkSimpleRules(action, _tokenId, handlerBase, _from, _to, _sender);
     }
 
     /**
@@ -93,7 +92,7 @@ contract ERC721NonTaggedRuleFacet is
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
             IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
         } else if (action == ActionTypes.BUY){
-            if (isContract(_sender) && _from != _sender){ /// non custodial buy 
+            if (_from != _sender){ /// non custodial buy 
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[ActionTypes.SELL], _from);
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
             } else { /// custodial buy 
@@ -101,7 +100,7 @@ contract ERC721NonTaggedRuleFacet is
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
             }
         } else if (action == ActionTypes.SELL){
-            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
+            if (_to != _sender){ /// non custodial sell 
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[ActionTypes.BUY], _to);
             } else { /// custodial sell 
@@ -178,12 +177,28 @@ contract ERC721NonTaggedRuleFacet is
      * @param _tokenId the specific token to check 
      * @param handlerBase address of the handler proxy 
      */
-    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase) internal {
+
+    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _from, address _to, address _sender) internal {
         TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
+
+        ActionTypes potentialOppositeAction;
         // If the rule was changed after ownership was recorded, reset ownership. 
         if (minHoldTime.ownershipStart[_tokenId] < minHoldTime.ruleChangeDate) minHoldTime.ownershipStart[_tokenId] = 0;
+        
         if (minHoldTime.tokenMinHoldTime[_action].active && minHoldTime.ownershipStart[_tokenId] > 0)
             IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[_action].period, minHoldTime.ownershipStart[_tokenId]);
+
+        if (_action == ActionTypes.BUY && _from != _sender) {
+            potentialOppositeAction = ActionTypes.SELL;
+        } else if (_action == ActionTypes.SELL && _to != _sender) {
+            potentialOppositeAction = ActionTypes.BUY;
+        } else {
+            return;
+        }
+
+        if (minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
+            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].period, minHoldTime.ownershipStart[_tokenId]);
+        }
     }
 
 
