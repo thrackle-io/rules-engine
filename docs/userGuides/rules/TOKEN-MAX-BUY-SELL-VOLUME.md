@@ -68,17 +68,17 @@ The rule will be evaluated with the following logic:
 2. The token handler decides if the transfer is a buy or sell (user perspective). If it is, it continues with the next steps.
 3. The processor receives the ID of the token-max-buy-volume rule set in the asset handler. 
 4. The processor receives the current total purchased or sold within period, token A amount (total amount of token A being transferred in the current transaction), previous purchase or sell time, and token's total supply from the handler.
-5. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  6.  
-7. The processor evaluates whether the current time is within a new `period`.
+5. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
+6. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor sets the percent of total supply to the token A amount.
     - **If it is not a new period**, the processor sets percent of total supply to the sum of the total purchased within period and token A amount. 
-8. The processor calculates the final purchase or sale percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
-9. The processor evaluates if the final purchase or sale percentage of total supply would be greater than the `token percentage`. 
+7. The processor calculates the final purchase or sale percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
+8. The processor evaluates if the final purchase or sale percentage of total supply would be greater than the `token percentage`. 
     - If yes, the transaction reverts. 
     - If no, the processor returns the `token percentage` value for the current `period` to the handler.
-10. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+9. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
     1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 4-9 for sell volume.
-11. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+10. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
     1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 4-9 for buy volume.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
