@@ -64,6 +64,7 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     function invariant_rulesTotalAccountMaxTxValueByRiskScoreIncrementsByOne() public {
         uint256 previousTotal = ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(
             previousTotal,
             AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), createUint48Array(100), createUint8Array(50), 24, uint64(block.timestamp))

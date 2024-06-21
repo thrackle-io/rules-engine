@@ -64,6 +64,7 @@ contract RuleStorageAccountMaxValueByRiskScoreMultiTest is RuleStorageInvariantC
     function invariant_rulesTotalAccountMaxValueByRiskScoreIncrementsByOne() public {
         uint256 previousTotal = ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxValueByRiskScore();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), createUint8Array(50), createUint48Array(100)));
     }
 

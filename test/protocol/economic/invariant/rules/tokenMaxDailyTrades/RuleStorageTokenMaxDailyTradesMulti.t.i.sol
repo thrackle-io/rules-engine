@@ -64,6 +64,7 @@ contract RuleStorageTokenMaxDailyTradesMultiTest is RuleStorageInvariantCommon {
     function invariant_rulesTotalTokenMaxDailyTradesIncrementsByOne() public {
         uint256 previousTotal = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalTokenMaxDailyTrades();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(
             previousTotal,
             TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), createBytes32Array(bytes32("tag")), createUint8Array(222), uint64(block.timestamp))

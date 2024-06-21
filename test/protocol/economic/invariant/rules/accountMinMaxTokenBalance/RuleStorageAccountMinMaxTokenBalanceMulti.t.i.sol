@@ -71,6 +71,7 @@ contract RuleStorageAccountMinMaxTokenBalanceMultiTest is RuleStorageInvariantCo
     function invariant_rulesTotalAccountMinMaxTokenBalanceIncrementsByOne() public {
         uint256 previousTotal = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMinMaxTokenBalances();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(
             previousTotal,
             TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(

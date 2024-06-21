@@ -64,6 +64,7 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     function invariant_rulesTotalAccountApproveDenyOracleIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle();
         // not incrementing previousTotal by one due to zero based ruleId
+        switchToRuleAdmin();
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(0xabc)));
     }
 
