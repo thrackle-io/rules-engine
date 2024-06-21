@@ -75,7 +75,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
             }
         } else if (action == ActionTypes.SELL){
-            if (isContract(_sender) && _from != _sender){ /// non custodial sell 
+            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _from);
                 IRuleProcessor(handlerBase).checkAccountApproveDenyOracles(accountApproveDenyOracle[ActionTypes.BUY], _to);
             } else { /// custodial sell 

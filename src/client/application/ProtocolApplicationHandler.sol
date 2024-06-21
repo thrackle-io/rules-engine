@@ -17,7 +17,6 @@ import {IZeroAddressError, IAppHandlerErrors} from "src/common/IErrors.sol";
 import "src/client/application/ProtocolApplicationHandlerCommon.sol";
 import "src/client/common/ActionTypesArray.sol";
 
-import "forge-std/console.sol";
 /**
  * @title Protocol Application Handler Contract
  * @notice This contract is the rules handler for all application level rules. It is implemented via the AppManager
@@ -170,18 +169,16 @@ contract ProtocolApplicationHandler is
             }
         } else if (_action == ActionTypes.BUY) {
             if (isContract(_sender) && _from != _sender){ /// non custodial buy 
-                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
                 if (accountMaxTxValueByRiskScore[ActionTypes.SELL].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
-            } else { /// custodial buy 
-                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to,riskScoreTo, _transferValuation);
-            } 
+            }
+            
+            if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
+            
         } else if (_action == ActionTypes.SELL) {
             if (isContract(_sender) && _to != _sender){ /// non custodial sell 
-                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _from, riskScoreFrom, _transferValuation);
                 if (accountMaxTxValueByRiskScore[ActionTypes.BUY].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation);
-            } else { /// custodial sell
-                if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action,_from, riskScoreFrom, _transferValuation);
-            } 
+            }
+            if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action,_from, riskScoreFrom, _transferValuation);
         } else if (_action == ActionTypes.MINT) {
             if (accountMaxTxValueByRiskScore[_action].active) _checkAccountMaxTxValueByRiskScore(_action, _to, riskScoreTo, _transferValuation); 
         } else if (_action == ActionTypes.BURN) {
