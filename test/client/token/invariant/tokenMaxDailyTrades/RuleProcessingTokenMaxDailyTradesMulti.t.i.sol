@@ -31,7 +31,7 @@ contract RuleProcessingTokenMaxDailyTradesMultiTest is RuleProcessingInvariantCo
         );
 
         for (uint j; j < AMOUNT_MANAGERS; j++) {
-            (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, ApplicationERC721 testNFT, HandlerDiamond testNFTHandler) = deployFullApplicationWithNFT(
+            (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, UtilApplicationERC721 testNFT, HandlerDiamond testNFTHandler) = deployFullApplicationWithNFT(
                 j,
                 coinPricer,
                 nftPricer

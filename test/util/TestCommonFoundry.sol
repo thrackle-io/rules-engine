@@ -625,7 +625,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         oracleDenied = _createOracleDenied();
     }
 
-    function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank returns (UtilApplicationERC721 erc721, HandlerDiamond handler) {
         (erc721, handler) = deployAndSetupERC721(name, symbol, applicationAppManager);
     }
 
@@ -633,7 +633,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         string memory name,
         string memory symbol,
         ApplicationAppManager _applicationAppManager
-    ) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
+    ) internal endWithStopPrank returns (UtilApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, _applicationAppManager);
         handler = _createERC721HandlerDiamond();
@@ -645,7 +645,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
-    function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (UtilApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
@@ -679,7 +679,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
-    function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
+    function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (UtilApplicationERC20 erc20, HandlerDiamond handler) {
         (erc20, handler) = deployAndSetupERC20(name, symbol, applicationAppManager);
     }
 
@@ -687,7 +687,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         string memory name,
         string memory symbol,
         ApplicationAppManager _applicationAppManager
-    ) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
+    ) internal endWithStopPrank returns (UtilApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, _applicationAppManager);
         handler = _createERC20HandlerDiamond();
@@ -701,7 +701,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         HandlerVersionFacet(address(handler)).updateVersion("1.3.0");
     }
 
-    function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
+    function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (UtilApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
@@ -734,7 +734,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
     function _createERC20HandlerSpecialized(
         RuleProcessorDiamond _ruleProcessor,
         ApplicationAppManager _appManager,
-        ApplicationERC20 _token,
+        UtilApplicationERC20 _token,
         address _appAdmin
     ) public returns (HandlerDiamond handler) {
         handler = _createERC20HandlerDiamond();

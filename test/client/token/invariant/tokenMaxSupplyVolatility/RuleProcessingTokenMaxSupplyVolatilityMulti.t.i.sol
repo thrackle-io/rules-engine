@@ -39,7 +39,7 @@ contract RuleProcessingTokenMaxSupplyVolatilityMultiTest is RuleProcessingInvari
             tokenMaxSupplyVolatilityRuleB.totalSupply
         );
         for (uint j; j < AMOUNT_MANAGERS; j++) {
-            (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, ApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployFullApplicationWithCoin(
+            (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, UtilApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployFullApplicationWithCoin(
                 j,
                 coinPricer,
                 nftPricer

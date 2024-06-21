@@ -5,37 +5,18 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-/**
- * @title  Minimal ERC721 Legacy
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, mpetersoCode55
- * @notice This contract is intended to mimic a previous deployed version of the protocol.
- * @dev This is a mocked version of a contract that has already deployed the previous version of the protocol. The interfaces and supporting contracts within this file must NOT be changed.
- */
-interface IProtocolERC721UMin {
-    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
-    error ZeroAddress();
-
-    /**
-     * @dev this function returns the handler address
-     * @return handlerAddress
-     */
-    function getHandlerAddress() external view returns (address);
-
-    /**
-     * @dev Function to connect Token to previously deployed Handler contract
-     * @param _deployedHandlerAddress address of the currently deployed Handler Address
-     */
-    function connectHandlerToToken(address _deployedHandlerAddress) external;
-}
+import "src/client/token/IProtocolToken.sol";
 
 /**
  * @title Minimal ERC721 Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract MinimalERC721Legacy is ERC721, ERC721Burnable, ERC721Enumerable, IProtocolERC721UMin {
+contract MinimalERC721Legacy is ERC721, ERC721Burnable, ERC721Enumerable{
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIdCounter;
     address private handlerAddress;
+
+    error ZeroAddress();
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
 
@@ -56,7 +37,7 @@ contract MinimalERC721Legacy is ERC721, ERC721Burnable, ERC721Enumerable, IProto
     function connectHandlerToToken(address _deployedHandlerAddress) external {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        //emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
     /**

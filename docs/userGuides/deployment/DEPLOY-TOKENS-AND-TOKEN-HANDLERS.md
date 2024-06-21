@@ -70,17 +70,17 @@ These scripts deploy a Fungible Token, Non-Fungible Token, Asset Handler Diamond
 ## Integrate Protocol 
 If a custom ERC721 implementation is being used, follow these steps to integrate the Protocol's _checkAllRules() hook:
 
-1. Import the [ProtocolERC721.sol](../../../src/client/token/ERC721/ProtocolERC721.sol) contract into the desired ERC721 contract:
+1. Import the [ApplicationERC721.sol](../../../src/example/ERC721/ApplicationERC721.sol) contract into the desired ERC721 contract:
 ```
-import "src/client/token/ERC721/ProtocolERC721.sol";
+import "src/example/ERC721/ApplicationERC721.sol";
 ```
-2. Inherit the ProtocolERC721 contract: 
+2. Inherit the ApplicationERC721 contract: 
 ```
-contract ERC721Example is ProtocolERC721 {} 
+contract ERC721Example is ApplicationERC721 {} 
 ```
-3. Update constructor of ERC721 contract to include the ProtocolERC721.sol and accept appManager address variable: 
+3. Update constructor of ERC721 contract to include the ApplicationERC721.sol and accept appManager address variable: 
 ```
-constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
+constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ApplicationERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
 ```
 4. Ensure the desired ERC721 contract implementation compiles and passes all tests. 
 5. Replace `ApplicationERC721AdminOrOwnerMint` inside of the NFT deployment scripts: [Part 1](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) and [Part2](../../../script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol) with desired ERC721 contract name and directory location. 

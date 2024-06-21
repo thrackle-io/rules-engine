@@ -38,14 +38,15 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
         uint loops = vm.envOr("SLAM_TOKEN_LOOPS", uint(20));
         for (uint i = 0; i < loops; ++i) {
             switchToAppAdministrator();
-            (ApplicationERC721 TestNFTCoin, ) = deployAndSetupERC721(string.concat("TestNFT", Strings.toString(i)), string.concat("TESTNFT", Strings.toString(i)));
+            (UtilApplicationERC721 TestNFTCoin, ) = deployAndSetupERC721(string.concat("TestNFT", Strings.toString(i)), string.concat("TESTNFT", Strings.toString(i)));
             switchToAppAdministrator();
             for (uint j = 0; j < 100; ++j) {
-                ProtocolERC721(address(TestNFTCoin)).safeMint(appAdministrator);
+                UtilApplicationERC721(address(TestNFTCoin)).safeMint(appAdministrator);
             }
             erc721Pricer.setNFTCollectionPrice(address(TestNFTCoin), 10 * ATTO);
-            (ApplicationERC20 TestCoin, ) = deployAndSetupERC20(string.concat("TestERC", Strings.toString(i)), string.concat("TEST", Strings.toString(i)));
-            ProtocolERC20(address(TestCoin)).mint(appAdministrator, 100);
+            (UtilApplicationERC20 TestCoin, ) = deployAndSetupERC20(string.concat("TestERC", Strings.toString(i)), string.concat("TEST", Strings.toString(i)));
+            switchToAppAdministrator();
+            UtilApplicationERC20(address(TestCoin)).mint(appAdministrator, 100);
         }
 
         uint gasBegin = gasleft();

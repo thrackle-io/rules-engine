@@ -17,10 +17,10 @@ import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
 /**
  * @title ERC20 Base Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @notice This is the base contract for all protocol ERC20s
+ * @notice This is the base contract for all test ERC20s
  * @dev The only thing to recognize is that flash minting is added but not yet allowed.
  */
-contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
+contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
     /// Max supply should only be set once. Zero means infinite supply.
     // slither-disable-next-line constable-states
     uint256 maxSupply;

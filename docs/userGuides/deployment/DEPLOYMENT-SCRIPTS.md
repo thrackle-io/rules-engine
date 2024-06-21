@@ -39,11 +39,11 @@ Application_Deploy_01_AppManager.s.sol:
 - ApplicationHandler (ProtocolApplicationHandler example)
 
 Application_Deploy_02_ApplicationFT1.s.sol:
-- ApplicationERC20 (ProtocolERC20 example)
+- ApplicationERC20 (ApplicationERC20 example)
 - HandlerDiamond 
 
 Application_Deploy_04_ApplicationNFT.s.sol:
-- ApplicationERC721AdminOrOwnerMint (ProtocolERC721 example)
+- ApplicationERC721AdminOrOwnerMint (ApplicationERC721 example)
 - HandlerDiamond
 
 Application_Deploy_05_Oracle.s.sol 

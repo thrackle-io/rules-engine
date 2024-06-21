@@ -56,8 +56,8 @@ This document offers a high level overview of the rules protocol - what it does 
 | ApplicationHandler        | An application-associated smart contract supporting the AppManager contract by storing the application level rules data and functions. This is the connection to the Rules Protocol for the AppManager, assessesing and reading the rules that are activated for an application. |
 | AssetHandler | The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status, and connects the token to the AppManager for role based access control.        |
 | Pricing Module            | Application-associated smart contract(s) serving as token-price data sources for ecosystem applications. The pricing module can be found in 2 different categories: ERC20 and ERC721. Any custom-made pricing contract that intends to be protocol compliant must implement the IProtocolERC20Pricing and/or IProtocolERC721Pricing interface(s).                            |
-| Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721 or the protocol hook.                                                                                                |
-| Protocol Supported ERC20  | An ERC20 token that implements the protocol ProtocolERC20 or the protocol hook.                                                                                                |
+| Protocol Supported ERC721 | An ERC721 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
+| Protocol Supported ERC20  | An ERC20 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
 | Access-Level Provider     | An external provider that rates or segments users based on external criteria for access level solutions. Default access level mechanisms allow developers to set user access levels.        |
 | Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, Risk Admin, Rule Admin, and Treasury Account.                                                                            |
 | Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcessorDiamond and applied in the application's AppManager.        |
@@ -395,7 +395,7 @@ The token retrieves all applicable fees for the account transferring tokens (msg
 The token loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon completion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
 
 
-###### *see [ProtocolERC20](../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
+###### *see an example [UtilApplicationERC20](../test/util/UtilApplicationERC20.sol) -> transfer*
 
 ### Evaluation Exceptions 
 - There are no evaluation exceptions when fees are active. Fees are assessed in the token transfer function for token fees. No exceptions are made for the assessment of fees. If an address or account should not have fees assessed, there should not be a tag applied to it.

@@ -137,7 +137,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OnlyTokenCanCallCheckAllRules() public endWithStopPrank {
-        address handler = IProtocolERC20Min(address(testCaseToken)).getHandlerAddress();
+        address handler = IProtocolToken(address(testCaseToken)).getHandlerAddress();
         assertEq(handler, address(applicationCoinHandler));
         address owner = ERC173Facet(address(applicationCoinHandler)).owner();
         assertEq(owner, address(testCaseToken));
@@ -164,7 +164,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_Mint() public endWithStopPrank {
         switchToAppAdministrator();
-        ProtocolERC20(address(testCaseToken)).mint(superAdmin, 1000);
+        UtilApplicationERC20(address(testCaseToken)).mint(superAdmin, 1000);
         assertEq(testCaseToken.balanceOf(superAdmin), 1000);
     }
 
@@ -184,12 +184,12 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_ZeroAddressCheckERC20Token() public {
         vm.expectRevert(0xd92e233d);
-        new ApplicationERC20("FRANK", "FRANK", address(0x0));
+        new UtilApplicationERC20("FRANK", "FRANK", address(0x0));
     }
 
     function testERC20_ERC20CommonTests_ZeroAddressCheckERC20HandlerConnection() public {
         vm.expectRevert(0xba80c9e5);
-        IProtocolERC20Min(address(testCaseToken)).connectHandlerToToken(address(0));
+        IProtocolToken(address(testCaseToken)).connectHandlerToToken(address(0));
     }
 
     /// Token Minimum Transaction Size Tests
@@ -248,7 +248,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Mint_Positive() public endWithStopPrank {
         _tokenMinTransactionSetup(ActionTypes.MINT);
         switchToAppAdministrator();
-        ProtocolERC20(address(testCaseToken)).mint(user3, 10);
+        UtilApplicationERC20(address(testCaseToken)).mint(user3, 10);
         assertEq(testCaseToken.balanceOf(user3), 10);
     }
 
@@ -256,7 +256,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         _tokenMinTransactionSetup(ActionTypes.MINT);
         switchToAppAdministrator();
         vm.expectRevert(0x7a78c901);
-        ProtocolERC20(address(testCaseToken)).mint(user3, 5);
+        UtilApplicationERC20(address(testCaseToken)).mint(user3, 5);
     }
 
     function testERC20_ERC20CommonTests_testTokenMinTransactionSize_Burn_Positive() public endWithStopPrank {
@@ -328,7 +328,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         _accountMinMaxTokenBalanceIndividualActionSetup(ActionTypes.MINT);
         ///perform transfer that checks rule but is allowed
         switchToAppAdministrator();
-        ProtocolERC20(address(testCaseToken)).mint(user2, 10);
+        UtilApplicationERC20(address(testCaseToken)).mint(user2, 10);
         assertEq(testCaseToken.balanceOf(user2), 10);
         assertEq(testCaseToken.balanceOf(user1), 100);
     }
@@ -338,7 +338,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         ///perform transfer that checks rule but is allowed
         switchToAppAdministrator();
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
-        ProtocolERC20(address(testCaseToken)).mint(user2, 1001);
+        UtilApplicationERC20(address(testCaseToken)).mint(user2, 1001);
     }
 
     function testERC20_ERC20CommonTests_AccountMinMaxTokenBalance_Burn_Positive() public endWithStopPrank {
@@ -564,7 +564,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_DeniedList_Mint_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, true);
         vm.startPrank(user1, user1);
-        ProtocolERC20(address(testCaseToken)).mint(user1, 100);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 100);
         assertEq(testCaseToken.balanceOf(user1), 100100);
     }
 
@@ -572,13 +572,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, true);
         vm.startPrank(address(user1));
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
-        ProtocolERC20(address(testCaseToken)).mint(address(69), 100);
+        UtilApplicationERC20(address(testCaseToken)).mint(address(69), 100);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_ApprovedList_Mint_Positive() public endWithStopPrank {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, false);
         vm.startPrank(user1, user1);
-        ProtocolERC20(address(testCaseToken)).mint(user1, 100);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 100);
         assertEq(testCaseToken.balanceOf(user1), 100100);
     }
 
@@ -586,7 +586,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         _accountApproveDenyOracle_Setup(ActionTypes.MINT, false);
         vm.startPrank(address(user1));
         vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
-        ProtocolERC20(address(testCaseToken)).mint(address(69), 100);
+        UtilApplicationERC20(address(testCaseToken)).mint(address(69), 100);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_AllActionsEnabled_DeniedList() public endWithStopPrank {
@@ -725,7 +725,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// perform transfer that checks user with AccessLevel and no balances
         vm.startPrank(user1, user1);
         /// this one is within the limit and should pass
-        ProtocolERC20(address(testCaseToken)).mint(whale, 10000 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(whale, 10000 * ATTO);
     }
 
     function testERC20_ERC20CommonTests_AccountMaxValueByAccessLevel_Mint_Negative() public endWithStopPrank {
@@ -739,7 +739,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user1, user1);
         /// this one is over the limit and should fail
         vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
-        ProtocolERC20(address(testCaseToken)).mint(whale, 10001 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(whale, 10001 * ATTO);
     }
 
 
@@ -919,7 +919,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         _accountMaxTransactionValueByRiskScoreSetup(ActionTypes.MINT);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.startPrank(user1, user1);
-        ProtocolERC20(address(testCaseToken)).mint(user2, 1 * (10 ** 18));
+        UtilApplicationERC20(address(testCaseToken)).mint(user2, 1 * (10 ** 18));
     }
 
     function testERC20_ERC20CommonTests_AccountMaxTransactionValueByRiskScore_Mint_Negative() public endWithStopPrank {
@@ -928,7 +928,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user1, user1);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 40, 100000000000000000000000));
-        ProtocolERC20(address(testCaseToken)).mint(user2, 1000001 * (10 ** 18));
+        UtilApplicationERC20(address(testCaseToken)).mint(user2, 1000001 * (10 ** 18));
     }
 
     function testERC20_ERC20CommonTests_AccountMaxTransactionValueByRiskScore_Mixed() public endWithStopPrank {
@@ -1052,7 +1052,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationAppManager.addAccessLevel(rich_user, 1);
 
         vm.startPrank(rich_user, rich_user);
-        ProtocolERC20(address(testCaseToken)).mint(rich_user, 1 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(rich_user, 1 * ATTO);
     }
 
     function testERC20_ERC20CommonTests_PassesAccountDenyForNoAccessLevelRuleCoin_Mint_Negative() public endWithStopPrank {
@@ -1062,7 +1062,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
         vm.startPrank(user3, user3);
         vm.expectRevert(abi.encodeWithSignature("NotAllowedForAccessLevel()"));
-        ProtocolERC20(address(testCaseToken)).mint(rich_user, 5 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(rich_user, 5 * ATTO);
     }
 
     function testERC20_ERC20CommonTests_PassesAccountDenyForNoAccessLevelRuleCoin_Buy_Positive() public endWithStopPrank {
@@ -1274,7 +1274,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(user1, 39_000 * ATTO);
         assertEq(testCaseToken.balanceOf(user1), 39_000 * ATTO);
         /// now take it right up to the threshold(39,999)
-        ProtocolERC20(address(testCaseToken)).mint(user1, 999 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 999 * ATTO);
     }
 
     function testERC20_ERC20CommonTests_TokenMaxTradingVolumeWithSupplySet_Mint_Negative() public endWithStopPrank {
@@ -1284,7 +1284,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(user1, 39_000 * ATTO);
         assertEq(testCaseToken.balanceOf(user1), 39_000 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("OverMaxTradingVolume()"));
-        ProtocolERC20(address(testCaseToken)).mint(user1, 40_000 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 40_000 * ATTO);
     }
 
     function testERC20_ERC20CommonTests_TokenMaxTradingVolumeWithSupplySet_Buy_Positive() public endWithStopPrank {
@@ -2318,7 +2318,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.mint(user1, 1000);
         DummyAMM amm = new DummyAMM();
 
-        ProtocolERC20(address(testCaseToken)).mint(user1, 10000 * ATTO);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 10000 * ATTO);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);
@@ -2350,7 +2350,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToAppAdministrator();
         DummyAMM amm = new DummyAMM();
 
-        ProtocolERC20(address(testCaseToken)).mint(user1, 10000);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 10000);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);
@@ -2442,6 +2442,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         }
         setAccountApproveDenyOracleRuleFull(address(applicationCoinHandler), createActionTypeArray(action), ruleIds);
 
+        switchToAppAdministrator();
         applicationCoin2.mint(appAdministrator, 10000000000000000000000 * ATTO);
         applicationCoin2.mint(rich_user, 10000);
 
@@ -2461,7 +2462,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
             oracleApproved.addToApprovedList(goodBoys);
         }
 
-        ProtocolERC20(address(testCaseToken)).mint(rich_user, 10000);
+        UtilApplicationERC20(address(testCaseToken)).mint(rich_user, 10000);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);
@@ -2484,6 +2485,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         testCaseToken.transfer(user3, 50 * ATTO);
         assertEq(testCaseToken.balanceOf(user3), 50 * ATTO);
 
+        switchToAppAdministrator();
         applicationCoin2.mint(appAdministrator, 10000000000000000000000 * ATTO);
         applicationCoin2.mint(user1, 10000);
         applicationCoin2.mint(user2, 10000);
@@ -2491,7 +2493,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToAppAdministrator();
         DummyAMM amm = new DummyAMM();
 
-        ProtocolERC20(address(testCaseToken)).mint(user1, 10000);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 10000);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);
@@ -2565,7 +2567,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         switchToAppAdministrator();
         DummyAMM amm = new DummyAMM();
 
-        ProtocolERC20(address(testCaseToken)).mint(user1, 10000);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 10000);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);
@@ -2602,7 +2604,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin2.mint(user3, 10000);
         DummyAMM amm = new DummyAMM();
 
-        ProtocolERC20(address(testCaseToken)).mint(user1, 10000);
+        UtilApplicationERC20(address(testCaseToken)).mint(user1, 10000);
         ///perform buy that checks rule
         testCaseToken.approve(address(amm), 50);
         applicationCoin2.approve(address(amm), 50);

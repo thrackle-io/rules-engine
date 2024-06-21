@@ -154,6 +154,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Sell() public {
+        switchToAppAdministrator();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         switchToAppAdministrator();
         applicationNFTv2.safeMint(address(wallet));
@@ -174,6 +175,7 @@ import "test/client/token/ERC721/util/NftMarketplace.sol";
 
     /** Test that actions are properly determined when using protocol supported assets */
     function testERC721_SmartContractWalletWithProtocolSupportedAssets_Buy() public {
+        switchToAppAdministrator();
         applicationCoin.mint(address(wallet), 10 * ATTO);
         // Set up amm for buy and sell tests
         DummyNFTAMM amm = initializeERC721AMM(address(applicationCoin), address(applicationNFTv2));

@@ -38,7 +38,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
             assertTrue(
                 vm.envAddress("APPLICATION_ERC20_ADDRESS") != address(0x0)
             );
-            applicationCoin = ApplicationERC20(
+            applicationCoin = UtilApplicationERC20(
                 vm.envAddress("APPLICATION_ERC20_ADDRESS")
             );
             assertEq(
@@ -63,7 +63,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommon
             assertTrue(
                 vm.envAddress("APPLICATION_ERC721_ADDRESS_1") != address(0x0)
             );
-            applicationNFT = ApplicationERC721(
+            applicationNFT = UtilApplicationERC721(
                 vm.envAddress("APPLICATION_ERC721_ADDRESS_1")
             );
             assertEq(

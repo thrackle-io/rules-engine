@@ -5,13 +5,13 @@ import "test/client/token/ERC20/util/ERC20Util.sol";
 
 contract ApplicationERC20FuzzTest is ERC20Util {
     // event Log(string eventString, uint256 number);
-    ApplicationERC20 draculaCoin;
+    UtilApplicationERC20 draculaCoin;
 
     function setUp() public {
         vm.warp(Blocktime);
         setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
-        draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        draculaCoin = new UtilApplicationERC20("application2", "DRAC", address(applicationAppManager));
         applicationCoinHandler2 = _createERC20HandlerDiamond();
         ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(draculaCoin));
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
@@ -3937,7 +3937,7 @@ contract ApplicationERC20FuzzTest is ERC20Util {
         accessBalance4 = _amountSeed + 1000;
     }
 
-    function _createAndInitializeAMM(ApplicationERC20 token1, ApplicationERC20 token2, address user, uint256 tokenAmount, bool isToken1In) public returns (DummyAMM amm) {
+    function _createAndInitializeAMM(UtilApplicationERC20 token1, UtilApplicationERC20 token2, address user, uint256 tokenAmount, bool isToken1In) public returns (DummyAMM amm) {
         switchToAppAdministrator();
         amm = new DummyAMM();
         tokenAmount = tokenAmount + 1_000;

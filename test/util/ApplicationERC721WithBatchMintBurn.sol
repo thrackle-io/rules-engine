@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "src/client/token/ERC721/ProtocolERC721.sol";
+import "test/util/UtilApplicationERC721.sol";
 
 /**
  * @title ApplicationERC721WithBatchMintBurn
@@ -10,7 +10,7 @@ import "src/client/token/ERC721/ProtocolERC721.sol";
  * @dev The logic and stability of this contract is of little concern. It's only purpose is for use in reversion testing for attempted batch mint/burn
  */
 
-contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
+contract ApplicationERC721WithBatchMintBurn is UtilApplicationERC721 {
     /// The next token ID to be minted.
     uint256 private _currentIndex;
 
@@ -21,7 +21,7 @@ contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) UtilApplicationERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
 
     function mint(uint256 quantity) external payable {
         _mint(msg.sender, quantity);
