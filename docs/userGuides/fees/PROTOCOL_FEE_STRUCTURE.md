@@ -60,7 +60,7 @@ The token retrieves all applicable fees for the account transferring tokens (msg
 The token loops through each applicable fee and sends that amount from the transfer total to the `feeSink` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon complettion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
 
 
-###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
+###### *see an example [UtilApplicationERC20](../../../test/util/UtilApplicationERC20.sol) -> transfer*
 
 ## Evaluation Exceptions 
 - There are no evaluation exceptions when fees are active. Fees are assessed in the token transfer function for token fees. No exceptions are made for the assessment of fees. If an address or account should not have fees assessed, there should not be a tag applied to it.

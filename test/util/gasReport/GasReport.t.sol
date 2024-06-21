@@ -644,6 +644,7 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
 
 /**********  Rule Setup Helpers **********/
     function _erc20MintGasReport(string memory _label) public {
+        switchToAppAdministrator();
         startMeasuringGas(_label);
         applicationCoin.mint(appAdministrator, 100 * ATTO);
         gasUsed = stopMeasuringGas();
@@ -651,6 +652,7 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
     }
 
     function _erc20TransferGasReport(string memory _label) public {
+        switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, 100 * ATTO);
         switchToAppAdministrator();
 
@@ -661,6 +663,7 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
     }
 
     function _erc20BurnGasReport(string memory _label) public {
+        switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, 100 * ATTO);
         switchToAppAdministrator();
 

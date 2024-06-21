@@ -26,7 +26,7 @@ contract RuleProcessingAccountMaxValueOutByAccessLevelMultiTest is RuleProcessin
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueOutByAccessLevel(address(applicationAppManager), accountMaxValueOutByAccessLevel);
         for (uint j; j < AMOUNT_MANAGERS; j++) {
             switchToAppAdministrator();
-            (ApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployAndSetupERC20(string.concat("coin", vm.toString(j)), string.concat("C", vm.toString(j)));
+            (UtilApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployAndSetupERC20(string.concat("coin", vm.toString(j)), string.concat("C", vm.toString(j)));
             switchToAppAdministrator();
             erc20Pricer.setSingleTokenPrice(address(testCoin), 1 * ATTO); //setting at $1
             RuleProcessingAccountMaxValueOutByAccessLevelActor[] memory tempActors = new RuleProcessingAccountMaxValueOutByAccessLevelActor[](AMOUNT_ACTORS);

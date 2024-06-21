@@ -51,7 +51,7 @@ abstract contract RuleProcessingInvariantCommon is TestCommonFoundry, Predefined
         uint j,
         ProtocolERC20Pricing coinPricer,
         ProtocolERC721Pricing nftPricer
-    ) internal returns (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, ApplicationERC20 testCoin, HandlerDiamond testCoinHandler) {
+    ) internal returns (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, UtilApplicationERC20 testCoin, HandlerDiamond testCoinHandler) {
         switchToSuperAdmin();
         (testAppManager, testAppHandler) = deployAndSetNewApp(coinPricer, nftPricer);
         (testCoin, testCoinHandler) = deployAndSetupERC20(string.concat("coin", vm.toString(j)), string.concat("C", vm.toString(j)), testAppManager);
@@ -65,7 +65,7 @@ abstract contract RuleProcessingInvariantCommon is TestCommonFoundry, Predefined
         uint j,
         ProtocolERC20Pricing coinPricer,
         ProtocolERC721Pricing nftPricer
-    ) internal returns (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, ApplicationERC721 testNFT, HandlerDiamond testNFTHandler) {
+    ) internal returns (ApplicationAppManager testAppManager, ApplicationHandler testAppHandler, UtilApplicationERC721 testNFT, HandlerDiamond testNFTHandler) {
         switchToSuperAdmin();
         (testAppManager, testAppHandler) = deployAndSetNewApp(coinPricer, nftPricer);
         /// create an ERC721
@@ -86,9 +86,9 @@ abstract contract RuleProcessingInvariantCommon is TestCommonFoundry, Predefined
         returns (
             ApplicationAppManager testAppManager,
             ApplicationHandler testAppHandler,
-            ApplicationERC20 testCoin,
+            UtilApplicationERC20 testCoin,
             HandlerDiamond testCoinHandler,
-            ApplicationERC721 testNFT,
+            UtilApplicationERC721 testNFT,
             HandlerDiamond testNFTHandler
         )
     {

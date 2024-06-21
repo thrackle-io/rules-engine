@@ -32,7 +32,7 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
         );
         for (uint j; j < AMOUNT_MANAGERS; j++) {
             switchToAppAdministrator();
-            (ApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployAndSetupERC20(string.concat("coin", vm.toString(j)), string.concat("C", vm.toString(j)));
+            (UtilApplicationERC20 testCoin, HandlerDiamond testCoinHandler) = deployAndSetupERC20(string.concat("coin", vm.toString(j)), string.concat("C", vm.toString(j)));
             switchToAppAdministrator();
             erc20Pricer.setSingleTokenPrice(address(testCoin), 1 * ATTO); //setting at $1
             RuleProcessingAccountMaxTxValueByRiskScoreActor[] memory tempActors = new RuleProcessingAccountMaxTxValueByRiskScoreActor[](AMOUNT_ACTORS);

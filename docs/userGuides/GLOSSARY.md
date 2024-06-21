@@ -13,8 +13,8 @@
 | ApplicationHandler        | Connection to Rules Protocol for the AppManager. Assesses and reads the rules that are activated for an application |
 | TokenHandler              | Allows for applying, activating, and deactivating token specific rules.          |
 | Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution.                                    |
-| Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721 or the protocol hook.                                                                                                |
-| Protocol Supported ERC20  | An ERC20 token that implements the protocol ProtocolERC20 or the protocol hook.                                                                                                |
+| Protocol Supported ERC721 | An ERC721 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
+| Protocol Supported ERC20  | An ERC20 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
 | Access-Level Provider     | An external provider that rates or segments users based on external criteria for access level solutions. Default access level mechanisms allow developers to set user access levels.        |
 | Permission Roles          | Roles used by AppManager. They include: Admin, Access Level Admin, Risk Admin, Rule Admin, and Treasury Account.                                                                            |
 | Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcessorDiamond and applied in the application's AppManager.        |

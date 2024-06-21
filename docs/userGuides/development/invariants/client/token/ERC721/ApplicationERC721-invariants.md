@@ -1,4 +1,4 @@
-# ProtocolERC721 Invariants
+# ApplicationERC721 Invariants
 
 
 

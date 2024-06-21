@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "src/client/token/ERC721/IProtocolERC721Min.sol";
+import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
@@ -16,7 +16,7 @@ import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
  * @title Minimal ERC20 Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract MinimalERC721 is ERC721, IProtocolERC721Min, ProtocolTokenCommon, ERC721Burnable, ERC721Enumerable, AppAdministratorOrOwnerOnly {
+contract MinimalERC721 is ERC721, IProtocolToken, ProtocolTokenCommon, ERC721Burnable, ERC721Enumerable, AppAdministratorOrOwnerOnly {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIdCounter;
     IHandlerDiamond _handler;
@@ -49,7 +49,7 @@ contract MinimalERC721 is ERC721, IProtocolERC721Min, ProtocolTokenCommon, ERC72
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */
-    function connectHandlerToToken(address _handlerAddress) external override(IProtocolERC721Min, ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
+    function connectHandlerToToken(address _handlerAddress) external override(IProtocolToken, ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IHandlerDiamond(_handlerAddress);
         emit AD1467_HandlerConnected(_handlerAddress, address(this));
@@ -59,7 +59,7 @@ contract MinimalERC721 is ERC721, IProtocolERC721Min, ProtocolTokenCommon, ERC72
      * @dev This function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view override(IProtocolERC721Min, ProtocolTokenCommon) returns (address) {
+    function getHandlerAddress() external view override(IProtocolToken, ProtocolTokenCommon) returns (address) {
         return address(address(_handler));
     }
 

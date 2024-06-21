@@ -14,10 +14,10 @@ import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 /**
  * @title Protocol ERC721 Base Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @notice This is the base contract for all protocol ERC721s
+ * @notice This is a base contract for all test ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
+contract UtilProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIdCounter;
 

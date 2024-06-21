@@ -2,12 +2,15 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title  Minimal ERC721 Protocol Interface implementation model
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @notice This is the base contract for all protocol ERC20Upgradeables
+ * @title  Protocol Token Interface implementation model
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
+ * @notice This is the base contract for all protocol tokens
  * @dev Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer
  */
-interface IProtocolERC721Min {
+interface IProtocolToken {
+
+    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
+
     /**
      * @dev this function returns the handler address
      * @return handlerAddress

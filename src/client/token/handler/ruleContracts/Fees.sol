@@ -11,7 +11,7 @@ import "src/client/token/handler/diamond/RuleStorage.sol";
 /**
  * @title Fees
  * @notice This contract serves as a storage for asset transfer fees
- * @dev This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)
+ * @dev This contract should not be accessed directly. All processing should go through its controlling asset. Example found in (UtilApplicationERC20, UtilApplicationERC721).
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, IFeesErrors, RuleAdministratorOnly {

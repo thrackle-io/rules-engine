@@ -927,7 +927,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         switchToAppAdministrator();
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
-        ApplicationERC721 _applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
+        UtilApplicationERC721 _applicationNFT2 = new UtilApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
         console.log("applicationNFT2", address(_applicationNFT2));
         HandlerDiamond _applicationNFTHandler2 = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(_applicationNFTHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(_applicationNFT2));

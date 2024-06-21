@@ -1,4 +1,4 @@
-# ProtocolERC20 Invariants
+# ApplicationERC20 Invariants
 
 ## [Base ERC20 Invariants](../../../../../../../test/client/token/ERC20/invariant/ApplicationERC20Basic.t.i.sol)
 - User balance must not exceed total supply

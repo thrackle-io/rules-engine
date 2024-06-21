@@ -87,7 +87,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
     function invariant_ERC721_external_DeploymentEventEmission() public {
         vm.expectEmit(true, false, false, false);
         emit AD1467_NewNFTDeployed(address(applicationAppManager));
-        new ApplicationERC721("TEST", "TST", address(applicationAppManager), "https://SampleApp.io");
+        new UtilApplicationERC721("TEST", "TST", address(applicationAppManager), "https://SampleApp.io");
     }
 
     // Only an App Admin can propose a new AppManager

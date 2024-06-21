@@ -43,7 +43,7 @@ import "src/example/ERC20/ApplicationERC20.sol";
 import "src/example/ERC20/upgradeable/ApplicationERC20UMin.sol";
 
 import {ApplicationERC721AdminOrOwnerMint as ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "test/util/ApplicationERC721WithBatchMintBurn.sol";
+//import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "src/example/ERC20/upgradeable/ApplicationERC20UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
@@ -53,6 +53,8 @@ import "test/util/ApplicationERC721UExtra2.sol";
 import "test/util/MinimalERC20.sol";
 import "test/util/MinimalERC721.sol";
 import "test/util/MinimalERC721Legacy.sol";
+import {UtilApplicationERC20} from "test/util/UtilApplicationERC20.sol";
+import {UtilApplicationERC721} from "test/util/UtilApplicationERC721.sol";
 
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/Tags.sol";
@@ -121,8 +123,8 @@ abstract contract TestCommon is
     MinimalERC20 public minimalCoin;
     ApplicationERC20UMin public minimalUCoin;
     ApplicationERC20UMin public minimalUCoin2;
-    ApplicationERC20 public applicationCoin;
-    ApplicationERC20 public applicationCoin2;
+    UtilApplicationERC20 public applicationCoin;
+    UtilApplicationERC20 public applicationCoin2;
     HandlerDiamond public applicationCoinHandler;
     HandlerDiamond public applicationCoinHandler2;
     HandlerDiamond public applicationCoinHandlerUMin;
@@ -133,8 +135,8 @@ abstract contract TestCommon is
     ApplicationERC20Pricing public erc20Pricer;
     HandlerDiamond public applicationCoinHandlerSpecialOwner;
 
-    ApplicationERC721 public applicationNFT;
-    ApplicationERC721 public applicationNFTv2;
+    UtilApplicationERC721 public applicationNFT;
+    UtilApplicationERC721 public applicationNFTv2;
     MinimalERC721 public minimalNFT;
     MinimalERC721Legacy public minimalNFTLegacy;
     // ApplicationERC721HandlerMod public ERC721AssetHandler;
@@ -150,13 +152,13 @@ abstract contract TestCommon is
     OracleApproved public oracleApproved;
     OracleDenied public oracleDenied;
 
-    ApplicationERC721 public boredWhaleNFT;
+    UtilApplicationERC721 public boredWhaleNFT;
     HandlerDiamond public boredWhaleHandler;
-    ApplicationERC721 public boredReptilianNFT;
+    UtilApplicationERC721 public boredReptilianNFT;
     HandlerDiamond public boredReptileHandler;
-    ApplicationERC20 public boredCoin;
+    UtilApplicationERC20 public boredCoin;
     HandlerDiamond public boredCoinHandler;
-    ApplicationERC20 public reptileToken;
+    UtilApplicationERC20 public reptileToken;
     HandlerDiamond public reptileTokenHandler;
 
     ApplicationERC721Pricing public openOcean;
@@ -216,10 +218,10 @@ abstract contract TestCommon is
      * @param _appManager previously created appManager
      * @return _token token
      */
-    function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC20 _token) {
+    function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (UtilApplicationERC20 _token) {
         vm.expectEmit(true, false, false, false);
         emit AD1467_NewTokenDeployed(address(_appManager));
-        return new ApplicationERC20(_name, _symbol, address(_appManager));
+        return new UtilApplicationERC20(_name, _symbol, address(_appManager));
     }
 
     /**
@@ -268,10 +270,10 @@ abstract contract TestCommon is
      * @param _appManager previously created appManager
      * @return _token token
      */
-    function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
+    function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (UtilApplicationERC721 _token) {
         vm.expectEmit(true, false, false, false);
         emit AD1467_NewNFTDeployed(address(_appManager));
-        return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
+        return new UtilApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 
     /**

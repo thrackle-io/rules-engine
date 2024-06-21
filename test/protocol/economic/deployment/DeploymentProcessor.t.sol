@@ -26,9 +26,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
             user1 = vm.envAddress("ANVIL_ADDRESS_2");
             user2 = vm.envAddress("ANVIL_ADDRESS_3");
-            applicationNFT = ApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
+            applicationNFT = UtilApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
             applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721_HANDLER")));
-            applicationCoin = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));
+            applicationCoin = UtilApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
             oracleApproved = OracleApproved(vm.envAddress("APPLICATION_ORACLE_ALLOWED_ADDRESS"));
