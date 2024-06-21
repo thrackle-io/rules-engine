@@ -1,5 +1,5 @@
 # ERC721NonTaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/924e2b2b2b0ddb0088202a57363e91b424c36686/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/873b14e2bfb8e3c0ec1e8bf0bb215076bd1e60ce/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
 
 **Inherits:**
 [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md), [HandlerTokenMinHoldTime](/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol/contract.HandlerTokenMinHoldTime.md), [HandlerTokenMaxDailyTrades](/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol/contract.HandlerTokenMaxDailyTrades.md)
@@ -141,7 +141,14 @@ function _checkTokenMaxDailyTradesRule(ActionTypes action, uint256 _tokenId) int
 
 
 ```solidity
-function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase) internal;
+function _checkSimpleRules(
+    ActionTypes _action,
+    uint256 _tokenId,
+    address handlerBase,
+    address _from,
+    address _to,
+    address _sender
+) internal;
 ```
 **Parameters**
 
@@ -150,5 +157,8 @@ function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handle
 |`_action`|`ActionTypes`|action to be checked|
 |`_tokenId`|`uint256`|the specific token to check|
 |`handlerBase`|`address`|address of the handler proxy|
+|`_from`|`address`||
+|`_to`|`address`||
+|`_sender`|`address`||
 
 
