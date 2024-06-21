@@ -196,7 +196,7 @@ contract ERC721NonTaggedRuleFacet is
             return;
         }
 
-        if (isContract(_sender) && minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
+        if (minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
             IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].period, minHoldTime.ownershipStart[_tokenId]);
         }
     }
