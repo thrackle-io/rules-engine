@@ -44,7 +44,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
             if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
 
         } else if (action == ActionTypes.BUY){
-            if (isContract(_sender) && _from != _sender){ /// non custodial buy 
+            if (_from != _sender){ /// non custodial buy 
                 /// tokenMaxTradingVolume BUY 
                 /// tokenMaxTradingVolume uses single rule id for all actions so check if Buy has rule id set ELSE check if sell has ruleId set 
                 if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
@@ -63,7 +63,7 @@ contract ERC20NonTaggedRuleFacet is AppAdministratorOrOwnerOnlyDiamondVersion, H
             /// tokenMinTxSize BUY
             if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
         } else if (action == ActionTypes.SELL){
-            if (isContract(_sender) && _to != _sender){ /// non custodial sell 
+            if (_to != _sender){ /// non custodial sell 
                 /// tokenMaxTradingVolume SELL 
                 /// tokenMaxTradingVolume uses single rule id for all actions so check if Sell has rule id set ELSE check if sell has ruleId set 
                 if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
