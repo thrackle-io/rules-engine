@@ -15,7 +15,7 @@ env:
 jobs:
   build-test:
     name: Build and Test
-    runs-on: ubuntu-latest-m-16
+    runs-on: ubuntu-latest-m-32
 
     steps:
       - uses: actions/checkout@v3
