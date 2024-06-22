@@ -13,7 +13,7 @@ The purpose of this rule is to provide limits on the amount of funds that an acc
 ## Applies To Actions:
 
 - [ ] MINT
-- [ ] BURN
+- [X] BURN
 - [ ] BUY
 - [x] SELL
 - [x] TRANSFER(Peer to Peer)
@@ -63,6 +63,8 @@ The rule will be evaluated with the following logic:
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account has already withdrawn, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
 3. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the withdrawal amount plus already withdrawn amount exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+4. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 1-3 for from address.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

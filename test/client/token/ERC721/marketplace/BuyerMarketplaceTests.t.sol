@@ -1199,5 +1199,216 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
         marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
     }
 
-}
+    function test_accountMaxValueByRiskScore_inOperatorMarketplace_ERC20Buy() public endWithStopPrank {
+        uint8[] memory riskScores = new uint8[](2);
+        riskScores[0] = 25;
+        riskScores[1] = 50;
+        uint48[] memory txLimits = new uint48[](2);
+        txLimits[0] = uint48(buyPrice);
+        txLimits[1] = uint48(99);
 
+        uint32 ruleId = createAccountMaxValueByRiskRule(riskScores, txLimits);
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+        vm.stopPrank();
+
+        setAccountMaxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2),
+                IRiskErrors.OverMaxAccValueByRiskScore.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueByRiskScore_inOperatorMarketplace_ERC721Buy() public endWithStopPrank {
+        uint8[] memory riskScores = new uint8[](2);
+        riskScores[0] = 25;
+        riskScores[1] = 50;
+        uint48[] memory txLimits = new uint48[](2);
+        txLimits[0] = uint48(buyPrice);
+        txLimits[1] = uint48(99);
+
+        uint32 ruleId = createAccountMaxValueByRiskRule(riskScores, txLimits);
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+        vm.stopPrank();
+
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[1]);
+        applicationAppManager.addRiskScore(user2, riskScores[0]);
+        
+        setAccountMaxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IRiskErrors.OverMaxAccValueByRiskScore.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueByRiskScore_inOperatorMarketplace_HappyPath() public endWithStopPrank {
+        uint8[] memory riskScores = new uint8[](2);
+        riskScores[0] = 25;
+        riskScores[1] = 50;
+        uint48[] memory txLimits = new uint48[](2);
+        txLimits[0] = uint48(buyPrice);
+        txLimits[1] = uint48(99);
+
+        uint32 ruleId = createAccountMaxValueByRiskRule(riskScores, txLimits);
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+        vm.stopPrank();
+        
+        setAccountMaxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
+
+        vm.startPrank(user1, user1);
+        vm.expectEmit(address(marketplace));
+        emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), NFT_ID_1, buyPrice);
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueByAccessLevel_inOperatorMarketplace_ERC20Buy() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user2, 0);
+        applicationAppManager.addAccessLevel(user1, 4);
+        ActionTypes action = ActionTypes.BUY;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 1, 10, 50, 100_000_000_000);
+        setAccountMaxValueByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IAccessLevelErrors.OverMaxValueByAccessLevel.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueByAccessLevel_inOperatorMarketplace_ERC721Buy() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 0);
+        applicationAppManager.addAccessLevel(user2, 4);
+        vm.stopPrank();
+
+        ActionTypes action = ActionTypes.BUY;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 1, 10, 50, 100);
+        setAccountMaxValueByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IAccessLevelErrors.OverMaxValueByAccessLevel.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueByAccessLevel_inOperatorMarketplace_Buy_HappyPath() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user2, 4);
+        applicationAppManager.addAccessLevel(user1, 4);
+        vm.stopPrank();
+
+        ActionTypes action = ActionTypes.BUY;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueByAccessLevelRule(0, 1, 10, 50, 100_000_000_000);
+        setAccountMaxValueByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+
+        vm.startPrank(user1, user1);
+        vm.expectEmit(address(marketplace));
+        emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), 0, buyPrice);
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueOutByAccessLevel_inOperatorMarketplace_ERC20Buy() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 0);
+        applicationAppManager.addAccessLevel(user2, 4);
+
+        ActionTypes action = ActionTypes.SELL;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 1, 10, 50, 100_000_000_000_000);
+        setAccountMaxValueOutByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IAccessLevelErrors.OverMaxValueOutByAccessLevel.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueOutByAccessLevel_inOperatorMarketplace_ERC721Buy() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 4);
+        applicationAppManager.addAccessLevel(user2, 0);
+
+        ActionTypes action = ActionTypes.SELL;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 1, 10, 50, 100_000_000_000);
+        setAccountMaxValueOutByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 10 * (10 ** 26)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), buyPrice * (10 ** 26)); //setting at $1,000,000,000
+
+        vm.startPrank(user1, user1);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector,
+                address(applicationNFTv2), 
+                IAccessLevelErrors.OverMaxValueOutByAccessLevel.selector
+            )
+        );
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_accountMaxValueOutByAccessLevel_inOperatorMarketplace_Buy_HappyPath() public endWithStopPrank {
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 4);
+        applicationAppManager.addAccessLevel(user2, 1);
+
+        ActionTypes action = ActionTypes.SELL;
+        switchToRuleAdmin();
+        uint32[] memory ruleIds = new uint32[](1);
+        ruleIds[0] = createAccountMaxValueOutByAccessLevelRule(0, 1, 10, 50, 100_000_000_000);
+        setAccountMaxValueOutByAccessLevelRuleFull(createActionTypeArray(action), ruleIds);
+
+        vm.startPrank(user1, user1);
+        vm.expectEmit(address(marketplace));
+        emit NftMarketplace.ItemBought(user1, address(applicationNFTv2), 0, buyPrice);
+        marketplace.buyItem(address(applicationNFTv2), NFT_ID_1);
+    }
+}

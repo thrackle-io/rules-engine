@@ -63,6 +63,8 @@ The rule will be evaluated with the following logic:
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
 3. The processor retrieves the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+4. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 1-3 for to address.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
