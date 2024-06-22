@@ -61,7 +61,11 @@ The rule will be evaluated with the following logic:
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The processor receives the ID of the token-min-tx-size rule set in the token handler. 
 3. The processor receives the `amount` of tokens from the handler.
-4. The processor evaluates the `amount` against the rule `minSize` and reverts if the `amount` less than the rule minimum. 
+4. The processor evaluates the `amount` against the rule `minSize` and reverts if the `amount` less than the rule minimum.
+5. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 1-4 for from address.
+6. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 1-4 for to address. 
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

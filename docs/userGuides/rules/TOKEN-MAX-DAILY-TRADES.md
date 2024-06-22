@@ -79,6 +79,10 @@ The rule will be evaluated in the following way:
 4. The processor will then try to retrieve the sub-rule associated with each tag.
 5. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
 6. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
+7. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. If Buy is not active the [Sell](./ACTION-TYPES.md#sell) action is also checked if active, then checks steps 1-6.
+8. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. If the Sell is not active the [Buy](./ACTION-TYPES.md#buy) action is also checked if active, then checks steps 1-6.
 
 ###### *see [ERC721RuleProcessor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkTokenMaxDailyTrades*
 

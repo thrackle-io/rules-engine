@@ -40,22 +40,83 @@ contract ERC721NonTaggedRuleFacet is
         _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         address handlerBase = handlerBaseStorage.ruleProcessor;
-        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) {
-            _checkTokenMinTxSizeRule(_amount, action, handlerBase);
-        }
-
         _checkAccountApproveDenyOraclesRule(_from, _to, _sender, action, handlerBase);
 
-        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
-            _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+        if (action == ActionTypes.BURN){
+            /// tokenMaxTradingVolume Burn 
+            if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+            /// tokenMinTxSize Burn
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades BURN
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+
+        } else if (action == ActionTypes.MINT){
+            /// tokenMaxTradingVolume Mint 
+            if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+            /// tokenMinTxSize Mint 
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades MINT
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+
+        } else if (action == ActionTypes.P2P_TRANSFER){
+            /// tokenMaxTradingVolume P2P_TRANSFER 
+            if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+            /// tokenMinTxSize P2P_TRANSFER
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades P2P_TRANSFER
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+
+        } else if (action == ActionTypes.BUY){
+            if (_from != _sender){ /// non custodial buy 
+                /// tokenMaxTradingVolume BUY 
+                /// tokenMaxTradingVolume uses single rule id for all actions so check if Buy has rule id set ELSE check if sell has ruleId set 
+                if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                /// else if conditional used for tokenMaxTrading as there is only one ruleId used for this rule 
+                } else if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[ActionTypes.SELL]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                }
+                /// tokenMinTxSize SELL Side 
+                if (lib.tokenMinTxSizeStorage().tokenMinTxSize[ActionTypes.SELL].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+                /// tokenMaxDailyTrades SELL Side
+                if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[ActionTypes.SELL].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+            } else { /// custodial buy 
+                if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                }
+            }
+            /// tokenMinTxSize BUY
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades BUY
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+        } else if (action == ActionTypes.SELL){
+            if (_to != _sender){ /// non custodial sell 
+                /// tokenMaxTradingVolume SELL 
+                /// tokenMaxTradingVolume uses single rule id for all actions so check if Sell has rule id set ELSE check if sell has ruleId set 
+                if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                /// else if conditional used for tokenMaxTrading as there is only one ruleId used for this rule  
+                } else if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[ActionTypes.BUY]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                }
+            /// tokenMinTxSize BUY Side 
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[ActionTypes.BUY].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades BUY Side
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[ActionTypes.BUY].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
+            } else { /// custodial sell 
+                /// tokenMaxTradingVolume SELL 
+                if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action]) {
+                    _checkTokenMaxTradingVolumeRule(_amount, handlerBase);
+                }
+            }
+            /// tokenMinTxSize SELL
+            if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) _checkTokenMinTxSizeRule(_amount, action, handlerBase);
+            /// tokenMaxDailyTrades SELL
+            if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) _checkTokenMaxDailyTradesRule(action, _tokenId);
         }
 
         if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
             _checkTokenMaxSupplyVolatilityRule(_to, _amount, handlerBase);
-        }
-
-        if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
-           _checkTokenMaxDailyTradesRule(action, _tokenId);
         }
         _checkSimpleRules(action, _tokenId, handlerBase, _from, _to, _sender);
     }

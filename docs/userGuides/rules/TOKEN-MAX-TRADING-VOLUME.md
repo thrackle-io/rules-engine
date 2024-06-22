@@ -76,6 +76,10 @@ The rule will be evaluated with the following logic:
 8. The processor evaluates if the final volume percentage of total supply would be greater than the `max volume`. 
     - If yes, then the transaction reverts. 
     - If no, the processor returns the `_volume` value for the current `period` to the handler.
+9. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 1-8 for from address.
+10. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 1-8 for to address.
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

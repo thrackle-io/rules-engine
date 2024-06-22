@@ -978,4 +978,229 @@ contract MarketplaceNonCustodialTestsErc20BuysNftSells is TokenUtils, ERC721Util
     }
 
 
+    function _setUpTokenMaxTradingVolumeSellAction(uint8 handlerType, ActionTypes action, address handler) internal {
+        uint32 ruleId;
+        vm.warp(Blocktime);
+        switchToRuleAdmin();
+        // ERC20 Handler 
+        if (handlerType == 1){
+            /// 40% of total supply allowed to trade
+            ruleId = createTokenMaxTradingVolumeRule(4000, 2, Blocktime, 0);
+        } 
+        // ERC721 Handler 
+        if (handlerType == 0){
+            /// 10% of total supply allowed to trade 
+            ruleId = createTokenMaxTradingVolumeRule(1000, 2, Blocktime, 0);
+        }
+        setTokenMaxTradingVolumeRuleSingleAction(action, address(handler), ruleId);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxTradingVolume_ERC721Sell() public endWithStopPrank() {
+        _setUpTokenMaxTradingVolumeSellAction(0, ActionTypes.SELL, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC20Errors.OverMaxTradingVolume.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxTradingVolume_ERC721Buy() public endWithStopPrank() {
+        _setUpTokenMaxTradingVolumeSellAction(0, ActionTypes.BUY, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC20Errors.OverMaxTradingVolume.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxTradingVolume_ERC20Sell() public endWithStopPrank() {
+        _setUpTokenMaxTradingVolumeSellAction(1, ActionTypes.SELL, address(applicationCoinHandler));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.OverMaxTradingVolume.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxTradingVolume_ERC20Buy() public endWithStopPrank() {
+        _setUpTokenMaxTradingVolumeSellAction(1, ActionTypes.BUY, address(applicationCoinHandler));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.OverMaxTradingVolume.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxTradingVolume_FullTrade() public endWithStopPrank() {
+        /// set up rule new rules with larger total supply for trade to pass 
+        vm.warp(Blocktime);
+        switchToRuleAdmin();
+        // ERC20 Handler 
+        uint32 ruleId = createTokenMaxTradingVolumeRule(4000, 2, Blocktime, 400_000_000_000_000);
+        // ERC721 Handler 
+        uint32 erc721RuleId = createTokenMaxTradingVolumeRule(1000, 2, Blocktime, 1000);
+        
+        setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.BUY, address(applicationCoinHandler), ruleId);
+        setTokenMaxTradingVolumeRuleSingleAction(ActionTypes.SELL, address(applicationNFTHandlerv2), erc721RuleId);
+
+        vm.startPrank(user2, user2);
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function _setUpTokenMinTxSizeSellAction(uint8 handlerType, ActionTypes action, address handler) internal {
+        uint32 ruleId;
+        vm.warp(Blocktime);
+        switchToRuleAdmin();
+        // ERC20 Handler 
+        if (handlerType == 1){
+            ruleId = createTokenMinimumTransactionRule(100_000_000_000_000);
+            switchToRuleAdmin();
+            ActionTypes[] memory actionTypes = createActionTypeArray(action);
+            ERC20NonTaggedRuleFacet(address(handler)).setTokenMinTxSizeId(actionTypes, ruleId);
+        } 
+        // ERC721 Handler 
+        if (handlerType == 0){
+            ruleId = createTokenMinimumTransactionRule(2);
+            switchToRuleAdmin();
+            ActionTypes[] memory actionTypes = createActionTypeArray(action);
+            ERC721NonTaggedRuleFacet(address(handler)).setTokenMinTxSizeId(actionTypes, ruleId);
+        }
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMinTxSize_ERC721Sell() public endWithStopPrank() {
+        _setUpTokenMinTxSizeSellAction(0, ActionTypes.SELL, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC20Errors.UnderMinTxSize.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMinTxSize_ERC721Buy() public endWithStopPrank() {
+        _setUpTokenMinTxSizeSellAction(0, ActionTypes.BUY, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC20Errors.UnderMinTxSize.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMinTxSize_ERC20Sell() public endWithStopPrank() {
+        _setUpTokenMinTxSizeSellAction(1, ActionTypes.SELL, address(applicationCoinHandler));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.UnderMinTxSize.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMinTxSize_ERC20Buy() public endWithStopPrank() {
+        _setUpTokenMinTxSizeSellAction(1, ActionTypes.BUY, address(applicationCoinHandler));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationCoin), 
+                IERC20Errors.UnderMinTxSize.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMinTxSize_FullTrade() public endWithStopPrank() {
+        /// set up rule new rules with larger total supply for trade to pass 
+        vm.warp(Blocktime);
+        switchToRuleAdmin();
+        // ERC20 Handler 
+        uint32 ruleId = createTokenMinimumTransactionRule(100_000_000_000);
+        switchToRuleAdmin();
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.BUY);
+        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(actionTypes, ruleId);
+        // ERC721 Handler 
+        uint32 erc721RuleId = createTokenMinimumTransactionRule(1);
+        switchToRuleAdmin();
+        ActionTypes[] memory erc721ActionTypes = createActionTypeArray(ActionTypes.SELL);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandlerv2)).setTokenMinTxSizeId(erc721ActionTypes, erc721RuleId);
+    
+        vm.startPrank(user2, user2);
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+
+    function _setUpTokenMaxDailyTradesAction(ActionTypes action, address handler) internal {
+        vm.warp(Blocktime);
+        switchToRuleAdmin();
+        uint32 ruleId = createTokenMaxDailyTradesRule("BoredGrape", "DiscoPunk", 0, 5);
+        setTokenMaxDailyTradesRuleSingleAction(action, address(handler), ruleId);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(address(applicationNFTv2), "BoredGrape"); ///add tag
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxDailyTrades_ERC721Sell() public endWithStopPrank() {
+        _setUpTokenMaxDailyTradesAction(ActionTypes.SELL, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC721Errors.OverMaxDailyTrades.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxDailyTrades_ERC721Buy() public endWithStopPrank() {
+        _setUpTokenMaxDailyTradesAction(ActionTypes.BUY, address(applicationNFTHandlerv2));
+        vm.startPrank(user2, user2);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TransferFailed.selector, 
+                address(applicationNFTv2), 
+                IERC721Errors.OverMaxDailyTrades.selector
+            )
+        );
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    function test_inSellersOperatorMarketplace_tokenMaxDailyTrades_FullTrade() public endWithStopPrank() {
+        /// set up rule new rules with larger total supply for trade to pass 
+        _setUpTokenMaxDailyTradesAction(ActionTypes.BUY, address(applicationNFTHandlerv2));
+        switchToAppAdministrator();
+        applicationAppManager.removeTag(address(applicationNFTv2), "BoredGrape"); ///remove previous tag
+        applicationAppManager.addTag(address(applicationNFTv2), "DiscoPunk"); ///add tag
+
+        vm.startPrank(user2, user2);
+        marketplace.sellItem(address(applicationNFTv2), NFT_ID_1);
+    }
+
+    
+
 }
