@@ -1,5 +1,5 @@
 # ERC721NonTaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/873b14e2bfb8e3c0ec1e8bf0bb215076bd1e60ce/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/de69f371f7fd94a0b22f5a213d7ab3968548d9bf/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
 
 **Inherits:**
 [AppAdministratorOrOwnerOnlyDiamondVersion](/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol/contract.AppAdministratorOrOwnerOnlyDiamondVersion.md), [HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md), [HandlerTokenMinHoldTime](/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol/contract.HandlerTokenMinHoldTime.md), [HandlerTokenMaxDailyTrades](/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol/contract.HandlerTokenMaxDailyTrades.md)
@@ -34,6 +34,35 @@ function checkNonTaggedRules(
 
 
 ### _checkTokenMinTxSizeRule
+
+tokenMaxTradingVolume Burn
+tokenMinTxSize Burn
+tokenMaxDailyTrades BURN
+tokenMaxTradingVolume Mint
+tokenMinTxSize Mint
+tokenMaxDailyTrades MINT
+tokenMaxTradingVolume P2P_TRANSFER
+tokenMinTxSize P2P_TRANSFER
+tokenMaxDailyTrades P2P_TRANSFER
+non custodial buy
+tokenMaxTradingVolume BUY
+tokenMaxTradingVolume uses single rule id for all actions so check if Buy has rule id set ELSE check if sell has ruleId set
+else if conditional used for tokenMaxTrading as there is only one ruleId used for this rule
+tokenMinTxSize SELL Side
+tokenMaxDailyTrades SELL Side
+custodial buy
+tokenMinTxSize BUY
+tokenMaxDailyTrades BUY
+non custodial sell
+tokenMaxTradingVolume SELL
+tokenMaxTradingVolume uses single rule id for all actions so check if Sell has rule id set ELSE check if sell has ruleId set
+else if conditional used for tokenMaxTrading as there is only one ruleId used for this rule
+tokenMinTxSize BUY Side
+tokenMaxDailyTrades BUY Side
+custodial sell
+tokenMaxTradingVolume SELL
+tokenMinTxSize SELL
+tokenMaxDailyTrades SELL
 
 *Internal function to check the Token Min Transaction Size rule*
 
