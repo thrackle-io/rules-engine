@@ -1215,8 +1215,6 @@ contract MarketplaceNonCustodialTestsErc20SellsNftBuys is TokenUtils, ERC721Util
 
         setAccountMaxValueByRiskRuleSingleAction(ActionTypes.BUY, ruleId);
 
-        console.log(applicationHandler.isAccountMaxValueByRiskScoreActive(ActionTypes.BUY));
-
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
         applicationAppManager.addRiskScore(user2, riskScores[1]);
