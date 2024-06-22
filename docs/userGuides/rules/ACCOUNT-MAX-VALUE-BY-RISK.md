@@ -73,6 +73,10 @@ The rule will be evaluated with the following logic:
 4. The processor receives the U.S. dollar value of all protocol supported tokens owned by the to address and the U.S. dollar value of the transaction. 
 5. The processor finds the `max value` value for the risk score.  
 6. The processor checks if the transaction value + current balance total is less than the risk score `max value`. If total is greater than `max value`, the rule reverts. 
+7. If it's a non-custodial style [Buy](./ACTION-TYPES.md#buy) 
+    1. When the [Sell](./ACTION-TYPES.md#sell) action is also active, checks steps 1-5 for from address.
+8. If it's a non-custodial style [Sell](./ACTION-TYPES.md#sell) 
+    1. When the [Buy](./ACTION-TYPES.md#buy) action is also active, checks steps 1-5 for to address.
 
 applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 

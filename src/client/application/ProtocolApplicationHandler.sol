@@ -223,13 +223,13 @@ contract ProtocolApplicationHandler is
                 if (accountMaxValueByAccessLevel[ActionTypes.SELL].active && _to != address(0))
                     ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevel[_action].ruleId, score, _balanceValuation, _transferValuation);
                 if (accountMaxValueOutByAccessLevel[ActionTypes.SELL].active) {
-                usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
-                    accountMaxValueOutByAccessLevel[_action].ruleId,
-                    fromScore,
-                    usdValueTotalWithrawals[_from],
-                    _transferValuation
-                );
-            }
+                    usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(
+                        accountMaxValueOutByAccessLevel[_action].ruleId,
+                        fromScore,
+                        usdValueTotalWithrawals[_from],
+                        _transferValuation
+                    );
+                }
             }
             if (accountDenyForNoAccessLevel[_action].active) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
             if (accountMaxValueByAccessLevel[_action].active && _to != address(0))
