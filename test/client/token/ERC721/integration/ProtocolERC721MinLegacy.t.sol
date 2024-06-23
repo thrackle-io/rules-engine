@@ -19,7 +19,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
     function testERC721Legacy_ProtocolERC721Min_HandlerVersions() public view {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
-        assertEq(version, "1.3.0");
+        assertEq(version, "1.3.1");
     }
 
     function testERC721Legacy_ProtocolERC721Min_AlreadyInitialized() public endWithStopPrank(){

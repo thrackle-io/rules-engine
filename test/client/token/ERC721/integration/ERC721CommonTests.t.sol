@@ -13,7 +13,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_HandlerVersions() public view {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
-        assertEq(version, "1.3.0");
+        assertEq(version, "1.3.1");
     }
 
     function testERC721_ERC721CommonTests_AlreadyInitialized() public endWithStopPrank {

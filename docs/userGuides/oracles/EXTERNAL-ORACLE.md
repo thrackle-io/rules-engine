@@ -36,5 +36,5 @@ Once the this rule is created, it can then be applied like any other rule. The p
     
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.3.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron

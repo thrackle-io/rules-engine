@@ -92,5 +92,5 @@ constructor(string memory _name, string memory _symbol, address _appManagerAddre
 [customizations-url]: ../rules/CUSTOMIZATIONS.md
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.3.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
