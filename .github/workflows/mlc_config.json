@@ -8,7 +8,7 @@
     },
     {
       "pattern": "^https://github.com/thrackle-io/rules-protocol"
-    },
+    }
   ],
   "replacementPatterns": [
     {
