@@ -42,11 +42,9 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        /// Retrieve the App Manager from previous script
-        ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
 
         /// Create ERC20 token 1
-        new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        new ApplicationERC20("Frankenstein Coin", "FRANK", ownerAddress);
         applicationCoinHandlerDiamond = createERC20HandlerDiamondPt1("Frankenstein Coin");
 
         vm.stopBroadcast();
