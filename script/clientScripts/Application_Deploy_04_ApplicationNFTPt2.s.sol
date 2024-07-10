@@ -44,11 +44,11 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         /// Create NFT
         createERC721HandlerDiamondPt2("WolfMan", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
+        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
         appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
-        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("WolfMan", address(nft1));
