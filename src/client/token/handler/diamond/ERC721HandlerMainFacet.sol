@@ -113,4 +113,12 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
 
         return true;
     }
+
+    /**
+     * @dev This function returns the configured application manager's address.
+     * @return appManagerAddress address of the connected application manager
+     */
+    function getAppManagerAddress() external view returns(address){
+        return address(lib.handlerBaseStorage().appManager);
+    }
 }
