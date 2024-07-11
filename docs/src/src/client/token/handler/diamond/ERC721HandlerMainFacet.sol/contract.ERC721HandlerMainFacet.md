@@ -1,5 +1,5 @@
 # ERC721HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/0ca0a263215b0baace3d8d12fd9706eb2a79accf/src/client/token/handler/diamond/ERC721HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/29c2cd95da29b0356348370e1ddb4d7bdc24a711/src/client/token/handler/diamond/ERC721HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [NFTValuationLimit](/src/client/token/handler/ruleContracts/NFTValuationLimit.sol/contract.NFTValuationLimit.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)
@@ -128,5 +128,23 @@ function _checkAllRules(
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|true if all checks pass|
+
+
+### getAppManagerAddress
+
+currently not supporting batch NFT transactions. Only single NFT transfers.
+standard tagged and non-tagged rules do not apply when either to or from is a Treasury account
+
+*This function returns the configured application manager's address.*
+
+
+```solidity
+function getAppManagerAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|appManagerAddress address of the connected application manager|
 
 
