@@ -49,11 +49,11 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         /// Create ERC20 token 1
         createERC20HandlerDiamondPt2("Frankenstein Coin", address(applicationCoinHandlerDiamond));
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
+        coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
         appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
-        coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("FRANK", address(coin1));

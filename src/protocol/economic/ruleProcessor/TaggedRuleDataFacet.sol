@@ -161,7 +161,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
             TaggedRules.TokenMaxDailyTrades memory rule = TaggedRules.TokenMaxDailyTrades(_tradesAllowed[i], _startTime);
             data.tokenMaxDailyTradesRules[index][_nftTags[i]] = rule;
         }
-        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, _nftTags);
         ++data.tokenMaxDailyTradesIndex;
         return index;
     }
