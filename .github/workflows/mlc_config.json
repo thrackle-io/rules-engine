@@ -20,6 +20,10 @@
       "replacement": ""
     },
     {
+      "pattern": "https://github.com/thrackle-io/aquifi-rules-v1",
+      "replacement": ""
+    },
+    {
       "pattern": "\/blob\/(.*)\/",
       "replacement": "/"
     }
