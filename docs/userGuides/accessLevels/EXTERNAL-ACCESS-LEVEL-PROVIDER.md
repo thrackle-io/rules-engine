@@ -30,7 +30,6 @@ The implementations for each of the above functions can be found in the [AccessL
 
 The implementations for each of the above functions can be found in the [DataModule](../../../src/client/application/data/DataModule.sol) contract.
 
-###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 ###### *see [DataModule](../../../src/client/application/data/DataModule.sol)*
 
 ## Process for switching to an external access level provider

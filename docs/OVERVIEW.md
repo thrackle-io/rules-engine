@@ -104,7 +104,6 @@ Rule deactivation is done by sending a "false" boolean along with the no longer 
 | [Token Max Daily Trades Rule](./userGuides/rules/TOKEN-MAX-DAILY-TRADES.md) | ERC721 | mint/buy/sell/transfer |
 | [Token Minimum Hold Time](./userGuides/rules/TOKEN-MIN-HOLD-TIME.md) | ERC721 | burn/sell/transfer | 
 | [Token Minimum Transaction](./userGuides/rules/TOKEN-MIN-TRANSACTION-SIZE.md)| ERC20 | mint/burn/buy/sell/transfer |
-| [Admin Min Token Balance](./userGuides/rules/ADMIN-MIN-TOKEN-BALANCE.md) | ERC20/ERC721 | burn/sell/transfer |
 | [Account Max Tx Value By Risk Score](./userGuides/rules/ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE.md)| ERC20/ERC721 | mint/buy/sell/transfer |
 | [Oracle](./userGuides/rules/ACCOUNT-APPROVE-DENY-ORACLE.md) | ERC20/ERC721/AMM | mint/buy/sell/transfer |
 | [Pause Rule](./userGuides/rules/PAUSE-RULE.md) | Application | mint/burn/buy/sell/transfer |
@@ -164,7 +163,7 @@ Rule administrators can add and activate [RISK-RULES](./userGuides/riskScore/RIS
 
 Risk rules are dependant on the application having deployed [pricing contracts](./userGuides/pricing/README.md) and connected to the application handler. The protocol will then check that the transaction is valid for the user's assigned risk score.
 
-- [RISK SCORE STRUCTURE](./RISK-SCORE-STRUCTURE.md)
+- [RISK SCORE STRUCTURE](./userGuides/riskScore/RISK-SCORE-STRUCTURE.md)
 
 #### Scope 
 
@@ -196,7 +195,7 @@ The Application Handler supports the Application Manager by storing the applicat
 
 ### Application Level Rules
 
-[Application level rules](./userGuides/Architecture/Client/Application/APPLICATION-RULES-LIST.md) apply to all assets associated to the Application Manager and handler when set to active. The Application Handler facilitates the rule checks for each application level rule. The first function called by the Application Manager is: 
+[Application level rules](./userGuides/architecture/client/application/APPLICATION-RULES-LIST.md) apply to all assets associated to the Application Manager and handler when set to active. The Application Handler facilitates the rule checks for each application level rule. The first function called by the Application Manager is: 
 
 ```c
 function requireApplicationRulesChecked() public view returns (bool)
@@ -213,7 +212,7 @@ This function allows the Application Manager to know if any application level ru
 
 ### Rule Functions 
 
-The Application Handler is responsible for setting each [application level rule](./userGuides/Architecture/Client/Application/APPLICATION-RULES-LIST.md) to active or inactive accordingly. Only [Rule Administrators](./userGuides/permissions/ADMIN-ROLES.md) may set the status of a rule.
+The Application Handler is responsible for setting each [application level rule](./userGuides/architecture/client/application/APPLICATION-RULES-LIST.md) to active or inactive accordingly. Only [Rule Administrators](./userGuides/permissions/ADMIN-ROLES.md) may set the status of a rule.
 
 ## Application Manager
 
@@ -290,11 +289,11 @@ The Application Manager also contains the functionality to register, deregister 
 
 The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status, and connects the token to the App Manager for role based access control. 
 
-Asset level rules are set by [Rule administrators](./userGuides/permissions/ADMIN-ROLES.md). When setting a rule status in the Handler the protocol supplied rule id for each [Rule](./userGuides/rules/README.md) and the [action type](./userGuides/rules/ACTION-TYPES.md) are required for the `set-rule function`. The Handler Diamond stores each action type and rule together within the [Rule Storage Facet](./userGuides/Architecture/Client/AssetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
+Asset level rules are set by [Rule administrators](./userGuides/permissions/ADMIN-ROLES.md). When setting a rule status in the Handler the protocol supplied rule id for each [Rule](./userGuides/rules/README.md) and the [action type](./userGuides/rules/ACTION-TYPES.md) are required for the `set-rule function`. The Handler Diamond stores each action type and rule together within the [Rule Storage Facet](./userGuides/architecture/client/assetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
 
 Each Protocol supported asset type (ERC20, ERC721, etc) will need one handler diamond deployed and connected to the asset. The Handler diamond architecture will remain the same for each asset type. The asset handler diamond will consist of a proxy contract, libraries, storage facets and unique facets for that type. The unique facets for the asset type are found here:
-- [Protocol Fungible Handler](./userGuides/Architecture/Client/AssetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
-- [Protocol NonFungible Handler](./userGuides/Architecture/Client/AssetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
+- [Protocol Fungible Handler](./userGuides/architecture/client/assetHandler/PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
+- [Protocol NonFungible Handler](./userGuides/architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
 
 #### *[see diamond diagram](./userGuides/images/ApplicationDeployment.png)*
 
@@ -345,7 +344,7 @@ The Protocol ERC 721 inherits from multiple contracts (internal and external), o
 
 The Rule Processor Diamond is a proxy contract that is used by application contracts to assess economic actions against rules that are active within that handler. The Rule Processor will delegate those calls to the appropriate facet contract, allowing for efficient on chain rule assessments per transaction. The Rule Processor Diamond proxy also acts as a single source address for the creation of rules for application contracts. [Rule administrators](./userGuides/permissions/ADMIN-ROLES.md) of an application are allowed to add rules to the Rule Processor storage. These rules are immutable once created and can be shared across different applications with the rule id number generated by the protocol. 
 
-The Rule Processor diamond architecture consists of the Rule Processor Diamond, [Rule Processor Diamond Libraries](./userGuides/Architecture/Protocol/RULE-PROCESSOR-LIBRARIES.md) and supporting [Rule Processor Facets](./userGuides/Architecture/Protocol/RULE-PROCESSOR-FACETS.md). The library contracts store supporting functions for upgrading the diamond, connecting new facets, validating rule existence and supporting rule checks. The facet contracts fall into two categories: Storage Contracts and Processor Contracts. Storage contracts contain the data associated with a specific rule and the corresponding Processor contract contains the functions used to validate transactions relevant to the rule on chain. 
+The Rule Processor diamond architecture consists of the Rule Processor Diamond, [Rule Processor Diamond Libraries](./userGuides/architecture/protocol/RULE-PROCESSOR-LIBRARIES.md) and supporting [Rule Processor Facets](./userGuides/architecture/protocol/RULE-PROCESSOR-FACETS.md). The library contracts store supporting functions for upgrading the diamond, connecting new facets, validating rule existence and supporting rule checks. The facet contracts fall into two categories: Storage Contracts and Processor Contracts. Storage contracts contain the data associated with a specific rule and the corresponding Processor contract contains the functions used to validate transactions relevant to the rule on chain. 
 
 #### *[see diamond diagram](./userGuides/images/ProtocolOverview.png)*
 
@@ -353,9 +352,9 @@ The Rule Processor diamond architecture consists of the Rule Processor Diamond, 
 
 #### Purpose
 
-The Rule Processor Diamond Facets are where rule adding and rule check functions are stored in the protocol. Storage facets store the add rule functions for each [rule type](./userGuides/rules/README.md). Processor facets store the rule check functions and are called by an application's handler contracts. Facets can be added or removed by the diamond to allow for upgrades to functionality of the diamond. Application contracts never call the facets directly and will only ever interact with the [Rule Processor Proxy](./userGuides/Architecture/Protocol/RULE-PROCESSOR-DIAMOND.md).
+The Rule Processor Diamond Facets are where rule adding and rule check functions are stored in the protocol. Storage facets store the add rule functions for each [rule type](./userGuides/rules/README.md). Processor facets store the rule check functions and are called by an application's handler contracts. Facets can be added or removed by the diamond to allow for upgrades to functionality of the diamond. Application contracts never call the facets directly and will only ever interact with the [Rule Processor Proxy](./userGuides/architecture/protocol/RULE-PROCESSOR-DIAMOND.md).
 
-#### *[see facet list](./userGuides/Architecture/Protocol/RULE-PROCESSOR-FACET-LIST.md)*
+#### *[see facet list](./userGuides/architecture/protocol/RULE-PROCESSOR-FACET-LIST.md)*
 
 ### Protocol Rule Processor Diamond Libraries  
 
@@ -520,5 +519,5 @@ This repository utilized Foundary documentation generation for files using NatSp
 The root of the documentation can be found [here](./src/SUMMARY.md).
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.3.1brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/aquifi-rules-v1

@@ -42,13 +42,9 @@ All invariants have links to their invariant test files unless specified otherwi
 
 - When this rule is applied, the cumulative net amount of tokens minted or burned in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxSupplyVolatility applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
-### [Token Max Buy Volume](../../../../../test/client/token/invariant/tokenMaxBuyVolume/RuleProcessingTokenMaxBuyVolumeMulti.t.i.sol)
+### [Token Max Buy/Sell Volume](../../../../../test/client/token/invariant/tokenMaxBuySellVolume/RuleProcessingTokenMaxBuySellVolumeMulti.t.i.sol)
 
-- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
-
-### [Token Max Sell Volume](../../../../../test/client/token/invariant/tokenMaxSellVolume/RuleProcessingTokenMaxSellVolumeMulti.t.i.sol)
-
-- When this rule is applied, the cumulative amount of tokens sold in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxSellVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
+- When this rule is applied, the cumulative amount of tokens purchased/sold in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuySellVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
 ### [Account Max Buy Size](../../../../../test/client/token/invariant/accountMaxBuySize/RuleProcessingAccountMaxBuySizeMulti.t.i.sol)
 
