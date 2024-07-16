@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This is a basic run down of what is needed to demo Tron in a local anvil. This version will demonstrate the Account Min/Max Token Balance rule with a generic ERC20 token.
+This is a basic run down of what is needed to demo in a local anvil. This version will demonstrate the Account Min/Max Token Balance rule with a generic ERC20 token.
 
 ## Steps
 

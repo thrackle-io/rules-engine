@@ -4,17 +4,17 @@ import { existsSync, mkdirSync } from "fs"
 const outputDir = "doom-abis"
 
 if (process.argv.length != 4 || process.argv[2] != "--branch") {
-  console.log("Usage: node abi-aggregator.mjs --branch <tron branch>")
+  console.log("Usage: node abi-aggregator.mjs --branch <repo branch>")
   process.exit(1)
 }
-const tronBranch = process.argv[3]
+const repoBranch = process.argv[3]
 
 /*
  * This list represents all of the ABI files which are output by `forge build` that are
- * relevant to DOOM and required for it to function properly. The 'name' key is the name
+ * relevant to the Admin UI and required for it to function properly. The 'name' key is the name
  * of the output file created by this script which is then migrated to the ABIs module of
- * DOOM, so it is important that these names don't change, or if they must, then there must
- * also be a corrsponding DOOM change. Obviously the DOOM names mostly match the tron names,
+ * the Admin UI, so it is important that these names don't change, or if they must, then there must
+ * also be a corrsponding Admin UI change. Obviously the Admin UI names mostly match this repository's names,
  * as you'd expect, with the exception of the Rule and Handler diamonds.
  */
 const ABIFiles = [
@@ -159,7 +159,7 @@ const readAndGetJsonABI = async (filename) => {
 
 createOutputDir(outputDir)
 
-ABIFiles.filter((f) => f.branches.includes(tronBranch)).forEach(
+ABIFiles.filter((f) => f.branches.includes(repoBranch)).forEach(
   async (abiFile) => {
     const abi =
       abiFile.files.length == 1
