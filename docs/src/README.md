@@ -87,5 +87,9 @@ TBD
 
 <!-- These are the body links -->
 
-[contributorGuide-url]: ../contributorGuides/README.md
-[userGuide-url]: ../userGuides/README.md
+[contributorGuide-url]: ./docs/contributorGuides/README.md
+[userGuide-url]: ./docs/userGuides/README.md
+[deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
+[archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
+[ruleGuide-url]: ./docs/userGuides/rules/RULE-GUIDE.md
+[glossary-url]: ./docs/userGuides/GLOSSARY.md
