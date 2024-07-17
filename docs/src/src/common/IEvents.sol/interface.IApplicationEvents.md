@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/39d269094241d21cf978e159a9b52cf3c140671a/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/9a96151c4e4157dea6fb1f2313711b4be2ae0f47/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)

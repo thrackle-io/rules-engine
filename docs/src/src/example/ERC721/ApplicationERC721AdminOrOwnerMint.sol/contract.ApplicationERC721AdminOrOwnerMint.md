@@ -1,5 +1,5 @@
 # ApplicationERC721AdminOrOwnerMint
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/39d269094241d21cf978e159a9b52cf3c140671a/src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/9a96151c4e4157dea6fb1f2313711b4be2ae0f47/src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol)
 
 **Inherits:**
 [ApplicationERC721](/src/example/ERC721/ApplicationERC721.sol/contract.ApplicationERC721.md)

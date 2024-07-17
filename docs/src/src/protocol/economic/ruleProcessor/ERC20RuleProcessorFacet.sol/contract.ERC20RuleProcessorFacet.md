@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/39d269094241d21cf978e159a9b52cf3c140671a/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/9a96151c4e4157dea6fb1f2313711b4be2ae0f47/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/common/IErrors.sol/interface.IERC20Errors.md)
