@@ -146,7 +146,7 @@ if [ "$ALREADY_DEPLOYED" = "y" ]; then
     echo "Protocol already deployed skipping Protocol Deployment Scripts"
 else
     # Request Protocol Deployment Owner Address and Key
-    echo Please enter Protocol Deployment Owner Address. This should be different than other entered addresses.
+    echo Please enter Protocol Deployment Owner Address. This can be the same entered address for App Admin.
     read DEPLOYMENT_OWNER
     echo Please enter Protocol Deployment Owner Private Key
     read DEPLOYMENT_OWNER_KEY
@@ -372,12 +372,12 @@ echo $APPLICATION_ERC20_1
 
 cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL
 
-echo "################################################################"
-echo  Set Price of ERC721 collection
-echo "################################################################"
-echo
+# echo "################################################################"
+# echo  Set Price of ERC721 collection
+# echo "################################################################"
+# echo
 
-cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
+# cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
 echo  Make Rule Admin
