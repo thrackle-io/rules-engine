@@ -9,9 +9,9 @@ function refactorOpenZeppelin(){
             if [ -f "$file" ]; then
                 echo "${file}"
                 # Replace the old string with the new string and overwrite the file
-                sed -i "" 's%openzeppelin-contracts-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
-                sed -i "" 's%openzeppelin-contracts%@openzeppelin%g' "$file"
-                sed -i "" 's%@openzeppelin-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
+                perl -i -pe's%openzeppelin-contracts-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
+                perl -i -pe's%openzeppelin-contracts%@openzeppelin%g' "$file"
+                perl -i -pe's%@openzeppelin-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
                 # echo "Replaced openzeppelin-contracts"
             fi
         done
@@ -45,35 +45,35 @@ function iterateAllFilesInDir() {
 
 function refactorDiamondSTDPath(){
     if [ "$1" -eq 2 ]; then
-        sed -i "" 's|"diamond-std/|"../../lib/diamond-std/|g' "$2"
+        perl -i -pe's|"diamond-std/|"../../lib/diamond-std/|g' "$2"
         echo "Replaced 2 level"
     elif [ "$1" -eq 3 ]; then
-        sed -i "" 's|"diamond-std/|"../../../lib/diamond-std/|g' "$2"
+        perl -i -pe's|"diamond-std/|"../../../lib/diamond-std/|g' "$2"
         echo "Replaced 3 level"
     elif [ "$1" -eq 4 ]; then
-        sed -i "" 's|"diamond-std/|"../../../../lib/diamond-std/|g' "$2"
+        perl -i -pe's|"diamond-std/|"../../../../lib/diamond-std/|g' "$2"
         echo "Replaced 4 level"
     elif [ "$1" -eq 5 ]; then
-        sed -i "" 's|"diamond-std/|"../../../../../lib/diamond-std/|g' "$2"
+        perl -i -pe's|"diamond-std/|"../../../../../lib/diamond-std/|g' "$2"
         echo "Replaced 4 level"
     elif [ "$1" -eq 6 ]; then
-        sed -i "" 's|"diamond-std/|"../../../../../../lib/diamond-std/|g' "$2"
+        perl -i -pe's|"diamond-std/|"../../../../../../lib/diamond-std/|g' "$2"
         echo "Replaced 4 level"
     fi
 }
 
 function refactorPath(){
     if [ "$1" -eq 2 ]; then
-        sed -i "" 's|"src/|"../|g' "$2"
+        perl -i -pe"" 's|"src/|"../|g' "$2"
         echo "Replaced 2 level"
     elif [ "$1" -eq 3 ]; then
-        sed -i "" 's|"src/|"../../|g' "$2"
+        perl -i -pe's|"src/|"../../|g' "$2"
         echo "Replaced 3 level"
     elif [ "$1" -eq 4 ]; then
-        sed -i "" 's|"src/|"../../../|g' "$2"
+        perl -i -pe's|"src/|"../../../|g' "$2"
         echo "Replaced 4 level"
     elif [ "$1" -eq 5 ]; then
-        sed -i "" 's|"src/|"../../../../|g' "$2"
+        perl -i -pe's|"src/|"../../../../|g' "$2"
         echo "Replaced 4 level"
     fi
 }

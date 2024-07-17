@@ -72,7 +72,7 @@ A [Deployment Guide][deploymentGuide-url] is provided and contains step by step 
 
 ## Test Scripts
 
-All tests are located inside the `test/` directory. To run a test, simply run in your terminal from inside the `Tron` directory:
+All tests are located inside the `test/` directory. To run a test, run the following at the root of the repository:
 
 ```
 forge test --ffi --match-path <TEST_FILE_LOCATION> -vvvv

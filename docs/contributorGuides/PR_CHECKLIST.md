@@ -75,7 +75,7 @@ This document provides steps all developers must follow prior to submission of a
 2. Verify that all tests pass.
 3. Verify that deployment scripts complete successfully
 4. Verify the DemoSetup.sh script completes successfully
-5. Point your local DOOM docker compose setup to your Tron branch, spin up DOOM and verify that the contents of the branch do not break basic functionality 
+5. Point your local UI docker compose setup to your branch, spin up DOOM and verify that the contents of the branch do not break basic functionality 
 	1. If functionality is broken or the change is known to break DOOM, create a ticket for the change, notify Johnathon Bailey, and create a message in #engineering-breaking-changes within Slack.
 
 ## Documentation

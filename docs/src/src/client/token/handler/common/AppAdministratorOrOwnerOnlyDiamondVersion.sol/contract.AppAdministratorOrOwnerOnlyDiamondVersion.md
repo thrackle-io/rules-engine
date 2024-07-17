@@ -1,5 +1,5 @@
 # AppAdministratorOrOwnerOnlyDiamondVersion
-[Git Source](https://github.com/thrackle-io/tron/blob/29c2cd95da29b0356348370e1ddb4d7bdc24a711/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/39d269094241d21cf978e159a9b52cf3c140671a/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol)
 
 **Inherits:**
 ERC173, [RBACModifiersCommonImports](/src/client/token/handler/common/RBACModifiersCommonImports.sol/abstract.RBACModifiersCommonImports.md), [FacetUtils](/src/client/token/handler/common/FacetUtils.sol/contract.FacetUtils.md)

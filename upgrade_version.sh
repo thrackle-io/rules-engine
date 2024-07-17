@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ################################################################################################################
-# Script designed specifically for Tron to change versions in the src and test directories as well as in the   #
-# package.json file.                                                                                           #
+# Script designed specifically for this repository to change versions in the src and test directories as well  #
+# as in the package.json file.                                                                                 #
 #                                                                                                              #
 # Usage:                                                                                                       #
 #           ./upgrade_version.sh <MAJOR.MINOR.MICRO>                                                           #
