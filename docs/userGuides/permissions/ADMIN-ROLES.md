@@ -217,4 +217,4 @@ Keccak256: 0x5cb9147a971eae9c63c04beb424326d7db091a71473987979b49bb1e189f3457
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/Tron
+[version-url]: https://github.com/thrackle-io/aquifi-rules-v1

@@ -30,7 +30,6 @@ The implementations for each of the above functions can be found in the [AccessL
 
 The implementations for each of the above functions can be found in the [DataModule](../../../src/client/application/data/DataModule.sol) contract.
 
-###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 ###### *see [DataModule](../../../src/client/application/data/DataModule.sol)*
 
 ## Process for switching to an external access level provider
@@ -58,4 +57,4 @@ The selector for this error is `0x41284967`.
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/Tron
+[version-url]: https://github.com/thrackle-io/aquifi-rules-v1

@@ -1,4 +1,4 @@
-name: Build and Push Tron Images
+name: Build and Push Images
 
 on:
   push:
@@ -89,7 +89,7 @@ jobs:
           cache-from: type=registry,ref=${{ env.TRON_BASE_TAG }}
           cache-to: type=inline
 
-      - name: Build and push Tron
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
