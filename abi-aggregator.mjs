@@ -1,7 +1,8 @@
 import fs from "fs/promises"
+import pkgjson from 'package.json' assert { type: 'json' }
 import { existsSync, mkdirSync } from "fs"
 
-const outputDir = "doom-abis"
+const outputDir = `doom-abis/${pkgjson.version}`
 
 if (process.argv.length != 4 || process.argv[2] != "--branch") {
   console.log("Usage: node abi-aggregator.mjs --branch <repo branch>")
@@ -145,7 +146,7 @@ const ABIFiles = [
   },
 ]
 
-const createOutputDir = (dir) => (!existsSync(dir) ? mkdirSync(dir) : undefined)
+const createOutputDir = (dir) => (!existsSync(dir) ? mkdirSync(dir, { recursive: true }) : undefined)
 
 const readAndGetJsonABI = async (filename) => {
   try {
