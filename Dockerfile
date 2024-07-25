@@ -42,7 +42,7 @@ RUN cargo install \
 FROM foundry-base as compile-tron
 COPY . .
 RUN chmod -R a+x docker-scripts
-RUN ./docker-scripts/compile-tron.sh
+RUN ./docker-scripts/compile.sh
 
 
 
