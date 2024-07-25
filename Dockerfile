@@ -83,7 +83,7 @@ CMD ["./docker-scripts/check-deploy.sh"]
 #
 # `deploy-tron` layer runs the tron deploy scripts
 # to deploy tron to the anvil container which should
-# be run along side it. the deploy-tron.sh script
+# be run along side it. the deploy.sh script
 # finishes by tail'ing /dev/null so that this container
 # will stay alive and running after the deploy, which
 # allows tron devs to use it for running tests and other
@@ -95,7 +95,7 @@ CMD ["./docker-scripts/check-deploy.sh"]
 
 FROM compile-tron as deploy-tron
 ENV FOUNDRY_PROFILE=docker
-CMD ["./docker-scripts/deploy-tron.sh"]
+CMD ["./docker-scripts/deploy.sh"]
 
 
 

@@ -5,7 +5,7 @@ FOUNDRY_PROFILE=local
 anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
 sleep 2
 
-./docker-scripts/deploy-tron.sh > /dev/null
+./docker-scripts/deploy.sh > /dev/null
 
 source .venv/bin/activate
 
