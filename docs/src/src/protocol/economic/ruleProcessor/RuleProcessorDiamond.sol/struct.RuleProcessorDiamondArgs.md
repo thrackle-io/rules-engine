@@ -1,5 +1,5 @@
 # RuleProcessorDiamondArgs
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/9a96151c4e4157dea6fb1f2313711b4be2ae0f47/src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/268b521956cf89a918ed12522e8182d2df0cd3b2/src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol)
 
 This is used in diamond constructor
 more arguments are added to this struct
