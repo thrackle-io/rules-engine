@@ -16,14 +16,15 @@ test_commands=(
   "bash deployAppManagerTest.sh"
   "bash deployAppERC20Test.sh"
   "bash deployAppERC721Test.sh"
-  "node abi-aggregator.mjs --branch \"$GITHUB_BRANCH_NAME\""
+  "node abi-aggregator.mjs --branch main"
 )
 
 echo "Running tests..."
 NUM_FAILED=0
 for command in "${test_commands[@]}"; do
+    echo $command
     # Run command in a subshell and capture stderr
-    output=$( { eval "$command"; } 2>&1 )
+    output=$( { eval "$command"; } > /dev/null )
     # Capture return value
     retval=$?
 
