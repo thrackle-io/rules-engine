@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 FOUNDRY_PROFILE=local
 anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
@@ -22,20 +21,21 @@ test_commands=(
 echo "Running tests..."
 NUM_FAILED=0
 for command in "${test_commands[@]}"; do
-    echo $command
+    echo -e "========================== Running \'$command\' ========================================" >&2
+
     # Run command in a subshell and capture stderr
-    output=$( { eval "$command"; } > /dev/null )
+    output=$( eval "$command" )
     # Capture return value
     retval=$?
 
     # If return value is non-zero, the test failed
     if [ $retval -ne 0 ]; then
-      echo " ❌ '$command' failed. Errors were:\n" >&2
-      echo -e "=================================" >&2
+      echo "================================= ❌ '$command' FAILED ❌ =================================\n" >&2
       echo -e "$output"
-      echo -e "=================================\n" >&2
+      echo -e "================================= ❌ END ERRORS ❌ =================================\n" >&2
       NUM_FAILED=$((NUM_FAILED+1))
     fi
+    echo -e "========================== End \'$command\' ========================================" >&2
 done
 
 if [ $NUM_FAILED -gt 0 ]; then
