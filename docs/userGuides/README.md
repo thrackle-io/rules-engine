@@ -132,7 +132,7 @@ ACTION_BURN=4
 ---
 ## Monitoring
 
-Once you have deployed your smart contracts, you can monitor them using [Openzeppelin Defender](https://docs.openzeppelin.com/defender/v2/module/monitor). It helps you to keep an eye on your smart contracts and detect potential security vulnerabilities. There are some key events that we recommend you observing if you intend to create a monitoring setup for your project:
+Once you have deployed your smart contracts, you can monitor them using [Openzeppelin Defender](https://docs.openzeppelin.com/defender/module/monitor). It helps you to keep an eye on your smart contracts and detect potential security vulnerabilities. There are some key events that we recommend you observing if you intend to create a monitoring setup for your project:
 
 
 | Event | Contract Name | Description |
