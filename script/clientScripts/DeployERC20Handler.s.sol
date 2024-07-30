@@ -23,10 +23,10 @@ contract DeployERC20HandlerPt1 is Script, DeployBase {
         vm.startBroadcast(privateKey);
 
         applicationCoinHandlerDiamond = createERC20HandlerDiamondPt1(name);
-        createERC20HandlerDiamondPt2(name, address(applicationCoinHandlerDiamond));
-        setENVVariable("HANDLER_DIAMOND_TO_DEPLOY", ""); // we clear the env for safe future deployments
 
-        setENVAddress("APPLICATION_ERC20_HANDLER_ADDRESS", vm.toString(address(applicationCoinHandlerDiamond)));
+        string memory test = vm.toString(address(applicationCoinHandlerDiamond));
+        setENVAddress("APPLICATION_ERC20_HANDLER_ADDRESS", test);
+     
         vm.stopBroadcast();
     }
 
