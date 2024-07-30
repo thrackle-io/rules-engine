@@ -32,11 +32,10 @@ if [ "$LOCAL" = "y" ]; then
 fi
 DEPLOYMENT=$(echo "$DEPLOYMENT" | tr '[:upper:]' '[:lower:]')
 if [ "$DEPLOYMENT" = "y" ]; then 
-  forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-  sh script/ParseProtocolDeploy.sh --chainid $CHAIN_ID
-  forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-  forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-  forge script script/DeployAllModulesPt4.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+  export GAS_NUMBER=$GAS_NUMBER
+  export ETH_RPC_URL=$ETH_RPC_URL
+  export CHAIN_ID=$CHAIN_ID
+  sh script/deploy/DeployProtocol.sh 
 fi
 forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
 sh script/ParseApplicationDeploy.sh 1 --chainid $CHAIN_ID
