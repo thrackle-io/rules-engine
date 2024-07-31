@@ -29,6 +29,7 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
      // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _tokenAdmin) ERC20(_name, _symbol) {
         _grantRole(TOKEN_ADMIN_ROLE, _tokenAdmin);
+        _setRoleAdmin(TOKEN_ADMIN_ROLE, TOKEN_ADMIN_ROLE);
     }
 
     /**

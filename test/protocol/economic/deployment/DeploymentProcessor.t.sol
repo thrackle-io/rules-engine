@@ -39,6 +39,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
             testDeployments = true;
         } else {
             testDeployments = false;
-        }
+        } 
     }
 }

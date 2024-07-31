@@ -45,11 +45,12 @@ contract ApplicationDeployFT2ScriptPt2 is Script, DeployBase {
         /// Create ERC20 token 2
         createERC20HandlerDiamondPt2("Dracula Coin", address(applicationCoinHandlerDiamond2));
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
+        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
         appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
-        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
+        
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Dracula Coin", address(coin2));

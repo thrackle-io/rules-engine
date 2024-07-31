@@ -38,6 +38,7 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddres
      // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _tokenAdmin, string memory _baseUri) ERC721(_name, _symbol) {
         _grantRole(TOKEN_ADMIN_ROLE, _tokenAdmin);
+        _setRoleAdmin(TOKEN_ADMIN_ROLE, TOKEN_ADMIN_ROLE);
         setBaseURI(_baseUri);
     }
 

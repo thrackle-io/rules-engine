@@ -21,7 +21,6 @@ contract DeployERC20HandlerPt1 is Script, DeployBase {
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         name = vm.envString("HANDLER_DIAMOND_TO_DEPLOY"); // name of the Diamond
         vm.startBroadcast(privateKey);
-        ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         applicationCoinHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS")));
 
         createERC20HandlerDiamondPt2(name, address(applicationCoinHandlerDiamond));
