@@ -16,7 +16,7 @@ echo "################################################################"
 echo Retrieve the contract info and set environment variables
 echo "################################################################"
 echo
-bash script/ParseApplicationDeploy.sh 1
+bash script/ParseApplicationDeploy.sh 1 --chainid $CHAIN_ID
 
 echo "################################################################"
 echo Deploy the ApplicationERC20 and the Handler Diamond
@@ -28,7 +28,14 @@ echo "################################################################"
 echo Retrieve the contract info and set environment variables
 echo "################################################################"
 echo
-bash script/ParseApplicationDeploy.sh 2
+bash script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
+
+echo "################################################################"
+echo Deploy the ApplicationERC20 and the Handler Diamond pt 2
+echo "################################################################"
+echo
+forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
+
 
 echo "################################################################"
 echo Deploy the ApplicationERC721 and the Handler Diamond
@@ -40,7 +47,14 @@ echo "################################################################"
 echo Retrieve the contract info and set environment variables
 echo "################################################################"
 echo
-bash script/ParseApplicationDeploy.sh 3
+bash script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID
+
+echo "################################################################"
+echo Deploy the ApplicationERC721 and the Handler Diamond Pt 2
+echo "################################################################"
+echo
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url=$ETH_RPC_URL --gas-price $GAS_NUMBER
+
 
 
 echo "################################################################"
@@ -53,7 +67,7 @@ echo "################################################################"
 echo Retrieve the contract info and set environment variables
 echo "################################################################"
 echo
-bash script/ParseApplicationDeploy.sh 4
+bash script/ParseApplicationDeploy.sh 4 --chainid $CHAIN_ID
 
 echo "################################################################"
 echo Deploy the Pricing Contracts
@@ -65,4 +79,4 @@ echo "################################################################"
 echo Retrieve the contract info and set environment variables
 echo "################################################################"
 echo
-bash script/ParseApplicationDeploy.sh 5
+bash script/ParseApplicationDeploy.sh 5 --chainid $CHAIN_ID

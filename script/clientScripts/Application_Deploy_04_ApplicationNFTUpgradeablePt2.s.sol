@@ -47,7 +47,7 @@ contract DeployProtocolERC721Upgradeable is Script, DeployBase {
         ApplicationERC721AdminOrOwnerMint nftupgradeable = ApplicationERC721AdminOrOwnerMint(vm.envAddress("APPLICATION_ERC721U_ADDRESS"));
         applicationNFTHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721U_HANDLER")));
         /// Create NFT Handler
-        createERC721HandlerDiamondPt2("Clyde", address(applicationNFTHandlerDiamond));
+        createERC721HandlerDiamondPt2("Wolfman", address(applicationNFTHandlerDiamond));
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nftupgradeable));
         vm.stopBroadcast();
 
@@ -57,7 +57,7 @@ contract DeployProtocolERC721Upgradeable is Script, DeployBase {
         /// Connect handler to token
         nftupgradeable.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("Clyde", address(nftupgradeable));
+        applicationAppManager.registerToken("Wolfman", address(nftupgradeable));
 
         vm.stopBroadcast();
     }

@@ -90,7 +90,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_ZeroAddressChecksERC721() public endWithStopPrank {
         vm.expectRevert(0xd92e233d);
-        new UtilApplicationERC721("FRANK", "FRANK", address(0x0), "https://SampleApp.io");
+        new UtilApplicationERC721("Dracula Coin", "DRAC", address(0x0), "https://SampleApp.io");
         vm.expectRevert(0xba80c9e5);
         IProtocolToken(address(testCaseNFT)).connectHandlerToToken(address(0));
 

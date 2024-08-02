@@ -7,8 +7,10 @@ Upgradeable Non-funglible token contracts require special attention and processe
 
 ## Index
 
-1. [Prerequisites](#prerequisites)
-2. [Upgradable NFT Deployment](#simple-nft-deployment)
+- [Deploying Ugradable Token and Handler](#deploying-ugradable-token-and-handler)
+  - [Index](#index)
+  - [Prerequisites](#prerequisites)
+  - [Upgradable NFT Deployment](#upgradable-nft-deployment)
 
 ## Prerequisites
 
@@ -32,7 +34,7 @@ NOTE:
 
 1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER`, `CONFIG_APP_ADMIN` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script.  
 
-2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol) change the `Clyde` name, `CLYDEPIC` symbol inside the script and `APPLICATION_ERC721_URI_1` inside the .env file to the desired name, symbol and token URI for your NFT deployment.
+2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol) change the `Wolfman` name, `WOLF` symbol inside the script and `APPLICATION_ERC721_URI_1` inside the .env file to the desired name, symbol and token URI for your NFT deployment.
 
 3. Deploy the contracts:
         ````

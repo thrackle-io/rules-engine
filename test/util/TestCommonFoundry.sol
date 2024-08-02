@@ -498,7 +498,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
         /// create an ERC721
-        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("Clyde", "CLYDEPIC");
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("Wolfman", "WOLF");
         (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
 
         switchToAppAdministrator();

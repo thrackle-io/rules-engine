@@ -7,10 +7,12 @@ Tokens are the lifeblood of the web3 economy and with applications they are no d
 
 ## Index
 
-1. [Prerequisites](#prerequisites)
-2. [Simple ERC20 Token Deployment](#simple-erc20-deployment)
-3. [Simple NFT Deployment](#simple-nft-deployment)
-4. [Integrate with Protocol Hook](#integrate-protocol)
+- [Deploying Tokens and their Handlers](#deploying-tokens-and-their-handlers)
+  - [Index](#index)
+  - [Prerequisites](#prerequisites)
+  - [Simple ERC20 Deployment](#simple-erc20-deployment)
+  - [Simple NFT Deployment](#simple-nft-deployment)
+  - [Integrate Protocol](#integrate-protocol)
 
 ## Prerequisites
 
@@ -50,7 +52,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 1. Ensure the [environment variables][environment-url] are set correctly. The `APPLICATION_APP_MANAGER` and `DEPLOYMENT_OWNER_KEY` are used by the deployment script. 
 
-2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `Clyde` name, `CLYDEPIC` symbol inside the script and `APPLICATION_ERC721_URI_1` inside the .env file to the desired name, symbol and token URI for your NFT deployment. 
+2. Inside the [ApplicationNFT script](../../../script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol) change the `Wolfman` name, `WOLF` symbol inside the script and `APPLICATION_ERC721_URI_1` inside the .env file to the desired name, symbol and token URI for your NFT deployment. 
 
 3. Deploy the contracts:
         ````

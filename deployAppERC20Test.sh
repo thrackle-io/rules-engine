@@ -146,7 +146,7 @@ echo "...Checking to make sure the ERC20's Handler is registered with the AppMan
 if [ $RPC_URL == "local" ]; then
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER)  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
 fi
 if [ "$REGISTERED" != "true" ]; then
     echo -e "$RED                 FAIL $NC"

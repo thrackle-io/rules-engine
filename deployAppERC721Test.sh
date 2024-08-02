@@ -16,7 +16,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-./foundry-version-check.sh
+# ./foundry-version-check.sh
 
 if [ -n $FOUNDRY_PROFILE ]; then
   RPC_URL="local"
@@ -111,14 +111,15 @@ fi
 
 echo "...Checking to make sure the pricing modules are set within the ERC721's Handler..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $HANDLER_ERC721 'getAppManagerAddress()(address)')  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)')  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)')
   HANDLER_PRICER=$(cast call $APP_HANDLER 'nftPricingAddress()(address)')  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)
   HANDLER_PRICER=$(cast call $APP_HANDLER 'nftPricingAddress()(address)' --rpc-url $RPC_URL) 
 fi
+echo $HANDLER_PRICER
 if test -z "$HANDLER_PRICER"; then
     TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC721Pricing module set. Set it in ERC721: ""$APPLICATION_ERC721_ADDRESS_1"" with function, setNFTPricingAddress(address)"
     echo -e $TEXT
@@ -129,10 +130,10 @@ fi
 
 echo "...Checking to make sure the ERC721 is registered with the AppManager..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)')  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)')  
   REGISTERED=$(cast call $APP_MANAGER 'getTokenID(address)(string)' $APPLICATION_ERC721_ADDRESS_1)  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER --rpc-url $RPC_URL) 
 fi
 if test -z "$REGISTERED"; then
@@ -148,7 +149,7 @@ echo "...Checking to make sure the ERC721's Handler is registered with the AppMa
 if [ $RPC_URL == "local" ]; then
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER)  
 else
-  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $HANDLER 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
 fi
 if [ "$REGISTERED" != "true" ]; then
     echo -e "$RED                 FAIL $NC"

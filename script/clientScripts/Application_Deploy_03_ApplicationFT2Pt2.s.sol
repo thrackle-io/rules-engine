@@ -26,7 +26,7 @@ import "./DeployBase.s.sol";
  */
 
 contract ApplicationDeployFT2ScriptPt2 is Script, DeployBase {
-    HandlerDiamond applicationCoinHandlerDiamond2;
+    HandlerDiamond applicationCoinHandlerDiamond;
     uint256 privateKey;
     address ownerAddress;
     uint256 appAdminKey;
@@ -39,20 +39,21 @@ contract ApplicationDeployFT2ScriptPt2 is Script, DeployBase {
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
-        applicationCoinHandlerDiamond2 = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2")));
-        ApplicationERC20 coin2 = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"));
+        applicationCoinHandlerDiamond = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2")));
+        ApplicationERC20 coin = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"));
 
         /// Create ERC20 token 2
-        createERC20HandlerDiamondPt2("Dracula Coin", address(applicationCoinHandlerDiamond2));
-        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
+        createERC20HandlerDiamondPt2("Dracula Coin", address(applicationCoinHandlerDiamond));
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin));
+        coin.connectHandlerToToken(address(applicationCoinHandlerDiamond));
         appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
         appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
-        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
+        
 
         /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("Dracula Coin", address(coin2));
+        applicationAppManager.registerToken("Dracula Coin", address(coin));
 
         vm.stopBroadcast();
     }

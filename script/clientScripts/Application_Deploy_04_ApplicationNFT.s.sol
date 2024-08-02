@@ -36,10 +36,15 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
     function run() public {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
-        vm.startBroadcast(privateKey);
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        vm.startBroadcast(appAdminKey);
         /// Create NFT
-        new ApplicationERC721AdminOrOwnerMint("WolfMan", "WOLF", ownerAddress, vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("WolfMan");
+        new ApplicationERC721AdminOrOwnerMint("Wolfman", "WOLF", appAdminAddress, vm.envString("APPLICATION_ERC721_URI_1"));
+        
+        vm.stopBroadcast();
+        vm.startBroadcast(privateKey);
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Wolfman");
 
         vm.stopBroadcast();
     }
