@@ -1,5 +1,5 @@
 # ApplicationERC20UProxy
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/0c22edbee3ca4c32dcba8042eeb10bc1a6c3bdd0/src/example/ERC20/upgradeable/ApplicationERC20UProxy.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/example/ERC20/upgradeable/ApplicationERC20UProxy.sol)
 
 **Inherits:**
 ERC1967Proxy
@@ -30,7 +30,7 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 ### constructor
 
 *Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
-optionally initialized with `_data` as explained in [ERC1967Proxy-constructor](/src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol/contract.ApplicationERC721AdminOrOwnerMint.md#constructor).*
+optionally initialized with `_data` as explained in [ERC1967Proxy-constructor](/src/example/ERC20/ApplicationERC20.sol/contract.ApplicationERC20.md#constructor).*
 
 
 ```solidity

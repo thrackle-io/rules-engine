@@ -1,5 +1,5 @@
 # IERC20Decimals
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/0c22edbee3ca4c32dcba8042eeb10bc1a6c3bdd0/src/client/token/ERC20/IERC20Decimals.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/client/token/ERC20/IERC20Decimals.sol)
 
 *Interface of the ERC20 standard as defined in the EIP.*
 
@@ -86,7 +86,7 @@ Ether and Wei. This is the default value returned by this function, unless
 it's overridden.
 NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract, including
-[IERC20-balanceOf](/lib/openzeppelin-contracts/lib/erc4626-tests/ERC4626.prop.sol/interface.IERC20.md#balanceof) and {IERC20-transfer}.*
+[IERC20-balanceOf](/src/client/token/ITokenInterface.sol/interface.IToken.md#balanceof) and {IERC20-transfer}.*
 
 
 ```solidity
