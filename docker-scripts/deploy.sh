@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-## This script should only ever be run on a `compile-tron` or higher layer of the tron
+## This script should only ever be run on a `compile` or higher layer of the
 ## Dockerfile, which is where this venv will have been created. If this script is run
 ## in some other context it will fail on this line due to the missing venv. 
 source .venv/bin/activate

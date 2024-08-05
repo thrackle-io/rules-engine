@@ -17,7 +17,7 @@ FROM rust:1.78.0-bookworm as foundry-base
 RUN apt update
 RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-venv jq gh npm
 
-WORKDIR /usr/local/src/tron
+WORKDIR /usr/local/src/aquifi-rules-v1
 
 COPY foundry.lock .
 
@@ -32,23 +32,23 @@ RUN cargo install \
 
 ################################################
 #
-# `compile-tron` layer pulls all of the tron repo into the container
+# `compile` layer pulls all of the repo into the container
 # and then runs `forge build` to compile it. This stage will rebuild any 
-# time any file in the tron repo changes, including this Dockerfile and
+# time any file in the repo changes, including this Dockerfile and
 # any of the docker-scripts/ 
 #
 ################################################
 
-FROM foundry-base as compile-tron
+FROM foundry-base as compile
 COPY . .
 RUN chmod -R a+x docker-scripts
-RUN ./docker-scripts/compile-tron.sh
+RUN ./docker-scripts/compile.sh
 
 
 
 ################################################
 #
-# `anvil` layer is just the compiled tron layer, 
+# `anvil` layer is just the compiled layer, 
 # running anvil 
 #
 # FOUNDRY_PROFILE selects a profile from foundry.toml
@@ -57,7 +57,7 @@ RUN ./docker-scripts/compile-tron.sh
 #
 ################################################
 
-FROM compile-tron as anvil
+FROM compile as anvil
 ENV FOUNDRY_PROFILE=docker
 ENV RUST_LOG=backend,api,node,rpc=warn
 ENV CHAIN_ID=31337
@@ -66,13 +66,13 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 ################################################
 #
-# `check-deploy` layer runs the tron docker deploy script 
+# `check-deploy` layer runs the docker deploy script 
 # in "deploy check" mode, so that the results of the deploy 
 # can be parsed and confirmed as having worked.
 #
 ################################################
 
-FROM compile-tron as check-deploy
+FROM compile as check-deploy
 ENV FOUNDRY_PROFILE=local
 CMD ["./docker-scripts/check-deploy.sh"]
 
@@ -81,31 +81,31 @@ CMD ["./docker-scripts/check-deploy.sh"]
 
 ################################################
 #
-# `deploy-tron` layer runs the tron deploy scripts
-# to deploy tron to the anvil container which should
-# be run along side it. the deploy-tron.sh script
+# `deploy` layer runs the deploy scripts
+# to deploy to the anvil container which should
+# be run along side it. the deploy.sh script
 # finishes by tail'ing /dev/null so that this container
 # will stay alive and running after the deploy, which
-# allows tron devs to use it for running tests and other
+# allows devs to use it for running tests and other
 # forge/cast commands easily.
 #
 # FOUNDRY_PROFILE selects a profile from foundry.toml
 #
 ################################################
 
-FROM compile-tron as deploy-tron
+FROM compile as deploy
 ENV FOUNDRY_PROFILE=docker
-CMD ["./docker-scripts/deploy-tron.sh"]
+CMD ["./docker-scripts/deploy.sh"]
 
 
 
 ################################################
 #
-# `necessist` layer is for running the tron necessist testing process
+# `necessist` layer is for running the necessist testing process
 #
 ################################################
 
-FROM compile-tron as tron-necessist
+FROM compile as necessist
 
 RUN cargo install necessist
 
