@@ -24,7 +24,6 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddres
     bytes32 constant TOKEN_ADMIN_ROLE = keccak256("TOKEN_ADMIN_ROLE");
 
     address private handlerAddress;
-    IProtocolTokenHandler private handler;
 
     /// Base Contract URI
     string public baseUri;
@@ -33,11 +32,12 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddres
      * @dev Constructor sets params
      * @param _name Name of the token
      * @param _symbol Symbol of the token
-     * @param _tokenAdmin Token Manager address
+     * @param _tokenAdmin Token Admin address
      */
      // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _tokenAdmin, string memory _baseUri) ERC721(_name, _symbol) {
         _grantRole(TOKEN_ADMIN_ROLE, _tokenAdmin);
+        _setRoleAdmin(TOKEN_ADMIN_ROLE, TOKEN_ADMIN_ROLE);
         setBaseURI(_baseUri);
     }
 
@@ -114,7 +114,6 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddres
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = IProtocolTokenHandler(handlerAddress);
         emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 

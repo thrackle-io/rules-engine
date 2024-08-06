@@ -53,9 +53,9 @@ import "./DeployBase.s.sol";
 
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
-        bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "Wolfman", "WOLF", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         new ApplicationERC721UProxy(address(_applicationNFTU), appConfigAdminAddress, callData);
-        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("CLYDEPIC");
+        applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Wolfman");
         
         vm.stopBroadcast();
     }

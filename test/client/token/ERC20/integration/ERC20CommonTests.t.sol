@@ -184,7 +184,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_ZeroAddressCheckERC20Token() public {
         vm.expectRevert(0xd92e233d);
-        new UtilApplicationERC20("FRANK", "FRANK", address(0x0));
+        new UtilApplicationERC20("Dracula Coin", "DRAC", address(0x0));
     }
 
     function testERC20_ERC20CommonTests_ZeroAddressCheckERC20HandlerConnection() public {

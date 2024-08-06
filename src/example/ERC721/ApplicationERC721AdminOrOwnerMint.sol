@@ -15,9 +15,9 @@ contract ApplicationERC721AdminOrOwnerMint is ApplicationERC721 {
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
-     * @param _appManagerAddress Address of App Manager
+     * @param _tokenAdmin Token Admin address
      * @param _baseUri URI for the base token
      */
     // slither-disable-next-line shadowing-local
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ApplicationERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
+    constructor(string memory _name, string memory _symbol, address _tokenAdmin, string memory _baseUri) ApplicationERC721(_name, _symbol, _tokenAdmin, _baseUri) {}
 }

@@ -697,7 +697,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
         switchToSuperAdmin();
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(ERC173Facet(address(applicationCoinHandler)).owner(), address(applicationCoin));
-        assertEq(applicationCoin.getAppManagerAddress(), address(applicationAppManager));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
     }
 
@@ -712,11 +711,10 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util 
 
     function testApplication_ApplicationCommonTests_VerifyTokensRegistered() public view ifDeploymentTestsEnabled {
         assertEq(applicationAppManager.getTokenID(address(applicationCoin)), "FRANK");
-        assertEq(applicationAppManager.getTokenID(address(applicationNFT)), "Clyde");
+        assertEq(applicationAppManager.getTokenID(address(applicationNFT)), "Wolfman");
     }
 
     function testApplication_ApplicationCommonTests_ERC721HandlerConnections() public endWithStopPrank ifDeploymentTestsEnabled {
-        assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));
     }
