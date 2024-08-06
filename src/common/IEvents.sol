@@ -23,7 +23,7 @@ interface IAppLevelEvents {
     event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
     event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
-    event AD1467_TokenRegistered(string indexed _token, address indexed _address);
+    event AD1467_TokenRegistered(string indexed _token, address indexed _address, uint8 indexed _type);
     event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
     event AD1467_AMMRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);

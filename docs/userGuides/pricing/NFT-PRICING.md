@@ -28,11 +28,6 @@
            ````
 
 
-
-## Setting NFT Price for Custom Pricer
-
-TODO: Add when we have one
-
 <!-- These are the body links -->
 [environment-url]: ../deployment/SET-ENVIRONMENT.md
 

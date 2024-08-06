@@ -32,3 +32,6 @@ Example:
         super._beforeTokenTransfer(from, to, amount);
     }
 ```
+
+### ERC165
+The protocol relies on ERC721 tokens inheriting ERC165 interface standard. If your token does not inherit ERC165 rules that rely on pricing may not function as intended.  

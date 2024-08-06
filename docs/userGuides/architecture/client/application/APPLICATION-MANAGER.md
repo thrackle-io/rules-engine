@@ -158,9 +158,18 @@ The Application Manager also contains the functionality to register, deregister 
 We'll use the protocol token functions to demonstrate the API:
 
 ```c
-function registerToken(address _tokenAddress) external onlyRole(APP_ADMIN_ROLE)
+function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
 Registers the token address with the Application Manager. It can only be called by the Application Admin.
+
+```c
+function updateRegisteredToken(string calldata _token, address _tokenAddress, uint8 _tokenType) external onlyRole(APP_ADMIN_ROLE)
+```
+Update a registered token to the specified token type. ERC721 tokens that do not support ERC165 will be initially registered as an ERC20. This function will register the token as ERC721. 
+
+Token Types: ERC20 = 0, ERC721 = 1. 
+
+This function can only be called by the App Admin.
 
 ```c
 function deRegisterToken(address _tokenAddress) external onlyRole(APP_ADMIN_ROLE)
