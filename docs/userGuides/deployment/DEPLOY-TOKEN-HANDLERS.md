@@ -32,13 +32,7 @@ The following steps must already be completed on the target chain:
   forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast
 ```
 
-3. Run a script to capture the output and set relevant environment variables:
-   
-```
-  sh script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
-```
-
-4. Run a script to configure the Handler:
+3. Run a script to configure the Handler:
    
 ```
   forge script script/clientScripts/DeployERC20HandlerPt2.s.sol --ffi --broadcast
@@ -54,6 +48,11 @@ The following steps must already be completed on the target chain:
   forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast
 ```
 
+3. Run a script to configure the Handler:
+   
+```
+  forge script script/clientScripts/DeployERC721HandlerPt2.s.sol --ffi --broadcast
+```
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
 [environment-url]: ./SET-ENVIRONMENT.md
