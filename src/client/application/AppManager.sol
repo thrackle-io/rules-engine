@@ -669,9 +669,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
                 if (isERC721){
                     tokenType = 1;
                     emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
+                } else {
+                    tokenType = 0;
+                    emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
                 }
-                tokenType = 0;
-                emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
             } catch {
                 tokenType = 0;
                 emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
@@ -687,10 +688,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @param _tokenType The token type to update registered token
      */
     function updateRegisteredToken(string calldata _token, address _tokenAddress, uint8 _tokenType) external onlyRole(APP_ADMIN_ROLE) {
-        if (_tokenAddress == address(0)) revert ZeroAddress();
-        if (!isTokenRegistered[_tokenAddress]) {
-            registerToken(_token, _tokenAddress); 
-        }
+        registerToken(_token, _tokenAddress); 
         emit AD1467_TokenRegistered(_token, _tokenAddress, _tokenType);
     }
 

@@ -663,6 +663,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
+        vm.expectEmit(true, true, false, false);
         emit AD1467_TokenRegistered(name, address(erc721), 1);
         applicationAppManager.registerToken(name, address(erc721));
         HandlerVersionFacet(address(handler)).updateVersion("1.3.1");
