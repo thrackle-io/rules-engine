@@ -1,5 +1,5 @@
 # IProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/common/IProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/common/IProtocolERC721Pricing.sol)
 
 **Inherits:**
 [NFTPricingErrors](/src/common/IErrors.sol/interface.NFTPricingErrors.md)

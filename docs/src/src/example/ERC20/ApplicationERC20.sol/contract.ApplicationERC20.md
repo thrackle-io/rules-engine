@@ -1,5 +1,5 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/example/ERC20/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/example/ERC20/ApplicationERC20.sol)
 
 **Inherits:**
 ERC20, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -27,13 +27,6 @@ address private handlerAddress;
 ```
 
 
-### handler
-
-```solidity
-IProtocolTokenHandler private handler;
-```
-
-
 ## Functions
 ### constructor
 
@@ -49,7 +42,7 @@ constructor(string memory _name, string memory _symbol, address _tokenAdmin) ERC
 |----|----|-----------|
 |`_name`|`string`|Name of the token|
 |`_symbol`|`string`|Symbol of the token|
-|`_tokenAdmin`|`address`|Token Manager address|
+|`_tokenAdmin`|`address`|Token Admin address|
 
 
 ### mint

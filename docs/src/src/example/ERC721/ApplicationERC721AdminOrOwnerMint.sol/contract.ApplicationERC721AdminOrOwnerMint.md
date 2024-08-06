@@ -1,5 +1,5 @@
 # ApplicationERC721AdminOrOwnerMint
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol)
 
 **Inherits:**
 [ApplicationERC721](/src/example/ERC721/ApplicationERC721.sol/contract.ApplicationERC721.md)
@@ -17,8 +17,8 @@ This is an example implementation of the protocol ERC721 where minting is only a
 
 
 ```solidity
-constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri)
-    ApplicationERC721(_name, _symbol, _appManagerAddress, _baseUri);
+constructor(string memory _name, string memory _symbol, address _tokenAdmin, string memory _baseUri)
+    ApplicationERC721(_name, _symbol, _tokenAdmin, _baseUri);
 ```
 **Parameters**
 
@@ -26,7 +26,7 @@ constructor(string memory _name, string memory _symbol, address _appManagerAddre
 |----|----|-----------|
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
-|`_appManagerAddress`|`address`|Address of App Manager|
+|`_tokenAdmin`|`address`|Token Admin address|
 |`_baseUri`|`string`|URI for the base token|
 
 

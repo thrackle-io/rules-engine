@@ -1,5 +1,5 @@
 # AggregatorV3Interface
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/3646d7220ca1c3c6e396c1c58012716f59073c50/src/example/pricing/AggregatorV3Interface.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/example/pricing/AggregatorV3Interface.sol)
 
 This is the standard Chainlink feed interface
 
