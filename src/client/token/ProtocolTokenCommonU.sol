@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "src/protocol/economic/AppAdministratorOnlyU.sol";
-import {IApplicationEvents} from "src/common/IEvents.sol";
+import "src/client/token/IProtocolToken.sol";
 import {IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 
 /**
@@ -11,7 +11,7 @@ import {IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
  * @notice This contract contains common variables and functions for all Protocol Tokens
  */
 
-contract ProtocolTokenCommonU is AppAdministratorOnlyU, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
+abstract contract ProtocolTokenCommonU is AppAdministratorOnlyU, IProtocolToken, IZeroAddressError, IOwnershipErrors {
     address newAppManagerAddress;
     address appManagerAddress;
     IAppManager appManager;

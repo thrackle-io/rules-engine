@@ -6,7 +6,9 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import {IZeroAddressError} from "src/common/IErrors.sol";
-import {IApplicationEvents} from "src/common/IEvents.sol";
+import {ITokenEvents, IApplicationEvents} from "src/common/IEvents.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "src/client/token/handler/diamond/FeesFacet.sol";
 
 /**
  * @title Example ERC20 ApplicationERC20
@@ -14,7 +16,7 @@ import {IApplicationEvents} from "src/common/IEvents.sol";
  * @notice This is an example implementation that App Devs should use.
  * @dev During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor
  */
-contract ApplicationERC20 is ERC20, AccessControl, IApplicationEvents, IProtocolToken, IZeroAddressError {
+contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressError, ReentrancyGuard, ITokenEvents, IApplicationEvents {
 
     bytes32 constant TOKEN_ADMIN_ROLE = keccak256("TOKEN_ADMIN_ROLE");
 
@@ -40,6 +42,92 @@ contract ApplicationERC20 is ERC20, AccessControl, IApplicationEvents, IProtocol
     function mint(address to, uint256 amount) public virtual {
         _mint(to, amount);
     }
+
+/// TRANSFER FUNCTION GROUP START
+     /**
+     * @dev This is overridden from {IERC20-transfer}. It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - the caller must have a balance of at least `amount`.
+     */
+    // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
+    // applied to this function
+    // slither-disable-start reentrancy-events
+    // slither-disable-start reentrancy-no-eth
+    function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool) {
+        address owner = _msgSender();
+        // if transfer fees/discounts are defined then process them first
+        if (FeesFacet(handlerAddress).isFeeActive()) {
+            // return the adjusted amount after fees
+            amount = _handleFees(owner, amount);
+        }
+        _transfer(owner, to, amount);
+        return true;
+    }
+
+    // slither-disable-end reentrancy-no-eth
+    // slither-disable-end reentrancy-events
+
+    /**
+     * @dev This is overridden from {IERC20-transferFrom}. It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+     *
+     * Emits an {Approval} event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of {ERC20}.
+     *
+     * NOTE: Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
+     *
+     * Requirements:
+     *
+     * - `from` and `to` cannot be the zero address.
+     * - `from` must have a balance of at least `amount`.
+     * - the caller must have allowance for ``from``'s tokens of at least
+     * `amount`.
+     */
+    // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
+    // applied to this function
+    // slither-disable-start reentrancy-events
+    // slither-disable-start reentrancy-no-eth
+    function transferFrom(address from, address to, uint256 amount) public override nonReentrant returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(from, spender, amount);
+        // if transfer fees/discounts are defined then process them first
+        if (FeesFacet(handlerAddress).isFeeActive()) {
+            // return the adjusted amount after fees
+            amount = _handleFees(from, amount);
+        }
+        _transfer(from, to, amount);
+        return true;
+    }
+
+    /**
+     * @dev This transfers all the P2P transfer fees to the individual fee sinks
+     * @param from sender address
+     * @param amount number of tokens being transferred
+     */
+    function _handleFees(address from, uint256 amount) internal returns (uint256) {
+        address[] memory targetAccounts;
+        int24[] memory feePercentages;
+        uint256 fees = 0;
+        (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(from, balanceOf(from));
+        for (uint i; i < feePercentages.length; ++i) {
+            if (feePercentages[i] > 0) {
+                // trim the fee and send it to the target fee sink account
+                uint fee = (amount * uint24(feePercentages[i])) / 10000;
+                if (fee > 0) {
+                    _transfer(from, targetAccounts[i], fee);
+                    emit AD1467_FeeCollected(targetAccounts[i], fee);
+                    // accumulate all fees
+                    fees += fee;
+                }
+            }
+        }
+        // subtract the total fees from main transfer amount
+        return amount -= fees;
+    }
+/// TRANSFER FUNCTION GROUP END
 
     /**
      * @dev Function called before any token transfers to confirm transfer is within rules of the protocol

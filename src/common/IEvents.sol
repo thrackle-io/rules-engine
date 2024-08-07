@@ -148,8 +148,11 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
  */
 
 interface IApplicationEvents is IAppManagerAddressSet{
-    /// Application Handler
-    event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
+    
+    ///ProtocolERC20
+    event AD1467_NewTokenDeployed(address indexed appManagerAddress);
+    ///ProtocolERC721
+    event AD1467_NewNFTDeployed(address indexed appManagerAddress);
     ///ERC20Pricing
     event AD1467_TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing
@@ -157,4 +160,21 @@ interface IApplicationEvents is IAppManagerAddressSet{
     event AD1467_CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
     event AD1467_FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
+}
+
+/**
+ * @dev This library for all events for the tokens.
+ * @notice Token Events Library
+ */
+interface ITokenEvents{
+    event AD1467_FeeCollected(address indexed _feeSink, uint256 indexed _amount);
+}
+
+/**
+ * @dev This library for all events for the tokens.
+ * @notice Integration Events Library
+ */
+ interface IIntegrationEvents{
+    /// Handler
+    event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
 }

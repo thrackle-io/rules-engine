@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "src/client/token/IProtocolToken.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
@@ -13,7 +12,7 @@ import "src/client/token/ProtocolTokenCommonU.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
  * @notice This is the base contract for all protocol ERC721Upgradeable Minimals. 
  */
-contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenCommonU, ReentrancyGuard, IProtocolToken{
+contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenCommonU, ReentrancyGuard{
     address private handlerAddress;
     IProtocolTokenHandler private handler;
     /// memory placeholders to allow variable addition without affecting client upgradeability

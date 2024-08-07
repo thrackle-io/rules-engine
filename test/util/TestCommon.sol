@@ -32,7 +32,7 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IApplicationRules as AppRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {IAppLevelEvents, IAppManagerAddressSet, IOracleEvents, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IRuleProcessorDiamondEvents, IEconomicEvents, IHandlerDiamondEvents, ITokenHandlerEvents, IApplicationEvents} from "src/common/IEvents.sol";
+import {IAppLevelEvents, IAppManagerAddressSet, IOracleEvents, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IRuleProcessorDiamondEvents, IEconomicEvents, IHandlerDiamondEvents, ITokenHandlerEvents, IApplicationEvents, IIntegrationEvents} from "src/common/IEvents.sol";
 
 /// Client Contract imports
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
@@ -104,7 +104,8 @@ abstract contract TestCommon is
     IEconomicEvents,
     IHandlerDiamondEvents,
     ITokenHandlerEvents,
-    IApplicationEvents
+    IApplicationEvents,
+    IIntegrationEvents
 {
     FacetCut[] _ruleProcessorFacetCuts;
 
