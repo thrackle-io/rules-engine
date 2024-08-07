@@ -665,15 +665,19 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
         if (!isTokenRegistered[_tokenAddress]) {
             _addAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, _tokenAddress);
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
+            /// check that the registering token supports the ERC165 interface ID for IERC721 
             try IERC165(_tokenAddress).supportsInterface(0x80ac58cd) returns (bool isERC721) {
                 if (isERC721){
+                    // tokenType is a parameter for event 
                     tokenType = 1;
                     emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
                 } else {
+                    // tokenType is a parameter for event 
                     tokenType = 0;
                     emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
                 }
             } catch {
+                // tokenType is a parameter for event 
                 tokenType = 0;
                 emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
             }
