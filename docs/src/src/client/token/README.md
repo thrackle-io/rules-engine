@@ -9,4 +9,4 @@
 - [IProtocolTokenHandler](IProtocolTokenHandler.sol/interface.IProtocolTokenHandler.md)
 - [IToken](ITokenInterface.sol/interface.IToken.md)
 - [ProtocolTokenCommon](ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md)
-- [ProtocolTokenCommonU](ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md)
+- [ProtocolTokenCommonU](ProtocolTokenCommonU.sol/abstract.ProtocolTokenCommonU.md)

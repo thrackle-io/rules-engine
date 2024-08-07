@@ -1,5 +1,8 @@
 # IProtocolToken
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/client/token/IProtocolToken.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5c9d84d4763cc8482f9b9d326982059877bc2610/src/client/token/IProtocolToken.sol)
+
+**Inherits:**
+[IIntegrationEvents](/src/common/IEvents.sol/interface.IIntegrationEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
@@ -39,11 +42,4 @@ function connectHandlerToToken(address _deployedHandlerAddress) external;
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
 
-
-## Events
-### HandlerConnected
-
-```solidity
-event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
-```
 

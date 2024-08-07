@@ -1,8 +1,8 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/example/ERC20/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5c9d84d4763cc8482f9b9d326982059877bc2610/src/example/ERC20/ApplicationERC20.sol)
 
 **Inherits:**
-ERC20, AccessControl, [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
+ERC20, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, [ITokenEvents](/src/common/IEvents.sol/interface.ITokenEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
@@ -61,7 +61,57 @@ function mint(address to, uint256 amount) public virtual;
 |`amount`|`uint256`|number of tokens to mint|
 
 
+### transfer
+
+TRANSFER FUNCTION GROUP START
+
+*This is overridden from [IERC20-transfer](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+Requirements:
+- `to` cannot be the zero address.
+- the caller must have a balance of at least `amount`.*
+
+
+```solidity
+function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool);
+```
+
+### transferFrom
+
+*This is overridden from [IERC20-transferFrom](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+Emits an {Approval} event indicating the updated allowance. This is not
+required by the EIP. See the note at the beginning of {ERC20}.
+NOTE: Does not update the allowance if the current allowance
+is the maximum `uint256`.
+Requirements:
+- `from` and `to` cannot be the zero address.
+- `from` must have a balance of at least `amount`.
+- the caller must have allowance for ``from``'s tokens of at least
+`amount`.*
+
+
+```solidity
+function transferFrom(address from, address to, uint256 amount) public override nonReentrant returns (bool);
+```
+
+### _handleFees
+
+*This transfers all the P2P transfer fees to the individual fee sinks*
+
+
+```solidity
+function _handleFees(address from, uint256 amount) internal returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`from`|`address`|sender address|
+|`amount`|`uint256`|number of tokens being transferred|
+
+
 ### _beforeTokenTransfer
+
+TRANSFER FUNCTION GROUP END
 
 *Function called before any token transfers to confirm transfer is within rules of the protocol*
 

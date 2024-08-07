@@ -40,6 +40,8 @@
 - [IHandlerDiamondEvents](IEvents.sol/interface.IHandlerDiamondEvents.md)
 - [ITokenHandlerEvents](IEvents.sol/interface.ITokenHandlerEvents.md)
 - [IApplicationEvents](IEvents.sol/interface.IApplicationEvents.md)
+- [ITokenEvents](IEvents.sol/interface.ITokenEvents.md)
+- [IIntegrationEvents](IEvents.sol/interface.IIntegrationEvents.md)
 - [IOracle](IOracle.sol/interface.IOracle.md)
 - [IProtocolERC20Pricing](IProtocolERC20Pricing.sol/interface.IProtocolERC20Pricing.md)
 - [IProtocolERC721Pricing](IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)

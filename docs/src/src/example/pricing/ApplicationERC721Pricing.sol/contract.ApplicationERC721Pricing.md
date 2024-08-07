@@ -1,5 +1,5 @@
 # ApplicationERC721Pricing
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/example/pricing/ApplicationERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5c9d84d4763cc8482f9b9d326982059877bc2610/src/example/pricing/ApplicationERC721Pricing.sol)
 
 **Inherits:**
 [ProtocolERC721Pricing](/src/client/pricing/ProtocolERC721Pricing.sol/contract.ProtocolERC721Pricing.md)
