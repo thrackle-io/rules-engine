@@ -77,6 +77,57 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
     }
 
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_EventEmissionSingle() public endWithStopPrank {
+        _transactionFeeTableCoinSetup();
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        vm.startPrank(user4, user4);
+        // make sure single event is emitted correctly.
+        vm.expectEmit();
+        emit AD1467_FeeCollected(targetAccount, 3 * ATTO);
+        applicationCoin.transfer(user3, 100 * ATTO);
+    }
+
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_EventEmissionMultiple() public endWithStopPrank {
+        // make sure multiple fees work by adding additional rule and applying to user4
+        _transactionFeeTableCoinSetup();
+        switchToRuleAdmin();
+        FeesFacet(address(applicationCoinHandler)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        vm.startPrank(user4, user4);
+        vm.expectEmit();
+        emit AD1467_FeeCollected(targetAccount, 3 * ATTO);
+        vm.expectEmit();
+        emit AD1467_FeeCollected(targetAccount2, 6 * ATTO);
+        applicationCoin.transfer(user7, 100 * ATTO);
+    }
+
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_EventEmissionDiscount() public endWithStopPrank {
+        // make sure discounts work by adding a discount to user4
+        _transactionFeeTableCoinSetup();
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        switchToRuleAdmin();
+        FeesFacet(address(applicationCoinHandler)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        FeesFacet(address(applicationCoinHandler)).addFee("discount", minBalance, maxBalance, -200, address(0));
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "discount"); ///add tag
+        vm.startPrank(user4, user4);
+        vm.expectEmit();
+        emit AD1467_FeeCollected(targetAccount, 2 * ATTO);
+        vm.expectEmit();
+        emit AD1467_FeeCollected(targetAccount2, 5 * ATTO);
+        applicationCoin.transfer(user8, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user8), 93 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 2 * ATTO); // treasury gets fees
+        assertEq(applicationCoin.balanceOf(targetAccount2), 5 * ATTO); // treasury gets fees(added from previous...6 + 5)
+    }
+
     function testERC20_ApplicationERC20_TransactionFeeTableCoin_Exclusion() public endWithStopPrank {
         // make sure when fees are active, that non qualifying users are not affected
         _transactionFeeTableCoinSetup();
