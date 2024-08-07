@@ -213,11 +213,18 @@ This rule does not require any data to be recorded.
         - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
         
-- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "ACCOUNT_APPROVE_DENY_ORACLE".
-        - action: the protocol action for which the rule is being activated.
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: the id of the rule to activate.
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: rule has been deactivated in the asset handler.
+    - Parameters:
+        - ruleType: "ACCOUNT_APPROVE_DENY_ORACLE".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: the id of the rule to deactivate.
 
 ## Dependencies
 

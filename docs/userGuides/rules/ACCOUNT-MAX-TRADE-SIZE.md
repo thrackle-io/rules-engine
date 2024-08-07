@@ -263,11 +263,18 @@ NOTE: When this rule is updated and/or deactivated, the recorded data is cleared
         - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
     - Emitted when: An account-max-trade-size rule has been activated in an asset handler:
     - Parameters:
         - ruleType: "ACCOUNT_MAX_TRADE_SIZE".
-        - action: the protocol action for which the rule is being activated.
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: An account-max-trade-size rule has been deactivated in an asset handler:
+    - Parameters:
+        - ruleType: "ACCOUNT_MAX_TRADE_SIZE".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
 
 ## Dependencies
 

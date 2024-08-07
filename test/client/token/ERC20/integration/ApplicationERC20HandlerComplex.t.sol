@@ -40,6 +40,9 @@ contract ApplicationERC20HandlerComplexTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules off
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _createActionsArray(), 0);
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountMinMaxTokenBalance(_createActionsArray(), false);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
@@ -48,6 +51,9 @@ contract ApplicationERC20HandlerComplexTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules back on
         switchToRuleAdmin();
+        // check the event emission when activating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _createActionsArray(), 0);
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountMinMaxTokenBalance(_createActionsArray(), true);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
@@ -108,6 +114,9 @@ contract ApplicationERC20HandlerComplexTest is TestCommonFoundry, ERC20Util {
 
         // let's turn the allowed list rule off
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _createActionsArray(), _indexTwo);
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountApproveDenyOracle(_createActionsArray(), false, _indexTwo);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
@@ -119,6 +128,9 @@ contract ApplicationERC20HandlerComplexTest is TestCommonFoundry, ERC20Util {
 
         // let's turn it back on
         switchToRuleAdmin();
+        // check the event emission when activating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _createActionsArray(), _indexTwo);
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountApproveDenyOracle(_createActionsArray(), true, _indexTwo);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));

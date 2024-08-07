@@ -103,9 +103,9 @@ contract HandlerAccountMaxTradeSize is RuleAdministratorOnly, ActionTypesArray, 
             lib.accountMaxTradeSizeStorage().accountMaxTradeSize[_actions[i]].active = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_TRADE_SIZE, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_TRADE_SIZE, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_TRADE_SIZE, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_TRADE_SIZE, _actions, 0);
         }
     }
 

@@ -187,11 +187,18 @@ This rule does not require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
 
 
-- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
     - Emitted when: A Token Min Transaction Size rule has been activated in an asset handler:
     - Parameters:
         - ruleType: "TOKEN_MIN_TX_SIZE".
-        - action: the protocol action for which the rule is being activated.
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: A Token Min Transaction Size rule has been deactivated in an asset handler:
+    - Parameters:
+        - ruleType: "TOKEN_MIN_TX_SIZE".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
 
 ## Dependencies
 

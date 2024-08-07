@@ -74,6 +74,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         //build cut struct
         FacetCut[] memory cut = new FacetCut[](1);
         cut[0] = (FacetCut({facetAddress: address(_sampleFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("SampleFacet")}));
+        // check event emission 
+        vm.expectEmit(true, true, true, false);
+        emit IDiamondCut.DiamondCut(cut, address(0x0), "");
         //upgrade diamond
         IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
     }
@@ -1075,5 +1078,31 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
         applicationNFT.transferFrom(user2, user1, 2);
+    }
+
+    function testProtocol_RuleProcessorDiamond_DiamondCut_Replace() public endWithStopPrank ifDeploymentTestsEnabled{
+        _facetCutSetUp();
+        //switchToSuperAdmin();
+        SampleFacet _sampleFacet2 = new SampleFacet();
+        //build cut struct
+        FacetCut[] memory cut = new FacetCut[](1);
+        cut[0] = (FacetCut({facetAddress: address(_sampleFacet2), action: FacetCutAction.Replace, functionSelectors: generateSelectors("SampleFacet")}));
+        // check event emission 
+        vm.expectEmit(true, true, true, false);
+        emit IDiamondCut.DiamondCut(cut, address(0x0), "");
+        //upgrade diamond
+        IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
+    }
+
+    function testProtocol_RuleProcessorDiamond_DiamondCut_Remove() public endWithStopPrank ifDeploymentTestsEnabled{
+        _facetCutSetUp();
+        //build cut struct
+        FacetCut[] memory cut = new FacetCut[](1);
+        cut[0] = (FacetCut({facetAddress: address(0), action: FacetCutAction.Remove, functionSelectors: generateSelectors("SampleFacet")}));
+        // check event emission 
+        vm.expectEmit(true, true, true, false);
+        emit IDiamondCut.DiamondCut(cut, address(0x0), "");
+        //upgrade diamond
+        IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
     }
 }

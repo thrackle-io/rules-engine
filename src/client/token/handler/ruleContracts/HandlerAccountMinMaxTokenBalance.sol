@@ -82,9 +82,9 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ActionTypesA
             lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, 0);
         }
     }
 

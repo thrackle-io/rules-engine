@@ -1581,7 +1581,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function _setUpAccountMaxValueByAccessLevelRule(ActionTypes action) internal {
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, 100, 500, 750, 1500);
-        setAccountMaxValueByAccessLevelSingleAction(action, ruleId);
+        setAccountMaxValueByAccessLevelRuleSingleAction(action, ruleId);
     }
 
     function testERC721_ERC721CommonTests_MaxValueOutByAccessLevel_Transfer_Positive() public endWithStopPrank {
