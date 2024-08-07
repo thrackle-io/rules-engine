@@ -1,4 +1,5 @@
 import fs from "fs/promises"
+import pkgjson from './package.json' assert { type: 'json' }
 import { existsSync, mkdirSync } from "fs"
 
 const outputDir = `doom-abis/${pkgjson.version}`
@@ -68,14 +69,14 @@ const ABIFiles = [
     files: ["./out/PauseRules.sol/PauseRules.json"],
   },
   {
-    name: "ProtocolERC20",
+    name: "ApplicationERC20",
     branches: ["main", "internal"],
-    files: ["./out/ProtocolERC20.sol/ProtocolERC20.json"],
+    files: ["./out/ApplicationERC20.sol/ApplicationERC20.json"],
   },
   {
-    name: "ProtocolERC721",
+    name: "ApplicationERC721",
     branches: ["main", "internal"],
-    files: ["./out/ProtocolERC721.sol/ProtocolERC721.json"],
+    files: ["./out/ApplicationERC721.sol/ApplicationERC721.json"],
   },
   {
     name: "RuleDiamond",
@@ -145,7 +146,7 @@ const ABIFiles = [
   },
 ]
 
-const createOutputDir = (dir) => (!existsSync(dir) ? mkdirSync(dir) : undefined)
+const createOutputDir = (dir) => (!existsSync(dir) ? mkdirSync(dir, { recursive: true }) : undefined)
 
 const readAndGetJsonABI = async (filename) => {
   try {
