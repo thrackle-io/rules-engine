@@ -30,7 +30,6 @@ contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, Proto
     function __ProtocolERC721_init_unchained(address _appManagerAddress) internal onlyInitializing {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        emit AD1467_NewNFTDeployed(_appManagerAddress);
     }
 
     /**

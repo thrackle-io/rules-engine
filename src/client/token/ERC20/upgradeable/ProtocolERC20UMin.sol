@@ -31,7 +31,6 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
     function __ProtocolERC20_init_unchained(address _appManagerAddress) internal onlyInitializing {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        emit AD1467_NewTokenDeployed(_appManagerAddress);
     }
 
     /**

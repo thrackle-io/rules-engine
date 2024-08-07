@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import {IZeroAddressError} from "src/common/IErrors.sol";
+import {IApplicationEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Example ERC721 ApplicationERC721
@@ -17,7 +18,7 @@ import {IZeroAddressError} from "src/common/IErrors.sol";
  * @notice This is an example implementation that App Devs should use.
  * @dev During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor
  */
-contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddressError, ReentrancyGuard, ERC721Burnable, ERC721Enumerable {
+contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IApplicationEvents, IZeroAddressError, ReentrancyGuard, ERC721Burnable, ERC721Enumerable {
     using Counters for Counters.Counter;
     Counters.Counter internal _tokenIdCounter;
 
@@ -114,7 +115,7 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IZeroAddres
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
     /**

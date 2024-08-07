@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import {IZeroAddressError} from "src/common/IErrors.sol";
+import {IApplicationEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Example ERC20 ApplicationERC20
@@ -13,7 +14,7 @@ import {IZeroAddressError} from "src/common/IErrors.sol";
  * @notice This is an example implementation that App Devs should use.
  * @dev During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor
  */
-contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressError {
+contract ApplicationERC20 is ERC20, AccessControl, IApplicationEvents, IProtocolToken, IZeroAddressError {
 
     bytes32 constant TOKEN_ADMIN_ROLE = keccak256("TOKEN_ADMIN_ROLE");
 
@@ -68,7 +69,7 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
 }

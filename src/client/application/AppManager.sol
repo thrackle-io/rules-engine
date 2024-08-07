@@ -652,18 +652,48 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
 
     /**
      * @dev This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory and application level balance checks.
+     * @notice This function will try to call supportsInterface on registered address. If token does not support ERC165 it is assumed to be ERC20. 
+     * Use UpdateRegisteredToken() to register an ERC721 token that does not support ERC165 interface. 
      * @param _token The token identifier(may be NFT or ERC20)
      * @param _tokenAddress Address corresponding to the tokenId
      */
-    function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE) {
+    function registerToken(string calldata _token, address _tokenAddress) public onlyRole(APP_ADMIN_ROLE) {
+        uint8 tokenType; 
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
         if (!isTokenRegistered[_tokenAddress]) {
             _addAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, _tokenAddress);
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
-            emit AD1467_TokenRegistered(_token, _tokenAddress);
+            /// check that the registering token supports the ERC165 interface ID for IERC721 
+            try IERC165(_tokenAddress).supportsInterface(0x80ac58cd) returns (bool isERC721) {
+                if (isERC721){
+                    // tokenType is a parameter for event 
+                    tokenType = 1;
+                    emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
+                } else {
+                    // tokenType is a parameter for event 
+                    tokenType = 0;
+                    emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
+                }
+            } catch {
+                // tokenType is a parameter for event 
+                tokenType = 0;
+                emit AD1467_TokenRegistered(_token, _tokenAddress, tokenType);
+            }
         } else emit AD1467_TokenNameUpdated(_token, _tokenAddress);
+    }
+
+    /**
+     * @dev This function Updates the Registered Token to an ERC721 token that does not support ERC165 interface. 
+     * @notice Token type is not stored on chain and is only to update events parameters for off chain databasing. 
+     * @param _token The token identifier of registered token
+     * @param _tokenAddress Address corresponding to the tokenId
+     * @param _tokenType The token type to update registered token
+     */
+    function updateRegisteredToken(string calldata _token, address _tokenAddress, uint8 _tokenType) external onlyRole(APP_ADMIN_ROLE) {
+        registerToken(_token, _tokenAddress); 
+        emit AD1467_TokenRegistered(_token, _tokenAddress, _tokenType);
     }
 
     /**

@@ -23,7 +23,7 @@ interface IAppLevelEvents {
     event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
     event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
-    event AD1467_TokenRegistered(string indexed _token, address indexed _address);
+    event AD1467_TokenRegistered(string indexed _token, address indexed _address, uint8 indexed _type);
     event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
     event AD1467_AMMRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
@@ -150,10 +150,6 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
 interface IApplicationEvents is IAppManagerAddressSet{
     /// Application Handler
     event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
-    ///ProtocolERC20
-    event AD1467_NewTokenDeployed(address indexed appManagerAddress);
-    ///ProtocolERC721
-    event AD1467_NewNFTDeployed(address indexed appManagerAddress);
     ///ERC20Pricing
     event AD1467_TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing

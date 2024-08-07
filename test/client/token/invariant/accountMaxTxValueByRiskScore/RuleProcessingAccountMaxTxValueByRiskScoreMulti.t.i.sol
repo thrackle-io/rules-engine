@@ -18,7 +18,7 @@ contract RuleProcessingAccountMaxTxValueByRiskScoreMultiTest is RuleProcessingIn
     RuleProcessingAccountMaxTxValueByRiskScoreActor[][] actors;
     HandlerDiamond[] appHandlers;
     uint8 constant AMOUNT_ACTORS = 8;
-    uint8 constant AMOUNT_MANAGERS = 1; //must only be one manager with no more than 8 addresses. TODO: increase actor capability
+    uint8 constant AMOUNT_MANAGERS = 1; //must only be one manager with no more than 8 addresses.
 
     function setUp() public {
         prepRuleProcessingInvariant();

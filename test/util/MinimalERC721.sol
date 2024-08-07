@@ -26,8 +26,6 @@ contract MinimalERC721 is ERC721, IProtocolToken, ProtocolTokenCommon, ERC721Bur
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-
-        emit AD1467_NewTokenDeployed(_appManagerAddress);
     }
 
     /**

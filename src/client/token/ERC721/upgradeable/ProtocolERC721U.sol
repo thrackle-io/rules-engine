@@ -71,7 +71,6 @@ contract ProtocolERC721U is
     function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        emit AD1467_NewNFTDeployed(_appManagerAddress);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}

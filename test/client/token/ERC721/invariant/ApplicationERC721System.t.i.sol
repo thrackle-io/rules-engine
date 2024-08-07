@@ -83,13 +83,6 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler)); 
     }
 
-    // New deployment will always emit NewTokenDeployed event
-    function invariant_ERC721_external_DeploymentEventEmission() public {
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_NewNFTDeployed(address(applicationAppManager));
-        new UtilApplicationERC721("TEST", "TST", address(applicationAppManager), "https://SampleApp.io");
-    }
-
     // Only an App Admin can propose a new AppManager
     function invariant_ERC721_external_ProposeAppManager_OnlyAppAdmin() public {
         address newAppManagerAddress = address(0x7775);

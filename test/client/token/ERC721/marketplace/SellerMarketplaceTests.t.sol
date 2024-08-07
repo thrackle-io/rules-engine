@@ -694,7 +694,6 @@ contract MarketplaceNonCustodialTestsErc20BuysNftSells is TokenUtils, ERC721Util
         vm.stopPrank();
     }
 
-    // todo: rewrite this so that only OverMaxBalance could get triggered, right now it's firing both errors leaving it up to what gets there first
     function test_inSellersOperatorMarketplace_accountMinMaxTokenBalance_ERC721Over() public endWithStopPrank() {
         _accountMinMaxTokenBalanceInitializer();
         _accountMinMaxTokenBalance_ERC721Initializer();

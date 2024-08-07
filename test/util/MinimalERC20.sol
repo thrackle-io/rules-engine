@@ -19,8 +19,6 @@ contract MinimalERC20 is IProtocolToken, ERC20, ProtocolTokenCommon, ERC20Burnab
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-
-        emit AD1467_NewTokenDeployed(_appManagerAddress);
     }
 
         /**

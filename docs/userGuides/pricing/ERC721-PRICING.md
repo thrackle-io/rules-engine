@@ -4,6 +4,8 @@ This is a protocol template for an ERC721-pricing contract. Any custom-made pric
 
 [This template](../../../src/client/pricing/ProtocolERC721Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
+ERC721 Pricing structure requires that ERC721 contracts support ERC165 interface. 
+
 # Deployment
 
 Refer to the deployment document [here](./DEPLOY-PRICING.md).
