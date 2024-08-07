@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
@@ -12,7 +11,7 @@ import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
  * @title Minimal ERC20 Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract MinimalERC20 is IProtocolToken, ERC20, ProtocolTokenCommon, ERC20Burnable {
+contract MinimalERC20 is ERC20, ProtocolTokenCommon, ERC20Burnable {
     IProtocolTokenHandler _handler;
 
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
@@ -38,7 +37,7 @@ contract MinimalERC20 is IProtocolToken, ERC20, ProtocolTokenCommon, ERC20Burnab
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */
-    function connectHandlerToToken(address _handlerAddress) external override(IProtocolToken, ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
+    function connectHandlerToToken(address _handlerAddress) external override(ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IProtocolTokenHandler(_handlerAddress);
         emit AD1467_HandlerConnected(_handlerAddress, address(this));
@@ -48,7 +47,7 @@ contract MinimalERC20 is IProtocolToken, ERC20, ProtocolTokenCommon, ERC20Burnab
      * @dev This function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view override(IProtocolToken, ProtocolTokenCommon) returns (address) {
+    function getHandlerAddress() external view override(ProtocolTokenCommon) returns (address) {
         return address(address(_handler));
     }
 

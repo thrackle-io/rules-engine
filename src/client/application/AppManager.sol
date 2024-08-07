@@ -18,7 +18,7 @@ import "src/client/application/IAppManagerUser.sol";
 
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
-import {IAppLevelEvents, IApplicationEvents} from "src/common/IEvents.sol";
+import {IApplicationEvents, IIntegrationEvents} from "src/common/IEvents.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 
 /**
@@ -27,7 +27,7 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IApplicationEvents, ReentrancyGuard {
+contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IApplicationEvents, IIntegrationEvents, ReentrancyGuard {
     string private constant VERSION = "1.3.1";
     using ERC165Checker for address;
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");

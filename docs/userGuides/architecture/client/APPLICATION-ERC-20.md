@@ -19,7 +19,15 @@ The following functions are overridden from the inherited versions to add protoc
 - _beforeTokenTransfer: overridden to allow protocol rule check hook.
 
 ```c
-function _beforeTokenTransfer(address from, address to, uint256 amount) internal override
+  function _beforeTokenTransfer(address from, address to, uint256 amount) internal override
+```
+- transferFrom: overridden to allow fee processing
+```c
+  function transferFrom(address from, address to, uint256 amount) public override nonReentrant returns (bool)
+```
+- transfer: overridden to allow fee processing
+```c
+  function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool)
 ```
 
 ### Added Functions
@@ -27,13 +35,17 @@ The following functions have been added specifically to the ApplicationERC20 con
 - connectHandlerToToken: Used to connect a deployed Protocol Token Handler to the token.
 
 ```c
-function connectHandlerToToken(address _handlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE)
+  function connectHandlerToToken(address _handlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE)
 ```
 
 - getHandlerAddress: used to retrieve the address of the Protocol Token Handler.
 
 ```c
-function getHandlerAddress() external view override returns (address)
+  function getHandlerAddress() external view override returns (address)
+```
+- _handleFees: used to process fees.
+```c
+  function _handleFees(address from, uint256 amount) internal returns (uint256)
 ```
 
 ### Upgrading The Handler

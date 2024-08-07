@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {IApplicationEvents} from "src/common/IEvents.sol";
+import {IApplicationEvents, ITokenEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
@@ -20,7 +20,7 @@ import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
  * @notice This is the base contract for all test ERC20s
  * @dev The only thing to recognize is that flash minting is added but not yet allowed.
  */
-contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard {
+contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, ProtocolTokenCommon, IProtocolERC20Errors, ReentrancyGuard, ITokenEvents {
     /// Max supply should only be set once. Zero means infinite supply.
     // slither-disable-next-line constable-states
     uint256 maxSupply;
@@ -74,20 +74,8 @@ contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Prot
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
         if (FeesFacet(handlerAddress).isFeeActive()) {
-            address[] memory targetAccounts;
-            int24[] memory feePercentages;
-            uint256 fees = 0;
-            (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(owner, balanceOf(owner));
-            for (uint i; i < feePercentages.length; ++i) {
-                if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target feeSink account
-                    _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
-                    // accumulate all fees
-                    fees += (amount * uint24(feePercentages[i])) / 10000;
-                }
-            }
-            // subtract the total fees from main transfer amount
-            amount -= fees;
+            // return the adjusted amount after fees
+            amount = _handleFees(owner, amount);
         }
         _transfer(owner, to, amount);
         return true;
@@ -121,28 +109,38 @@ contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Prot
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
         if (FeesFacet(handlerAddress).isFeeActive()) {
-            address[] memory targetAccounts;
-            int24[] memory feePercentages;
-            uint256 fees = 0;
-            (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(from, balanceOf(from));
-            for (uint i; i < feePercentages.length; ++i) {
-                if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target fee sink account
-                    uint fee = (amount * uint24(feePercentages[i])) / 10000;
-                    if (fee > 0) {
-                        _transfer(from, targetAccounts[i], fee);
-                        // accumulate all fees
-                        fees += fee;
-                    }
-                }
-            }
-            // subtract the total fees from main transfer amount
-            amount -= fees;
+            // return the adjusted amount after fees
+            amount = _handleFees(from, amount);
         }
         _transfer(from, to, amount);
         return true;
     }
 
+    /**
+     * @dev This transfers all the P2P transfer fees to the individual fee sinks
+     * @param from sender address
+     * @param amount number of tokens being transferred
+     */
+    function _handleFees(address from, uint256 amount) internal returns (uint256) {
+        address[] memory targetAccounts;
+        int24[] memory feePercentages;
+        uint256 fees = 0;
+        (targetAccounts, feePercentages) = FeesFacet(handlerAddress).getApplicableFees(from, balanceOf(from));
+        for (uint i; i < feePercentages.length; ++i) {
+            if (feePercentages[i] > 0) {
+                // trim the fee and send it to the target fee sink account
+                uint fee = (amount * uint24(feePercentages[i])) / 10000;
+                if (fee > 0) {
+                    _transfer(from, targetAccounts[i], fee);
+                    emit AD1467_FeeCollected(targetAccounts[i], fee);
+                    // accumulate all fees
+                    fees += fee;
+                }
+            }
+        }
+        // subtract the total fees from main transfer amount
+        return amount -= fees;
+    }
     // slither-disable-end reentrancy-no-eth
     // slither-disable-end reentrancy-events
 

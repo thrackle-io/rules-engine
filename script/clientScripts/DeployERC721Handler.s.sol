@@ -23,9 +23,9 @@ contract DeployERC721Handler is Script, DeployBase {
         vm.startBroadcast(privateKey);
 
         applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1(name);
-        createERC721HandlerDiamondPt2(name, address(applicationNFTHandlerDiamond));
-        setENVVariable("HANDLER_DIAMOND_TO_DEPLOY", ""); // we clear the env for safe future deployments
-
+        string memory handlerAddress = vm.toString(address(applicationNFTHandlerDiamond));
+        setENVAddress("APPLICATION_ERC721_HANDLER_ADDRESS", handlerAddress);
+     
         vm.stopBroadcast();
         
     }
