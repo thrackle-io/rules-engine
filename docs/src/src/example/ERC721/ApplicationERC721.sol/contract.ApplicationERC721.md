@@ -1,8 +1,8 @@
 # ApplicationERC721
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/example/ERC721/ApplicationERC721.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/example/ERC721/ApplicationERC721.sol)
 
 **Inherits:**
-ERC721, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, ERC721Burnable, ERC721Enumerable
+ERC721, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, ERC721Burnable, ERC721Enumerable
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4

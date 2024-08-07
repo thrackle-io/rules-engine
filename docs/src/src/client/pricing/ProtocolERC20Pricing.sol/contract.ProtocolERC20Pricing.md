@@ -1,5 +1,5 @@
 # ProtocolERC20Pricing
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/client/pricing/ProtocolERC20Pricing.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/client/pricing/ProtocolERC20Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC20Pricing](/src/common/IProtocolERC20Pricing.sol/interface.IProtocolERC20Pricing.md)

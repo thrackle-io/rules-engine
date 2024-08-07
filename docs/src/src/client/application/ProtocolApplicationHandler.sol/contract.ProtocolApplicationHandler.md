@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)

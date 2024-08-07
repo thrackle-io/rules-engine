@@ -1,5 +1,5 @@
 # IAccessLevels
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/client/application/data/IAccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/client/application/data/IAccessLevels.sol)
 
 **Inherits:**
 [IAccessLevelErrors](/src/common/IErrors.sol/interface.IAccessLevelErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)

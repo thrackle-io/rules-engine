@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), ReentrancyGuard
@@ -1195,11 +1195,14 @@ modifier onlyHandler();
 
 ### registerToken
 
+This function will try to call supportsInterface on registered address. If token does not support ERC165 it is assumed to be ERC20.
+Use UpdateRegisteredToken() to register an ERC721 token that does not support ERC165 interface.
+
 *This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory and application level balance checks.*
 
 
 ```solidity
-function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE);
+function registerToken(string calldata _token, address _tokenAddress) public onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1207,6 +1210,29 @@ function registerToken(string calldata _token, address _tokenAddress) external o
 |----|----|-----------|
 |`_token`|`string`|The token identifier(may be NFT or ERC20)|
 |`_tokenAddress`|`address`|Address corresponding to the tokenId|
+
+
+### updateRegisteredToken
+
+check that the registering token supports the ERC165 interface ID for IERC721
+
+Token type is not stored on chain and is only to update events parameters for off chain databasing.
+
+*This function Updates the Registered Token to an ERC721 token that does not support ERC165 interface.*
+
+
+```solidity
+function updateRegisteredToken(string calldata _token, address _tokenAddress, uint8 _tokenType)
+    external
+    onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`string`|The token identifier of registered token|
+|`_tokenAddress`|`address`|Address corresponding to the tokenId|
+|`_tokenType`|`uint8`|The token type to update registered token|
 
 
 ### getTokenAddress

@@ -1,8 +1,8 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/example/ERC20/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/example/ERC20/ApplicationERC20.sol)
 
 **Inherits:**
-ERC20, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
+ERC20, AccessControl, [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4

@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/35ec513a185f22e7ba035815b9ced8c0ef1497a9/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/f3f89426d30f93406f5ff447f7284dbf958844b4/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -16,22 +16,6 @@ Application Handler
 
 ```solidity
 event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
-```
-
-### AD1467_NewTokenDeployed
-ProtocolERC20
-
-
-```solidity
-event AD1467_NewTokenDeployed(address indexed appManagerAddress);
-```
-
-### AD1467_NewNFTDeployed
-ProtocolERC721
-
-
-```solidity
-event AD1467_NewNFTDeployed(address indexed appManagerAddress);
 ```
 
 ### AD1467_TokenPrice
