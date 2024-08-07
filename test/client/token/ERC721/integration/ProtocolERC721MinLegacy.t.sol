@@ -855,7 +855,8 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
     function testERC721Legacy_ProtocolERC721Min_TokenMinHoldTime() public endWithStopPrank() {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24); 
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId); 
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         minimalNFTLegacy.safeMint(user1);
@@ -880,7 +881,8 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
         minimalNFTLegacy.safeTransferFrom(user2, user1, 0);
         // now change the rule hold hours to 2 and it should pass
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(2); 
+        ruleId = createTokenMinHoldTimeRule(2);
+        setTokenMinHoldTimeRule(ruleId); 
         vm.stopPrank();
         vm.startPrank(user2, user2);
         minimalNFTLegacy.safeTransferFrom(user2, user1, 0);

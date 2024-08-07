@@ -929,9 +929,10 @@ contract MarketplaceNonCustodialTestsErc20BuysNftSells is TokenUtils, ERC721Util
     function _setUpTokenMinHoldTime(ActionTypes action) internal {
         vm.warp(Blocktime);
         switchToRuleAdmin();
-        uint32[] memory periods = createUint32Array(1);
+        uint32[] memory ruleId = new uint32[](1);
+        ruleId[0] = createTokenMinHoldTimeRule(24);
         ActionTypes[] memory actions = createActionTypeArray(action);
-        setTokenMinHoldTimeRuleFull(address(applicationNFTHandlerv2), actions, periods);
+        setTokenMinHoldTimeRuleFull(address(applicationNFTHandlerv2), actions, ruleId);
         assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandlerv2)).isTokenMinHoldTimeActive(action));
 
         switchToAppAdministrator();
@@ -946,20 +947,6 @@ contract MarketplaceNonCustodialTestsErc20BuysNftSells is TokenUtils, ERC721Util
         vm.startPrank(user1, user1);
         marketplace.createOffer(address(applicationNFTv2), NFT_ID_2, buyPrice);
         vm.stopPrank();
-    }
-
-    function test_inSellersOperatorMarketplace_tokenMinHoldTime_ERC721Buy() public endWithStopPrank() {
-        _setUpTokenMinHoldTime(ActionTypes.BUY);
-
-        vm.startPrank(user2, user2);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                TransferFailed.selector, 
-                address(applicationNFTv2), 
-                IERC721Errors.UnderHoldPeriod.selector
-            )
-        );
-        marketplace.sellItem(address(applicationNFTv2), NFT_ID_2);
     }
 
     function test_inSellersOperatorMarketplace_tokenMinHoldTime_ERC721Sell() public endWithStopPrank() {

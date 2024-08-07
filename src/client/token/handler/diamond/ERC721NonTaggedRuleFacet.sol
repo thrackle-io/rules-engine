@@ -17,6 +17,8 @@ import "src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol";
 import "src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
+import "forge-std/console.sol";
+
 contract ERC721NonTaggedRuleFacet is
     AppAdministratorOrOwnerOnlyDiamondVersion,
     HandlerAccountApproveDenyOracle,
@@ -241,7 +243,6 @@ contract ERC721NonTaggedRuleFacet is
 
     function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _from, address _to, address _sender) internal {
         TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
-
         ActionTypes potentialOppositeAction;
         // If the rule was changed after ownership was recorded, reset ownership. 
         if (minHoldTime.ownershipStart[_tokenId] < minHoldTime.ruleChangeDate) minHoldTime.ownershipStart[_tokenId] = 0;
@@ -258,7 +259,7 @@ contract ERC721NonTaggedRuleFacet is
         }
 
         if (minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
-            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].period, minHoldTime.ownershipStart[_tokenId]);
+            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].ruleId, minHoldTime.ownershipStart[_tokenId]);
         }
     }
 

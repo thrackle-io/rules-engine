@@ -74,7 +74,8 @@ interface IInputErrors {
     error InvertedLimits();
     error CantMixPeriodicAndNonPeriodic();
     error InvalidOracleType(uint8 _type);
-    error InvalidRuleInput();    
+    error InvalidRuleInput();
+    error PeriodExceeds5Years();
 }
 
 interface IAppRuleInputErrors {
@@ -163,7 +164,6 @@ interface IZeroAddressError {
 interface IAssetHandlerErrors {
     error actionCheckFailed();
     error CannotTurnOffAccountDenyForNoAccessLevelWhileActive();
-    error PeriodExceeds5Years();
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);

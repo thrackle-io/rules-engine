@@ -57,6 +57,11 @@ interface INonTaggedRules {
         uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
         address oracleAddress;
     }
+
+    /// ******** Token Min Hold Time ********
+    struct TokenMinHoldTime {
+        uint32 minHoldTime; /// from 0000 to 43830
+    }
 }
 
 interface ITaggedRules {

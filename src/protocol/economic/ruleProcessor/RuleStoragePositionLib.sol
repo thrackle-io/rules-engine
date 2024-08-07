@@ -18,6 +18,7 @@ library RuleStoragePositionLib {
     bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_POSITION = bytes32(uint256(keccak256("token-max-price-volatility")) - 1);
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("token-max-trading-volume")) - 1);
     bytes32 constant TOKEN_MIN_TX_SIZE_POSITION = bytes32(uint256(keccak256("token-min-tx-size")) - 1);
+    bytes32 constant TOKEN_MIN_HOLD_TIME_POSITION = bytes32(uint256(keccak256("token-min-hold-time")) - 1);
     bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance")) - 1);
     bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_POSITION = bytes32(uint256(keccak256("token-max-supply-volatility")) - 1);
     bytes32 constant ACC_APPROVE_DENY_ORACLE_POSITION = bytes32(uint256(keccak256("account-approve-deny-oracle")) - 1);
@@ -145,6 +146,13 @@ library RuleStoragePositionLib {
      */
     function accountMaxTxValueByRiskScoreStorage() internal pure returns (IRuleStorage.AccountMaxTxValueByRiskScoreS storage ds) {
         bytes32 position = ACC_MAX_TX_VALUE_BY_RISK_SCORE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    function tokenMinHoldTimeStorage() internal pure returns (IRuleStorage.TokenMinHoldTimeS storage ds) {
+        bytes32 position = TOKEN_MIN_HOLD_TIME_POSITION;
         assembly {
             ds.slot := position
         }

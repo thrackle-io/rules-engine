@@ -21,6 +21,7 @@ import "src/client/token/HandlerTypeEnum.sol";
 import {IApplicationEvents, IIntegrationEvents} from "src/common/IEvents.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 
+import "forge-std/console.sol";
 /**
  * @title App Manager Contract
  * @dev This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via the application handler.

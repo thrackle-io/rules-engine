@@ -73,6 +73,12 @@ interface IRuleStorage {
         uint32 accountApproveDenyOracleIndex;
     }
 
+    /// ******** Token Min Hold Time ********
+    struct TokenMinHoldTimeS {
+        mapping(uint32 => INonTaggedRules.TokenMinHoldTime) tokenMinHoldTimeRules;
+        uint32 tokenMinHoldTimeIndex;
+    }
+
     /*****************************************
     ************* AccessLevel Rules ***********
     /*****************************************/
