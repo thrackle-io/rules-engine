@@ -65,22 +65,32 @@ if [ "$DEPLOYED" = "y" ]; then
       forge script script/clientScripts/DeployERC20HandlerPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     fi
 else 
+    # Deploy ERC20? 
     forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 2 --chainid $CHAIN_ID
     forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    # Deploy second ERC20? 
     forge script script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 6 --chainid $CHAIN_ID
     forge script script/clientScripts/Application_Deploy_03_ApplicationFT2Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    #Deploy ERC721? 
     forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-    sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID
+    sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID 
+    # need to split these up to Upgradeable vs not 
     forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+
     # Optional: If you would like to run through tests using the upgradeable token
     # sh script/SubUpgradeableTokenForRegularToken.sh
+
+    # Deploy Oracle Contracts 
     forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 4 --chainid $CHAIN_ID
+    # Deploy Pricing Contracts 
     forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 5 --chainid $CHAIN_ID
+    # Set Admin Roles 
     forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    # no parse script on this one, should add 
   fi
