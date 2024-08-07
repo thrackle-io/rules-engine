@@ -220,8 +220,6 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (UtilApplicationERC20 _token) {
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_NewTokenDeployed(address(_appManager));
         return new UtilApplicationERC20(_name, _symbol, address(_appManager));
     }
 
@@ -233,8 +231,6 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC20Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC20 _token) {
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC20(_name, _symbol, address(_appManager));
     }
 
@@ -272,8 +268,6 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (UtilApplicationERC721 _token) {
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_NewNFTDeployed(address(_appManager));
         return new UtilApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 
@@ -285,8 +279,6 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC721Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC721 _token) {
-        vm.expectEmit(true, false, false, false);
-        emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 

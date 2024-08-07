@@ -36,7 +36,6 @@ contract UtilProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerabl
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         setBaseURI(_baseUri);
-        emit AD1467_NewNFTDeployed(_appManagerAddress);
     }
 
     /********** setters and getters for rules  **********/

@@ -150,10 +150,6 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
 interface IApplicationEvents is IAppManagerAddressSet{
     /// Application Handler
     event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
-    ///ProtocolERC20
-    event AD1467_NewTokenDeployed(address indexed appManagerAddress);
-    ///ProtocolERC721
-    event AD1467_NewNFTDeployed(address indexed appManagerAddress);
     ///ERC20Pricing
     event AD1467_TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing
