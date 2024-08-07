@@ -1,7 +1,7 @@
 import fs from "fs/promises"
 import { existsSync, mkdirSync } from "fs"
 
-const outputDir = "doom-abis"
+const outputDir = `doom-abis/${pkgjson.version}`
 
 if (process.argv.length != 4 || process.argv[2] != "--branch") {
   console.log("Usage: node abi-aggregator.mjs --branch <repo branch>")

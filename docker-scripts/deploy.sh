@@ -17,6 +17,9 @@ source script/ParseApplicationDeploy.sh 1
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast
 source script/ParseApplicationDeploy.sh 2
 forge script script/clientScripts/Application_Deploy_02_ApplicationFT1Pt2.s.sol --ffi --broadcast
+forge script script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol --ffi --broadcast
+source script/ParseApplicationDeploy.sh 6
+forge script script/clientScripts/Application_Deploy_03_ApplicationFT2Pt2.s.sol --ffi --broadcast
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
 forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast
 source script/ParseApplicationDeploy.sh 3
