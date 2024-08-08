@@ -210,22 +210,34 @@ NOTE: When this rule is updated and/or deactivated, the recorded data is cleared
 - **event AD1467_ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters:
-        - ruleType: TOKEN_MAX_DAILY_TRADES.
+        - ruleType: "TOKEN_MAX_DAILY_TRADES".
         - index: the rule index set by the Protocol.
         - extraTags: an empty array.
 
 - **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters: 
-        - ruleType: TOKEN_MAX_DAILY_TRADES.
+        - ruleType: "TOKEN_MAX_DAILY_TRADES".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     Parameters:
-        - ruleType: TOKEN_MAX_DAILY_TRADES.
+        - ruleType: "TOKEN_MAX_DAILY_TRADES".
         - action: the protocol action for which the rule is being activated.
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: rule has been activated in the asset handler.
+    - Parameters:
+        - ruleType: "TOKEN_MAX_DAILY_TRADES".
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: rule has been deactivated in the asset handler.
+    - Parameters:
+        - ruleType: "TOKEN_MAX_DAILY_TRADES".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
 
 ### Dependencies
 

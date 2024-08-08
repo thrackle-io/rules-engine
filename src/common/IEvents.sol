@@ -130,9 +130,9 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
     event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
     event AD1467_ApplicationHandlerActionAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);
     /// Rule deactivated
-    event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] actions);
+    event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] actions, uint256 ruleId);
     /// Rule activated
-    event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] actions);
+    event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] actions, uint256 ruleId);
     /// NFT Valuation Limit Updated
     event AD1467_NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AD1467_AppManagerAddressProposed(address indexed _address);

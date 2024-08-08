@@ -1242,7 +1242,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(testCaseToken.balanceOf(user1), 39_999 * ATTO);
         /// Now, we deactivate and reactivate the rule and try again
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _createActionsArray(ActionTypes.P2P_TRANSFER), 0);
         ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).activateTokenMaxTradingVolume(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
+        // check the event emission when activating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _createActionsArray(ActionTypes.P2P_TRANSFER), 0);
         ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).activateTokenMaxTradingVolume(createActionTypeArray(ActionTypes.P2P_TRANSFER), true);
         vm.startPrank(rich_user, rich_user);
         testCaseToken.transfer(user1, 1 * ATTO);
@@ -1376,7 +1382,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.warp(block.timestamp + 1);
         /// Now, we deactivate and reactivate the rule and try again
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_TRADE_SIZE, _createActionsArray(ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.SELL), false);
+        // check the event emission when activating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_TRADE_SIZE, _createActionsArray(ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.SELL), true);
         vm.warp(block.timestamp + 1);
         vm.startPrank(user1, user1);
@@ -1426,7 +1438,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(applicationCoin2), address(testCaseToken), 500, 500, true);
         /// Now, we deactivate and reactivate the rule and try again
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_TRADE_SIZE, createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), false);
+        // check the event emission when activating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_TRADE_SIZE, createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateAccountMaxTradeSize(createActionTypeArray(ActionTypes.BUY, ActionTypes.SELL), true);
         vm.warp(Blocktime+3);
         vm.startPrank(user1, user1);
@@ -1601,7 +1619,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.expectRevert(0xfa006f25);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, false);
         switchToRuleAdmin();
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_SELL_VOLUME, createActionTypeArray(ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateTokenMaxBuySellVolume(createActionTypeArray(ActionTypes.SELL), false);
+        // check the event emission when deactivating
+        vm.expectEmit(true, true, true, true);
+        emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_SELL_VOLUME, createActionTypeArray(ActionTypes.SELL), 0);
         TradingRuleFacet(address(applicationCoinHandler)).activateTokenMaxBuySellVolume(createActionTypeArray(ActionTypes.SELL), true);
         // with all data reset, it should work
         vm.startPrank(user1, user1);

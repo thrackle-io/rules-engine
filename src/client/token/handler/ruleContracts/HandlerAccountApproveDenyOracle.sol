@@ -122,9 +122,9 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ActionTypesAr
         }
 
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions, ruleId);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions, ruleId);
         }
     }
 

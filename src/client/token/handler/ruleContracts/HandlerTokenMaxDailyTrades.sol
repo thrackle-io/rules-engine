@@ -93,9 +93,9 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ActionTypesArray, 
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions, 0);
         }
     }
 

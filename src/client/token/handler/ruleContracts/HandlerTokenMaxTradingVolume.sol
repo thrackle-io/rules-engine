@@ -115,9 +115,9 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ActionTypesArray
             lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[_actions[i]] = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions, 0);
         }
     }
 

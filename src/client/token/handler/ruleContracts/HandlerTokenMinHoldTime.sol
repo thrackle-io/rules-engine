@@ -36,9 +36,9 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
             } 
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions, 0);
         }
     }
 

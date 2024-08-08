@@ -218,11 +218,18 @@ uint256 private totalSupplyForPeriod;
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     - Parameters:
         - ruleType: "TOKEN_MAX_SUPPLY_VOLATILITY".
-        - action: the protocol action for which the rule is being activated.
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: A Transfer counter rule has been deactivated in an asset handler:
+    - Parameters:
+        - ruleType: "TOKEN_MAX_SUPPLY_VOLATILITY".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
 
 ## Dependencies
 

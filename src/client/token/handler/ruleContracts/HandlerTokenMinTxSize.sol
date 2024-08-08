@@ -84,9 +84,9 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ActionTypesArray, IToke
         }
 
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions, 0);
         }
     }
 

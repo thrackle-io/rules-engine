@@ -274,12 +274,18 @@ This rule doesn't require any data to be recorded.
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "ACCOUNT_MIN_MAX_TOKEN_BALANCE".
-        - action: the protocol action for which the rule is being activated.
-
+        - actions: the protocol actions for which the rule is being activated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
+- **event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes actions, uint256 indexed ruleId)** 
+    - Emitted when: rule has been deactivated in the asset handler.
+    - Parameters:
+        - ruleType: "ACCOUNT_MIN_MAX_TOKEN_BALANCE".
+        - actions: the protocol actions for which the rule is being deactivated.
+        - ruleId: a placeholder of 0 will be passed for ruleId
 
 ## Dependencies
 

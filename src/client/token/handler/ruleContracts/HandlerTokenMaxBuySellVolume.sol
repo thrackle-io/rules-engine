@@ -112,9 +112,9 @@ contract HandlerTokenMaxBuySellVolume is RuleAdministratorOnly, ActionTypesArray
             lib.tokenMaxBuySellVolumeStorage().tokenMaxBuySellVolume[_actions[i]].active = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_SELL_VOLUME, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_SELL_VOLUME, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_SELL_VOLUME, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_SELL_VOLUME, _actions, 0);
         }
     }
 

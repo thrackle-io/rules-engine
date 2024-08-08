@@ -104,9 +104,9 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ActionTypesAr
             data.tokenMaxSupplyVolatility[_actions[i]] = _on;
         }
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions, 0);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions, 0);
         }
     }
 
