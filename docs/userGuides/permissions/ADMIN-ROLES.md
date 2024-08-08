@@ -102,8 +102,6 @@ cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x371a0078bf8
 
 ---
 
----
-
 ## RISK ADMIN
 
 ### Overview
@@ -154,9 +152,9 @@ cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x870ee5500b9
 Access level admin can be granted at any time by the app admin. This role sets the access level for addresses within the application app manager. Functions with the modifier onlyRole(ACCESS_LEVEL_ADMIN_ROLE) can only be called by this role.
 
 ### Add Command
-The following is an example of the command used to add a risk admin by the app admin. Replace `DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `ACCESS_LEVEL_ADMIN_ROLE`:
+The following is an example of the command used to add an access level admin by the app admin. Replace `DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `ACCESS_LEVEL_ADMIN_ROLE`:
 ````
-cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAccessLevelAdmin(address)" DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
@@ -197,7 +195,7 @@ cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x2104bd22bc7
 Rule admin can be granted at any time by the app admin. This role can activate and deactivate economic rules within the handler contracts. Functions with the modifier onlyRole(RULE_ADMIN_ROLE) can only be called by this role. 
 
 ### Add Command
-The following is an example of the command used to add a risk admin by the app admin. Replace `DESIRED_RULE_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `RULE_ADMIN_ROLE`:
+The following is an example of the command used to add a rule admin by the app admin. Replace `DESIRED_RULE_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `RULE_ADMIN_ROLE`:
 ````
 cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" DESIRED_RULE_ADMIN_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
