@@ -1,5 +1,5 @@
 # Tags
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5c9d84d4763cc8482f9b9d326982059877bc2610/src/client/application/data/Tags.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/client/application/data/Tags.sol)
 
 **Inherits:**
 [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [ITags](/src/client/application/data/ITags.sol/interface.ITags.md), [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md), [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)

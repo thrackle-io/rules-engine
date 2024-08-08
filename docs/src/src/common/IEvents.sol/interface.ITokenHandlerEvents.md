@@ -1,5 +1,5 @@
 # ITokenHandlerEvents
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5c9d84d4763cc8482f9b9d326982059877bc2610/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -31,7 +31,7 @@ Rule deactivated
 
 
 ```solidity
-event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] actions);
+event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] actions, uint256 ruleId);
 ```
 
 ### AD1467_ApplicationHandlerActionActivated
@@ -39,7 +39,7 @@ Rule activated
 
 
 ```solidity
-event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] actions);
+event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] actions, uint256 ruleId);
 ```
 
 ### AD1467_NFTValuationLimitUpdated
