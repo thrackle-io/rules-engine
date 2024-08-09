@@ -1,5 +1,5 @@
 # ERC721RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
 
 **Inherits:**
 [IERC721Errors](/src/common/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -19,13 +19,41 @@ Implements NFT Rule checks
 
 
 ```solidity
-function checkTokenMinHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+function checkTokenMinHoldTime(uint32 _ruleId, uint256 _ownershipTs) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_holdHours`|`uint32`|minimum number of hours the asset must be held|
+|`_ruleId`|`uint32`|ruleId of the rule to check|
 |`_ownershipTs`|`uint256`|beginning of hold period|
 
+
+### getTokenMinHoldTime
+
+*Function to get Token Min Tx Size rules by index*
+
+
+```solidity
+function getTokenMinHoldTime(uint32 _index) public view returns (NonTaggedRules.TokenMinHoldTime memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenMinHoldTime`|Rule at index|
+
+
+### getTotalTokenMinHoldTime
+
+
+```solidity
+function getTotalTokenMinHoldTime() public view returns (uint32);
+```
 

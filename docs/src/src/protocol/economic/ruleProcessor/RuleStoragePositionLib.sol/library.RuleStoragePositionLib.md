@@ -1,5 +1,5 @@
 # RuleStoragePositionLib
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/protocol/economic/ruleProcessor/RuleStoragePositionLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -58,6 +58,13 @@ bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("
 
 ```solidity
 bytes32 constant TOKEN_MIN_TX_SIZE_POSITION = bytes32(uint256(keccak256("token-min-tx-size")) - 1);
+```
+
+
+### TOKEN_MIN_HOLD_TIME_POSITION
+
+```solidity
+bytes32 constant TOKEN_MIN_HOLD_TIME_POSITION = bytes32(uint256(keccak256("token-min-hold-time")) - 1);
 ```
 
 
@@ -309,6 +316,21 @@ function accountMaxTxValueByRiskScoreStorage()
 |Name|Type|Description|
 |----|----|-----------|
 |`ds`|`IRuleStorage.AccountMaxTxValueByRiskScoreS`|Data Storage of Account Max Tx Value by Risk Rule|
+
+
+### tokenMinHoldTimeStorage
+
+*Function to store Token Min Hold Time rules*
+
+
+```solidity
+function tokenMinHoldTimeStorage() internal pure returns (IRuleStorage.TokenMinHoldTimeS storage ds);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ds`|`IRuleStorage.TokenMinHoldTimeS`|Data Storage of Token Min Hold Time Rule|
 
 
 ### accountMaxValueByRiskScoreStorage

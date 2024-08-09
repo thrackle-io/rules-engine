@@ -1,8 +1,8 @@
 # HandlerTokenMinHoldTime
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol)
 
 **Inherits:**
-[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
+[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -48,7 +48,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours)
+function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _ruleId)
     external
     ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
 ```
@@ -57,7 +57,7 @@ function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTim
 |Name|Type|Description|
 |----|----|-----------|
 |`_actions`|`ActionTypes[]`|the action types|
-|`_minHoldTimeHours`|`uint32`|min hold time in hours|
+|`_ruleId`|`uint32`|the rule id|
 
 
 ### setTokenMinHoldTimeFull
@@ -70,7 +70,7 @@ This function does not check that the array length is greater than zero to allow
 
 
 ```solidity
-function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _minHoldTimeHours)
+function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
     external
     ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
 ```
@@ -79,7 +79,7 @@ function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calld
 |Name|Type|Description|
 |----|----|-----------|
 |`_actions`|`ActionTypes[]`|actions to have the rule applied to|
-|`_minHoldTimeHours`|`uint32[]`|min hold time in hours corresponding to the actions|
+|`_ruleIds`|`uint32[]`|the rule ids corresponding to the actions|
 
 
 ### clearTokenMinHoldTime
@@ -108,14 +108,14 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTokenMinHoldTimeIdUpdate(ActionTypes _action, uint32 _minHoldTimeHours) internal;
+function setTokenMinHoldTimeIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_action`|`ActionTypes`|the action type to set the rule|
-|`_minHoldTimeHours`|`uint32`|the min hold time in hours|
+|`_ruleId`|`uint32`|the rule id|
 
 
 ### getTokenMinHoldTimePeriod

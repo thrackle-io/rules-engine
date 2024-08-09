@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -766,6 +766,22 @@ function validateAccountMaxValueByAccessLevel(ActionTypes[] memory _actions, uin
 
 ```solidity
 function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`||
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateTokenMinHoldTime
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateTokenMinHoldTime(ActionTypes[] memory _actions, uint32 _ruleId) external view;
 ```
 **Parameters**
 

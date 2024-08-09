@@ -1,5 +1,5 @@
 # ApplicationERC20UMin
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/example/ERC20/upgradeable/ApplicationERC20UMin.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/example/ERC20/upgradeable/ApplicationERC20UMin.sol)
 
 **Inherits:**
 [ProtocolERC20UMin](/src/client/token/ERC20/upgradeable/ProtocolERC20UMin.sol/contract.ProtocolERC20UMin.md)

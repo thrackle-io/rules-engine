@@ -1,5 +1,5 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/common/IErrors.sol/interface.IAppRuleInputErrors.md)
@@ -310,6 +310,31 @@ function addAccountApproveDenyOracle(address _appManagerAddr, uint8 _type, addre
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_type`|`uint8`|type of Oracle Rule --> 0 = restricted; 1 = allowed|
 |`_oracleAddress`|`address`|Address of Oracle|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|ruleId position of rule in storage|
+
+
+### addTokenMinHoldTime
+
+*Function add an Min Hold Time rule*
+
+
+```solidity
+function addTokenMinHoldTime(address _appManagerAddr, uint32 _minHoldtime)
+    external
+    ruleAdministratorOnly(_appManagerAddr)
+    returns (uint32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_appManagerAddr`|`address`|Address of App Manager|
+|`_minHoldtime`|`uint32`|minimum number of full hours a token must be held.|
 
 **Returns**
 

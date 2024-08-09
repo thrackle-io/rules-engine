@@ -1,5 +1,5 @@
 # ProtocolTokenCommonU
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/06b5ee57ef76bd8520d1cb281fa59f1af36b76f1/src/client/token/ProtocolTokenCommonU.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/00cdc21330585fccf9dc326a2f7aeba02706eb37/src/client/token/ProtocolTokenCommonU.sol)
 
 **Inherits:**
 [AppAdministratorOnlyU](/src/protocol/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
