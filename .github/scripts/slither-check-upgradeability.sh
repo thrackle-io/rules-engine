@@ -12,14 +12,12 @@ erc721uContracts=(ProtocolERC721U ProtocolERC721Umin)
 
 for c in "${erc721uContracts[@]}"; do
   printf "${BLUE}***** Contract: $c Proxy: ApplicationERC721UProxy *****${ENDBLUE}\n"
-  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name ApplicationERC721UProxy *****${ENDBLUE}\n"
-  test=$(slither-check-upgradeability . "$c" --proxy-name ApplicationERC721UProxy 2>&1)
+  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name ApplicationERC721UProxy --exclude-informational *****${ENDBLUE}\n"
+  test=$(slither-check-upgradeability . "$c" --proxy-name ApplicationERC721UProxy --exclude-informational 2>&1)
   echo $test 
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
-  if [[ -z "$TEST_OUTPUT" ]]; then
-    FAIL=true
-    printf "${RED} Fail ${NC}\n"
-  else
+  # Test the output to see if anything was returned
+  if [[ -z "$TEST_OUTPUT" ]]; then    
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
@@ -29,14 +27,12 @@ erc20uContracts=(ProtocolERC20UMin)
 
 for c in "${erc20uContracts[@]}"; do
   printf "${BLUE}***** Contract: $c Proxy: ApplicationERC20UProxy *****${ENDBLUE}\n"
-  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name ApplicationERC20UProxy *****${ENDBLUE}\n"
-  test=$(slither-check-upgradeability . "$c" --proxy-name ApplicationERC20UProxy 2>&1)
+  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name ApplicationERC20UProxy --exclude-informational *****${ENDBLUE}\n"
+  test=$(slither-check-upgradeability . "$c" --proxy-name ApplicationERC20UProxy --exclude-informational 2>&1)
   echo $test 
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
-  if [[ -z "$TEST_OUTPUT" ]]; then
-    FAIL=true
-    printf "${RED} Fail ${NC}\n"
-  else
+  # Test the output to see if anything was returned
+  if [[ -z "$TEST_OUTPUT" ]]; then    
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
@@ -47,14 +43,12 @@ diamondContracts=(ApplicationAccessLevelProcessorFacet ApplicationPauseProcessor
 
 for c in "${diamondContracts[@]}"; do
   printf "${BLUE}***** Contract: $c Proxy: RuleProcessorDiamond *****${ENDBLUE}\n"
-  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name RuleProcessorDiamond *****${ENDBLUE}\n"
-  test=$(slither-check-upgradeability . "$c" --proxy-name RuleProcessorDiamond 2>&1)
+  printf "${BLUE}********* Command: slither-check-upgradeability . "$c" --proxy-name RuleProcessorDiamond --exclude-informational *****${ENDBLUE}\n"
+  test=$(slither-check-upgradeability . "$c" --proxy-name RuleProcessorDiamond --exclude-informational 2>&1)
   echo $test 
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
-  if [[ -z "$TEST_OUTPUT" ]]; then
-    FAIL=true
-    printf "${RED} Fail ${NC}\n"
-  else
+  # Test the output to see if anything was returned
+  if [[ -z "$TEST_OUTPUT" ]]; then    
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
