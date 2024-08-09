@@ -2422,7 +2422,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             } else {
                 vm.expectRevert(abi.encodeWithSignature("PeriodExceeds5Years()"));
             }
-            uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), uint32(_hours));
+            RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), uint32(_hours));
         } else {
             /// set the rule for x hours
             uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), uint32(_hours));

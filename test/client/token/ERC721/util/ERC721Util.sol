@@ -125,13 +125,6 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeIdFull(actions, ruleIds);
     }
 
-    //TODO Remove this function once tests are complete
-    function setTokenMinHoldTimeRule(uint8 period) public endWithStopPrank {
-        switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.MINT, ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), period);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), period);
-    }
-
     function setTokenMinHoldTimeRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
         ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), ruleId);

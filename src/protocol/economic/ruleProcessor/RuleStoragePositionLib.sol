@@ -151,6 +151,10 @@ library RuleStoragePositionLib {
         }
     }
 
+    /**
+     * @dev Function to store Token Min Hold Time rules
+     * @return ds Data Storage of Token Min Hold Time Rule
+     */
     function tokenMinHoldTimeStorage() internal pure returns (IRuleStorage.TokenMinHoldTimeS storage ds) {
         bytes32 position = TOKEN_MIN_HOLD_TIME_POSITION;
         assembly {
