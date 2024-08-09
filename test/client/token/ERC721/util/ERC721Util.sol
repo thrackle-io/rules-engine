@@ -125,15 +125,15 @@ abstract contract ERC721Util is TokenUtils, DummyNFTAMM {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeIdFull(actions, ruleIds);
     }
 
-    function setTokenMinHoldTimeRule(uint8 period) public endWithStopPrank {
+    function setTokenMinHoldTimeRule(uint32 ruleId) public endWithStopPrank {
         switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.MINT, ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), period);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), period);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.SELL), ruleId);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), ruleId);
     }
 
-    function setTokenMinHoldTimeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory periods) public endWithStopPrank {
+    function setTokenMinHoldTimeRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank {
         switchToRuleAdmin();
-        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMinHoldTimeFull(actions, periods);
+        ERC721NonTaggedRuleFacet(address(assetHandler)).setTokenMinHoldTimeFull(actions, ruleIds);
     }
     
     function initializeERC721AMM(address fungibleToken, address nonFungibleToken) public endWithStopPrank returns (DummyNFTAMM amm) {

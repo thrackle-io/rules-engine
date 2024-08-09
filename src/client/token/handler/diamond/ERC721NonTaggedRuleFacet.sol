@@ -118,7 +118,7 @@ contract ERC721NonTaggedRuleFacet is
         if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action] && (_from == address(0x00) || _to == address(0x00))) {
             _checkTokenMaxSupplyVolatilityRule(_to, _amount, handlerBase);
         }
-        _checkSimpleRules(action, _tokenId, handlerBase, _from, _to, _sender);
+        _checkMinHoldTimeRules(action, _tokenId, handlerBase, _from, _to, _sender);
     }
 
     /**
@@ -233,15 +233,14 @@ contract ERC721NonTaggedRuleFacet is
     }       
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @dev This function uses the protocol's ruleProcessor to perform the Min Hold Time Rule Check. 
      * @param _action action to be checked
      * @param _tokenId the specific token to check 
      * @param handlerBase address of the handler proxy 
      */
 
-    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _from, address _to, address _sender) internal {
+    function _checkMinHoldTimeRules(ActionTypes _action, uint256 _tokenId, address handlerBase, address _from, address _to, address _sender) internal {
         TokenMinHoldTimeS storage minHoldTime = lib.tokenMinHoldTimeStorage();
-
         ActionTypes potentialOppositeAction;
         // If the rule was changed after ownership was recorded, reset ownership. 
         if (minHoldTime.ownershipStart[_tokenId] < minHoldTime.ruleChangeDate) minHoldTime.ownershipStart[_tokenId] = 0;
@@ -258,7 +257,7 @@ contract ERC721NonTaggedRuleFacet is
         }
 
         if (minHoldTime.tokenMinHoldTime[potentialOppositeAction].active && minHoldTime.ownershipStart[_tokenId] > 0) {
-            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].period, minHoldTime.ownershipStart[_tokenId]);
+            IRuleProcessor(handlerBase).checkTokenMinHoldTime(minHoldTime.tokenMinHoldTime[potentialOppositeAction].ruleId, minHoldTime.ownershipStart[_tokenId]);
         }
     }
 

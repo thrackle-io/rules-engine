@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the token-min-hold-time rule is to reduce trade volitility by preventing transfers of tokens for a number of hours after ownership is acquired, either via minting or transfers. This rule allows developers to specifiy a number of hours, up to 43830 (5 years), that each tokenId must be held for.  
+The purpose of the token-min-hold-time rule is to reduce trade volitility by preventing transfers of tokens for a number of hours after ownership is acquired, either via minting or transfers. This rule allows developers to specify a number of hours, up to 43830 (5 years), that each tokenId must be held for.  
 
 ## Applies To:
 
@@ -27,9 +27,12 @@ This rule works at a token level. It must be activated and configured for each d
 The rule is a uint32 variable for number of hours each individual token must be held by the owner of that tokenId, up to a maximum of 43830 hours or 5 years. 
 
 ```c
-/// simple rule(with single parameter) variables
-    uint32 private period;
+/// ******** Token Min Hold Time ********
+    struct TokenMinHoldTime {
+        uint16 minHoldTime; /// from 0000 to 43830 
+    }
 ```
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each starting unix timestamp for the ownership of the tokenId is stored in a mapping inside the handler. 
 
@@ -80,16 +83,20 @@ The selector for this error is `0x5f98112f`.
 Adding a token-min-hold-time rule for the supplied actions is done through the function:
 
 ```c
-function setTokenMinHoldTime(
-            ActionTypes[] calldata _actions,
+function addTokenMinHoldTime(
+            address _appManagerAddr, 
             uint32 _minHoldTimeHours
-        ) external ruleAdministratorOnly(_appManagerAddr);
+        ) external ruleAdministratorOnly(_appManagerAddr)
+        returns (uint32);
 ```
-###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
+
+The create function will return the protocol ID of the rule.
 
 
 ### Parameters:
 
+- **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_minHoldTimeHours** (uint32): Number of hours each tokenId must be held for.
 
 
@@ -104,12 +111,40 @@ The following validation will be carried out by the create function in order to 
 - `_minHoldTimeHours` is greater than zero.
 - `_minHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
-
-###### *see [ERC721Handler](../architecture/client/assetHandler/PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol):
+    -  Function to get a rule by its ID:
+        ```c
+        function getTokenMinHoldTime(
+                    uint32 _index
+                ) 
+                external 
+                view 
+                returns 
+                (NonTaggedRules.TokenMinHoldTime memory);
+        ```
+    - Function to get current amount of rules in the protocol:
+        ```c
+        function getTotalTokenMinHoldTime() public view returns (uint32);
+        ```
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol):
+    - Function that evaluates the rule:
+        ```c
+        function checkTokenMinHoldTime(
+                    uint32 _ruleId, 
+                    uint256 _amountToTransfer
+                ) 
+                external 
+                view;
+        ```
 - in Asset Handler:
+    - Function to set and activate at the same time the rule for the supplied actions in the asset handler: 
+    ```c
+    function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(_appManagerAddr);
+    ```
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
         function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);

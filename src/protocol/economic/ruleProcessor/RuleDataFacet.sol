@@ -239,4 +239,23 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return ruleId;
     }
 
+    /**
+     * @dev Function add an Min Hold Time rule
+     * @param _appManagerAddr Address of App Manager
+     * @param _minHoldtime minimum number of full hours a token must be held. 
+     * @return ruleId position of rule in storage
+     */
+    function addTokenMinHoldTime(address _appManagerAddr, uint32 _minHoldtime) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_minHoldtime == 0) revert ZeroValueNotPermited();
+        if (_minHoldtime > 43830) revert PeriodExceeds5Years();
+        RuleS.TokenMinHoldTimeS storage data = Storage.tokenMinHoldTimeStorage();
+        NonTaggedRules.TokenMinHoldTime memory rule = NonTaggedRules.TokenMinHoldTime(_minHoldtime);
+        uint32 ruleId = data.tokenMinHoldTimeIndex;
+        data.tokenMinHoldTimeRules[ruleId] = rule;
+        emit AD1467_ProtocolRuleCreated(TOKEN_MIN_HOLD_TIME, ruleId, new bytes32[](0));
+        ++data.tokenMinHoldTimeIndex;
+        return ruleId;
+    }
+
 }

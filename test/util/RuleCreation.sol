@@ -261,4 +261,13 @@ abstract contract RuleCreation is TestCommonFoundry {
         vm.stopPrank();
         return ruleId;
     }
+
+    function createTokenMinHoldTimeRule(uint32 _hours) public returns (uint32) {
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), _hours);
+        NonTaggedRules.TokenMinHoldTime memory rule = ERC721RuleProcessorFacet(address(ruleProcessor)).getTokenMinHoldTime(ruleId);
+        assertEq(rule.minHoldTime, _hours);
+        vm.stopPrank();
+        return ruleId;
+    }
 }

@@ -799,12 +799,12 @@ contract GasReports is RuleCreation, GasHelpers, ERC721Util {
     }
 
     function _applyTokenMinHoldTimeSetUp() public {
-        uint32[] memory periods = new uint32[](5);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
-        for (uint256 i = 0; i < periods.length; i++) {
-            periods[i] = uint32(i + 1);
+        uint32[] memory ruleIds = new uint32[](3);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
+        for (uint256 i = 0; i < ruleIds.length; i++) {
+            ruleIds[i] = createTokenMinHoldTimeRule(uint16(i + 1));
         }
-        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
+        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, ruleIds);
     }
 
     function _applyMinTxSizeSetUp() public {

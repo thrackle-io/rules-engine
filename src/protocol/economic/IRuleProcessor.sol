@@ -335,4 +335,10 @@ interface IRuleProcessor {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxValueOutByAccessLevel(ActionTypes[] memory _actions, uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateTokenMinHoldTime(ActionTypes[] memory _actions, uint32 _ruleId) external view; 
 }

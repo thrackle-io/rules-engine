@@ -2422,17 +2422,22 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             } else {
                 vm.expectRevert(abi.encodeWithSignature("PeriodExceeds5Years()"));
             }
-            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(action), _hours);
+            RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), uint32(_hours));
         } else {
             /// set the rule for x hours
-            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(action), _hours);
-            assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(action), _hours);
+            uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinHoldTime(address(applicationAppManager), uint32(_hours));
+            NonTaggedRules.TokenMinHoldTime memory rule = ERC721RuleProcessorFacet(address(ruleProcessor)).getTokenMinHoldTime(ruleId);
+            assertEq(rule.minHoldTime, uint32(_hours));
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(action), ruleId);
+            assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(action), ruleId);
             // mint 1 nft to non admin user(this should set their ownership start time)
             switchToAppAdministrator();
+            applicationNFT.safeMint(_user1);
             applicationNFT.safeMint(_user1);
         }
     }
     function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Transfer(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        _hours = uint32(bound(_hours, 0, uint256(50000)));
         (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.P2P_TRANSFER);
         if (_hours > 0 && _hours < 43830) {
             vm.startPrank(_user1, _user1);
@@ -2455,6 +2460,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
     }
 
     function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Sell(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        _hours = uint32(bound(_hours, 0, uint256(50000)));
         (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.SELL);
         console.log(_user1);
         console.log(_user2);
@@ -2472,7 +2478,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
     }
 
-        function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Burn(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+    function testERC721_ApplicationERC721Fuzz_TokenMinHoldTime_Burn(uint8 _addressIndex, uint32 _hours) public endWithStopPrank {
+        _hours = uint32(bound(_hours, 0, uint256(50000)));
         (address _user1, address _user2) = _tokenMinHoldTimeSetup(_addressIndex, _hours, ActionTypes.BURN);
         console.log(_user1);
         console.log(_user2);
@@ -2482,11 +2489,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             applicationNFT.setApprovalForAll(address(_amm), true);
             // transfer should fail
             vm.expectRevert(0x5f98112f);
-            applicationNFT.burn(0);
+            applicationNFT.burn(1);
             // move forward in time x hours and it should pass
             Blocktime = Blocktime + (_hours * 1 hours);
             vm.warp(Blocktime);
-            applicationNFT.burn(0);
+            applicationNFT.burn(1);
         }
     }
 }

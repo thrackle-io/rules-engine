@@ -11,7 +11,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
-contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
+contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ActionTypesArray, ITokenHandlerEvents, IAssetHandlerErrors {
     uint16 constant MAX_HOLD_TIME_HOURS = 43830;
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
@@ -46,13 +46,13 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @dev Set the TokenMinHoldTime. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
-     * @param _minHoldTimeHours min hold time in hours
+     * @param _ruleId the rule id
      */
-    function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         resetTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
-            setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours);
-            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
+            setTokenMinHoldTimeIdUpdate(_actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _ruleId);
         }
     }
 
@@ -61,15 +61,15 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @notice that setting a rule will automatically activate it.
      * @notice This function does not check that the array length is greater than zero to allow for clearing out of the action types data
      * @param _actions actions to have the rule applied to
-     * @param _minHoldTimeHours min hold time in hours corresponding to the actions
+     * @param _ruleIds the rule ids corresponding to the actions
      */
-    function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        if (_actions.length != _minHoldTimeHours.length) revert InputArraysMustHaveSameLength();
+    function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if (_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearTokenMinHoldTime();
         for (uint i; i < _actions.length; ++i) {
-            setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours[i]);
+            setTokenMinHoldTimeIdUpdate(_actions[i], _ruleIds[i]);
         }
-        emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MIN_HOLD_TIME, _actions, _minHoldTimeHours);
+        emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MIN_HOLD_TIME, _actions, _ruleIds);
     }
 
     /**
@@ -98,13 +98,13 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @dev Set the TokenMinHoldTime.
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
-     * @param _minHoldTimeHours the min hold time in hours
+     * @param _ruleId the rule id
      */
-    function setTokenMinHoldTimeIdUpdate(ActionTypes _action, uint32 _minHoldTimeHours) internal {
-        if (_minHoldTimeHours == 0) revert ZeroValueNotPermited();
-        if (_minHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
+    // slither-disable-next-line calls-loop
+    function setTokenMinHoldTimeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinHoldTime(createActionTypesArray(_action), _ruleId);
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
-        data.tokenMinHoldTime[_action].period = _minHoldTimeHours;
+        data.tokenMinHoldTime[_action].ruleId = _ruleId;
         data.tokenMinHoldTime[_action].active = true;
         data.anyActionActive = true;
     }
@@ -115,7 +115,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @return period minimum amount of time to hold the asset
      */
     function getTokenMinHoldTimePeriod(ActionTypes _action) external view returns (uint32) {
-        return lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_action].period;
+        return lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_action].ruleId;
     }
 
     /**

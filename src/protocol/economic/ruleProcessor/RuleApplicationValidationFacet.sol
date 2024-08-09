@@ -99,6 +99,16 @@ contract RuleApplicationValidationFacet is ERC173 {
         return data.tokenMinTxSizeIndex;
     }
 
+    function validateTokenMinHoldTime(ActionTypes[] memory _actions, uint32 _ruleId) external view {
+        _ruleId.checkRuleExistence(getTotalTokenMinHoldTime());
+        require(areActionsEnabledInRule(TOKEN_MIN_HOLD_TIME, _actions), "Action Validation Failed");
+    }
+
+    function getTotalTokenMinHoldTime() internal view returns (uint32) {
+        RuleS.TokenMinHoldTimeS storage data = Storage.tokenMinHoldTimeStorage();
+        return data.tokenMinHoldTimeIndex;
+    }
+
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier

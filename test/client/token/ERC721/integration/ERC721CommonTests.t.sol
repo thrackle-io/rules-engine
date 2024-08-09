@@ -1186,7 +1186,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Negative() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         UtilApplicationERC721(address(testCaseNFT)).safeMint(user1); /// ensure mint works with rule active 
@@ -1200,7 +1201,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.warp(Blocktime);
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         vm.warp(block.timestamp + 1);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
@@ -1213,7 +1215,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.warp(block.timestamp + 1);
         // deactivate and reactivate which will prune accumulators
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         vm.warp(block.timestamp + 1);
         vm.startPrank(user1, user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
@@ -1222,7 +1225,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Burn() public endWithStopPrank { 
         /// ensure that burn works while rule is active 
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         UtilApplicationERC721(address(testCaseNFT)).safeMint(user1);
         vm.warp(Blocktime + 24 hours);
@@ -1233,7 +1237,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Burn_Negative() public endWithStopPrank { 
         /// ensure that transfers trigger the hold time clock and that the applicable action checks the clock (Burn)
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         UtilApplicationERC721(address(testCaseNFT)).safeMint(user1);
         vm.expectRevert(abi.encodeWithSignature("UnderHoldPeriod()"));
@@ -1244,7 +1249,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy() public endWithStopPrank { 
         /// ensure that buys work while rule is active 
         _setUpNFTAMMForRuleChecks();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -1253,7 +1259,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Negative() public endWithStopPrank { 
         /// ensure that buys trigger the hold time clock and that applicaple actions check the clock (p2p transfer)
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         _setUpNFTAMMForRuleChecks();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
@@ -1265,7 +1272,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Buy_Burn_Negative() public endWithStopPrank { 
         /// ensure that buys trigger the hold time clock and that applicable actions check the clock (Burn)
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         _setUpNFTAMMForRuleChecks();
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
@@ -1278,7 +1286,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Sell() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
         vm.warp(Blocktime + 24 hours);
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -1288,7 +1297,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Sell_Negative() public endWithStopPrank { 
         _setUpNFTAMMForRuleChecks();
         vm.warp(Blocktime + 24 hours);
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToUser();
         testCaseNFT.setApprovalForAll(address(amm), true);
         applicationCoin.approve(address(amm), 10 * ATTO);
@@ -1303,7 +1313,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_Period() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         UtilApplicationERC721(address(testCaseNFT)).safeMint(user1);
@@ -1328,7 +1339,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_FromTreasuryOrigin() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         // mint 1 nft to rule bypass
         UtilApplicationERC721(address(testCaseNFT)).safeMint(treasuryAccount);
@@ -1346,11 +1358,12 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTime_UpdatedRule() public endWithStopPrank {
         // now change the rule hold hours to 2 and it should pass
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(2);
+        uint32 ruleId = createTokenMinHoldTimeRule(24);
+        setTokenMinHoldTimeRule(ruleId);
         switchToAppAdministrator();
         UtilApplicationERC721(address(testCaseNFT)).safeMint(user1);
         // move forward in time 1 day and it should pass
-        Blocktime = Blocktime + 2 hours;
+        Blocktime = Blocktime + 26 hours;
         vm.warp(Blocktime);
 
         vm.startPrank(user1, user1);
@@ -2142,57 +2155,57 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
     /* TokenMinHoldTime */
     function testERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFullSet() public endWithStopPrank {
-        uint32[] memory periods = new uint32[](5);
+        uint32[] memory rules = new uint32[](3);
         // Set up rule
-        for (uint i; i < periods.length; i++) periods[i] = uint32(i + 1);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < rules.length; i++) {
+            rules[i] = createTokenMinHoldTimeRule(uint32(i + 1));
+        }
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
         // Apply the rules to all actions
-        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
+        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, rules);
         // Verify that all the rule id's were set correctly
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), periods[0]);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.SELL), periods[1]);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BUY), periods[2]);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.MINT), periods[3]);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BURN), periods[4]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), rules[0]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.SELL), rules[1]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BURN), rules[2]);
         // Verify that all the rules were activated
-        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes(i)));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes(actions[0])));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes(actions[1])));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes(actions[2])));
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFullReSet() public endWithStopPrank {
-        uint32[] memory periods = new uint32[](5);
+        uint32[] memory rules = new uint32[](3);
         // Set up rule
-        for (uint i; i < periods.length; i++) periods[i] = uint32(i + 1);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < rules.length; i++) rules[i] = createTokenMinHoldTimeRule(uint32(i + 1));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
         // Apply the rules to all actions
-        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
+        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, rules);
         // Reset with a partial list of rules and insure that the changes are saved correctly
-        periods = new uint32[](2);
-        periods[0] = 6;
-        periods[1] = 7;
-        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        rules = new uint32[](2);
+        rules[0] = createTokenMinHoldTimeRule(6);
+        rules[1] = createTokenMinHoldTimeRule(7);
+        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BURN);
         // Apply the new set of rules
-        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
+        
+        setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, rules);
         // Verify that all the rule id's were set correctly
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.SELL), periods[0]);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BUY), periods[1]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.SELL), rules[0]);
         // Verify that the old ones were cleared
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), 0);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.MINT), 0);
-        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BURN), 0);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BURN), rules[1]);
         // Verify that the new rules were activated
         assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.BUY));
         // Verify that the old rules are not activated
         assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.P2P_TRANSFER));
-        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.MINT));
-        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.BURN));
     }
 
     function testERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFull_ZeroLengthActions() public endWithStopPrank {
-        uint32[] memory periods = new uint32[](5);
+        switchToRuleAdmin();
+        
+        uint32[] memory periods = new uint32[](3);
         // Set up rules
-        for (uint i; i < periods.length; i++) periods[i] = uint32(i + 1);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for (uint i; i < periods.length; i++) periods[i] = createTokenMinHoldTimeRule(uint32(i + 1));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BURN);
         
         // Apply the rules to all actions
         setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
