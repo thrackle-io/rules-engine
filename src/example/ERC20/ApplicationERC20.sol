@@ -67,9 +67,6 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
         return true;
     }
 
-    // slither-disable-end reentrancy-no-eth
-    // slither-disable-end reentrancy-events
-
     /**
      * @dev This is overridden from {IERC20-transferFrom}. It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
      *
@@ -86,10 +83,6 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
      * - the caller must have allowance for ``from``'s tokens of at least
      * `amount`.
      */
-    // Disabling this finding, it is a false positive. A reentrancy lock modifier has been
-    // applied to this function
-    // slither-disable-start reentrancy-events
-    // slither-disable-start reentrancy-no-eth
     function transferFrom(address from, address to, uint256 amount) public override nonReentrant returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
@@ -101,7 +94,8 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
         _transfer(from, to, amount);
         return true;
     }
-
+    // slither-disable-end reentrancy-events
+    // slither-disable-end reentrancy-no-eth
     /**
      * @dev This transfers all the P2P transfer fees to the individual fee sinks
      * @param from sender address

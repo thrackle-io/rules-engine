@@ -88,26 +88,6 @@ contract ApplicationERC721UProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy.
-     *
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
-     */
-    function upgradeTo(address newImplementation) external ifAdmin {
-        _upgradeToAndCall(newImplementation, bytes(""), false);
-    }
-
-    /**
-     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-     * proxied contract.
-     *
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
-     */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
-        _upgradeToAndCall(newImplementation, data, true);
-    }
-
-    /**
      * @dev Returns the current admin.
      */
     function _admin() internal view virtual returns (address) {
