@@ -18,6 +18,8 @@ for c in "${erc721uContracts[@]}"; do
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
   # Test the output to see if anything was returned
   if [[ -z "$TEST_OUTPUT" ]]; then    
+    printf "${RED} Fail ${NC}\n"
+  else
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
@@ -33,6 +35,8 @@ for c in "${erc20uContracts[@]}"; do
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
   # Test the output to see if anything was returned
   if [[ -z "$TEST_OUTPUT" ]]; then    
+    printf "${RED} Fail ${NC}\n"
+  else
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
@@ -49,6 +53,8 @@ for c in "${diamondContracts[@]}"; do
   TEST_OUTPUT=$(echo $test | grep "INFO:Slither:0")
   # Test the output to see if anything was returned
   if [[ -z "$TEST_OUTPUT" ]]; then    
+    printf "${RED} Fail ${NC}\n"
+  else
     printf "${GREEN} Pass ${NC}\n"
   fi
 done
