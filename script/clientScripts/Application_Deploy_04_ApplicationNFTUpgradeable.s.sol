@@ -47,14 +47,13 @@ import "./DeployBase.s.sol";
 
         /// switch to the config admin
         appConfigAdminKey = vm.envUint("CONFIG_APP_ADMIN_KEY");
-        appConfigAdminAddress = vm.envAddress("CONFIG_APP_ADMIN");
         vm.startBroadcast(appConfigAdminKey);
 
 
         ApplicationERC721UpgAdminMint _applicationNFTU = new ApplicationERC721UpgAdminMint();
         // substitute names that you would want here for name and symbol of NFT and base URI
         bytes memory callData = abi.encodeWithSelector(_applicationNFTU.initialize.selector, "Wolfman", "WOLF", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        new ApplicationERC721UProxy(address(_applicationNFTU), appConfigAdminAddress, callData);
+        new ApplicationERC721UProxy(address(_applicationNFTU), callData);
         applicationNFTHandlerDiamond = createERC721HandlerDiamondPt1("Wolfman");
         
         vm.stopBroadcast();
