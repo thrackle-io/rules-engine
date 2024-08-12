@@ -451,9 +451,11 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
 
         /// create an ERC721U
         applicationNFTU = _createERC721Upgradeable();
-        applicationNFTProxy = _createERC721UpgradeableProxy(address(applicationNFTU), address(proxyOwner));
+        applicationNFTProxy = _createERC721UpgradeableProxy(address(applicationNFTU));
 
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
+        // set the admin as the owner
+        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferOwnership(address(proxyOwner));
         applicationNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
         switchToAppAdministrator();

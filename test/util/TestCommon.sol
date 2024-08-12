@@ -295,11 +295,10 @@ abstract contract TestCommon is
     /**
      * @dev Deploy and set up an ERC721 Upgradeable Proxy
      * @param _applicationNFTU logic contract
-     * @param _proxyOwner address of the proxy owner
      * @return _proxy token
      */
-    function _createERC721UpgradeableProxy(address _applicationNFTU, address _proxyOwner) public returns (ApplicationERC721UProxy _proxy) {
-        return new ApplicationERC721UProxy(address(_applicationNFTU), _proxyOwner, "");
+    function _createERC721UpgradeableProxy(address _applicationNFTU) public returns (ApplicationERC721UProxy _proxy) {
+        return new ApplicationERC721UProxy(address(_applicationNFTU), "");
     }
 
     /**
