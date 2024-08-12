@@ -117,7 +117,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user2, user2);
         // transfer should still fail
         vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
@@ -162,7 +161,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user1, user1);
         bytes4 selector = bytes4(keccak256("ApplicationPaused(uint256,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, Blocktime + 1000, Blocktime + 1500));
@@ -201,7 +199,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user2, user2);
         vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
