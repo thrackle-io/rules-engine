@@ -1,5 +1,5 @@
 # ERC721RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/47aa0c8585077f5b931483a9b3097e3fe330a3c3/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/e484b68f1ca0d10ffe5b3b006faff195ef61dcb9/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
 
 **Inherits:**
 [IERC721Errors](/src/common/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
