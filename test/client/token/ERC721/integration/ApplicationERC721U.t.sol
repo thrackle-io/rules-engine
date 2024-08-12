@@ -262,7 +262,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user2, user2);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10, 15000000000000000000));
@@ -286,7 +285,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user1, user1);
         vm.expectRevert(0x3fac082d);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
@@ -340,7 +338,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
         vm.startPrank(user3, user3);
         vm.expectRevert(0xa7fb7b4b);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, rich_user, 6); ///User 3 has min limit of 3
@@ -352,7 +349,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
 
         /// Expire time restrictions for users and transfer below rule
         vm.warp(Blocktime + 17525 hours);
@@ -401,7 +397,6 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).upgradeTo(address(applicationNFT2));
-        // applicationNFTProxy.upgradeTo(address(applicationNFT2));
     }
 
     /// INTERNAL HELPER FUNCTIONS
