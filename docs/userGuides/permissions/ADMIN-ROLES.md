@@ -13,18 +13,19 @@ The super admin account is set during the [deployment][deployAppManager-url] of 
 4. [Access Level Admin](#access-level-admin).
 5. [Rule Admin](#rule-admin).
 6. [Treasury Account](#treasury-account).
+7. [Token Admin](#token-admin).
+8. [Proxy Admin](#proxy-admin).
 
 ## SUPER ADMIN
 
 ### Overview
-Super admin is set at construction of the App Manager(the deploying address of the AppManager). This role is the highest in the hierarchy of roles and can grant/revoke the app admin role. Functions with the modifier onlyRole(SUPER_ADMIN_ROLE) can only be called by this role. **There can only be one super admin in an application**, and the only way to grant another account the super-admin role is by using the function `proposeNewSuperAdmin` in which case current super admin would effectively renounce the super admin role and all of its privileges to grant it to the new address. The new address has to confirm the acceptance of the super-admin role for the process to take effect, otherwise the old super admin will remain in the role.
+Super admin is set at construction of the AppManager(the root address argument of the AppManager constructor). This role is the highest in the hierarchy of roles and can grant/revoke the app admin role. Functions with the modifier onlyRole(SUPER_ADMIN_ROLE) can only be called by this role. **There can only be one super admin in an application**, and the only way to grant another account the super-admin role is by using the function `proposeNewSuperAdmin` in which case, the current super admin would effectively renounce the super admin role and all of its privileges to grant it to the new address. The new address has to confirm the acceptance of the super-admin role for the process to take effect, otherwise the old super admin will remain in the role. This two step process is used to ensure there is always a super admin role assigned.
 
 ### Proposed Super Admin
 There is a transitionary role called "proposed super Admin". There can only be one address member of this role, and it can only be added by the super admin role when invoking `proposeNewSuperAdmin`. Once the proposed account confirms the role by invoking `confirmSuperAdmin`, the new super Admin will renounce to the proposed-super-Admin role. 
 
 ### Capabilities
 * The Super Administrator is the initial approver/creator of the application ecosystem.
-
 * The Super Administrator may approve/add subsequent Application Administrators.
 * The Super Administrator may NOT renounce it’s role except via the Proposed Super Admin process described above. There must be at least one Super Administrator at all times.
 
@@ -45,7 +46,7 @@ Keccak256: 0x16c600d7bfbb199b1bbbaaec72d225e1b669f7d0c812d7cafcf00672fb42b30d
 - To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
 
     ```
-    export SUPER_ADMIN_KEY=<super admin privkey>
+    export SUPER_ADMIN_PRIVATE_KEY=<super admin privkey>
     ```
 
 - For the production phase, it is strongly recommended that the Super Administrator is a multi-signature wallet where the approved signers don't have admin privileges and their private keys are stored in hardware wallets.
@@ -55,12 +56,12 @@ Keccak256: 0x16c600d7bfbb199b1bbbaaec72d225e1b669f7d0c812d7cafcf00672fb42b30d
 ## APP ADMIN
 
 ### Overview
-App admin can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access level, risk and rule admin roles as well as treasury accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
+The `APP_ADMIN_ROLE` can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access level, risk and rule admin roles as well as treasury accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
 
 ### Add Command
-The following is an example of the command used to add an app admin:
+The following is an example of the command used to add an app admin by the super admin. Replace `DESIRED_APP_ADMIN_ADDRESS` in the following cast command with the address that is being granted the role of AppAdmin:
 ````
-cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" DESIRED_APP_ADMIN_ADDRESS --private-key $SUPER_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities 
@@ -78,8 +79,20 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN --p
 Keccak256: 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60
 ````
 
+### Revoke Command
+The following is an example of the command used to revoke an app admin by the super admin. Replace `APP_ADMIN_ADDRESS_TO_BE_REVOKED` with the address of a current app admin that is no longer desired to have the `APP_ADMIN_ROLE`. The bytes32 argument here is the keccak256 hash of the `APP_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "revokeRole(bytes32,address)" 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60 APP_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $SUPER_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `APP_ADMIN_ROLE` from the caller of this command. Replace `APP_ADMIN_ADDRESS_TO_BE_RENOUNCED` with the address associated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `APP_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60 APP_ADMIN_ADDRESS_TO_BE_RENOUNCED --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
 ### Recommendations
-- It is recommended to have as little app admins as possible in the application since these have great indirect privileges. One app admin is the optimal amount.
+- It is recommended to have as few app admins as possible in the application since these have great indirect privileges. One app admin is the optimal amount.
 
 - It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
 
@@ -91,21 +104,19 @@ Keccak256: 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60
 
 ---
 
----
-
 ## RISK ADMIN
 
 ### Overview
 Risk admin can be granted at any time by the app admin. This role sets the risk level for addresses within the application app manager. Functions with the modifier onlyRole(RISK_ADMIN_ROLE) can only be called by this role.
 
 ### Add Command
-The following is an example of the command used to add an risk admin:
+The following is an example of the command used to add a risk admin by the app admin. Replace `DESIRED_RISK_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `RISK_ADMIN_ROLE`:
 ````
-cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" $RISK_ADMIN  --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" DESIRED_RISK_ADMIN_ADDRESS  --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
-* Risk Administrators may alter player risk levels.
+* Risk Administrators may alter user risk levels.
 * Risk Administrators may not alter any rule configurations to include risk related rules.
 * Risk Administrators may renounce their role.
 
@@ -114,12 +125,24 @@ cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" $RISK_ADMIN  --privat
 Keccak256: 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f
 ````
 
+### Revoke Command
+The following is an example of the command used to revoke a risk admin by an app admin. Replace `RISK_ADMIN_ADDRESS_TO_BE_REVOKED` with the address of a current risk admin that is no longer desired to have the `RISK_ADMIN_ROLE`. The bytes32 argument here is the keccak256 hash of the `RISK_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "revokeRole(bytes32,address)" 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f RISK_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `RISK_ADMIN_ROLE` from the caller of this command. Replace `RISK_ADMIN_ADDRESS_TO_BE_REVOKED` with the address associated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `RISK_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f RISK_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $RISK_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
 ### Recommendations
 - It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
 - To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
 
     ```
-    export RISK_ADMIN_KEY=<risk admin privkey>
+    export RISK_ADMIN_PRIVATE_KEY=<risk admin privkey>
     ```
 
 
@@ -131,19 +154,31 @@ Keccak256: 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f
 Access level admin can be granted at any time by the app admin. This role sets the access level for addresses within the application app manager. Functions with the modifier onlyRole(ACCESS_LEVEL_ADMIN_ROLE) can only be called by this role.
 
 ### Add Command
-The following is an example of the command used to add an access level admin:
+The following is an example of the command used to add an access level admin by the app admin. Replace `DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `ACCESS_LEVEL_ADMIN_ROLE`:
 ````
-cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" $ACCESS_LEVEL_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAccessLevelAdmin(address)" DESIRED_ACCESS_LEVEL_ADMIN_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
-* Access Level Administrators may alter player access levels.
+* Access Level Administrators may alter user access levels.
 * Access Level Administrators may not alter any rule configurations to include risk related rules.
 * Access Level Administrators may renounce their role.
 
 ### Role Hash
 ````
-Keccak256: 0x31f80d5aea029b856920c9e867db87c5fae0f51b2923773b55e653791d4c12c0
+Keccak256: 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335
+````
+
+### Revoke Command
+The following is an example of the command used to revoke an access level admin by an app admin. Replace `ACCESS_LEVEL_ADMIN_ADDRESS_TO_BE_REVOKED` with the address of a current access level admin that is no longer desired to have the `ACCESS_LEVEL_ADMIN_ROLE`. The bytes32 argument here is the keccak256 hash of the `ACCESS_LEVEL_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "revokeRole(bytes32,address)" 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335 ACCESS_LEVEL_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `ACCESS_LEVEL_ADMIN_ROLE` from the caller of this command. Replace `ACCESS_LEVEL_ADMIN_ADDRESS_TO_BE_REVOKED` with the address associated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `ACCESS_LEVEL_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335 ACCESS_LEVEL_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $ACCESS_LEVEL_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Recommendations
@@ -151,7 +186,7 @@ Keccak256: 0x31f80d5aea029b856920c9e867db87c5fae0f51b2923773b55e653791d4c12c0
 - To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
 
     ```
-    export ACCESS_LEVEL_ADMIN_KEY=<access level admin privkey>
+    export ACCESS_LEVEL_ADMIN_PRIVATE_KEY=<access level admin privkey>
     ```
 
 ---
@@ -159,12 +194,12 @@ Keccak256: 0x31f80d5aea029b856920c9e867db87c5fae0f51b2923773b55e653791d4c12c0
 ## RULE ADMIN
 
 ### Overview
-Rule admin can be granted at any time by the app admin. This role can activate and deactivate economic rules within the handler contracts. Functions with the modifier onlyRuleAdministrator() can only be called by this role. 
+Rule admin can be granted at any time by the app admin. This role can activate and deactivate economic rules within the handler contracts. Functions with the modifier onlyRole(RULE_ADMIN_ROLE) can only be called by this role. 
 
 ### Add Command
-The following is an example of the command used to add an rule admin:
+The following is an example of the command used to add a rule admin by the app admin. Replace `DESIRED_RULE_ADMIN_ADDRESS` in the following cast command with the address that is being granted the `RULE_ADMIN_ROLE`:
 ````
-cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $RULE_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" DESIRED_RULE_ADMIN_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities 
@@ -178,38 +213,136 @@ cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $RULE_ADMIN -
 Keccak256: 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a
 ````
 
+### Revoke Command
+The following is an example of the command used to revoke a rule admin by an app admin. Replace `RULE_ADMIN_ADDRESS_TO_BE_REVOKED` with the address of a current rule admin that is no longer desired to have the `RULE_ADMIN_ROLE`. The bytes32 argument here is the keccak256 hash of the `RULE_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "revokeRole(bytes32,address)" 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a RULE_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `RULE_ADMIN_ROLE` from the caller of this command. Replace `RULE_ADMIN_ADDRESS_TO_BE_REVOKED` with the address associated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `RULE_ADMIN_ROLE`.
+````
+cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a RULE_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $RULE_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
 ### Recommendations
 - It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
 - To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
 
     ```
-    export RULE_ADMIN_KEY=<rule admin privkey>
+    export RULE_ADMIN_PRIVATE_KEY=<rule admin privkey>
     ```
 
 
 ---
 
 ## TREASURY ACCOUNT
-Treasury Account can be granted at any time by the app admin. This role is exempt from all economic rules. Any transactions involving a treasury account will bypass rule checks for all parties involved. This role cannot be revoked or renounce their role while this rule is active. Functions with the modifier onlyRole(TREASURY_ACCOUNT) can only be called by this role. 
+Treasury Account can be granted at any time by the app admin. This role is exempt from all economic rules. Any transactions involving a treasury account will bypass rule checks for all parties involved. Functions with the modifier onlyRole(TREASURY_ACCOUNT) can only be called by this role.
 
 ### Add Command
-The following is an example of the command used to add an treasury account:
+The following is an example of the command used to add a Treasury Account by the app admin. Replace `DESIRED_TREASURY_ACCOUNT_ADDRESS` in the following cast command with the address that is being granted the `TREASURY_ACCOUNT` role:
 ````
-cast send $APPLICATION_APP_MANAGER "addTreasuryAccount(address)" $APP_ADMIN --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addTreasuryAccount(address)" DESIRED_TREASURY_ACCOUNT_ADDRESS --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
 * Treasury Accounts are exempt from all economic rules.
 * Treasury Accounts may not alter any rule configurations to include risk related rules.
-* Treasury Accounts may not renounce their role.
 
 ### Role Hash
 ````
-Keccak256: 0x5cb9147a971eae9c63c04beb424326d7db091a71473987979b49bb1e189f3457
+Keccak256: 0x6ec7f14f5bb307db04b8741f0dfa1605098831d97aae193f99400b1357d4bb95
+````
+
+### Revoke Command
+The following is an example of the command used to revoke a treasury account by an app admin. Replace `TREASURY_ACCOUNT_ADDRESS_TO_BE_REVOKED` with the address of a current treasury account that is no longer desired to have the `TREASURY_ACCOUNT` role. The bytes32 argument here is the keccak256 hash of the `TREASURY_ACCOUNT` role.
+````
+cast send $APPLICATION_APP_MANAGER "revokeRole(bytes32,address)" 0x6ec7f14f5bb307db04b8741f0dfa1605098831d97aae193f99400b1357d4bb95 TREASURY_ACCOUNT_ADDRESS_TO_BE_REVOKED --private-key $APP_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `TREASURY_ACCOUNT` role from the caller of this command. Replace `TREASURY_ACCOUNT_ADDRESS_TO_BE_REVOKED` with the address associated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `TREASURY_ACCOUNT` role.
+````
+cast send $APPLICATION_APP_MANAGER "renounceRole(bytes32,address)" 0x6ec7f14f5bb307db04b8741f0dfa1605098831d97aae193f99400b1357d4bb95 TREASURY_ACCOUNT_ADDRESS_TO_BE_REVOKED --private-key $TREASURY_ACCOUNT_PRIVATE_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Recommendations
 - It is recommended to have a dedicated account for this role that doesn't have any other roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export TREASURY_ACCOUNT_PRIVATE_KEY=<treasury account privkey>
+    ```
+
+---
+
+## Token Admin
+The Token Admin role is granted during construction of the ApplicationERC20 and ApplicaitionERC721 contracts. Token Admin can be granted at any time by a current Token Admin. This role can connect a handler to the token. Functions with the modifier onlyRole(TOKEN_ADMIN_ROLE) can be called by this role.
+
+### Add Command
+The following is an example of the command used to add a Token Admin by a current Token Admin. Replace `APPLICATION_TOKEN_ADDRESS` with the token address. Replace `DESIRED_TOKEN_ADMIN_ADDRESS` in the following command with the address that is being granted the `TOKEN_ADMIN_ROLE`:
+````
+cast send APPLICATION_TOKEN_ADDRESS "grantRole(bytes32,address)" 0x9e262e26e9d5bf97da5c389e15529a31bb2b13d89967a4f6eab01792567d5fd6 DESIRED_TOKEN_ADMIN_ADDRESS --private-key $TOKEN_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Capabilities
+* Token admins can connect a handler to the token.
+* Token admins can set the baseURI and mint tokens on ApplicationERC721 contracts.
+* Token admins can grant or revoke the `TOKEN_ADMIN_ROLE`.
+
+### Role Hash
+````
+Keccak256: 0x9e262e26e9d5bf97da5c389e15529a31bb2b13d89967a4f6eab01792567d5fd6
+````
+
+### Revoke Command
+The following is an example of the command used to revoke a Token Admin by a current Token Admin. Replace `APPLICATION_TOKEN_ADDRESS` with the token address. Replace `TOKEN_ADMIN_ADDRESS_TO_BE_REVOKED` with the address of a current Token Admin that is no longer desired to have the `TOKEN_ADMIN_ROLE`. The bytes32 argument here is the keccak256 hash of the `TOKEN_ADMIN_ROLE`:
+````
+cast send APPLICATION_TOKEN_ADDRESS "revokeRole(bytes32,address)" 0x9e262e26e9d5bf97da5c389e15529a31bb2b13d89967a4f6eab01792567d5fd6 TOKEN_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $TOKEN_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Renounce Command
+The following is an example of the command used to renounce the `TOKEN_ADMIN_ROLE` from the caller of this command. Replace `APPLICATION_TOKEN_ADDRESS` with the token address. Replace `TOKEN_ADMIN_ADDRESS_TO_BE_REVOKED` with the address asoociated with the private key used to sign this transaction. The bytes32 argument here is the keccak256 hash of the `TOKEN_ADMIN_ROLE`:
+````
+cast send APPLICATION_TOKEN_ADDRESS "renounceRole(bytes32,address)" 0x9e262e26e9d5bf97da5c389e15529a31bb2b13d89967a4f6eab01792567d5fd6 TOKEN_ADMIN_ADDRESS_TO_BE_REVOKED --private-key $TOKEN_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export TOKEN_ADMIN_PRIVATE_KEY=<token admin privkey>
+    ```
+
+---
+
+## Proxy Admin
+The proxy admin role is granted during construction of the ApplicationERC20UProxy and ApplicationERC721UProxy contracts. The proxy admin is provided by the OpenZeppelin ERC1967Upgrade contract. It is different than AccessControl roles and doesn't have a role hash. Instead, it is stored at a specific slot in the proxy contract storage. There can only be one proxy admin at a time. Functions with the modifier ifAdmin can be called by this role.
+
+### Change Command
+The following is an example of the command used to change the proxy admin by the current proxy admin. Replace `APPLICATION_PROXY_ADDRESS` with the proxy contract address. Replace `NEW_PROXY_ADMIN` with the address of the new proxy admin.
+````
+cast send APPLICATION_PROXY_ADDRESS "changeAdmin(address)" NEW_PROXY_ADMIN --private-key $APPLICATION_PROXY_ADMIN_PRIVATE_KEY --rpc-url $ETH_RPC_URL
+````
+
+### Capabilities
+* Proxy admins can change the current proxy admin.
+* Proxy admins can upgrade the implementaition contract.
+
+### Role Slot
+````
+_ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+````
+
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export APPLICATION_PROXY_ADMIN_PRIVATE_KEY=<proxy admin privkey>
+    ```
+
 
 <!-- These are the body links -->
 [createAdminRole-url]: ./ADMIN-CONFIG.md
