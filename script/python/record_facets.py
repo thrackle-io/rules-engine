@@ -5,13 +5,12 @@ from pathlib import Path
 from dotenv import dotenv_values 
 
 _dir  = dotenv_values(".env")
-
+version = "1.3.1"
 def record_facets(args):
-    date  = datetime.fromtimestamp(int(args.timestamp)).isoformat()[:10]
     record = {}
     # Create the directory with the timestamp included
     date2  = datetime.fromtimestamp(int(args.timestamp)).isoformat()
-    filePath = _dir["DEPLOYMENT_OUT_DIR"] + args.chain_id + "/" + date2 + "/diamond"
+    filePath = _dir["DEPLOYMENT_OUT_DIR"] + "/" + version + "/abi"
     dir = Path(filePath)
     file = Path(filePath + "/" + _dir["DIAMOND_DEPLOYMENT_OUT_FILE"])
 
@@ -23,16 +22,13 @@ def record_facets(args):
         except:
             record = {}
     
-    if(not record.get(args.chain_id)):
-        record[args.chain_id] = {args.diamond_name: {date:{args.contract : args.address}}}
-    elif(not record[args.chain_id].get(args.diamond_name)):
-        record[args.chain_id][args.diamond_name] = {date:{args.contract : args.address}}
-    elif(not record[args.chain_id][args.diamond_name].get(date)):
-        record[args.chain_id][args.diamond_name][date] = {args.contract : args.address}
+    if(not record.get(version)):
+        record[version] = {args.diamond_name: {args.contract : args.address}}
+    elif(not record[version].get(args.diamond_name)):
+        record[version][args.diamond_name] = {args.contract : args.address}
     else:
-        record[args.chain_id][args.diamond_name][date][args.contract] = args.address
+        record[version][args.diamond_name][args.contract] = args.address
 
-    record[args.chain_id][args.diamond_name][date]["RuleProcessor"] = _dir["RULE_PROCESSOR_ADDRESS"]
     json_object = json.dumps(record, indent=4)
     with open(file, 'w+') as outfile:
         outfile.write(json_object)

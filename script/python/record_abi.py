@@ -7,7 +7,7 @@ from dotenv import dotenv_values
 # This file is meant to record the ABI for a specific contract per deployment so that it is categorized by date and useable for DOOM backwards compatibility
 _dir  = dotenv_values(".env")
 
-version = "v0.1.3"
+version = "1.3.1"
 
 def record_abi(args):    
     contract = args.contract
@@ -18,7 +18,7 @@ def record_abi(args):
 
     # Create the directory with the timestamp included
     date  = datetime.fromtimestamp(int(args.timestamp)).isoformat()
-    filePath = _dir["DEPLOYMENT_OUT_DIR"] + args.contract + "/" + version + "/abi"
+    filePath = _dir["DEPLOYMENT_OUT_DIR"] + "/" + version + "/abi"
     os.makedirs(filePath, exist_ok=True)
 
     # Create the contract's abi file
