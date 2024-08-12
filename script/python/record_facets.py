@@ -32,6 +32,7 @@ def record_facets(args):
     else:
         record[args.chain_id][args.diamond_name][date][args.contract] = args.address
 
+    record[args.chain_id][args.diamond_name][date]["RuleProcessor"] = _dir["RULE_PROCESSOR_ADDRESS"]
     json_object = json.dumps(record, indent=4)
     with open(file, 'w+') as outfile:
         outfile.write(json_object)
