@@ -1,0 +1,53 @@
+{
+    "1.3.1": {
+        "ProtocolProcessorDiamond": {
+            "VersionFacet": "0xf6b3B1FD3a75DE3cB7d287b5a2847F327C09865f",
+            "ProtocolNativeFacet": "0xc4cb6f7798DfE920AC83CE3D9867046b95FF75af",
+            "ProtocolRawFacet": "0xa647b1D689e97F6cf9A34eC7eF24B0E87917745b",
+            "ERC20RuleProcessorFacet": "0x4096989b910d6dF88b1c0FD16421cB70fA88eae0",
+            "ERC721RuleProcessorFacet": "0x7179177bDE758Bed7344Bc7fA70e85FC1B26b097",
+            "diamond": "0x5C86D6742A1D0c12cd349518549ff8992838f50F",
+            "ApplicationRiskProcessorFacet": "0xbf4D86ED8e862fCb37FD3cED0eBEBD9880955150",
+            "ApplicationAccessLevelProcessorFacet": "0x099CA56Ee7F78752F4Fc55a5cE58Ca640937fac7",
+            "ApplicationPauseProcessorFacet": "0x11b6b2C248FFf299e135A6cFa58051834Cee6272",
+            "ERC20TaggedRuleProcessorFacet": "0x70A19b660DCF1D746012ADC8AE38B246b1b4B5b2",
+            "ERC721TaggedRuleProcessorFacet": "0x5C8eb4144339357FCf788aF5Fb4ea0a054e582cA",
+            "RuleApplicationValidationFacet": "0xaf2017f353aa6725A95ECE7d3608B07e7E72F70A",
+            "RuleDataFacet": "0x02Fd638AfDb7d02147371De967352Bd8Fed4752B",
+            "TaggedRuleDataFacet": "0x1FEa9375190f8858e887fb214531a5Af02126502",
+            "AppRuleDataFacet": "0x81aa683764B35D9bb7e21CA554EB0E294A1143bd"
+        },
+        "Frankenstein_CoinHandlerDiamond": {
+            "HandlerVersionFacet": "0x4D9536b6509cD647BEC74f8528011E0cB37EfBf1",
+            "ProtocolNativeFacet": "0x82b5CbABDE6BD987e43674301cEf19879071c0A7",
+            "ProtocolRawFacet": "0x629b6DaeDf665d715E4fc9ee52681207C456f0aa",
+            "ERC20HandlerMainFacet": "0xbb18cF47Fc738c6C42AaB924646bF082187681aC",
+            "diamond": "0xa617b879C02e33ca3A058B7282D6afE6FFEE759C",
+            "ERC20TaggedRuleFacet": "0xCA3E82B7Adecd20385317bb800B7E7350bb8F36b",
+            "ERC20NonTaggedRuleFacet": "0xa6b7Fb84371316a5946685baaa73EFf30F2D4dF9",
+            "TradingRuleFacet": "0x599650d2F9fc5BBb76fF7cfDBCC19d1Bc0875045",
+            "FeesFacet": "0xD2E705FF7764980befc10870160552e12e33bceb"
+        },
+        "Dracula_CoinHandlerDiamond": {
+            "HandlerVersionFacet": "0x263699780762D767388791792a96DfCeC40FF2A1",
+            "ProtocolNativeFacet": "0x1D315fD2Af7c9E28EB9fc91AF6aeD44315e8ac04",
+            "ProtocolRawFacet": "0xF0Ff977E0C077297b4f8031F5E7c55079652a5EF",
+            "ERC20HandlerMainFacet": "0x776cda0C45D30e56FF95286a0c48196623131453",
+            "diamond": "0x29DD9DE182A1038E1d49c6Fe3624e82e9B2b8d77",
+            "ERC20TaggedRuleFacet": "0xa370A20Be4335D80004483ED824c1592812299A5",
+            "ERC20NonTaggedRuleFacet": "0xc4EB0251B0ef253aE2F56c0f3c4e158E1e6dd460",
+            "TradingRuleFacet": "0x1E059547cc163600Ab06060796aE8800704DAcE8",
+            "FeesFacet": "0xaFDcCDFD2D3A0F4e47dFF2Ce8d469fd34Fe9cc15"
+        },
+        "WolfmanHandlerDiamond": {
+            "HandlerVersionFacet": "0x83399631AD53c8787219eFd0720b95D214E7ddD4",
+            "ProtocolNativeFacet": "0x746625583Df68Df3AF52a9789dA2847312337d85",
+            "ProtocolRawFacet": "0xd0804807dFF44b697A09c8bB5c9E03B486F5E7B5",
+            "ERC721HandlerMainFacet": "0x079B44bb82801a6e238778f612257a72022cbE54",
+            "diamond": "0x18Febe97428e2EbE07f753b988b5df7190e2Bf5b",
+            "ERC721TaggedRuleFacet": "0xd2c869ce58a8eFF4C96A7b700097998Ff39Eb02e",
+            "ERC721NonTaggedRuleFacet": "0xe02a18088BE7Bd14b75d1Eb11dC5201580E97e1E",
+            "TradingRuleFacet": "0x1500A767d42a8194Aa34bD17d8a63Af8bdC61779"
+        }
+    }
+}
