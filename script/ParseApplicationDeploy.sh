@@ -8,6 +8,9 @@ function parseContractAddress() {
 
 ENV_FILE=".env"
 
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
 if [[ -n $CHAIN_ID ]]; then
   CHAIN_ID=${CHAIN_ID}
 elif [[ -n $DB_CHAIN ]]; then
@@ -44,8 +47,8 @@ echo
 if [[ $NUMBER == 1 ]]; then
   # Retreive the App Manager
   APPLICATION_APP_MANAGER=$(parseContractAddress "ApplicationAppManager" $CHAIN_ID 0 "Application_Deploy_01_AppManager.s.sol")
-  echo APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER
-  echo
+  echo -e $GREEN APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER
+  echo 
 
   os=$(uname -a)
   if [[ $os == *"Darwin"* ]]; then
@@ -56,8 +59,8 @@ if [[ $NUMBER == 1 ]]; then
 
   # Retrieve the App Handler
   APPLICATION_APPLICATION_HANDLER=$(parseContractAddress "ApplicationHandler" $CHAIN_ID 0 "Application_Deploy_01_AppManager.s.sol")
-  echo APPLICATION_APPLICATION_HANDLER=$APPLICATION_APPLICATION_HANDLER
-  echo
+  echo -e "$GREEN APPLICATION_APPLICATION_HANDLER=$APPLICATION_APPLICATION_HANDLER"
+  echo -e $RESET
 
   os=$(uname -a)
   if [[ $os == *"Darwin"* ]]; then

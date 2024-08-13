@@ -3,6 +3,9 @@ set -eo pipefail
 
 ENV_FILE=".env"
 
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
 # Fallback to DB_CHAIN or 31337 if neither are set
 CHAIN_ID=${CHAIN_ID:-${DB_CHAIN:-31337}}
 
@@ -34,8 +37,8 @@ RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="Rule
 
 RULE_PROCESSOR_DIAMOND="${RULE_PROCESSOR_DIAMOND_UNCUT//\"}"
 
-echo $RULE_PROCESSOR_DIAMOND
-echo 
+echo -e "$GREEN $RULE_PROCESSOR_DIAMOND"
+echo -e $RESET
 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then

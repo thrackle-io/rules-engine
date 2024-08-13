@@ -20,7 +20,7 @@ echo Please enter RPC URL
 read ETH_RPC_URL
 echo Please enter the chain id
 read CHAIN_ID
-echo "Rule Processor Deployment Required? (y or n)"
+echo "Does the Protocol (Rule Processor Diamond) need to be deployed to target chain? (y or n)"
 read DEPLOYMENT
 echo "Is this deployment local? (y or n)"
 read LOCAL
@@ -48,13 +48,13 @@ while [ "y" != "$FULL_APPLICATION" ] && [ "n" != "$FULL_APPLICATION" ] ; do
   FULL_APPLICATION=$(echo "$FULL_APPLICATION" | tr '[:upper:]' '[:lower:]')  
 done
 if [ "$FULL_APPLICATION" = "n" ]; then 
-  echo "Do you already have an application Manager deployed (y or n)?"
+  echo "Do you want to deploy an Application Manager? (y or n)?"
   read APP_MANAGER_DEPLOYED
   APP_MANAGER_DEPLOYED=$(echo "$APP_MANAGER_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
   while [ "y" != "$APP_MANAGER_DEPLOYED" ] && [ "n" != "$APP_MANAGER_DEPLOYED" ] ; do
     echo
     echo "Not a valid answer (y or n)"
-    echo "Do you already have an application Manager deployed (y or n)?"
+    echo "Do you want to deploy an Application Manager? (y or n)?"
     read APP_MANAGER_DEPLOYED
     APP_MANAGER_DEPLOYED=$(echo "$APP_MANAGER_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
   done
@@ -62,6 +62,7 @@ if [ "$FULL_APPLICATION" = "n" ]; then
     forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     sh script/ParseApplicationDeploy.sh 1 --chainid $CHAIN_ID
   fi
+
   echo "Do you already have an ERC20 deployed (y or n)?"
   read DEPLOYED
   DEPLOYED=$(echo "$DEPLOYED" | tr '[:upper:]' '[:lower:]')  
@@ -118,103 +119,104 @@ if [ "$FULL_APPLICATION" = "n" ]; then
         sh script/ParseApplicationDeploy.sh 6 --chainid $CHAIN_ID
         forge script script/clientScripts/Application_Deploy_03_ApplicationFT2Pt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     fi
+  fi
+  
+  echo "Do you already have an ERC721 deployed (y or n)?"
+  read NFT_DEPLOYED
+  NFT_DEPLOYED=$(echo "$NFT_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$NFT_DEPLOYED" ] && [ "n" != "$NFT_DEPLOYED" ] ; do
+    echo
+    echo "Not a valid answer (y or n)"
     echo "Do you already have an ERC721 deployed (y or n)?"
     read NFT_DEPLOYED
     NFT_DEPLOYED=$(echo "$NFT_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$NFT_DEPLOYED" ] && [ "n" != "$NFT_DEPLOYED" ] ; do
-      echo
-      echo "Not a valid answer (y or n)"
-      echo "Do you already have an ERC721 deployed (y or n)?"
-      read NFT_DEPLOYED
-      NFT_DEPLOYED=$(echo "$NFT_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
-    done
-    if [ "$NFT_DEPLOYED" = "y" ]; then
-      echo "Is the deployed ERC721 already protocol enabled (connected to a handler) (y or n)?"
-      read NFT_CONNECTED_ALREADY
-      NFT_CONNECTED_ALREADY=$(echo "$NFT_CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
-      while [ "y" != "$NFT_CONNECTED_ALREADY" ] && [ "n" != "$NFT_CONNECTED_ALREADY" ] ; do
-      echo
-      echo "Not a valid answer (y or n)"
-      echo "Is the deployed ERC721 already protocol enabled (connected to a handler) (y or n)?"
-      read NFT_CONNECTED_ALREADY
-      NFT_CONNECTED_ALREADY=$(echo "$NFT_CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
-      done
-      if [ "$NFT_CONNECTED_ALREADY" = "n" ]; then
-        forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-        forge script script/clientScripts/DeployERC721HandlerPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-      fi
-    fi
-    echo "Do you want to deploy an ERC721 (y or n)?"
-    read ERC721_DEPLOYMENT
-    ERC721_DEPLOYMENT=$(echo "$ERC721_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$ERC721_DEPLOYMENT" ] && [ "n" != "$ERC721_DEPLOYMENT" ] ; do
+  done
+  if [ "$NFT_DEPLOYED" = "y" ]; then
+    echo "Is the deployed ERC721 already protocol enabled (connected to a handler) (y or n)?"
+    read NFT_CONNECTED_ALREADY
+    NFT_CONNECTED_ALREADY=$(echo "$NFT_CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
+    while [ "y" != "$NFT_CONNECTED_ALREADY" ] && [ "n" != "$NFT_CONNECTED_ALREADY" ] ; do
     echo
     echo "Not a valid answer (y or n)"
-    echo "Do you want to deploy an ERC721 (y or n)?"
-    read ERC721_DEPLOYMENT
-    ERC721_DEPLOYMENT=$(echo "$ERC721_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+    echo "Is the deployed ERC721 already protocol enabled (connected to a handler) (y or n)?"
+    read NFT_CONNECTED_ALREADY
+    NFT_CONNECTED_ALREADY=$(echo "$NFT_CONNECTED_ALREADY" | tr '[:upper:]' '[:lower:]')  
     done
-    if [ "$ERC721_DEPLOYMENT" = "y" ]; then
-      forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-      sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID 
-      forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    if [ "$NFT_CONNECTED_ALREADY" = "n" ]; then
+      forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+      forge script script/clientScripts/DeployERC721HandlerPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
     fi
-    echo "Do you want to deploy an ERC721 upgradeable (y or n)?"
-    read ERC721_UPGRADE_DEPLOYMENT
-    ERC721_UPGRADE_DEPLOYMENT=$(echo "$ERC721_UPGRADE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$ERC721_UPGRADE_DEPLOYMENT" ] && [ "n" != "$ERC721_UPGRADE_DEPLOYMENT" ] ; do
-    echo
-    echo "Not a valid answer (y or n)"
-    echo "Do you want to deploy an ERC721 upgradeable (y or n)?"
-    read ERC721_UPGRADE_DEPLOYMENT
-    ERC721_UPGRADE_DEPLOYMENT=$(echo "$ERC721_UPGRADE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    done
-    if [ "$ERC721_UPGRADE_DEPLOYMENT" = "y" ]; then
-      forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-      sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID 
-      forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER 
-    fi
-    echo "Do you want to deploy Oracles (y or n)?"
-    read ORACLE_DEPLOYMENT
-    ORACLE_DEPLOYMENT=$(echo "$ORACLE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$ORACLE_DEPLOYMENT" ] && [ "n" != "$ORACLE_DEPLOYMENT" ] ; do
-    echo
-    echo "Not a valid answer (y or n)"
-    echo "Do you want to deploy Oracles (y or n)?"
-    read ORACLE_DEPLOYMENT
-    ORACLE_DEPLOYMENT=$(echo "$ORACLE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    done
-    if [ "$ORACLE_DEPLOYMENT" = "y" ]; then
-      forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-      sh script/ParseApplicationDeploy.sh 4 --chainid $CHAIN_ID
-    fi
-    echo "Do you want to deploy Pricers (y or n)?"
-    read PRICING_DEPLOYMENT
-    PRICING_DEPLOYMENT=$(echo "$PRICING_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$PRICING_DEPLOYMENT" ] && [ "n" != "$PRICING_DEPLOYMENT" ] ; do
-    echo
-    echo "Not a valid answer (y or n)"
-    echo "Do you want to deploy Pricers (y or n)?"
-    read PRICING_DEPLOYMENT
-    PRICING_DEPLOYMENT=$(echo "$PRICING_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
-    done
-    if [ "$PRICING_DEPLOYMENT" = "y" ]; then
-      forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-      sh script/ParseApplicationDeploy.sh 5 --chainid $CHAIN_ID
-    fi
-    echo "Do you want to Set Admin Roles (y or n)?"
-    read SET_ADMINS
-    SET_ADMINS=$(echo "$SET_ADMINS" | tr '[:upper:]' '[:lower:]')  
-    while [ "y" != "$SET_ADMINS" ] && [ "n" != "$SET_ADMINS" ] ; do
-    echo
-    echo "Not a valid answer (y or n)"
-    echo "Do you want to Set Admin Roles (y or n)?"
-    read SET_ADMINS
-    SET_ADMINS=$(echo "$SET_ADMINS" | tr '[:upper:]' '[:lower:]')  
-    done
-    if [ "$SET_ADMINS" = "y" ]; then
-      forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
-    fi
+  fi
+  echo "Do you want to deploy an ERC721 (y or n)?"
+  read ERC721_DEPLOYMENT
+  ERC721_DEPLOYMENT=$(echo "$ERC721_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$ERC721_DEPLOYMENT" ] && [ "n" != "$ERC721_DEPLOYMENT" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you want to deploy an ERC721 (y or n)?"
+  read ERC721_DEPLOYMENT
+  ERC721_DEPLOYMENT=$(echo "$ERC721_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  done
+  if [ "$ERC721_DEPLOYMENT" = "y" ]; then
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID 
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFTPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+  fi
+  echo "Do you want to deploy an ERC721 upgradeable (y or n)?"
+  read ERC721_UPGRADE_DEPLOYMENT
+  ERC721_UPGRADE_DEPLOYMENT=$(echo "$ERC721_UPGRADE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$ERC721_UPGRADE_DEPLOYMENT" ] && [ "n" != "$ERC721_UPGRADE_DEPLOYMENT" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you want to deploy an ERC721 upgradeable (y or n)?"
+  read ERC721_UPGRADE_DEPLOYMENT
+  ERC721_UPGRADE_DEPLOYMENT=$(echo "$ERC721_UPGRADE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  done
+  if [ "$ERC721_UPGRADE_DEPLOYMENT" = "y" ]; then
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeable.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    sh script/ParseApplicationDeploy.sh 3 --chainid $CHAIN_ID 
+    forge script script/clientScripts/Application_Deploy_04_ApplicationNFTUpgradeablePt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER 
+  fi
+  echo "Do you want to deploy Oracles (y or n)?"
+  read ORACLE_DEPLOYMENT
+  ORACLE_DEPLOYMENT=$(echo "$ORACLE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$ORACLE_DEPLOYMENT" ] && [ "n" != "$ORACLE_DEPLOYMENT" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you want to deploy Oracles (y or n)?"
+  read ORACLE_DEPLOYMENT
+  ORACLE_DEPLOYMENT=$(echo "$ORACLE_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  done
+  if [ "$ORACLE_DEPLOYMENT" = "y" ]; then
+    forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    sh script/ParseApplicationDeploy.sh 4 --chainid $CHAIN_ID
+  fi
+  echo "Do you want to deploy Pricers (y or n)?"
+  read PRICING_DEPLOYMENT
+  PRICING_DEPLOYMENT=$(echo "$PRICING_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$PRICING_DEPLOYMENT" ] && [ "n" != "$PRICING_DEPLOYMENT" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you want to deploy Pricers (y or n)?"
+  read PRICING_DEPLOYMENT
+  PRICING_DEPLOYMENT=$(echo "$PRICING_DEPLOYMENT" | tr '[:upper:]' '[:lower:]')  
+  done
+  if [ "$PRICING_DEPLOYMENT" = "y" ]; then
+    forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
+    sh script/ParseApplicationDeploy.sh 5 --chainid $CHAIN_ID
+  fi
+  echo "Do you want to Set Admin Roles (y or n)?"
+  read SET_ADMINS
+  SET_ADMINS=$(echo "$SET_ADMINS" | tr '[:upper:]' '[:lower:]')  
+  while [ "y" != "$SET_ADMINS" ] && [ "n" != "$SET_ADMINS" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Do you want to Set Admin Roles (y or n)?"
+  read SET_ADMINS
+  SET_ADMINS=$(echo "$SET_ADMINS" | tr '[:upper:]' '[:lower:]')  
+  done
+  if [ "$SET_ADMINS" = "y" ]; then
+    forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL --gas-price $GAS_NUMBER
   fi
 else 
   # deploy full application
