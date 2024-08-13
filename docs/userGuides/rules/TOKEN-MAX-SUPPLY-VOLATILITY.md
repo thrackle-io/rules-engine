@@ -8,7 +8,6 @@ The purpose of this rule is to prevent a sudden increase or decrease in the supp
 
 - [x] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

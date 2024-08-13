@@ -119,7 +119,7 @@ contract DeployAllModulesPt1Script is Script, DiamondScriptUtil, DeployABIUtil {
         recordABI("RuleProcessorDiamond", recordAllChains, timestamp);
         
         /// record the diamond address
-        recordFacet("ProtocolProcessorDiamond", "diamond", address(ruleProcessorDiamondDiamond), recordAllChains);
+        recordFacet("ProtocolProcessorDiamond", "RuleProcessorDiamond", address(ruleProcessorDiamondDiamond), recordAllChains);
 
         /// we update the value of the RULE_PROCESSOR_DIAMOND in the env file
         setENVVariable("RULE_PROCESSOR_DIAMOND", vm.toString(address(ruleProcessorDiamondDiamond)));

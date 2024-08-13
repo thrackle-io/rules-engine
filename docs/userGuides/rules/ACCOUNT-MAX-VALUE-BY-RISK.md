@@ -16,7 +16,6 @@ risk scores      balances         resultant logic
 
 - [x] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

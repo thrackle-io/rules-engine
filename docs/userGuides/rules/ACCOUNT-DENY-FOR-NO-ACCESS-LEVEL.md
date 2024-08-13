@@ -10,7 +10,6 @@ The purpose of this rule is to provide a way to prevent the transfer of assets f
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 

@@ -8,7 +8,6 @@ The purpose of the pause rule is to allow developers to pause the entirety of an
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 

@@ -8,7 +8,6 @@ The purpose of this rule is to provide balance limits for accounts at the applic
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 

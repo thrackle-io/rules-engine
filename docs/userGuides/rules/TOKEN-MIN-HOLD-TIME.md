@@ -8,7 +8,6 @@ The purpose of the token-min-hold-time rule is to reduce trade volitility by pre
 
 - [ ] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

@@ -8,7 +8,6 @@ The purpose of this rule is to prevent accounts identified as "risky" from movin
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 
