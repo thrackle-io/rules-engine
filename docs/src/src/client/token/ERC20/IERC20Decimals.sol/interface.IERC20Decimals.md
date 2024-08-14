@@ -1,5 +1,5 @@
 # IERC20Decimals
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/e484b68f1ca0d10ffe5b3b006faff195ef61dcb9/src/client/token/ERC20/IERC20Decimals.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5b4c46cba4728d833e07b42f737a689087f379aa/src/client/token/ERC20/IERC20Decimals.sol)
 
 *Interface of the ERC20 standard as defined in the EIP.*
 

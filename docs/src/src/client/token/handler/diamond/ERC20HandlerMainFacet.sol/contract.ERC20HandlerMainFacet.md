@@ -1,5 +1,5 @@
 # ERC20HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/e484b68f1ca0d10ffe5b3b006faff195ef61dcb9/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5b4c46cba4728d833e07b42f737a689087f379aa/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md)

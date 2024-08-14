@@ -1,5 +1,5 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/e484b68f1ca0d10ffe5b3b006faff195ef61dcb9/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/aquifi-rules-v1/blob/5b4c46cba4728d833e07b42f737a689087f379aa/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
 
 **Inherits:**
 Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/abstract.ProtocolTokenCommonU.md), ReentrancyGuard
