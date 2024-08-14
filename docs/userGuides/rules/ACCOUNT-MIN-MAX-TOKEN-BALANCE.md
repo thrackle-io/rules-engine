@@ -8,7 +8,6 @@ The account-min-max-token-balance rule enforces token balance thresholds for use
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 

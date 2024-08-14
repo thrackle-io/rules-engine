@@ -8,7 +8,6 @@ The token-max-daily-trades rule enforces a daily limit on the number of trades f
 
 - [ ] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

@@ -8,7 +8,6 @@ The token-max-buy-sell-volume rule enforces a limit on the amount of tokens purc
 
 - [x] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

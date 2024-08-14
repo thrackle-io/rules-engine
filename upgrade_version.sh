@@ -35,6 +35,13 @@ replace_version_in_package_json() {
     sed -i "" "s/\(\"version\":[[:space:]]*\"\)[^\"]*\(\",\)/\1$new_version\2/" "$file"
  }
 
+ # we change the abi script file following the regular pattern of this file
+replace_version_in_abi_script() {
+    local file="$1"
+    local new_version="$2"
+    sed -i "" "s/\(version[[:space:]]*=[[:space:]]*\"\)[^\"]*\(\"\)/\1$new_version\2/" "$file"
+}
+
  replace_version_in_readme(){
     local file="$1"
     local new_version="$2"
@@ -71,7 +78,11 @@ main() {
     # replace in package.json
     replace_version_in_package_json "./package.json"  "$new_version"
 
-    # replace in package.json
+    # replace in script
+    replace_version_in_abi_script "./script/python/record_abi.py" "$new_version"
+    replace_version_in_abi_script "./script/python/record_facets.py" "$new_version"
+    
+    # replace in readme
     replace_version_in_readme "./README.md"  "$new_version"
 
     # replace in docs

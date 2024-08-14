@@ -8,7 +8,6 @@ The Account Max Trade Size Rule is an account based measure which restricts an a
 
 - [x] ERC20
 - [x] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 

@@ -8,7 +8,6 @@ The purpose of the token-min-tx-size rule is to prevent micro-trades or dust tra
 
 - [x] ERC20
 - [ ] ERC721
-- [ ] AMM
 
 ## Applies To Actions:
 
