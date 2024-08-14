@@ -80,6 +80,7 @@ main() {
 
     # replace in script
     replace_version_in_abi_script "./script/python/record_abi.py" "$new_version"
+    replace_version_in_abi_script "./script/python/record_facets.py" "$new_version"
     
     # replace in readme
     replace_version_in_readme "./README.md"  "$new_version"
