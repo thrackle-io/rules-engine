@@ -1,4 +1,4 @@
-# Rules Protocol
+# Rules Engine
 
 [![Project Version][version-image]][version-url]
 

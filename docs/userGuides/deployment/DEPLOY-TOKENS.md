@@ -3,7 +3,7 @@
 
 ---
 
-Tokens are the lifeblood of the web3 economy and with applications they are no different. However sometimes it's better when you're more easily able to craft rules for your tokens. The architecture of the rules protocol necessitates that when deploying a token, you do so with it connected into what's called a "token handler". This handler will connect to your application and simplify the process of adding a variety of rules to your protocol. Once you have a deployed and configured protocol supported token, you're ready to start applying [rules](../rules/README.md)!
+Tokens are the lifeblood of the web3 economy and with applications they are no different. However sometimes it's better when you're more easily able to craft rules for your tokens. The architecture of the rules engine necessitates that when deploying a token, you do so with it connected into what's called a "token handler". This handler will connect to your application and simplify the process of adding a variety of rules to your protocol. Once you have a deployed and configured protocol supported token, you're ready to start applying [rules](../rules/README.md)!
 
 ## Index
 
