@@ -13,7 +13,7 @@ import {IApplicationEvents} from "src/common/IEvents.sol";
  * @dev This contract allows for setting prices on entire collections or by tokenId
  */
 contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pricing {
-    string private constant VERSION="1.3.1";
+    string private constant VERSION="2.0.0";
     using ERC165Checker for address;
 
     mapping(address => mapping(uint256 => uint256)) public nftPrice;

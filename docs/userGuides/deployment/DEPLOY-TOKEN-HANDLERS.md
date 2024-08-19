@@ -59,5 +59,5 @@ The following steps must already be completed on the target chain:
 [customizations-url]: ../rules/CUSTOMIZATIONS.md
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-2.0.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/rules-engine
