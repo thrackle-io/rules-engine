@@ -1,4 +1,4 @@
-# High Level Overview: Rules Protocol
+# High Level Overview: Rules Engine
 [![Project Version][version-image]][version-url]
 
 ## Table of Contents
@@ -46,14 +46,14 @@
 
 ## Purpose
 
-This document offers a high level overview of the rules protocol - what it does and how it works. Read this to gain an initial understanding of the repo and the structure of the rules protocol.
+This document offers a high level overview of the rules engine - what it does and how it works. Read this to gain an initial understanding of the repo and the structure of the rules engine.
 
 ## Glossary
 
 | Term                      | Definition                                                                                                                                                  |
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | AppManager                | An appliction-associated smart contract acting as a central hub for managing the application it is associated with. Allows for creation/maintenance of permission roles, application rules, pause windows, and user account metadata. Can be utilized for both updating and checking an account's role in relation to the application.|
-| ApplicationHandler        | An application-associated smart contract supporting the AppManager contract by storing the application level rules data and functions. This is the connection to the Rules Protocol for the AppManager, assessesing and reading the rules that are activated for an application. |
+| ApplicationHandler        | An application-associated smart contract supporting the AppManager contract by storing the application level rules data and functions. This is the connection to the Rules Engine for the AppManager, assessesing and reading the rules that are activated for an application. |
 | AssetHandler | The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status, and connects the token to the AppManager for role based access control.        |
 | Pricing Module            | Application-associated smart contract(s) serving as token-price data sources for ecosystem applications. The pricing module can be found in 2 different categories: ERC20 and ERC721. Any custom-made pricing contract that intends to be protocol compliant must implement the IProtocolERC20Pricing and/or IProtocolERC721Pricing interface(s).                            |
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
@@ -520,4 +520,4 @@ The root of the documentation can be found [here](./src/SUMMARY.md).
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/aquifi-rules-v1
+[version-url]: https://github.com/thrackle-io/rules-engine

@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This guide is intended to be a user-friendly introduction to the rules protocol. It will provide a walkthrough of how to get started with the protocol, as well as provide a reference for the available rules and how to create custom rules.
+This guide is intended to be a user-friendly introduction to the rules engine. It will provide a walkthrough of how to get started with the protocol, as well as provide a reference for the available rules and how to create custom rules.
 
 ## Installation and Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install Python 3.11, Homebrew, and then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
@@ -36,12 +36,12 @@ And you are done!
 |[Fees][fees-url]| This section shows you how to write how fees can be generated in your application and how fees are generated at the protocol level.|
 |[Fungible Token Handlers Guide][fungibleTokenHandlerGuide-url] | This teaches you about the fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding ERC20s, you'll want to take a look at this quickly just to understand how it all works together.|
 |[Glossary][glossary-url]| For any terminology that might be unclear, please check here.|
-|[Integration of Oracles][oracles-url]| This section contains documentation on how oracles integrate into the rules protocol and the process of integrating them.|
+|[Integration of Oracles][oracles-url]| This section contains documentation on how oracles integrate into the rules engine and the process of integrating them.|
 |[NonFungible Token Handlers Guide][nonfungibleTokenHandlerGuide-url] | This teaches you about the non fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding NFTs, you'll want to take a look at this quickly just to understand how it all works together.|
 |[Pricing Contracts][pricing-url]| This section contains documentation on how to create and deploy pricing contracts so that your assets can be properly valuated in order to adhere to desirable rules.|
 |[Risk Score][riskScore-url]| This section contains documentation on how to integrate rules that involve using risk score methodology and the integration process of them.|
 |[Rule Guide][ruleGuide-url] | This section can be thought of as a reference to the available rules that come pre packaged within the protocol and their various perks and quirks. It will also contain guides on how to create custom rules.|
-|[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules protocol. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
+|[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules engine. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
 
 ## API 
 API documentation for the smart contract suite can be found [here](../src/src/README.md).

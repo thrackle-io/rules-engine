@@ -39,4 +39,4 @@ node_modules/
 .venv/
 
 *.idea
-aquifi-rules-v1/
+rules-engine/
