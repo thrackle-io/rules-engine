@@ -15,13 +15,13 @@ Your application is ready to roll!
 NOTE: 
 When integrating the protocol as a library in your repo, there are certain configuration requirements that must be followed for compilation. The following four contract imports must be configured as: 
 ```
-import {AppManager} from "aquifi-rules-v1/client/application/AppManager.sol";
-import "aquifi-rules-v1/client/application/ProtocolApplicationHandler.sol";
+import {AppManager} from "rules-engine/client/application/AppManager.sol";
+import "rules-engine/client/application/ProtocolApplicationHandler.sol";
 ```
 
 ```
-import "aquifi-rules-v1/client/token/handler/diamond/HandlerDiamond.sol";
-import {RuleProcessorDiamond} from "aquifi-rules-v1/protocol/economic/ruleProcessor/ruleProcessorDiamond.sol";
+import "rules-engine/client/token/handler/diamond/HandlerDiamond.sol";
+import {RuleProcessorDiamond} from "rules-engine/protocol/economic/ruleProcessor/ruleProcessorDiamond.sol";
 ```
 
 When importing these contracts in the pairs above into the src directory of your repo it is essential that you follow this inheritance structure to ensure there are no compiler issues. 

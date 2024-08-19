@@ -12,7 +12,7 @@
   ],
   "replacementPatterns": [
     {
-      "pattern": "https://github.com/thrackle-io/aquifi-rules-v1",
+      "pattern": "https://github.com/thrackle-io/rules-engine",
       "replacement": ""
     },
     {

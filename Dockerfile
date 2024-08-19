@@ -17,7 +17,7 @@ FROM rust:1.78.0-bookworm as foundry-base
 RUN apt update
 RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-venv jq gh npm
 
-WORKDIR /usr/local/src/aquifi-rules-v1
+WORKDIR /usr/local/src/rules-engine
 
 COPY foundry.lock .
 
