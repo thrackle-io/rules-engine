@@ -6,6 +6,7 @@
 - Documentation was added for admin role removal and renunciation
 - Additional data was added to the TokenRegistered event to support offchain processing
 - Deployment Scripts were updated to better align with the documented integration strategy and AppManager based RBAC items were removed
+- String parameters in the event were changed to not be indexed
 
 ### Added
 - FeeCollected events are now emitted when fees are collected
