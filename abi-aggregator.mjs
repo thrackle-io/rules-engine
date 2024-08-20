@@ -21,27 +21,27 @@ const repoBranch = process.argv[3]
 const ABIFiles = [
   {
     name: "ApplicationERC20Pricing",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/ApplicationERC20Pricing.sol/ApplicationERC20Pricing.json"],
   },
   {
     name: "ApplicationERC721Pricing",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/ApplicationERC721Pricing.sol/ApplicationERC721Pricing.json"],
   },
   {
     name: "ApplicationHandler",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/ApplicationHandler.sol/ApplicationHandler.json"],
   },
   {
     name: "AppManager",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/AppManager.sol/AppManager.json"],
   },
   {
     name: "HandlerDiamond",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: [
       "./out/ERC20HandlerMainFacet.sol/ERC20HandlerMainFacet.json",
       "./out/ERC20TaggedRuleFacet.sol/ERC20TaggedRuleFacet.json",
@@ -55,32 +55,32 @@ const ABIFiles = [
   },
   {
     name: "OracleApproved",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/OracleApproved.sol/OracleApproved.json"],
   },
   {
     name: "OracleDenied",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/OracleDenied.sol/OracleDenied.json"],
   },
   {
     name: "PauseRules",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/PauseRules.sol/PauseRules.json"],
   },
   {
     name: "ApplicationERC20",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/ApplicationERC20.sol/ApplicationERC20.json"],
   },
   {
     name: "ApplicationERC721",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: ["./out/ApplicationERC721.sol/ApplicationERC721.json"],
   },
   {
     name: "RuleDiamond",
-    branches: ["main", "internal"],
+    branches: ["main"],
     files: [
       "./out/ApplicationAccessLevelProcessorFacet.sol/ApplicationAccessLevelProcessorFacet.json",
       "./out/ApplicationPauseProcessorFacet.sol/ApplicationPauseProcessorFacet.json",
@@ -96,53 +96,6 @@ const ABIFiles = [
       "./out/RuleDataFacet.sol/RuleDataFacet.json",
       "./out/TaggedRuleDataFacet.sol/TaggedRuleDataFacet.json",
     ],
-  },
-  {
-    name: "ProtocolAMMCalcConst",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMCalcConst.sol/ProtocolAMMCalcConst.json"],
-  },
-  {
-    name: "ProtocolAMMCalcCP",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMCalcCP.sol/ProtocolAMMCalcCP.json"],
-  },
-  {
-    name: "ProtocolAMMCalcLinear",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMCalcLinear.sol/ProtocolAMMCalcLinear.json"],
-  },
-  {
-    name: "ProtocolAMMCalcSample01",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMCalcSample01.sol/ProtocolAMMCalcSample01.json"],
-  },
-  {
-    name: "ProtocolAMMFactory",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMFactory.sol/ProtocolAMMFactory.json"],
-  },
-  {
-    name: "ProtocolAMMHandler",
-    branches: ["internal"],
-    files: ["./out/ProtocolAMMHandler.sol/ProtocolAMMHandler.json"],
-  },
-  {
-    name: "ProtocolNFTAMMCalcDualLinear",
-    branches: ["internal"],
-    files: [
-      "./out/ProtocolNFTAMMCalcDualLinear.sol/ProtocolNFTAMMCalcDualLinear.json",
-    ],
-  },
-  {
-    name: "ProtocolERC20AMM",
-    branches: ["internal"],
-    files: ["./out/ProtocolERC20AMM.sol/ProtocolERC20AMM.json"],
-  },
-  {
-    name: "ProtocolERC721AMM",
-    branches: ["internal"],
-    files: ["./out/ProtocolERC721AMM.sol/ProtocolERC721AMM.json"],
   },
 ]
 
