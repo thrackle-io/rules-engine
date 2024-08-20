@@ -876,7 +876,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
      * @dev Getter for application Name
      * @return appName
      */
-    function getAppName() external returns(string memory) {
+    function getAppName() external view returns(string memory) {
         return appName;
     }
 
