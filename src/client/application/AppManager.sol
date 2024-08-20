@@ -873,6 +873,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IA
     }
 
     /**
+     * @dev Getter for application Name
+     * @return appName
+     */
+    function getAppName() external returns(string memory) {
+        return appName;
+    }
+
+    /**
      * @dev Part of the two step process to set a new AppManager within a Protocol Entity
      * @param _assetAddress address of a protocol entity that uses AppManager
      */
