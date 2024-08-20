@@ -67,7 +67,7 @@ interface IOracleEvents{
  */
 
 interface IApplicationHandlerEvents {
-    event AD1467_ApplicationHandlerDeployed(address indexed appManager);
+    event AD1467_ApplicationHandlerDeployed(address indexed appManager, address indexed ruleProcessorAddress);
     // Rule applied
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
