@@ -34,7 +34,7 @@ contract ProtocolApplicationHandler is
     IAppHandlerErrors,
     ProtocolApplicationHandlerCommon
 {
-    string private constant VERSION = "1.3.1";
+    string private constant VERSION = "2.0.0";
     IAppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -71,7 +71,7 @@ contract ProtocolApplicationHandler is
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_appManagerAddress);
-        emit AD1467_ApplicationHandlerDeployed(_appManagerAddress);
+        emit AD1467_ApplicationHandlerDeployed(_appManagerAddress, _ruleProcessorProxyAddress);
     }
 
     function _checkWhichApplicationRulesActive(ActionTypes _action) internal view returns (bool) {
@@ -879,5 +879,13 @@ contract ProtocolApplicationHandler is
         // for contracts in construction, since the code is only stored at the end
         // of the constructor execution.
         return account.code.length > 0;
+    }
+
+     /**
+     * @dev Getter for rule processor address
+     * @return ruleProcessorAddress
+     */
+    function getRuleProcessAddress() external view returns(address){
+        return address(ruleProcessor);
     }
 }

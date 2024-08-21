@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import dotenv_values 
 
 _dir  = dotenv_values(".env")
-version = "1.3.1"
+version = "2.0.0"
 def record_facets(args):
     date  = datetime.fromtimestamp(int(args.timestamp)).isoformat()[:10]
     record = {}

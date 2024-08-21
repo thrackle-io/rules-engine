@@ -210,7 +210,7 @@ abstract contract TestCommon is
      */
     function _createAppHandler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager) public returns (ApplicationHandler _applicationHandler) {
         vm.expectEmit(true, false, false, false);
-        emit AD1467_ApplicationHandlerDeployed(address(_appManager));
+        emit AD1467_ApplicationHandlerDeployed(address(_appManager), address(_ruleProcessor));
         return new ApplicationHandler(address(_ruleProcessor), address(_appManager));
     }
 

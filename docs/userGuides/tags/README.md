@@ -50,5 +50,5 @@ And can now call `addTag(address _account,bytes32 _tag)` with the App admin on t
  cast send $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_PRIVATE_KEY "addTag(address,bytes32)" 0x... 0x4100000000000000000000000000000000000000000000000000000000000000
  ```
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-1.3.1-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-2.0.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/rules-engine

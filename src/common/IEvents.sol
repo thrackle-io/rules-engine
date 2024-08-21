@@ -16,15 +16,15 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  */
 interface IAppLevelEvents {
     ///AppManager
-    event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
-    event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
+    event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string appName);
+    event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string appName);
     event AD1467_AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event AD1467_DataContractsMigrated(address indexed ownerAddress);
     event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
-    event AD1467_AppNameChanged(string indexed appName);  
+    event AD1467_AppNameChanged(string appName);  
     ///Registrations
-    event AD1467_TokenRegistered(string indexed _token, address indexed _address, uint8 indexed _type);
-    event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
+    event AD1467_TokenRegistered(string _token, address indexed _address, uint8 indexed _type);
+    event AD1467_TokenNameUpdated(string _token, address indexed _address);
     event AD1467_AMMRegistered(address indexed _address);
     event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
     ///Tags
@@ -67,7 +67,7 @@ interface IOracleEvents{
  */
 
 interface IApplicationHandlerEvents {
-    event AD1467_ApplicationHandlerDeployed(address indexed appManager);
+    event AD1467_ApplicationHandlerDeployed(address indexed appManager, address indexed ruleProcessorAddress);
     // Rule applied
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
@@ -118,7 +118,7 @@ interface IEconomicEvents {
  */
 interface IHandlerDiamondEvents {
     event AD1467_HandlerDeployed();
-    event AD1467_UpgradedToVersion(address indexed origin, string indexed version);
+    event AD1467_UpgradedToVersion(address indexed origin, string version);
 }
 
 /**
