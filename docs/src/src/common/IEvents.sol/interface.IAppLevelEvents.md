@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -19,13 +19,13 @@ AppManager
 
 
 ```solidity
-event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
+event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string appName);
 ```
 
 ### AD1467_AppManagerDeployedForUpgrade
 
 ```solidity
-event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
+event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string appName);
 ```
 
 ### AD1467_AppManagerDataUpgradeProposed
@@ -49,7 +49,7 @@ event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
 ### AD1467_AppNameChanged
 
 ```solidity
-event AD1467_AppNameChanged(string indexed appName);
+event AD1467_AppNameChanged(string appName);
 ```
 
 ### AD1467_TokenRegistered
@@ -57,13 +57,13 @@ Registrations
 
 
 ```solidity
-event AD1467_TokenRegistered(string indexed _token, address indexed _address, uint8 indexed _type);
+event AD1467_TokenRegistered(string _token, address indexed _address, uint8 indexed _type);
 ```
 
 ### AD1467_TokenNameUpdated
 
 ```solidity
-event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
+event AD1467_TokenNameUpdated(string _token, address indexed _address);
 ```
 
 ### AD1467_AMMRegistered

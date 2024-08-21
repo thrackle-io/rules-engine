@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/client/application/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/client/application/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/client/application/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)

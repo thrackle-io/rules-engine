@@ -1,5 +1,5 @@
 # IApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/common/IEvents.sol)
 
 Application Handler Events Library
 
@@ -10,7 +10,7 @@ Application Handler Events Library
 ### AD1467_ApplicationHandlerDeployed
 
 ```solidity
-event AD1467_ApplicationHandlerDeployed(address indexed appManager);
+event AD1467_ApplicationHandlerDeployed(address indexed appManager, address indexed ruleProcessorAddress);
 ```
 
 ### AD1467_ApplicationRuleApplied

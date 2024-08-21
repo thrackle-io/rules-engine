@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 [ActionTypesArray](/src/client/common/ActionTypesArray.sol/contract.ActionTypesArray.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md), [ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)
@@ -16,7 +16,7 @@ This contract is the rules handler for all application level rules. It is implem
 ### VERSION
 
 ```solidity
-string private constant VERSION = "1.3.1";
+string private constant VERSION = "2.0.0";
 ```
 
 
@@ -1130,5 +1130,20 @@ function isContract(address account) internal view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|bool|
+
+
+### getRuleProcessAddress
+
+*Getter for rule processor address*
+
+
+```solidity
+function getRuleProcessAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|ruleProcessorAddress|
 
 

@@ -1,5 +1,5 @@
 # ITags
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/client/application/data/ITags.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/client/application/data/ITags.sol)
 
 **Inherits:**
 [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)

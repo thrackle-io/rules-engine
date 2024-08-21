@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/57b349a6cc320a1f7ecb037fec845111fdd03ebb/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/bcad51a5d60a6bc42c4bd815f4a14c769889cdc7/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IIntegrationEvents](/src/common/IEvents.sol/interface.IIntegrationEvents.md), ReentrancyGuard
@@ -16,7 +16,7 @@ This contract is the permissions contract
 ### VERSION
 
 ```solidity
-string private constant VERSION = "1.3.1";
+string private constant VERSION = "2.0.0";
 ```
 
 
@@ -1521,6 +1521,21 @@ function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE);
 |Name|Type|Description|
 |----|----|-----------|
 |`_appName`|`string`|application name string|
+
+
+### getAppName
+
+*Getter for application Name*
+
+
+```solidity
+function getAppName() external view returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|appName|
 
 
 ### confirmAppManager
