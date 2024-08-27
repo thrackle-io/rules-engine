@@ -3,7 +3,8 @@
 
 | Version | Environment     | Contract Name        | Contract Address |
 | :--- |:----------------|:---------------------| :--- | 
-| v2.0.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x6ad7D0E46C2dde81902412690114dB5A98821A8a
+| v2.0.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb
+| v2.0.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8
 | v2.0.0 | Polygon Amoy    | RuleProcessorDiamond | 0xe96ab6faa3a186b667136f8974d767a6f060fa1b
 | v1.3.1 | Polygon Amoy    | RuleProcessorDiamond | 0x5c86d6742a1d0c12cd349518549ff8992838f50f
 | v1.3.0 | Polygon Amoy    | RuleProcessorDiamond | 0x18693c9efb90c7a00f80d58ca0aa78fb0514dd81
