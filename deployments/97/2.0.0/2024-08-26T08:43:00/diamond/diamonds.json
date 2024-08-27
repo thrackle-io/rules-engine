@@ -7,7 +7,7 @@
                 "ProtocolRawFacet": "0xA98906A4Bc5F53B4DCA498F7b9d4ee869A14a3D9",
                 "ERC20RuleProcessorFacet": "0x19bf20d1f7DAbbe0537a2064b7C4562865C6a2e8",
                 "ERC721RuleProcessorFacet": "0xb36d3bCBD99b15f4b272ce938C3C0d79E3371023",
-                "RuleProcessorDiamond": "0x6ad7D0E46C2dde81902412690114dB5A98821A8a",
+                "RuleProcessorDiamond": "0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb",
                 "ApplicationRiskProcessorFacet": "0x20a6217ce8991066E5620cf8Ee6c1872C1A6Fea0",
                 "ApplicationAccessLevelProcessorFacet": "0x0759E9B7862a8D97c87f6a74B5E921aB28b300d2",
                 "ApplicationPauseProcessorFacet": "0xfEF688cAc068d7750Ee598E069BF6c1C77d95392",
