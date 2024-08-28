@@ -16,6 +16,21 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(version, "2.0.0");
     }
 
+    function testERC20_ERC721CommonTests_ERC721Handler_RuleProcessorGetter() public view {
+        address ruleProcessorAddress = ERC721HandlerMainFacet(address(applicationNFTHandler)).getRuleProcessorAddress();
+        assertEq(address(ruleProcessor),ruleProcessorAddress);
+    }
+
+    function testERC20_ERC721CommonTests_ERC721Handler_AssetAddressGetter() public view {
+        address assetAddress = ERC721HandlerMainFacet(address(applicationNFTHandler)).getAssetAddress();
+        assertEq(address(testCaseNFT),assetAddress);
+    }
+
+    function testERC20_ERC721CommonTests_ERC721Handler_AppManagerAddressGetter() public view {
+        address appManagerAddress = ERC721HandlerMainFacet(address(applicationNFTHandler)).getAppManagerAddress();
+        assertEq(address(applicationAppManager),appManagerAddress);
+    }
+
     function testERC721_ERC721CommonTests_AlreadyInitialized() public endWithStopPrank {
         vm.startPrank(address(testCaseNFT));
         vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));

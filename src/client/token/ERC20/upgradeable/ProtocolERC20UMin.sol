@@ -13,7 +13,7 @@ import "src/client/token/ProtocolTokenCommonU.sol";
  * @notice This is the base contract for all protocol ERC721Upgradeable Minimals. 
  */
 contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenCommonU, ReentrancyGuard{
-    address private handlerAddress;
+    address public handlerAddress;
     IProtocolTokenHandler private handler;
     /// memory placeholders to allow variable addition without affecting client upgradeability
     // slither-disable-next-line shadowing-local

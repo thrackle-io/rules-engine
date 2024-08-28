@@ -6,6 +6,17 @@ import "test/util/RuleCreation.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";
 
 abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util {
+    
+    function testApplication_ApplicationCommonTests_RuleProcessorAddressGetters() public view ifDeploymentTestsEnabled {
+        address ruleProcessorTestAddress = applicationHandler.ruleProcessorAddress();
+        assertEq(address(ruleProcessor), ruleProcessorTestAddress); 
+    }
+
+    function testApplication_ApplicationCommonTests_AppMangerAddressGetters() public view ifDeploymentTestsEnabled {
+        address appManagerTestAddress = applicationHandler.appManagerAddress();
+        assertEq(address(applicationAppManager), appManagerTestAddress); 
+    }
+    
     function testApplication_ApplicationCommonTests_IsSuperAdmin() public view ifDeploymentTestsEnabled {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);

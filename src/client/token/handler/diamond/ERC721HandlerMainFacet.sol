@@ -121,4 +121,20 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerUtils, ICommonApplication
     function getAppManagerAddress() external view returns(address){
         return address(lib.handlerBaseStorage().appManager);
     }
+
+    /**
+     * @dev This function returns the configured rule processor address.
+     * @return ruleProcessorAddress address of the connected Rule Processor
+     */
+    function getRuleProcessorAddress() external view returns(address){
+        return address(lib.handlerBaseStorage().ruleProcessor);
+    }
+
+    /**
+     * @dev This function returns the configured token address.
+     * @return assetAddress address of the connected token
+     */
+    function getAssetAddress() external view returns(address){
+        return address(lib.handlerBaseStorage().assetAddress);
+    }
 }
