@@ -14,6 +14,21 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(version, "2.0.0");
     }
 
+    function testERC20_ERC20CommonTests_ERC20Handler_RuleProcessorGetter() public view {
+        address ruleProcessorAddress = ERC20HandlerMainFacet(address(applicationCoinHandler)).getRuleProcessorAddress();
+        assertEq(address(ruleProcessor), ruleProcessorAddress);
+    }
+
+    function testERC20_ERC20CommonTests_ERC20Handler_AssetAddressGetter() public view {
+        address assetAddress = ERC20HandlerMainFacet(address(applicationCoinHandler)).getAssetAddress();
+        assertEq(address(testCaseToken), assetAddress);
+    }
+
+    function testERC20_ERC20CommonTests_ERC20Handler_AppManagerAddressGetter() public view {
+        address appManagerAddress = ERC20HandlerMainFacet(address(applicationCoinHandler)).getAppManagerAddress();
+        assertEq(address(applicationAppManager), appManagerAddress);
+    }
+
     function testERC20_ERC20CommonTests_DeregisterTokenEmission_Positive() public endWithStopPrank {
         switchToAppAdministrator();
         vm.expectEmit(true, true, false, false);

@@ -38,6 +38,7 @@ contract ProtocolApplicationHandler is
     IAppManager immutable appManager;
     address public immutable appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
+    address public immutable ruleProcessorAddress; 
 
     /// Rule mappings
     mapping(ActionTypes => Rule) accountMaxValueByAccessLevel;
@@ -68,6 +69,7 @@ contract ProtocolApplicationHandler is
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
         if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
+        ruleProcessorAddress = _ruleProcessorProxyAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_appManagerAddress);
