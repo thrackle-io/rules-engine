@@ -17,15 +17,33 @@ npm i @thrackle-io/rules-protocol-client
 
 ### Dependencies
 
-This package requires `@openzeppelin/contracts` version 4.9.6 and `@openzeppelin/contracts-upgradeable` version 4.9.6.
+This package requires the following:
 
-If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
+1.  Foundry
+
+    NOTE: In order to ensure full support, run this command to get the correct Foundry version:
+
+```c
+foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
+```
+ 
+2.  Scripting Requirements
+    1.  `eth-abi 4.2.1`
+    2.  `jq 1.6.0`
+    3.  `python-dotenv 1.0.1`
+
+    These packages can be installed manually or through the following helper command:
+```c
+pip3 install -r requirements.txt
+```
+
+1. `@openzeppelin/contracts` version 4.9.6 and `@openzeppelin/contracts-upgradeable` version 4.9.6.
+
+    If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
 ```c
 forge install OpenZeppelin/openzeppelin-contracts
 ```
-
-and
 
 ```c
 forge install OpenZeppelin/openzeppelin-contracts-upgradeable
@@ -37,45 +55,11 @@ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
 
 For complete usage information and documentation, please visit our [User Guide][userGuide-url].
 
-### A Simple Example
+### Example Application
 
-To use the package simply import the files you are interested in. Here is an example on how to create a Rules-Protocol compatible ERC20:
-
-```c
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.24;
-
-import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
-
-/**
- * @title Example ERC20 ApplicationERC20
- * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett @mpetersoCode55
- * @notice This is an example implementation that App Devs should use.
- * @dev During deployment _tokenName _tokenSymbol _appManagerAddress _handlerAddress are set in constructor
- */
-contract ApplicationERC20 is ProtocolERC20 {
-    /**
-     * @dev Constructor sets params
-     * @param _name Name of the token
-     * @param _symbol  Symbol of the token
-     * @param _appManagerAddress App Manager address
-     */
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _appManagerAddress
-    ) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
-
-}
-```
-
-As you can see, everything is already encapsulated inside the:
-
-```c
-import "@thrackle-io/rules-protocol-client/src/client/token/ERC20/ProtocolERC20.sol";
-```
-
-All you need to do is to inherit the right contract and implement any necessary function. In this case, the `mint` function.
+To deploy the Rules Engine and an example application, perform the following steps: 
+1. Deploy the [Rules Engine](docs/userGuides/deployment/DEPLOY-PROTOCOL.md) locally.
+2. Deploy the [Example Application](docs/userGuides/deployment/DEPLOY-EXAMPLE.md) locally.
 
 ## Contributing
 
