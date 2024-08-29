@@ -143,7 +143,7 @@ contract ProtocolERC721U is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
+        if (handlerAddress != address(0)) require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign

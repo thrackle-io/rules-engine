@@ -41,8 +41,7 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
     // slither-disable-next-line calls-loop
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
-        // if (handlerAddress != address(0)) 
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        if (handlerAddress != address(0)) require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
