@@ -113,7 +113,6 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IApplicatio
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }

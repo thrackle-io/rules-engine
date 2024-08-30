@@ -175,7 +175,6 @@ contract ProtocolERC721U is
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));

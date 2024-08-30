@@ -58,7 +58,6 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external override appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));

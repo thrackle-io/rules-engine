@@ -57,7 +57,7 @@ abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvent
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external virtual appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        // if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }

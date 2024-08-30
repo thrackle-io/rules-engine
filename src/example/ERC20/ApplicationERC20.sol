@@ -59,9 +59,11 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
     function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
-        if (FeesFacet(handlerAddress).isFeeActive()) {
-            // return the adjusted amount after fees
-            amount = _handleFees(owner, amount);
+        if (handlerAddress != address(0)) {
+            if (FeesFacet(handlerAddress).isFeeActive()) {
+                // return the adjusted amount after fees
+                amount = _handleFees(owner, amount);
+            }
         }
         _transfer(owner, to, amount);
         return true;
@@ -87,9 +89,11 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
-        if (FeesFacet(handlerAddress).isFeeActive()) {
-            // return the adjusted amount after fees
-            amount = _handleFees(from, amount);
+        if (handlerAddress != address(0)) {
+            if (FeesFacet(handlerAddress).isFeeActive()) {
+                // return the adjusted amount after fees
+                amount = _handleFees(from, amount);
+            }
         }
         _transfer(from, to, amount);
         return true;
@@ -149,7 +153,7 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        // if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }

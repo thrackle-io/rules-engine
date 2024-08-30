@@ -29,7 +29,7 @@ contract MinimalERC20 is ERC20, ProtocolTokenCommon, ERC20Burnable {
      // slither-disable-next-line calls-loop
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
-        require(ERC20HandlerMainFacet(address(_handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        if (handlerAddress != address(0)) require(ERC20HandlerMainFacet(address(_handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -38,8 +38,8 @@ contract MinimalERC20 is ERC20, ProtocolTokenCommon, ERC20Burnable {
      * @param _handlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _handlerAddress) external override(ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
-        if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IProtocolTokenHandler(_handlerAddress);
+        handlerAddress = _handlerAddress;
         emit AD1467_HandlerConnected(_handlerAddress, address(this));
     }
 

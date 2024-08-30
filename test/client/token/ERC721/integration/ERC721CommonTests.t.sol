@@ -2653,6 +2653,28 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(totalValuation, 10173620000000000000000000); // get a free valuation assertion while we're here
     }
 
+    function testERC721_ERC721CommonTests_Toggle_Negative() public {
+        // Set up the Max Value Out rule and make sure it reverts
+        _setUpAccountMaxValueOutByAccessLevelRule(ActionTypes.P2P_TRANSFER);
+        switchToAppAdministrator();
+        UtilApplicationERC721(address(testCaseNFT)).safeMint(user); 
+        UtilApplicationERC721(address(testCaseNFT)).safeMint(user);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 0, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(testCaseNFT), 1, 1 * ATTO);
+        switchToAccessLevelAdmin(); 
+        applicationAppManager.addAccessLevel(user, 0);
+        applicationAppManager.addAccessLevel(user2, 2);
+        switchToUser();
+        UtilApplicationERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 1);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
+        UtilApplicationERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+        // Toggle protocol and make sure it works
+        switchToAppAdministrator();
+        UtilApplicationERC721(address(testCaseNFT)).connectHandlerToToken(address(0));
+        switchToUser();
+        UtilApplicationERC721(address(testCaseNFT)).safeTransferFrom(user, user2, 0);
+    }
+
     /// INTERNAL HELPER FUNCTIONS
     function _approveTokens(DummyNFTAMM _amm, uint256 amountERC20, bool _isApprovalERC721) internal {
         applicationCoin.approve(address(_amm), amountERC20);

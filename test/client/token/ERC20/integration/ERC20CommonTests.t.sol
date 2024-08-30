@@ -2343,6 +2343,18 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         }
     }
 
+    function testERC20_ERC20CommonTests_Toggle_Negative() public {
+        // set up a pause rule and make sure it works
+        _pauseRuleSetup();
+        vm.startPrank(user1, user1);
+        bytes4 selector = bytes4(keccak256("ApplicationPaused(uint256,uint256)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, Blocktime + 1000, Blocktime + 1500));
+        testCaseToken.transfer(user2, 1000);
+        /// toggle the token and check again
+        switchToAppAdministrator();
+        ApplicationERC20(address(testCaseToken)).connectHandlerToToken(address(0));
+        testCaseToken.transfer(user2, 1000);
+    }
     /// Utility Helper Functions
     function _tokenMinTransactionSetup(ActionTypes action) private endWithStopPrank returns (DummyAMM) {
         /// We add the empty rule at index 0
@@ -2833,4 +2845,5 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.expectRevert("UNAUTHORIZED");
         TradingRuleFacet(address(applicationCoinHandler)).checkTradingRules(user1, user, user, createBytes32Array("Tayler"), createBytes32Array("Michael"), 10, ActionTypes.P2P_TRANSFER);
     }
+    
 }

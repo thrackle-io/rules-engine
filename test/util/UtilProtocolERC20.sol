@@ -47,7 +47,7 @@ contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Prot
     // slither-disable-next-line calls-loop
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
-        require(ERC20HandlerMainFacet(handlerAddress).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        if (handlerAddress != address(0)) require(ERC20HandlerMainFacet(handlerAddress).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -73,9 +73,11 @@ contract UtilProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Prot
     function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
-        if (FeesFacet(handlerAddress).isFeeActive()) {
-            // return the adjusted amount after fees
-            amount = _handleFees(owner, amount);
+        if (handlerAddress != address(0)) {
+            if (FeesFacet(handlerAddress).isFeeActive()) {
+                // return the adjusted amount after fees
+                amount = _handleFees(owner, amount);
+            }
         }
         _transfer(owner, to, amount);
         return true;
