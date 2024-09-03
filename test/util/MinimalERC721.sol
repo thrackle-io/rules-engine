@@ -38,7 +38,7 @@ contract MinimalERC721 is ERC721, ProtocolTokenCommon, ERC721Burnable, ERC721Enu
      // slither-disable-next-line calls-loop
         function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) {
         /// Rule Processor Module Check
-        require(IHandlerDiamond(_handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+        if (handlerAddress != address(0)) require(IHandlerDiamond(_handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
@@ -47,8 +47,8 @@ contract MinimalERC721 is ERC721, ProtocolTokenCommon, ERC721Burnable, ERC721Enu
      * @param _handlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _handlerAddress) external override(ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
-        if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IHandlerDiamond(_handlerAddress);
+        handlerAddress = _handlerAddress;
         emit AD1467_HandlerConnected(_handlerAddress, address(this));
     }
 

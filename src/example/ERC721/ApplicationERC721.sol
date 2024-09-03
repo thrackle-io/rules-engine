@@ -81,7 +81,7 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IApplicatio
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) {
         // Rule Processor Module Check
-        require(IProtocolTokenHandler(handlerAddress).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+        if (handlerAddress != address(0)) require(IProtocolTokenHandler(handlerAddress).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
@@ -113,7 +113,6 @@ contract ApplicationERC721 is ERC721, AccessControl, IProtocolToken, IApplicatio
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }

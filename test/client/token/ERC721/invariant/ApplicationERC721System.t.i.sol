@@ -75,14 +75,6 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
         assertEq(user1AppManagerAddress, address(applicationAppManager)); 
     }
 
-    // Once the handler address is set to a non zero address, Handler address can never be zero address
-    function invariant_ERC721_external_CannotConnectHandlerToZeroAddress() public {
-        switchToAppAdministrator();
-        vm.expectRevert(abi.encodeWithSignature("ZeroAddress()"));
-        applicationNFT.connectHandlerToToken(address(0x0));
-        assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler)); 
-    }
-
     // Only an App Admin can propose a new AppManager
     function invariant_ERC721_external_ProposeAppManager_OnlyAppAdmin() public {
         address newAppManagerAddress = address(0x7775);

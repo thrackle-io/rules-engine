@@ -130,7 +130,7 @@ contract ProtocolERC721UExtra is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+        if (handlerAddress != address(0)) require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }

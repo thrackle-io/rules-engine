@@ -41,7 +41,7 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
     // slither-disable-next-line calls-loop
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        if (handlerAddress != address(0)) require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -58,7 +58,6 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external override appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
