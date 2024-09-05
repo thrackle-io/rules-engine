@@ -38,9 +38,9 @@ contract ApplicationDeployPricingScript is Script {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
-        vm.startBroadcast(privateKey);
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.startBroadcast(appAdminKey);
         /// Retrieve App Manager deployed from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationHandler applicationHandler = ApplicationHandler(vm.envAddress("APPLICATION_APPLICATION_HANDLER"));
@@ -53,10 +53,6 @@ contract ApplicationDeployPricingScript is Script {
         // exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"), 5 * (10 ** 18));
 
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
-        vm.stopBroadcast();
-        vm.startBroadcast(appAdminKey);
         applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
         
         ruleAdminKey = vm.envUint("LOCAL_RULE_ADMIN_KEY");
