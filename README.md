@@ -67,7 +67,14 @@ Please visit our [Contributor Guide][contributorGuide-url].
 
 ## Licensing
 
-TBD
+The primary license for Forte Protocol Rules Engine is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE`](./LICENSE). However, some files are dual licensed under `GPL-2.0-or-later`:
+
+- All files in `src/example/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers), see [`src/example/LICENSE`](./src/example/LICENSE)
+
+### Other Exceptions
+
+- All files in `lib/` are licensed under `MIT` (as indicated in its SPDX header), see [`contracts/libraries/LICENSE_MIT`](contracts/libraries/LICENSE_MIT)
+- All files in `contracts/test` remain unlicensed (as indicated in their SPDX headers).
 
 <!-- These are the body links -->
 
