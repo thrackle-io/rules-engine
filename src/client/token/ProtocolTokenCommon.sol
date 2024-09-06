@@ -57,6 +57,7 @@ abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvent
      * @notice This function does not check for zero address. Zero address is a valid address for this function's purpose. 
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
+     // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external virtual appAdministratorOnly(appManagerAddress) {
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
