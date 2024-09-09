@@ -73,7 +73,7 @@ The primary license for Forte Protocol Rules Engine is the Business Source Licen
 
 ### Other Exceptions
 
-- All files in `lib/` are licensed under `MIT` (as indicated in its SPDX header), see [`contracts/libraries/LICENSE_MIT`](contracts/libraries/LICENSE_MIT)
+- All files in `lib/` are licensed under `MIT` (as indicated in its SPDX header), see [`lib/LICENSE_MIT`](lib/LICENSE_MIT)
 - All files in `src/example/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers), see [src/example/LICENSE](src/example/LICENSE)
 Other Exceptions
 - All files in `contracts/test` remain unlicensed (as indicated in their SPDX headers).
