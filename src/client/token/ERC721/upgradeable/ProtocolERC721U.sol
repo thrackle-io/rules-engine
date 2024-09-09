@@ -175,7 +175,7 @@ contract ProtocolERC721U is
      * @notice This function does not check for zero address. Zero address is a valid address for this function's purpose.
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
-     // slither-disable-next-line missing-zero-check
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);

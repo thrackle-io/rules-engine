@@ -57,6 +57,7 @@ contract ProtocolERC20UMin is Initializable, ERC20Upgradeable, ProtocolTokenComm
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external override appAdministratorOnly(appManagerAddress) {
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);

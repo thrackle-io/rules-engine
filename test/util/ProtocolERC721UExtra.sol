@@ -156,6 +156,7 @@ contract ProtocolERC721UExtra is
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;

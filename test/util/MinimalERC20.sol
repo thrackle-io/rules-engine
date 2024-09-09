@@ -33,10 +33,11 @@ contract MinimalERC20 is ERC20, ProtocolTokenCommon, ERC20Burnable {
         super._beforeTokenTransfer(from, to, amount);
     }
 
-        /**
+    /**
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _handlerAddress) external override(ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
         _handler = IProtocolTokenHandler(_handlerAddress);
         handlerAddress = _handlerAddress;

@@ -34,6 +34,7 @@ contract MinimalERC721Legacy is ERC721, ERC721Burnable, ERC721Enumerable{
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
