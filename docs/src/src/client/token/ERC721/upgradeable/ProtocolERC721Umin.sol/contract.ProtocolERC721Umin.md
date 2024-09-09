@@ -1,5 +1,5 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/ea7b4b1d8c8b9c92a6391cd0b67fbb323cf4419d/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/1f87ef51d3f81854db8d1b233a920d59919e0ac3/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
 
 **Inherits:**
 Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/abstract.ProtocolTokenCommonU.md), ReentrancyGuard
@@ -97,6 +97,8 @@ function getHandlerAddress() external view returns (address);
 
 
 ### connectHandlerToToken
+
+This function does not check for zero address. Zero address is a valid address for this function's purpose.
 
 *Function to connect Token to previously deployed Handler contract*
 

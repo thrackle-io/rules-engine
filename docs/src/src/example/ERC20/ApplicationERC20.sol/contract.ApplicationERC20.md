@@ -1,8 +1,8 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/ea7b4b1d8c8b9c92a6391cd0b67fbb323cf4419d/src/example/ERC20/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/1f87ef51d3f81854db8d1b233a920d59919e0ac3/src/example/ERC20/ApplicationERC20.sol)
 
 **Inherits:**
-ERC20, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, [ITokenEvents](/src/common/IEvents.sol/interface.ITokenEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md)
+ERC20, ERC20Burnable, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, [ITokenEvents](/src/common/IEvents.sol/interface.ITokenEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @Palmerg4
@@ -65,7 +65,7 @@ function mint(address to, uint256 amount) public virtual;
 
 TRANSFER FUNCTION GROUP START
 
-*This is overridden from [IERC20-transfer](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transfer](/lib/forge-std/src/mocks/MockERC20.sol/contract.MockERC20.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Requirements:
 - `to` cannot be the zero address.
 - the caller must have a balance of at least `amount`.*
@@ -77,7 +77,7 @@ function transfer(address to, uint256 amount) public virtual override nonReentra
 
 ### transferFrom
 
-*This is overridden from [IERC20-transferFrom](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transferFrom](/lib/forge-std/src/mocks/MockERC721.sol/contract.MockERC721.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Emits an {Approval} event indicating the updated allowance. This is not
 required by the EIP. See the note at the beginning of {ERC20}.
 NOTE: Does not update the allowance if the current allowance
