@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "src/client/token/IProtocolToken.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
@@ -16,7 +17,7 @@ import "src/client/token/handler/diamond/FeesFacet.sol";
  * @notice This is an example implementation that App Devs should use.
  * @dev During deployment _tokenName _tokenSymbol _tokenAdmin are set in constructor
  */
-contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressError, ReentrancyGuard, ITokenEvents, IApplicationEvents {
+contract ApplicationERC20 is ERC20, ERC20Burnable, AccessControl, IProtocolToken, IZeroAddressError, ReentrancyGuard, ITokenEvents, IApplicationEvents {
 
     bytes32 constant TOKEN_ADMIN_ROLE = keccak256("TOKEN_ADMIN_ROLE");
 
@@ -153,6 +154,7 @@ contract ApplicationERC20 is ERC20, AccessControl, IProtocolToken, IZeroAddressE
      * @notice This function does not check for zero address. Zero address is a valid address for this function's purpose.
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
+     // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));

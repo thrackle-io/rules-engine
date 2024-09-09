@@ -924,11 +924,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         assertEq(applicationNFT.balanceOf(user), 5);
         // add a blocked address
         badBoys.push(address(70));
-        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            switchToSuperAdmin();
-        } else {
-            switchToAppAdministrator();
-        }
+    
+        switchToAppAdministrator();
+        
         oracleDenied.addToDeniedList(badBoys);
         switchToAppAdministrator();
         // add the rule.
@@ -948,11 +946,9 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         assertEq(applicationNFT.balanceOf(user), 5);
         // add a blocked address
         badBoys.push(address(70));
-        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            switchToSuperAdmin();
-        } else {
-            switchToAppAdministrator();
-        }
+        
+        switchToAppAdministrator();
+        
         oracleDenied.addToDeniedList(badBoys);
         switchToAppAdministrator();
         // add the rule.
@@ -972,11 +968,8 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         }
         assertEq(applicationNFT.balanceOf(user), 5);
         goodBoys.push(address(59));
-        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            switchToSuperAdmin();
-        } else {
-            switchToAppAdministrator();
-        }
+        switchToAppAdministrator();
+
         oracleApproved.addToApprovedList(goodBoys);
         switchToAppAdministrator();
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
