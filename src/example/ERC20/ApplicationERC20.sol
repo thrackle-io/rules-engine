@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -154,7 +154,7 @@ contract ApplicationERC20 is ERC20, ERC20Burnable, AccessControl, IProtocolToken
      * @notice This function does not check for zero address. Zero address is a valid address for this function's purpose.
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
-     // slither-disable-next-line missing-zero-check
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _deployedHandlerAddress) external override onlyRole(TOKEN_ADMIN_ROLE) {
         handlerAddress = _deployedHandlerAddress;
         emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));

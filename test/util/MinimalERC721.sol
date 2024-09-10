@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -42,10 +42,11 @@ contract MinimalERC721 is ERC721, ProtocolTokenCommon, ERC721Burnable, ERC721Enu
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-        /**
+    /**
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */
+    // slither-disable-next-line missing-zero-check
     function connectHandlerToToken(address _handlerAddress) external override(ProtocolTokenCommon) appAdministratorOnly(appManagerAddress) {
         _handler = IHandlerDiamond(_handlerAddress);
         handlerAddress = _handlerAddress;
