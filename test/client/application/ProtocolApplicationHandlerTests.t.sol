@@ -20,17 +20,17 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
         switchToAppAdministrator();
 
         vm.expectEmit();
-        emit AD1467_UpgradedToVersion(appAdministrator, "2.0.0");
-        (success, ) = address(applicationCoinHandler).call(abi.encodeWithSignature("updateVersion(string)", "2.0.0"));
+        emit AD1467_UpgradedToVersion(appAdministrator, "2.1.0");
+        (success, ) = address(applicationCoinHandler).call(abi.encodeWithSignature("updateVersion(string)", "2.1.0"));
         assertTrue(success);
 
         vm.expectEmit();
-        emit AD1467_UpgradedToVersion(appAdministrator, "2.0.0");
-        (success, ) = address(applicationNFTHandler).call(abi.encodeWithSignature("updateVersion(string)", "2.0.0"));
+        emit AD1467_UpgradedToVersion(appAdministrator, "2.1.0");
+        (success, ) = address(applicationNFTHandler).call(abi.encodeWithSignature("updateVersion(string)", "2.1.0"));
         assertTrue(success);
 
-        vm.assertEq(HandlerVersionFacet(address(applicationCoinHandler)).version(), "2.0.0");
-        vm.assertEq(HandlerVersionFacet(address(applicationNFTHandler)).version(), "2.0.0");
+        vm.assertEq(HandlerVersionFacet(address(applicationCoinHandler)).version(), "2.1.0");
+        vm.assertEq(HandlerVersionFacet(address(applicationNFTHandler)).version(), "2.1.0");
     }
 
     // note: make a test for get acc total valuation 
