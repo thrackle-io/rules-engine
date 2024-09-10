@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/eddb7b007d5e1a45b26b48a2e20785ba6487ee41/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/3a9da30daa774fa67b31c000e53f0c753deac1be/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IIntegrationEvents](/src/common/IEvents.sol/interface.IIntegrationEvents.md), ReentrancyGuard

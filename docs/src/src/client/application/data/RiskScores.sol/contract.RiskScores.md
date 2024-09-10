@@ -1,5 +1,5 @@
 # RiskScores
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/eddb7b007d5e1a45b26b48a2e20785ba6487ee41/src/client/application/data/RiskScores.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/3a9da30daa774fa67b31c000e53f0c753deac1be/src/client/application/data/RiskScores.sol)
 
 **Inherits:**
 [IRiskScores](/src/client/application/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)
