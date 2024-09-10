@@ -14,3 +14,19 @@
 
 ### Removed
 - ProtocolERC20 was removed in favor of minimalistic integration strategies
+
+## 2.1.0 - 2024-09-10
+
+### Changed
+- Example tokens to incorporate a protocol toggle 
+- Protocol contracts were changed to have increased visibility for several storage variables
+- Additional documentation added to README
+
+### Added
+- Licensing
+- Version 2.0.0 Deployment information for Arbitrum Sepolia
+- Version 2.0.0 Deployment information for Optimism Sepolia
+- Version 2.0.0 Deployment information for Binance Smart Chain Test
+- Version 2.0.0 Deployment information for Ethereum Sepolia
+- Version 2.0.0 Deployment information for Polygon Amoy
+- Version 2.1.0 Deployment information for Ethereum 
