@@ -16,5 +16,5 @@ Protocol supported tokens will always assess all fees asigned to the account exe
 
 
 <!-- These are the header links -->
-[version-image]: https://img.shields.io/badge/Version-2.0.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-2.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/rules-engine

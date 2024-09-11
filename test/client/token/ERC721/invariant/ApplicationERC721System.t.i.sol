@@ -35,7 +35,7 @@ contract ApplicationERC721SystemInvariantTest is ApplicationERC721Common {
     function invariant_ERC721_external_VersionCanBeCalledByAnyUser() public {
         vm.startPrank(USER1, USER1);
         bytes memory version = bytes(VersionFacet(address(applicationNFTHandler)).version());
-        assertEq(version, "2.0.0"); 
+        assertEq(version, "2.1.0"); 
     }
 
     // Only app admins may connect a handler

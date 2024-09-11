@@ -158,7 +158,7 @@ contract ApplicationERC721TokenDeploymentTest is Test, TestCommonFoundry, ERC721
 
             switchToAppAdministrator();
     
-            HandlerVersionFacet(address(applicationNFTHandler)).updateVersion("2.0.0");
+            HandlerVersionFacet(address(applicationNFTHandler)).updateVersion("2.1.0");
             erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
             forkTest = true;
             testDeployments = true;

@@ -18,7 +18,7 @@ contract ERC20PricingTest is TestCommonFoundry {
 
     function testPricing_ERC20Pricing_PricerVersion() public view {
         string memory version = uniBase.version();
-        assertEq(version, "2.0.0");
+        assertEq(version, "2.1.0");
     }
 
     /// Testing setting the price for a single token under the right conditions

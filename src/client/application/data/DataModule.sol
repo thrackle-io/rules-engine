@@ -16,7 +16,7 @@ abstract contract DataModule is Ownable, IOwnershipErrors, IZeroAddressError {
     error AppManagerNotConnected();
     error NotAppAdministratorOrOwner();
 
-    string private constant VERSION="2.0.0";
+    string private constant VERSION="2.1.0";
     address public immutable dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     // slither-disable-next-line constable-states
