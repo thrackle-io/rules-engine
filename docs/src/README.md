@@ -28,7 +28,7 @@ foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
 ```
  
 2.  Scripting Requirements
-    1.  `eth-abi 4.2.1`
+    1.  `eth-abi 5.1.0`
     2.  `jq 1.6.0`
     3.  `python-dotenv 1.0.1`
 
