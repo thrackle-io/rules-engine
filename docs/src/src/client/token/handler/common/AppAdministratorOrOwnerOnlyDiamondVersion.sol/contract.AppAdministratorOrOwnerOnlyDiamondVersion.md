@@ -1,5 +1,5 @@
 # AppAdministratorOrOwnerOnlyDiamondVersion
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/8e8136863cc533050498938ef97f694c7b6600c3/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/459b520a7107e726ba8e04fbad518d00575c4ce1/src/client/token/handler/common/AppAdministratorOrOwnerOnlyDiamondVersion.sol)
 
 **Inherits:**
 ERC173, [RBACModifiersCommonImports](/src/client/token/handler/common/RBACModifiersCommonImports.sol/abstract.RBACModifiersCommonImports.md), [FacetUtils](/src/client/token/handler/common/FacetUtils.sol/contract.FacetUtils.md)
