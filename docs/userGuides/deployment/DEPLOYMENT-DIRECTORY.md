@@ -5,6 +5,9 @@
 | :--- |:----------------|:---------------------| :--- | 
 | v2.1.0 | Ethereum | RuleProcessorDiamond | 0x5957442a67f2435F13B9cD80Ae1D3150EeaDAF01
 | v2.1.0 | Polygon POS    | RuleProcessorDiamond | 0x009104880BDF3Ee33C6D215C475efA7AA56B3BeE
+| v2.1.0 | Optimism Sepolia | RuleProcessorDiamond | 0xB720aCc5fdDEeeB949F58B5424f18c70E89e5b9b
+| v2.1.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb
+| v2.1.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8
 | v2.0.0 | Optimism Sepolia | RuleProcessorDiamond | 0xB720aCc5fdDEeeB949F58B5424f18c70E89e5b9b
 | v2.0.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb
 | v2.0.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8
