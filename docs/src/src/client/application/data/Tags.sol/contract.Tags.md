@@ -1,5 +1,5 @@
 # Tags
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/af2c902a06ffbdb4f9de3bdbb6a20c476a93b949/src/client/application/data/Tags.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/54db83a2c72adaf3bc2196e69cb3cf728347d98b/src/client/application/data/Tags.sol)
 
 **Inherits:**
 [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [ITags](/src/client/application/data/ITags.sol/interface.ITags.md), [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md), [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)
