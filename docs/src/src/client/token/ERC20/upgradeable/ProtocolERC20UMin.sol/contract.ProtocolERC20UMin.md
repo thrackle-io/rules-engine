@@ -1,5 +1,5 @@
 # ProtocolERC20UMin
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/54db83a2c72adaf3bc2196e69cb3cf728347d98b/src/client/token/ERC20/upgradeable/ProtocolERC20UMin.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/0add9b8cd140006448dad92dd54fc23fca23f012/src/client/token/ERC20/upgradeable/ProtocolERC20UMin.sol)
 
 **Inherits:**
 Initializable, ERC20Upgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/abstract.ProtocolTokenCommonU.md), ReentrancyGuard

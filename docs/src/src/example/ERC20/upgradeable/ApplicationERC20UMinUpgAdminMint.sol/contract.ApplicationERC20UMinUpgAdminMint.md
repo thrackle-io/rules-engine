@@ -1,5 +1,5 @@
 # ApplicationERC20UMinUpgAdminMint
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/54db83a2c72adaf3bc2196e69cb3cf728347d98b/src/example/ERC20/upgradeable/ApplicationERC20UMinUpgAdminMint.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/0add9b8cd140006448dad92dd54fc23fca23f012/src/example/ERC20/upgradeable/ApplicationERC20UMinUpgAdminMint.sol)
 
 **Inherits:**
 [ApplicationERC20UMin](/src/example/ERC20/upgradeable/ApplicationERC20UMin.sol/contract.ApplicationERC20UMin.md)
