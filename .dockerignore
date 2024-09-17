@@ -1,0 +1,47 @@
+# Python Virtual Env is recreated within container builds
+.venv
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Other files
+.env
+.DS_Store
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Output of Echidna compilation
+crytic-export/
+
+# Output of Echidna test reports
+test/echidna/reports/
+
+# Dependency directories (remove the comment below to include it)
+cache/
+out/
+broadcast/
+
+#npm deps
+node_modules/
