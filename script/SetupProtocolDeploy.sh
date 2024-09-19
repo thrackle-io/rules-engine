@@ -1,9 +1,9 @@
 #!/bin/bash
-
+# NOTE: The addresses and private keys used here are the default Anvil accounts
 ENV_FILE=".env"
 
-OWNER=$(sed -n 's/ANVIL_ADDRESS_0=//p' .env)
-OWNER_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_0=//p' .env) 
+OWNER="0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+OWNER_PRIVATE_KEY="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" 
 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
@@ -14,8 +14,8 @@ else
   sed -i 's/^DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$OWNER_PRIVATE_KEY'/g' $ENV_FILE
 fi
 
-APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_1=//p' .env)
-APP_ADMIN_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_1=//p' .env) 
+APP_ADMIN="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+APP_ADMIN_PRIVATE_KEY="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d" 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
   sed -i '' 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
@@ -25,8 +25,8 @@ else
   sed -i 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
 fi
 
-CONFIG_APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_4=//p' .env)
-CONFIG_APP_ADMIN_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_4=//p' .env)
+CONFIG_APP_ADMIN="0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65"
+CONFIG_APP_ADMIN_KEY="0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a"
 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
@@ -37,8 +37,8 @@ else
   sed -i 's/^CONFIG_APP_ADMIN_KEY=.*/CONFIG_APP_ADMIN_KEY='$CONFIG_APP_ADMIN_KEY'/g' $ENV_FILE
 fi
 
-LOCAL_RULE_ADMIN=$(sed -n 's/ANVIL_ADDRESS_3=//p' .env)
-LOCAL_RULE_ADMIN_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_3=//p' .env) 
+LOCAL_RULE_ADMIN="0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc"
+LOCAL_RULE_ADMIN_KEY="0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba" 
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
   sed -i '' 's/^LOCAL_RULE_ADMIN=.*/LOCAL_RULE_ADMIN='$LOCAL_RULE_ADMIN'/g' $ENV_FILE
