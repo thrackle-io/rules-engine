@@ -8,6 +8,7 @@
 | v2.1.0 | Optimism Sepolia | RuleProcessorDiamond | 0xB720aCc5fdDEeeB949F58B5424f18c70E89e5b9b
 | v2.1.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb
 | v2.1.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8
+| v2.1.0 | Ethereum Sepolia| RuleProcessorDiamond | 0xd0dce3e14af7ffb89537c5b97aafdaf337b842e4
 | v2.0.0 | Optimism Sepolia | RuleProcessorDiamond | 0xB720aCc5fdDEeeB949F58B5424f18c70E89e5b9b
 | v2.0.0 | Binance Smart Chain Test | RuleProcessorDiamond | 0x48a5b6ff163fea7fda84af45b04945e7f81aa1eb
 | v2.0.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8

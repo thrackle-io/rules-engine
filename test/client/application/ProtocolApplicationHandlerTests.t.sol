@@ -35,7 +35,7 @@ contract ProtocolApplicationHandlerTests is TestCommonFoundry {
 
     // note: make a test for get acc total valuation 
     function test_getAccTotalValuation_SlamWithTokensFindGasBreakageValueLimitLow() public {
-        uint loops = vm.envOr("SLAM_TOKEN_LOOPS", uint(20));
+        uint loops = uint(20);
         for (uint i = 0; i < loops; ++i) {
             switchToAppAdministrator();
             (UtilApplicationERC721 TestNFTCoin, ) = deployAndSetupERC721(string.concat("TestNFT", Strings.toString(i)), string.concat("TESTNFT", Strings.toString(i)));
