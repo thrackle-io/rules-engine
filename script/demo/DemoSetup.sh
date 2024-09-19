@@ -17,7 +17,7 @@ echo "################################################################"
 echo Running foundryUp
 echo "################################################################"
 echo
-foundryup --commit $(awk '$1~/^[^#]/' foundry.lock) &> /dev/null
+foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock) &> /dev/null
 
 echo "Is this a local deployment (y or n)?"
 read LOCAL

@@ -42,7 +42,7 @@ RUN cargo install \
 FROM foundry-base as compile
 COPY . .
 RUN chmod -R a+x docker-scripts
-RUN ./docker-scripts/compile.sh
+RUN script/docker/compile.sh
 
 
 
@@ -74,7 +74,7 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 FROM compile as check-deploy
 ENV FOUNDRY_PROFILE=local
-CMD ["./docker-scripts/check-deploy.sh"]
+CMD ["script/docker/check-deploy.sh"]
 
 
 
@@ -95,7 +95,7 @@ CMD ["./docker-scripts/check-deploy.sh"]
 
 FROM compile as deploy
 ENV FOUNDRY_PROFILE=docker
-CMD ["./docker-scripts/deploy.sh"]
+CMD ["script/docker/deploy.sh"]
 
 
 
@@ -124,5 +124,5 @@ ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_REGION}
 
-CMD ["./docker-scripts/run-necessist.sh"]
+CMD ["src/docker/run-necessist.sh"]
 

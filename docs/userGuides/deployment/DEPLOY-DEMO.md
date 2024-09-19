@@ -35,7 +35,7 @@ A demo script is provided that sets up the protocol, several protocol supported 
 
 [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
 
-`foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)` 
+`foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)` 
 
 _Note: `awk` in the above command is used to ignore comments in `foundry.lock`_
 

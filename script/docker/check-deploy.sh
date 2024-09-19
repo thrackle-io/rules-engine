@@ -4,7 +4,7 @@ FOUNDRY_PROFILE=local
 anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
 sleep 2
 
-./docker-scripts/deploy.sh > /dev/null
+script/docker/deploy.sh > /dev/null
 
 source .venv/bin/activate
 

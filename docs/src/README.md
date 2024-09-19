@@ -24,7 +24,7 @@ This package requires the following:
     NOTE: In order to ensure full support, run this command to get the correct Foundry version:
 
 ```c
-foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)
+foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
 ```
  
 2.  Scripting Requirements
