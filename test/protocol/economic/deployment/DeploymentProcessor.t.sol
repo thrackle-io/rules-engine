@@ -26,15 +26,32 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
             user1 = vm.envAddress("ANVIL_ADDRESS_2");
             user2 = vm.envAddress("ANVIL_ADDRESS_3");
+            ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("RULE_PROCESSOR_DIAMOND")));
+            ruleProcessorDiamondAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
+            assertEq(ruleProcessorDiamondAddress, vm.envAddress("RULE_PROCESSOR_DIAMOND"));
+
+            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("APPLICATION_APP_MANAGER")));
             applicationNFT = UtilApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
             applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721_HANDLER")));
             applicationCoin = UtilApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));
-            ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
-            ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
             oracleApproved = OracleApproved(vm.envAddress("APPLICATION_ORACLE_ALLOWED_ADDRESS"));
             oracleDenied = OracleDenied(vm.envAddress("APPLICATION_ORACLE_DENIED_ADDRESS"));
-            assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
-            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("APPLICATION_APP_MANAGER")));
+            // This block will run if any application addresses are 0x00 in .env file 
+            // This allows for the rule processor tests to work when only the rule processor is deployed to a target chain 
+            // Update DEPLOYMENT_OWNER, and RULE_PROCESSOR_DIAMOND in .env only to run tests with locally created App ecosystem
+            if (address(applicationAppManager) == address(0x0) || 
+                address(applicationNFT) == address(0x0) || 
+                address(applicationCoin) == address(0x0)) {
+                    // First reset the addresses back to anvil addresses
+                    appAdministrator = address(0xDEAD);
+                    ruleAdmin = address(0xACDC);
+                    user1 = address(11);
+                    user2 = address(22);
+                    // Second deploy new application and tokens 
+                    setUpAppManagerAndCreateTokensAndHandlers();
+            }
+            
+
             forkTest = true;
             testDeployments = true;
         } else {
