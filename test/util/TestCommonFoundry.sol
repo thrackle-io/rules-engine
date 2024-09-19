@@ -267,17 +267,6 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
         applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
     }
 
-    /**
-     * @dev Deploy and set up the AppManager
-     */
-    function setUpAppManager() public endWithStopPrank {
-        switchToSuperAdmin();
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
-    }
-
     function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public endWithStopPrank {
         setUpProtocolAndAppManager();
         (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
@@ -374,15 +363,16 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
 
     /**
      * @dev Deploy and set up an AppManager
-     * @param _ruleProcessor rule processor
      * @return _appManager fully configured app manager
      */
-    function createAppManager(RuleProcessorDiamond _ruleProcessor) public returns (ApplicationAppManager _appManager) {
+    function createAppManager() public returns (ApplicationAppManager _appManager) {
         switchToSuperAdmin();
-        ApplicationAppManager a = _createAppManager();
-        a.setNewApplicationHandlerAddress(address(_createAppHandler(_ruleProcessor, a)));
+        applicationAppManager = _createAppManager();
+        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
+        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
+        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
         vm.stopPrank();
-        return a;
+        return applicationAppManager;
     }
 
     ///--------------SPECIALIZED CREATE FUNCTIONS---------------
@@ -537,7 +527,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank, EnabledActi
      * @dev Deploy and set up App Manager, 2 ERC20 tokens and ERC721 Token with handlers
      */
     function setUpAppManagerAndCreateTokensAndHandlers() public endWithStopPrank {
-        setUpAppManager();
+        createAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
