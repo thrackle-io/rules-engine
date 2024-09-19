@@ -23,7 +23,6 @@ coverage.xml
 .hypothesis
 
 # Other files
-.env
 .DS_Store
 # Test binary, built with `go test -c`
 *.test
