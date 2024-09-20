@@ -20,11 +20,11 @@
     "src/protocol/economic/RuleAdministratorOnly.sol",
     "src/protocol/economic/AppAdministratorOnlyU.sol",
     "src/protocol/economic/ruleProcessor/RuleCodeData.sol",
-    "script/versioning/to_relative.sh"
+    "script/versioning/.sh"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "chmod +x to_relative.sh & ./to_relative.sh"
+    "install": "chmod +x script/versioning/to_relative.sh & ./to_relative.sh"
   },
   "repository": {},
   "author": "Thrackle",

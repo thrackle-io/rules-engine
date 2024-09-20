@@ -28,7 +28,7 @@
 
    1. Make sure `foundry.lock` is set to an appropriate version, then update Foundry.
 
-      `./foundry-version-check.sh`
+      `script/foundryScripts/foundry-version-check.sh`
 
    2. Generate the docs:
 
