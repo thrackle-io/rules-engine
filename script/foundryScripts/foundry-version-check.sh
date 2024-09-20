@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-foundry_pinned_version=$(awk '!/^#/ {print $0; exit}' foundry.lock)
+foundry_pinned_version=$(awk '!/^#/ {print $0; exit}' script/foundryScripts/foundry.lock)
 # `forge --version` refers to the first 8 characters of the commit hash
 foundry_version_short=${foundry_pinned_version:0:8}
 skip_install=${SKIP_INSTALL:-false}

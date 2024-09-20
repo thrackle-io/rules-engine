@@ -19,7 +19,7 @@ RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-ven
 
 WORKDIR /usr/local/src/rules-engine
 
-COPY foundry.lock .
+COPY script/foundryScripts/foundry.lock .
 
 # --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
 RUN cargo install \
