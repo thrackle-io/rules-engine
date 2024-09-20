@@ -24,7 +24,7 @@ COPY foundry.lock .
 # --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
 RUN cargo install \
 	--git https://github.com/foundry-rs/foundry \
-	--rev $(awk '$1~/^[^#]/' foundry.lock) \
+	--rev $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock) \
 	--profile local \
 	--locked forge cast chisel anvil
 
