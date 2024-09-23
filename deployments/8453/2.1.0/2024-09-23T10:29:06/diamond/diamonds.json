@@ -1,0 +1,17 @@
+{
+    "8453": {
+        "ProtocolProcessorDiamond": {
+            "2024-09-23": {
+                "ApplicationRiskProcessorFacet": "0x44d0576b40FB50807db2D1dd36C7630C228D07ab",
+                "ApplicationAccessLevelProcessorFacet": "0x8f10317043a140C8761efA6F378E3d63d17bA652",
+                "ApplicationPauseProcessorFacet": "0x8c7Cc14A0253f112cDc6EA9eAc53550a91db3cfF",
+                "ERC20TaggedRuleProcessorFacet": "0xCD8786EB223099e9dF9F7FcfD6caae3E5759b8F9",
+                "ERC721TaggedRuleProcessorFacet": "0x3caBaDF6cE82D7dcF5342040138CCE49157A5a4C",
+                "RuleApplicationValidationFacet": "0x27A81c8FE6095D227252B775020d3D56dD23AA0e",
+                "RuleDataFacet": "0x0061BBa8Ffa43B957df2327eDEf0AABD94CC30F2",
+                "TaggedRuleDataFacet": "0xdc77b4750C4dE6DaE221483EE3A43092785C3dC8",
+                "AppRuleDataFacet": "0x7B0Ec6D9dB7b1cE69FADEFbd65F3e6D440c5D3b2"
+            }
+        }
+    }
+}

@@ -3,6 +3,8 @@
 
 | Version | Environment     | Contract Name        | Contract Address |
 | :--- |:----------------|:---------------------| :--- | 
+| v2.1.0 | Base Mainnet | RuleProcssorDiamond | 0x474d3c9fd6f35d741058dc2d6496263669ea49b6
+| v2.1.0 | Base Sepolia | RuleProcssorDiamond | 0x8fe43b3bcf8410b913dd1c84dc8af28daafd9777
 | v2.1.0 | Ethereum | RuleProcessorDiamond | 0x5957442a67f2435F13B9cD80Ae1D3150EeaDAF01
 | v2.1.0 | Polygon POS    | RuleProcessorDiamond | 0x009104880BDF3Ee33C6D215C475efA7AA56B3BeE
 | v2.1.0 | Arbitrum Sepolia | RuleProcessorDiamond | 0xb98adff2a1a8e916b0c4ecd5d7b57ab134e2a4c8
