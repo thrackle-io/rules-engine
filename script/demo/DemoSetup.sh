@@ -45,6 +45,12 @@ if [ "$LOCAL" = "y" ]; then
     anvil --gas-limit 80000000 &> ./anvil_output.txt &
     sleep 8
 
+    # Check for the error message in anvil_output.txt
+    if grep -q "Error: Address already in use" anvil_output.txt; then
+        echo "Error: Address already in use. Is anvil running already? Please stop the existing anvil process and try again."
+        exit 1
+    fi
+
     # Parsing anvil output to grab an adress and its private key
     ARRAY=$(cat anvil_output.txt | grep \(0\) | tr '\n' ' ')
     IFS=' ' read -r -a array <<< "$ARRAY"
