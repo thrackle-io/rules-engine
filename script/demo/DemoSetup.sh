@@ -7,7 +7,7 @@ echo a env file will be created with all of the relevant address exports at .tes
 echo "################################################################"
 echo
 
-OUTPUTFILE="test_env"
+OUTPUTFILE=".test_env"
 
 ENV_FILE=".env"
 
