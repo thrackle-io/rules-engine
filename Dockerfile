@@ -35,13 +35,13 @@ RUN cargo install \
 # `compile` layer pulls all of the repo into the container
 # and then runs `forge build` to compile it. This stage will rebuild any 
 # time any file in the repo changes, including this Dockerfile and
-# any of the docker-scripts/ 
+# any of the script/docker/ files
 #
 ################################################
 
 FROM foundry-base as compile
 COPY . .
-RUN chmod -R a+x docker-scripts
+RUN chmod -R a+x script/docker
 RUN script/docker/compile.sh
 
 
