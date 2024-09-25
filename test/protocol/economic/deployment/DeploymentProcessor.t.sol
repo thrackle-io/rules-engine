@@ -24,8 +24,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
             superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("APP_ADMIN");
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
-            user1 = vm.envAddress("ANVIL_ADDRESS_2");
-            user2 = vm.envAddress("ANVIL_ADDRESS_3");
+            user1 = 0x976EA74026E726554dB657fA54763abd0C3a0aa9;// anvil address 2
+            user2 = 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc;// anvil address 3
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("RULE_PROCESSOR_DIAMOND"));

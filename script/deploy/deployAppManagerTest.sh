@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 
 # function to get input from the user
 promptForInput() {
@@ -16,7 +16,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-./foundry-version-check.sh
+script/foundryScripts/foundry-version-check.sh
 
 if [ -n $FOUNDRY_PROFILE ]; then
   RPC_URL="local"

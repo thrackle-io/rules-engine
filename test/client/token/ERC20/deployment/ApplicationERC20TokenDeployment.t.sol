@@ -19,7 +19,7 @@ contract ApplicationERC20TokenDeploymentTest is Test, TestCommonFoundry, ERC20Co
             appAdministrator = vm.envAddress("APP_ADMIN");
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
-            feeSink = vm.envAddress("ANVIL_ADDRESS_4");
+            feeSink = 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65; // anvil default address 4
             applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
             assertEq(vm.envAddress("APPLICATION_APP_MANAGER"), address(applicationAppManager));
             // Verify App Handler has been deployed

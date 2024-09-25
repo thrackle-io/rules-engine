@@ -9,7 +9,7 @@ This guide is intended to be a user-friendly introduction to the rules engine. I
 ## Installation and Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install Python 3.11, Homebrew, and then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
 
-`foundryup --commit $(awk '$1~/^[^#]/' foundry.lock)` 
+`foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)` 
 
 _Note: `awk` in the above command is used to ignore comments in `foundry.lock`_
 
@@ -115,19 +115,7 @@ Besides the deployment of the whole ecosystem, you can also deploy specific part
 ## Command Tools
 
 `.env`
-This contains the basic variables needed for the deploy scripts to work properly. These are the default values for anvil so it is ok for them to be exposed. They are as follows:
-
-```ANVIL_ADDRESS_01=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-ANVIL_PRIVATE_KEY_01=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-RULE_STORAGE_DIAMOND=0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
-RULE_PROCESSOR_DIAMOND=0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f
-ACTION_P2P_TRANSFER=0
-ACTION_BUY=1
-ACTION_SELL=2
-ACTION_MINT=3
-ACTION_BURN=4
-...
-```
+This contains the basic variables needed for the deploy scripts to work properly. 
 
 ---
 ## Monitoring

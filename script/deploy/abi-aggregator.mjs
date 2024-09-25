@@ -1,5 +1,5 @@
 import fs from "fs/promises"
-import pkgjson from './package.json' assert { type: 'json' }
+import pkgjson from '../../package.json' assert { type: 'json' }
 import { existsSync, mkdirSync } from "fs"
 
 const outputDir = `doom-abis/${pkgjson.version}`

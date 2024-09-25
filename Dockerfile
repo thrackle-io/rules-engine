@@ -19,7 +19,7 @@ RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-ven
 
 WORKDIR /usr/local/src/rules-engine
 
-COPY foundry.lock .
+COPY script/foundryScripts/foundry.lock .
 
 # --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
 RUN cargo install \
@@ -35,14 +35,14 @@ RUN cargo install \
 # `compile` layer pulls all of the repo into the container
 # and then runs `forge build` to compile it. This stage will rebuild any 
 # time any file in the repo changes, including this Dockerfile and
-# any of the docker-scripts/ 
+# any of the script/docker/ files
 #
 ################################################
 
 FROM foundry-base as compile
 COPY . .
-RUN chmod -R a+x docker-scripts
-RUN ./docker-scripts/compile.sh
+RUN chmod -R a+x script/docker
+RUN script/docker/compile.sh
 
 
 
@@ -74,7 +74,7 @@ ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
 
 FROM compile as check-deploy
 ENV FOUNDRY_PROFILE=local
-CMD ["./docker-scripts/check-deploy.sh"]
+CMD ["script/docker/check-deploy.sh"]
 
 
 
@@ -95,7 +95,7 @@ CMD ["./docker-scripts/check-deploy.sh"]
 
 FROM compile as deploy
 ENV FOUNDRY_PROFILE=docker
-CMD ["./docker-scripts/deploy.sh"]
+CMD ["script/docker/deploy.sh"]
 
 
 
@@ -124,5 +124,5 @@ ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_REGION}
 
-CMD ["./docker-scripts/run-necessist.sh"]
+CMD ["src/docker/run-necessist.sh"]
 

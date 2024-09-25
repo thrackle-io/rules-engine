@@ -17,7 +17,7 @@ echo "################################################################"
 echo Running foundryUp
 echo "################################################################"
 echo
-foundryup --commit $(awk '$1~/^[^#]/' foundry.lock) &> /dev/null
+foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock) &> /dev/null
 
 echo "Is this a local deployment (y or n)?"
 read LOCAL
@@ -191,8 +191,8 @@ fi
 
 if [ "$LOCAL" = "y" ]; then
 # Setup the APP_ADMIN address in the .env file before starting the Application specific deploy scripts.
-    APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_1=//p' .env)
-    APP_ADMIN_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_1=//p' .env) 
+    APP_ADMIN="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    APP_ADMIN_PRIVATE_KEY="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d" 
 else 
     APP_ADMIN=$APP_ADMIN_1
     APP_ADMIN_PRIVATE_KEY=$APP_ADMIN_1_KEY

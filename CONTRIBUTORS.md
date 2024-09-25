@@ -6,20 +6,6 @@
 
 We're so glad you would want to come and contribute! We are a small team and we are always looking for help. There are multiple opportunities to contribute at all levels, be it in documentation or code. See a gas optimization, or a bug? We'd love to hear your take! This document will be the place to get you started. Please do not be intimidated by this as this is just a helpful guide to help you navigate the process.
 
-
-## Code of Conduct
-
-The following are our code of conduct. Violations of this code of conduct can be reported to the [Team](mailto:rules@thrackle.io). 
-
-* We are committed to providing a friendly, safe and welcoming environment for all, regardless of level of experience, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, nationality, or other similar characteristic.
-* Please avoid using overtly sexual aliases or other nicknames that might detract from a friendly, safe and welcoming environment for all.
-* Please be kind and courteous. There’s no need to be mean or rude.
-* Respect that people have differences of opinion and that every design or implementation choice carries a trade-off and numerous costs. There is seldom a right answer.
-* Please keep unstructured critique to a minimum. If you have solid ideas you want to experiment with, make a fork and see how it works.
-* We will exclude you from interaction if you insult, demean or harass anyone. That is not welcome behavior. We interpret the term “harassment” as including the definition in the Citizen Code of Conduct; if you have any lack of clarity about what might be included in that concept, please read their definition. In particular, we don’t tolerate behavior that excludes people in socially marginalized groups.
-* Private harassment is also unacceptable. No matter who you are, if you feel you have been or are being harassed or made uncomfortable by a community member, please contact one of the channel ops or any of the Rust moderation team immediately. Whether you’re a regular contributor or a newcomer, we care about making this community a safe place for you and we’ve got your back.
-* Likewise any spamming, trolling, flaming, baiting or other attention-stealing behavior is not welcome.
-
 ## Asking For Help
 
 If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to the [Team](mailto:rules@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
@@ -77,8 +63,8 @@ Always make sure your commits messages are informative and describe the changes 
 2. [Upgrade Submodules][upgradeSubmodules-url]
 
 <!-- These are the body links -->
-[checkoutRepo-url]: ./CHECKOUT-REPO.md
-[upgradeSubmodules-url]: ./SUBMODULE-UPGRADE.md
+[checkoutRepo-url]: docs/contributorGuides/CHECKOUT-REPO.md
+[upgradeSubmodules-url]: docs/contributorGuides/SUBMODULE-UPGRADE.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-2.1.0-brightgreen?style=for-the-badge&logo=appveyor

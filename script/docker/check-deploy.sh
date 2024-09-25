@@ -4,18 +4,18 @@ FOUNDRY_PROFILE=local
 anvil --host 0.0.0.0 --chain-id 31337 > /dev/null &
 sleep 2
 
-./docker-scripts/deploy.sh > /dev/null
+script/docker/deploy.sh > /dev/null
 
 source .venv/bin/activate
 
 test_commands=(
   "forge test --ffi -vv --match-contract RuleProcessorDiamondTest"
   "forge test --ffi -vv --match-contract ApplicationDeploymentTest"
-  "bash deployProtocolTest.sh"
-  "bash deployAppManagerTest.sh"
-  "bash deployAppERC20Test.sh"
-  "bash deployAppERC721Test.sh"
-  "node abi-aggregator.mjs --branch main"
+  "bash script/deploy/deployProtocolTest.sh"
+  "bash script/deploy/deployAppManagerTest.sh"
+  "bash script/deploy/deployAppERC20Test.sh"
+  "bash script/deploy/deployAppERC721Test.sh"
+  "node script/deploy/abi-aggregator.mjs --branch main"
 )
 
 echo "Running tests..."

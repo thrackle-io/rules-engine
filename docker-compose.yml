@@ -19,4 +19,4 @@ services:
       - /bin/sh
       - -c
     command:
-      - ./docker-scripts/deploy.sh && /usr/bin/tail -f /dev/null
+      - script/docker/deploy.sh && /usr/bin/tail -f /dev/null
