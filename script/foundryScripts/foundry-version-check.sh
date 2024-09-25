@@ -1,6 +1,6 @@
 #!/bin/bash
-set -euo pipefail
-cd "$(dirname "$0")"
+set -xeuo pipefail
+cd "$(dirname "$0")/../.."
 
 foundry_pinned_version=$(awk '!/^#/ {print $0; exit}' script/foundryScripts/foundry.lock)
 # `forge --version` refers to the first 8 characters of the commit hash

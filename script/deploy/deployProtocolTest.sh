@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 
 # function to get input from the user
 promptForInput() {
