@@ -7,7 +7,7 @@ echo a env file will be created with all of the relevant address exports at .tes
 echo "################################################################"
 echo
 
-OUTPUTFILE="test_env"
+OUTPUTFILE=".test_env"
 
 ENV_FILE=".env"
 
@@ -44,6 +44,12 @@ if [ "$LOCAL" = "y" ]; then
     echo 
     anvil --gas-limit 80000000 &> ./anvil_output.txt &
     sleep 8
+
+    # Check for the error message in anvil_output.txt
+    if grep -q "Error: Address already in use" anvil_output.txt; then
+        echo "Error: Address already in use. Is anvil running already? Please stop the existing anvil process and try again."
+        exit 1
+    fi
 
     # Parsing anvil output to grab an adress and its private key
     ARRAY=$(cat anvil_output.txt | grep \(0\) | tr '\n' ' ')
