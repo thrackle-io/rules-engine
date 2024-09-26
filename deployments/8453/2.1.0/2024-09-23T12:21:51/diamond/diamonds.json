@@ -8,15 +8,15 @@
                 "ERC20RuleProcessorFacet": "0xeCD2D00dDe66dBBf51AbCA415359D3faed57a861",
                 "ERC721RuleProcessorFacet": "0x432e157Dbc853e9157ff2147cbFf1906ee42C0a0",
                 "RuleProcessorDiamond": "0x474d3C9FD6F35D741058Dc2d6496263669Ea49B6",
-                "ApplicationRiskProcessorFacet": "0x621aba59df4C855b9995dDA20d621a326486187c",
-                "ApplicationAccessLevelProcessorFacet": "0xADCa7D0C13E073D4520131edACD8D71129d90c46",
-                "ApplicationPauseProcessorFacet": "0x2a6B1Fde4E2c2bA37a56Cbd1e969f1e5A51e69F0",
-                "ERC20TaggedRuleProcessorFacet": "0x9766F32fA9d3Acfbb6F933aC898695884E0d0ADe",
-                "ERC721TaggedRuleProcessorFacet": "0x60965f30Ca15fC11ff1D628b7EA2f2B6E875a95a",
-                "RuleApplicationValidationFacet": "0x621aba59df4C855b9995dDA20d621a326486187c",
-                "RuleDataFacet": "0xADCa7D0C13E073D4520131edACD8D71129d90c46",
-                "TaggedRuleDataFacet": "0x2a6B1Fde4E2c2bA37a56Cbd1e969f1e5A51e69F0",
-                "AppRuleDataFacet": "0x9766F32fA9d3Acfbb6F933aC898695884E0d0ADe"
+                "ApplicationRiskProcessorFacet": "0x44d0576b40fb50807db2d1dd36c7630c228d07ab",
+                "ApplicationAccessLevelProcessorFacet": "0x8f10317043a140c8761efa6f378e3d63d17ba652",
+                "ApplicationPauseProcessorFacet": "0x8c7cc14a0253f112cdc6ea9eac53550a91db3cff",
+                "ERC20TaggedRuleProcessorFacet": "0xcd8786eb223099e9df9f7fcfd6caae3e5759b8f9",
+                "ERC721TaggedRuleProcessorFacet": "0x3cabadf6ce82d7dcf5342040138cce49157a5a4c",
+                "RuleApplicationValidationFacet": "0x27a81c8fe6095d227252b775020d3d56dd23aa0e",
+                "RuleDataFacet": "0x0061bba8ffa43b957df2327edef0aabd94cc30f2",
+                "TaggedRuleDataFacet": "0xdc77b4750c4de6dae221483ee3a43092785c3dc8",
+                "AppRuleDataFacet": "0x7b0ec6d9db7b1ce69fadefbd65f3e6d440c5d3b2"
             }
         }
     }
