@@ -1,5 +1,5 @@
 # AppAdministratorOnlyU
-[Git Source](https://github.com/thrackle-io/rules-engine/blob/6d65728d4e93813016499a87fe04f8385b777100/src/protocol/economic/AppAdministratorOnlyU.sol)
+[Git Source](https://github.com/thrackle-io/rules-engine/blob/9f8d8e88474215a5428a3c0196051d47d58e8650/src/protocol/economic/AppAdministratorOnlyU.sol)
 
 **Inherits:**
 ContextUpgradeable, [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md)
