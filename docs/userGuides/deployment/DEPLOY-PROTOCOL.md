@@ -33,7 +33,7 @@ is an overview of this deployment process:
    ````
 6. Set the version of the protocol:
    ```
-   cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
+   cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url $ETH_RPC_URL
    ```
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
@@ -44,11 +44,11 @@ is an overview of this deployment process:
          ```   
       2. Transfer the ownership to multi-sig wallet.
          ```
-         cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
+         cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $DEPLOYMENT_OWNER_KEY --rpc-url $ETH_RPC_URL
          ```
       3. Check that the owner is the multi-sig wallet:
          ```
-         cast call $RULE_PROCESSOR_DIAMOND "owner()(address)" --rpc-url ETH_RPC_URL
+         cast call $RULE_PROCESSOR_DIAMOND "owner()(address)" --rpc-url $ETH_RPC_URL
          ```
          If the response is the same address as MULTISIG_WALLET, the ownership transfer was successful. If not, repeat the process.
 
