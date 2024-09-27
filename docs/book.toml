@@ -6,7 +6,7 @@ title = ""
 no-section-label = true
 additional-js = ["solidity.min.js"]
 additional-css = ["book.css"]
-git-repository-url = "https://github.com/thrackle-io/rules-engine"
+git-repository-url = "https://github.com/thrackle-io/forte-rules-engine"
 
 [output.html.fold]
 enable = true
