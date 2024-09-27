@@ -39,4 +39,4 @@ node_modules/
 .venv/
 
 *.idea
-rules-engine/
+forte-rules-engine/

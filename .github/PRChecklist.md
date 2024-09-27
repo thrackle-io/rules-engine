@@ -1,4 +1,4 @@
-# RULES PR Checklist
+# Forte Rules Engine PR Checklist
 
 1. Make sure unit tests pass
    1. run “forge test —ffi”
