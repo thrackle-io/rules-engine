@@ -5,14 +5,11 @@
     },
     {
       "pattern": "^http://localhost"
-    },
-    {
-      "pattern": "^https://github.com/thrackle-io/rules-protocol"
     }
   ],
   "replacementPatterns": [
     {
-      "pattern": "https://github.com/thrackle-io/rules-engine",
+      "pattern": "https://github.com/thrackle-io/forte-rules-engine",
       "replacement": ""
     },
     {

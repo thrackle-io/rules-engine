@@ -3,7 +3,7 @@
 
 ---
 
-Tokens are the lifeblood of the web3 economy and with applications they are no different. However sometimes it's better when you're more easily able to craft rules for your tokens. The architecture of the rules engine necessitates that when deploying a token, you do so with it connected into what's called a "token handler". This handler will connect to your application and simplify the process of adding a variety of rules to your protocol. Once you have a deployed and configured protocol supported token, you're ready to start applying [rules](../rules/README.md)!
+Tokens are the lifeblood of the web3 economy and with applications they are no different. However sometimes it's better when you're more easily able to craft rules for your tokens. The architecture of the Forte rules engine necessitates that when deploying a token, you do so with it connected into what's called a "token handler". This handler will connect to your application and simplify the process of adding a variety of rules to your protocol. Once you have a deployed and configured protocol supported token, you're ready to start applying [rules](../rules/README.md)!
 
 ## Index
 
@@ -105,4 +105,4 @@ It's required that your token be a protocol compatible token that adheres to the
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-2.1.0-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/rules-engine
+[version-url]: https://github.com/thrackle-io/forte-rules-engine

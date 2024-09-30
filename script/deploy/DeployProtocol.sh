@@ -2,7 +2,7 @@
 # This script should only be run after the environment variables are set
 # correctly according to docs/userGuides/deployment/DEPLOY-PROTOCOL.md
 echo "################################################################"
-echo Build and deploy Rules Engine
+echo Build and deploy Forte Rules Engine
 echo "################################################################"
 echo
 

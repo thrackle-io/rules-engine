@@ -10,7 +10,7 @@
 | Term                      | Definition                                                                                                                                                  |
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. |
-| ApplicationHandler        | Connection to Rules Engine for the AppManager. Assesses and reads the rules that are activated for an application |
+| ApplicationHandler        | Connection to Forte Rules Engine for the AppManager. Assesses and reads the rules that are activated for an application |
 | TokenHandler              | Allows for applying, activating, and deactivating token specific rules.          |
 | Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution.                                    |
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol IProtocolToken and contains the protocol hook.                                                                                                |
@@ -25,4 +25,4 @@
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-2.1.0-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/rules-engine
+[version-url]: https://github.com/thrackle-io/forte-rules-engine

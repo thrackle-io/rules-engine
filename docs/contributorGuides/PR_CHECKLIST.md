@@ -1,7 +1,7 @@
 # Pull Request Checklist
 
 
-This document provides steps all developers must follow prior to submission of a Pull Request(PR) for the Rules Engine. By strictly following these steps, it streamlines the PR process, improves code quality, and reduces changes of bug introduction.
+This document provides steps all developers must follow prior to submission of a Pull Request(PR) for the Forte Rules Engine. By strictly following these steps, it streamlines the PR process, improves code quality, and reduces changes of bug introduction.
 
 
 ## Code Quality

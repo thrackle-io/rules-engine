@@ -350,4 +350,4 @@ _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-2.1.0-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/rules-engine
+[version-url]: https://github.com/thrackle-io/forte-rules-engine
