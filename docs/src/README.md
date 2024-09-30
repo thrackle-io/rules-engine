@@ -58,7 +58,7 @@ For complete usage information and documentation, please visit our [User Guide][
 ### Example Application
 
 To deploy the Forte Rules Engine and an example application, perform the following steps: 
-1. Deploy the [Rules Engine](docs/userGuides/deployment/DEPLOY-PROTOCOL.md) locally.
+1. Deploy the [Forte Rules Engine](docs/userGuides/deployment/DEPLOY-PROTOCOL.md) locally.
 2. Deploy the [Example Application](docs/userGuides/deployment/DEPLOY-EXAMPLE.md) locally.
 
 ## Contributing

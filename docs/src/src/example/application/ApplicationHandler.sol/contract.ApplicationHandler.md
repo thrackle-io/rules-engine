@@ -1,5 +1,5 @@
 # ApplicationHandler
-[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/9e3814d522f1469f798bac69a12de09ee849e2da/src/example/application/ApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/51222fa37733b5e2c25003328ad964a7e7155cb3/src/example/application/ApplicationHandler.sol)
 
 **Inherits:**
 [ProtocolApplicationHandler](/src/client/application/ProtocolApplicationHandler.sol/contract.ProtocolApplicationHandler.md)
