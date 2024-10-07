@@ -3,7 +3,7 @@
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1"
   },
-  "name": "@thrackle-io/rules-protocol-client-test",
+  "name": "@thrackle-io/forte-rules-engine",
   "version": "2.1.0",
   "description": "Set of contracts to easily start an application in rules engine",
   "dependencies": {
@@ -26,9 +26,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "chmod +x script/versioning/to_relative.sh & ./script/versioning/to_relative.sh"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thrackle-io/forte-rules-engine.git"
+  },
   "author": "Thrackle",
-  "license": "UNLICENSED",
+  "license": "SPDX-License-Identifier: BUSL-1.1",
   "bugs": {},
   "homepage": ""
 }
