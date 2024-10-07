@@ -12,7 +12,7 @@ This repository contains an EVM-based protocol designed to meet the unique needs
 To install the package, run the following command in the root of your project:
 
 ```c
-npm i @thrackle-io/rules-protocol-client
+npm i @thrackle-io/forte-rules-engine
 ```
 
 ### Dependencies
