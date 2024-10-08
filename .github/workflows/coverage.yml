@@ -25,11 +25,19 @@ jobs:
           sudo mkswap /swapfile
           sudo swapon /swapfile
           sudo swapon --show
+      
+      - name: Create Foundry Dir
+        run: |
+          mkdir -p $HOME/.foundry/bin/
+          echo "FOUNDRY_DIR=$HOME/.foundry" >> $GITHUB_ENV
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
       - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          # June 2, 2024 - Must be a release (nightly) tag
-          version: nightly-5ac78a9cd4b94dc53d1fe5e0f42372b28b5a7559
+        run: |
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $FOUNDRY_DIR/bin/foundryup
+          chmod +x $FOUNDRY_DIR/bin/foundryup
+          foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+
       - name: Install LCOV and its dependencies on Linux
         if: runner.os == 'Linux'
         # Install LCOV so we can leverage lcov and genhtml commands
@@ -46,14 +54,17 @@ jobs:
           sudo alien lcov-$VERSION-1.noarch.rpm
           sudo dpkg -i lcov_$VERSION-2_all.deb
           lcov --version
+
       - name: Install LCOV and its dependencies on MacOs
         if: runner.os == 'macOS'
         run: brew install lcov
         shell: bash
+
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Clone repository dependencies
         shell: bash
         run: |
@@ -64,19 +75,23 @@ jobs:
           pip3 install -r requirements.txt
           forge install dapphub/ds-test 
           forge install OpenZeppelin/openzeppelin-contracts
+
       - name: Build the repository
         shell: bash
         run: |
           forge clean && forge build --optimize
+
       - name: Run tests with coverage option
         shell: bash
         run: |
           forge coverage --ffi --report lcov
+
       - name: Filter the coverage reports and reformat them
         shell: bash
         run: |
           lcov --extract lcov.info 'src/*' --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info
           lcov -r lcov.info 'example' --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info
+
       - name: Report the code coverage if pull request
         if: ${{github.event_name}} == 'pull_request'
         uses: zgosalvez/github-actions-report-lcov@v3

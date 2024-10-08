@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - name: Increase swapfile
           # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
         run: |
@@ -30,11 +31,18 @@ jobs:
           sudo mkswap /swapfile
           sudo swapon /swapfile
           sudo swapon --show
+
+      - name: Create Foundry Dir
+        run: |
+          mkdir -p $HOME/.foundry/bin/
+          echo "FOUNDRY_DIR=$HOME/.foundry" >> $GITHUB_ENV
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
       - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          # June 2, 2024 - Must be a release (nightly) tag
-          version: nightly-5ac78a9cd4b94dc53d1fe5e0f42372b28b5a7559
+        run: |
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $FOUNDRY_DIR/bin/foundryup
+          chmod +x $FOUNDRY_DIR/bin/foundryup
+          foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
 
       - name: Install dependencies
         run: |
@@ -45,9 +53,11 @@ jobs:
           pip3 install eth_abi
           forge install dapphub/ds-test 
           forge install OpenZeppelin/openzeppelin-contracts
+
       - name: Build
         run: |
           forge clean && forge build --optimize
+
       - name: Test
         run: |
           forge test -vv --ffi
