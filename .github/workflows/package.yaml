@@ -20,6 +20,6 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@thrackle-io'
           always-auth: true
-      - run: npm publish
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
