@@ -17,15 +17,9 @@ WORKDIR /usr/local/src/forte-rules-engine
 
 COPY script/foundryScripts/foundry.lock .
 
-## Install Foundry via Thrackle's foundryup, allowing use of numbered versions
-## `foundry.lock` pins Foundry to a release version. Awk ignores comments
-RUN FOUNDRY_DIR=$HOME/.foundry && \
-  mkdir -p $FOUNDRY_DIR/bin && \
-  curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $FOUNDRY_DIR/bin/foundryup && \
-  chmod +x $FOUNDRY_DIR/bin/foundryup && \
-  $FOUNDRY_DIR/bin/foundryup --version $(awk '$1~/^[^#]/' foundry.lock)
-
-RUN mv $HOME/.foundry/bin/* /usr/local/bin/
+## Install Foundry via Thrackle's foundryup, using version set in foundry.lock (awk ignores comments)
+RUN curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o foundryup && \
+  FOUNDRY_DIR=/usr/local bash ./foundryup --version $(awk '$1~/^[^#]/' foundry.lock)
 
 
 ################################################
