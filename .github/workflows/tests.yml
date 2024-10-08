@@ -22,8 +22,8 @@ jobs:
         with:
           submodules: recursive
 
+      # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
       - name: Increase swapfile
-          # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
         run: |
           sudo swapoff -a
           sudo fallocate -l 15G /swapfile
@@ -32,17 +32,10 @@ jobs:
           sudo swapon /swapfile
           sudo swapon --show
 
-      - name: Create Foundry Dir
-        run: |
-          mkdir -p $HOME/.foundry/bin/
-          echo "FOUNDRY_DIR=$HOME/.foundry" >> $GITHUB_ENV
-          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
-
       - name: Install Foundry
         run: |
-          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $FOUNDRY_DIR/bin/foundryup
-          chmod +x $FOUNDRY_DIR/bin/foundryup
-          foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o foundryup
+          FOUNDRY_DIR=/usr/local sh ./foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
 
       - name: Install dependencies
         run: |
