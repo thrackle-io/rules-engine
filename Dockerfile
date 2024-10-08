@@ -1,15 +1,11 @@
 ################################################
 # 
 # `foundry-base` layer is where we build our own foundry container to use as a base image for
-# anything that needs to use forge/anvil/cast/etc. Since foundry's release process is so prone
-# to breaking things, we have opted to directly compile foundry from github using cargo, pinned to
-# a specific commit hash in their repo, thus avoiding all the issues we've had with their release
-# process and wacky install scripts.
+# anything that needs to use forge/anvil/cast/etc. This uses thrackle-io/foundry to install
+# numbered versions of foundry's tools, using a modified `foundryup` and a foundry.lock file.
+# The Foundry tools are installed as precompiled binaries providing a fast build time.
 #
-# This layer is cached and not re-built unless there is some change to foundry.lock. It may be 
-# necessary to specifically update your Docker settings to increase the max available memory in
-# a container for this base stage to successfully build. 
-#
+# This layer is cached and not re-built unless there is a change to foundry.lock.
 ################################################
 
 FROM rust:1.78.0-bookworm as foundry-base
@@ -21,13 +17,15 @@ WORKDIR /usr/local/src/forte-rules-engine
 
 COPY script/foundryScripts/foundry.lock .
 
-# --rev pins foundry to a known-good commit hash. Awk ignores comments in `foundry.lock`
-RUN cargo install \
-	--git https://github.com/foundry-rs/foundry \
-	--rev $(awk '$1~/^[^#]/' foundry.lock) \
-	--profile local \
-	--locked forge cast chisel anvil
+## Install Foundry via Thrackle's foundryup, allowing use of numbered versions
+## `foundry.lock` pins Foundry to a release version. Awk ignores comments
+RUN FOUNDRY_DIR=$HOME/.foundry && \
+  mkdir -p $FOUNDRY_DIR/bin && \
+  curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $FOUNDRY_DIR/bin/foundryup && \
+  chmod +x $FOUNDRY_DIR/bin/foundryup && \
+  $FOUNDRY_DIR/bin/foundryup --version $(awk '$1~/^[^#]/' foundry.lock)
 
+RUN mv $HOME/.foundry/bin/* /usr/local/bin/
 
 
 ################################################
@@ -43,7 +41,6 @@ FROM foundry-base as compile
 COPY . .
 RUN chmod -R a+x script/docker
 RUN script/docker/compile.sh
-
 
 
 ################################################
@@ -77,8 +74,6 @@ ENV FOUNDRY_PROFILE=local
 CMD ["script/docker/check-deploy.sh"]
 
 
-
-
 ################################################
 #
 # `deploy` layer runs the deploy scripts
@@ -96,7 +91,6 @@ CMD ["script/docker/check-deploy.sh"]
 FROM compile as deploy
 ENV FOUNDRY_PROFILE=docker
 CMD ["script/docker/deploy.sh"]
-
 
 
 ################################################
@@ -125,4 +119,3 @@ ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_REGION}
 
 CMD ["src/docker/run-necessist.sh"]
-
