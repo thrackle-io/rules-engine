@@ -16,15 +16,15 @@ jobs:
     name: Code coverage evaluation
     runs-on: ubuntu-latest-m-16
     steps:
-      - name: Increase swapfile
+      #- name: Increase swapfile
         # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 15G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          sudo swapon --show
+      #  run: |
+      #    sudo swapoff -a
+      #    sudo fallocate -l 15G /swapfile
+      #    sudo chmod 600 /swapfile
+      #    sudo mkswap /swapfile
+      #    sudo swapon /swapfile
+      #    sudo swapon --show
       
       - name: Install Foundry
         run: |
