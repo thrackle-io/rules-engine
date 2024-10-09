@@ -54,7 +54,7 @@ jobs:
 
       - name: Test
         run: |
-          forge test -vv --ffi --no-match-test invariant
+          forge test -vv --ffi --no-match-path "*invariant*"
       - name: Test Invariant
         run: |
-          forge test -vv --ffi --match-test invariant
+          forge test -vv --ffi --match-path "*invariant*"
