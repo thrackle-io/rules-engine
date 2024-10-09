@@ -14,6 +14,7 @@
     "lib/diamond-std",
     "src/client",
     "src/common",
+    "src/example",
     "src/protocol/economic/IRuleProcessor.sol",
     "src/protocol/economic/AppAdministratorOnly.sol",
     "src/protocol/economic/AppAdministratorOrOwnerOnly.sol",
