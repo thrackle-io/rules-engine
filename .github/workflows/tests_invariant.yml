@@ -14,7 +14,7 @@ env:
 
 jobs:
   build-test:
-    name: Build and Test
+    name: Build and Test Invariants
     runs-on: ubuntu-latest-m-16
 
     steps:
