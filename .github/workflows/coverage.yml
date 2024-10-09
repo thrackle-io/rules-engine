@@ -26,12 +26,7 @@ jobs:
       #    sudo swapon /swapfile
       #    sudo swapon --show
       
-      - name: Install Foundry
-        run: |
-          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $HOME/foundryup
-          FOUNDRY_DIR=$HOME/foundry bash $HOME/foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
-          echo "$HOME/foundry/bin" >> $GITHUB_PATH
-
+     
       - name: Install LCOV and its dependencies on Linux
         if: runner.os == 'Linux'
         # Install LCOV so we can leverage lcov and genhtml commands
@@ -68,7 +63,13 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install -r requirements.txt
           forge install dapphub/ds-test 
-          forge install OpenZeppelin/openzeppelin-contracts
+          forge install OpenZeppelin/openzeppelin-contract
+          
+      - name: Install Foundry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $HOME/foundryup
+          FOUNDRY_DIR=$HOME/foundry bash $HOME/foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+          echo "$HOME/foundry/bin" >> $GITHUB_PATH
 
       - name: Build the repository
         shell: bash
