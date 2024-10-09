@@ -26,8 +26,8 @@ This package requires the following:
     NOTE: In order to ensure full support, run this command to get the correct Foundry version:
 
 > [!NOTE]
-> Thrackle maintains a [modified `foundryup` tool](https://github.com/thrackle-io/foundry/tree/master/foundryup) to provide
-> numbered releases assigned to unmodified upstream binaries. 
+> Thrackle maintains a modified [`foundryup`](https://github.com/thrackle-io/foundry/tree/master/foundryup) tool 
+> to provide versioned releases assigned to releases of unmodified upstream binaries.
 
 ```c
 foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
