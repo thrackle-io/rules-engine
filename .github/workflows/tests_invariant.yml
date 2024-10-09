@@ -50,4 +50,4 @@ jobs:
           forge clean && forge build --optimize
       - name: Test
         run: |
-          forge test -vv --ffi --match-tests invariant
+          forge test -vv --ffi --match-test invariant
