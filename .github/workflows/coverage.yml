@@ -16,22 +16,17 @@ jobs:
     name: Code coverage evaluation
     runs-on: ubuntu-latest-m-16
     steps:
-      - name: Increase swapfile
+      #- name: Increase swapfile
         # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 15G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          sudo swapon --show
+      #  run: |
+      #    sudo swapoff -a
+      #    sudo fallocate -l 15G /swapfile
+      #    sudo chmod 600 /swapfile
+      #    sudo mkswap /swapfile
+      #    sudo swapon /swapfile
+      #    sudo swapon --show
       
-      - name: Install Foundry
-        run: |
-          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $HOME/foundryup
-          FOUNDRY_DIR=$HOME/foundry bash $HOME/foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
-          echo "$HOME/foundry/bin" >> $GITHUB_PATH
-
+     
       - name: Install LCOV and its dependencies on Linux
         if: runner.os == 'Linux'
         # Install LCOV so we can leverage lcov and genhtml commands
@@ -67,8 +62,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip
           pip3 install -r requirements.txt
-          forge install dapphub/ds-test 
-          forge install OpenZeppelin/openzeppelin-contracts
+          
+      - name: Install Foundry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $HOME/foundryup
+          FOUNDRY_DIR=$HOME/foundry bash $HOME/foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+          echo "$HOME/foundry/bin" >> $GITHUB_PATH
 
       - name: Build the repository
         shell: bash
