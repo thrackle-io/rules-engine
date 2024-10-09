@@ -54,4 +54,7 @@ jobs:
 
       - name: Test
         run: |
-          forge test -vv --ffi
+          forge test -vv --ffi --no-match-test invariant
+      - name: Test Invariant
+        run: |
+          forge test -vv --ffi --match-test invariant
