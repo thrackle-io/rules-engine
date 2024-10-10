@@ -14,13 +14,14 @@
     "lib/diamond-std",
     "src/client",
     "src/common",
+    "src/example",
     "src/protocol/economic/IRuleProcessor.sol",
     "src/protocol/economic/AppAdministratorOnly.sol",
     "src/protocol/economic/AppAdministratorOrOwnerOnly.sol",
     "src/protocol/economic/RuleAdministratorOnly.sol",
     "src/protocol/economic/AppAdministratorOnlyU.sol",
     "src/protocol/economic/ruleProcessor/RuleCodeData.sol",
-    "script/versioning/.sh"
+    "script/versioning/to_relative.sh"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
