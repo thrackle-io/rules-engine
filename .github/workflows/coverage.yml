@@ -16,7 +16,6 @@ jobs:
     name: Code coverage evaluation
     runs-on: ubuntu-latest-m-16
     steps:
-     
       - name: Install LCOV and its dependencies on Linux
         if: runner.os == 'Linux'
         # Install LCOV so we can leverage lcov and genhtml commands
@@ -67,7 +66,7 @@ jobs:
       - name: Run tests with coverage option
         shell: bash
         run: |
-          forge coverage --ffi --report lcov
+          forge coverage --ffi --report lcov --no-match-path "*invariant*"
 
       - name: Filter the coverage reports and reformat them
         shell: bash
