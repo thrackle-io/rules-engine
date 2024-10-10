@@ -1,6 +1,10 @@
 #!/bin/bash
-set -xeuo pipefail
+set -euo pipefail
 cd "$(dirname "$0")/../.."
+
+FOUNDRY_DIR="${FOUNDRY_DIR-"$HOME/.foundry"}"
+FOUNDRY_BIN_DIR="$FOUNDRY_DIR/bin"
+FOUNDRYUP_URL="https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup"
 
 foundry_pinned_version=$(awk '!/^#/ {print $0; exit}' script/foundryScripts/foundry.lock)
 # `forge --version` refers to the first 8 characters of the commit hash
@@ -17,7 +21,7 @@ function installed() {
 }
 
 function installed_current() {
-  command "$1" --version | grep "$foundry_version_short" >/dev/null 2>&1
+  command "$1" --version 2>&1 | grep "$foundry_version_short" >/dev/null 2>&1
 }
 
 if installed_current forge && installed_current anvil && installed_current cast; then
@@ -29,7 +33,7 @@ elif installed forge && installed anvil && installed cast; then
     echo "--skip-install used. Skipping installation..."
   else
     echo "🚀 Updating Foundry..."
-    foundryup --commit $foundry_pinned_version
+    foundryup --version $foundry_pinned_version
   fi
 else
   echo "❌ Foundry is not installed."
@@ -37,7 +41,10 @@ else
     echo "--skip-install used. Skipping installation..."
   else
     echo "🏗️ Installing Foundry..."
-    $(curl -L https://foundry.paradigm.xyz)
-    foundryup --commit $foundry_pinned_version
+    mkdir -p "$FOUNDRY_BIN_DIR"
+    PATH=$FOUNDRY_BIN_DIR:$PATH
+    curl -sSf -L "$FOUNDRYUP_URL" -o "$FOUNDRY_BIN_DIR/foundryup"
+    chmod +x "$FOUNDRY_BIN_DIR/foundryup"
+    foundryup --version $foundry_pinned_version
   fi
 fi

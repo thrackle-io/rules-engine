@@ -17,14 +17,20 @@ npm i @thrackle-io/forte-rules-engine
 
 ### Dependencies
 
+> numbered releases assigned to unmodified upstream binaries.
+
 This package requires the following:
 
 1.  Foundry
 
     NOTE: In order to ensure full support, run this command to get the correct Foundry version:
 
+> [!NOTE]
+> Thrackle maintains a modified [`foundryup`](https://github.com/thrackle-io/foundry/tree/master/foundryup) tool 
+> to provide versioned releases assigned to releases of unmodified upstream binaries.
+
 ```c
-foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
 ```
  
 2.  Scripting Requirements

@@ -21,10 +21,15 @@ This package requires the following:
 
 1.  Foundry
 
-    NOTE: In order to ensure full support, run this command to get the correct Foundry version:
+    In order to ensure full support, run this command to get the correct Foundry version:
+
+> [!NOTE]
+> As Foundry doesn't have numbered releases yet, Thrackle provides a modified `foundryup` which
+> applies version numbers on official foundry releases, using unmodified binaries.
+> See https://github.com/thrackle-io/foundry/tree/master/foundryup
 
 ```c
-foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
 ```
  
 2.  Scripting Requirements

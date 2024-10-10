@@ -9,7 +9,7 @@ This guide is intended to be a user-friendly introduction to the Forte rules eng
 ## Installation and Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install Python 3.11, Homebrew, and then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run in the root of the project's directory:
 
-`foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)` 
+`foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)` 
 
 _Note: `awk` in the above command is used to ignore comments in `foundry.lock`_
 

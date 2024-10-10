@@ -21,20 +21,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Increase swapfile
-          # https://github.com/actions/runner-images/discussions/7188#discussioncomment-6750749
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 15G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          sudo swapon --show
+
       - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          # June 2, 2024 - Must be a release (nightly) tag
-          version: nightly-5ac78a9cd4b94dc53d1fe5e0f42372b28b5a7559
+        run: |
+          curl -sSL https://raw.githubusercontent.com/thrackle-io/foundry/refs/heads/master/foundryup/foundryup -o $HOME/foundryup
+          FOUNDRY_DIR=$HOME/foundry bash $HOME/foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+          echo "$HOME/foundry/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -42,12 +34,15 @@ jobs:
           git config user.name "CloudOps Thrackle"
           sudo apt-get update
           sudo apt-get install -y python3-pip
-          pip3 install eth_abi
-          forge install dapphub/ds-test 
-          forge install OpenZeppelin/openzeppelin-contracts
+          pip3 install -r requirements.txt
+
       - name: Build
         run: |
           forge clean && forge build --optimize
+
       - name: Test
         run: |
-          forge test -vv --ffi
+          forge test -vv --ffi --no-match-path "*invariant*"
+      - name: Test Invariant
+        run: |
+          forge test -vv --ffi --match-path "*invariant*"

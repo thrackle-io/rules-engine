@@ -9,7 +9,7 @@ In order to deploy an example application with tokens, the protocol must've have
 2. [Set environmental variables](../deployment/SET-ENVIRONMENT.md) and source the .env file (`source .env`) and then feel free 
 3. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
-   foundryup --commit $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
+   foundryup --version $(awk '$1~/^[^#]/' script/foundryScripts/foundry.lock)
    ````
 
 4. In the same terminal as above, navigate to the cloned repo directory and run the build script.
