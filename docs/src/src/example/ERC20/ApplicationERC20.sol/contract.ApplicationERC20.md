@@ -1,5 +1,5 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/6da66dae531fe9b9e3ff74f1c472024c95ff4417/src/example/ERC20/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/cb826e7b7899f2d90490d1eaeb0e665e017648fa/src/example/ERC20/ApplicationERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, AccessControl, [IProtocolToken](/src/client/token/IProtocolToken.sol/interface.IProtocolToken.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), ReentrancyGuard, [ITokenEvents](/src/common/IEvents.sol/interface.ITokenEvents.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md)
@@ -65,7 +65,7 @@ function mint(address to, uint256 amount) public virtual;
 
 TRANSFER FUNCTION GROUP START
 
-*This is overridden from [IERC20-transfer](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transfer](/lib/forge-std/src/mocks/MockERC20.sol/contract.MockERC20.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Requirements:
 - `to` cannot be the zero address.
 - the caller must have a balance of at least `amount`.*
@@ -77,7 +77,7 @@ function transfer(address to, uint256 amount) public virtual override nonReentra
 
 ### transferFrom
 
-*This is overridden from [IERC20-transferFrom](/src/client/token/ERC20/IERC20Decimals.sol/interface.IERC20Decimals.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transferFrom](/lib/forge-std/src/mocks/MockERC20.sol/contract.MockERC20.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Emits an {Approval} event indicating the updated allowance. This is not
 required by the EIP. See the note at the beginning of {ERC20}.
 NOTE: Does not update the allowance if the current allowance

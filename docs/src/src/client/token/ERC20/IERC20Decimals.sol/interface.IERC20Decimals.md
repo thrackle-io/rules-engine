@@ -1,5 +1,5 @@
 # IERC20Decimals
-[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/6da66dae531fe9b9e3ff74f1c472024c95ff4417/src/client/token/ERC20/IERC20Decimals.sol)
+[Git Source](https://github.com/thrackle-io/forte-rules-engine/blob/cb826e7b7899f2d90490d1eaeb0e665e017648fa/src/client/token/ERC20/IERC20Decimals.sol)
 
 *Interface of the ERC20 standard as defined in the EIP.*
 
@@ -86,7 +86,7 @@ Ether and Wei. This is the default value returned by this function, unless
 it's overridden.
 NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract, including
-[IERC20-balanceOf](/src/client/token/ITokenInterface.sol/interface.IToken.md#balanceof) and {IERC20-transfer}.*
+[IERC20-balanceOf](/lib/forge-std/test/StdCheats.t.sol/contract.BarERC1155.md#balanceof) and {IERC20-transfer}.*
 
 
 ```solidity
